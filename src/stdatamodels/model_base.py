@@ -27,7 +27,7 @@ from . import properties
 from . import schema as mschema
 from . import validate
 from .util import get_envar_as_boolean
-from ..lib import s3_utils
+from . import s3_utils
 
 from .history import HistoryList
 

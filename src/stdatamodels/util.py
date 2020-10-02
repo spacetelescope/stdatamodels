@@ -13,8 +13,8 @@ import traceback
 import numpy as np
 from astropy.io import fits
 
-from ..lib import s3_utils
-from ..lib.basic_utils import bytes2human
+from . import s3_utils
+from .basic_utils import bytes2human
 
 import logging
 log = logging.getLogger(__name__)
