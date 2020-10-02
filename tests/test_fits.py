@@ -48,6 +48,8 @@ def records_equal(a, b):
         equal = a[i] == b[i]
     return equal
 
+
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_from_new_hdulist():
     with pytest.raises(AttributeError):
         from astropy.io import fits
@@ -56,6 +58,7 @@ def test_from_new_hdulist():
             dm.data
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_from_new_hdulist2():
     from astropy.io import fits
     hdulist = fits.HDUList()
@@ -69,6 +72,7 @@ def test_from_new_hdulist2():
         assert dq is not None
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_setting_arrays_on_fits():
     from astropy.io import fits
     hdulist = fits.HDUList()
@@ -95,12 +99,14 @@ def delete_array():
             assert len(hdulist) == 1
 
 
+@pytest.mark.skip("requires RampModel")
 def test_from_fits():
     with RampModel(FITS_FILE) as dm:
         assert dm.meta.instrument.name == 'MIRI'
         assert dm.shape == (5, 35, 40, 32)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_from_scratch():
     with ImageModel((50, 50)) as dm:
         data = np.asarray(np.random.rand(50, 50), np.float32)
@@ -117,6 +123,7 @@ def test_from_scratch():
             assert np.all(dm2.data == data)
 
 
+@pytest.mark.skip("base DataModel no longer has an instrument.name field")
 def test_delete():
     with DataModel(FITS_FILE) as dm:
         dm.meta.instrument.name = 'NIRCAM'
@@ -136,6 +143,7 @@ def test_delete():
 #         assert dm.meta.observation.date.microsecond == 314592
 
 
+@pytest.mark.skip("schemas are not available in this package")
 def test_fits_without_sci():
     from astropy.io import fits
     schema = {
@@ -169,6 +177,7 @@ def _header_to_dict(x):
     return dict((a, b) for (a, b, c) in x)
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_extra_fits():
     path = os.path.join(ROOT_DIR, "headers.fits")
 
@@ -185,6 +194,7 @@ def test_extra_fits():
         assert _header_to_dict(dm.extra_fits.PRIMARY.header)['SCIYSTRT'] == 705
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_hdu_order():
     from astropy.io import fits
 
@@ -199,6 +209,7 @@ def test_hdu_order():
         assert hdulist[3].header['EXTNAME'] == 'ERR'
 
 
+@pytest.mark.skip("requires RampModel")
 def test_casting():
     with RampModel(FITS_FILE) as dm:
         sum = np.sum(dm.data)
@@ -213,6 +224,7 @@ def test_casting():
 #         assert dm._extra_fits.PRIMARY.COMMENT == ['foobar']
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_fits_comments():
     with ImageModel() as dm:
         dm.meta.subarray.xstart = 42
@@ -231,6 +243,7 @@ def test_fits_comments():
         assert found == len(find)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_metadata_doesnt_override():
     with ImageModel() as dm:
         dm.save(TMP_FITS, overwrite=True)
@@ -243,6 +256,7 @@ def test_metadata_doesnt_override():
         assert dm.meta.instrument.filter == 'F150W2'
 
 
+@pytest.mark.skip("schemas are not available in this package")
 def test_table_with_metadata():
     schema = {
         "allOf": [
@@ -308,6 +322,7 @@ def test_table_with_metadata():
         assert hdulist[2].name == 'ASDF'
 
 
+@pytest.mark.skip("schemas are not available in this package")
 def test_replace_table():
     from astropy.io import fits
 
@@ -386,6 +401,7 @@ def test_replace_table():
         assert hdulist[1].header['TFORM2'] == 'D'
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_table_with_unsigned_int():
     schema = {
         'title': 'Test data model',

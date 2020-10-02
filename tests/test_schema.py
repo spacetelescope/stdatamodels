@@ -53,6 +53,7 @@ def teardown():
     shutil.rmtree(TMP_DIR)
 
 
+@pytest.mark.skip("base DataModel no longer has an instrument.name field")
 def test_choice():
     with pytest.raises(jsonschema.ValidationError):
         with DataModel(FITS_FILE, strict_validation=True) as dm:
@@ -60,6 +61,7 @@ def test_choice():
             dm.meta.instrument.name = 'FOO'
 
 
+@pytest.mark.skip("base DataModel no longer has a meta.target field")
 def test_set_na_ra():
     with pytest.raises(jsonschema.ValidationError):
         with DataModel(FITS_FILE, strict_validation=True) as dm:
@@ -67,6 +69,7 @@ def test_set_na_ra():
             dm.meta.target.ra = "FOO"
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_date2():
     with ImageModel((50, 50), strict_validation=True) as dm:
         time_obj = time.Time(dm.meta.date)
@@ -75,44 +78,46 @@ def test_date2():
         assert isinstance(date_obj, datetime)
 
 
-TRANSFORMATION_SCHEMA = {
-    "allOf": [
-        mschema.load_schema(os.path.join(URL_PREFIX, "image.schema"),
-            resolver=asdf.AsdfFile().resolver,
-            resolve_references=True),
-        {
-            "type": "object",
-            "properties": {
-                "meta": {
-                    "type": "object",
-                    "properties": {
-                        "transformations": {
-                            "title": "A list of transformations",
-                            "type": "array",
-                            "items": {
-                                "title": "A transformation",
-                                "type": "object",
-                                "properties": {
-                                    "type": {
-                                        "title": "Transformation type",
-                                        "type": "string"
-                                    },
-                                    "coeff": {
-                                        "title": "coefficients",
-                                        "type": "number"
-                                    }
-                                },
-                                "additionalProperties": False
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    ]
-}
+# Uses URL_PREFIX, which is currently unavailable.
+# TRANSFORMATION_SCHEMA = {
+#     "allOf": [
+#         mschema.load_schema(os.path.join(URL_PREFIX, "image.schema"),
+#             resolver=asdf.AsdfFile().resolver,
+#             resolve_references=True),
+#         {
+#             "type": "object",
+#             "properties": {
+#                 "meta": {
+#                     "type": "object",
+#                     "properties": {
+#                         "transformations": {
+#                             "title": "A list of transformations",
+#                             "type": "array",
+#                             "items": {
+#                                 "title": "A transformation",
+#                                 "type": "object",
+#                                 "properties": {
+#                                     "type": {
+#                                         "title": "Transformation type",
+#                                         "type": "string"
+#                                     },
+#                                     "coeff": {
+#                                         "title": "coefficients",
+#                                         "type": "number"
+#                                     }
+#                                 },
+#                                 "additionalProperties": False
+#                             }
+#                         }
+#                     }
+#                 }
+#             }
+#         }
+#     ]
+# }
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_list():
     with pytest.raises(jsonschema.ValidationError):
         with ImageModel((50, 50), schema=TRANSFORMATION_SCHEMA,
@@ -121,6 +126,7 @@ def test_list():
             dm.meta.transformations.item(transformation="SIN", coeff=2.0)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_list2():
     with pytest.raises(jsonschema.ValidationError):
         with ImageModel(
@@ -131,6 +137,7 @@ def test_list2():
             dm.meta.transformations.append({'transformation': 'FOO', 'coeff': 2.0})
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_invalid_fits():
     hdulist = fits.open(FITS_FILE)
     header = hdulist[0].header
@@ -231,6 +238,7 @@ def test_ad_hoc_json():
         assert dm2.meta.foo == {'a': 42, 'b': ['a', 'b', 'c']}
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_ad_hoc_fits():
     with DataModel() as dm:
         dm.meta.foo = {'a': 42, 'b': ['a', 'b', 'c']}
@@ -241,12 +249,14 @@ def test_ad_hoc_fits():
         assert dm2.meta.foo == {'a': 42, 'b': ['a', 'b', 'c']}
 
 
+@pytest.mark.skip("requires the jwst core schema")
 def test_find_fits_keyword():
     with DataModel() as x:
         assert x.find_fits_keyword('DATE-OBS') == \
           ['meta.observation.date']
 
 
+@pytest.mark.skip("core schema no longer includes meta.target")
 def test_search_schema():
     with DataModel() as x:
         results = x.search_schema('target')
@@ -256,6 +266,7 @@ def test_search_schema():
     assert 'meta.target.ra' in results
 
 
+@pytest.mark.skip("core schema no longer includes meta.subarray")
 def test_dictionary_like():
     with DataModel(strict_validation=True) as x:
         x.meta.origin = 'FOO'
@@ -278,6 +289,7 @@ def test_to_flat_dict():
         assert d['meta.origin'] == 'FOO'
 
 
+@pytest.mark.skip("jwst schemas are unavailable here")
 def test_table_array_shape_ndim():
     table_schema = {
         "allOf": [
@@ -372,12 +384,13 @@ def test_table_array_shape_ndim():
         assert str(e.value).startswith("Array has wrong number of dimensions.")
 
 
+@pytest.mark.skip("jwst schemas are unavailable here")
 def test_table_array_convert():
     """
     Test that structured arrays are converted when necessary, and
     reused as views when not.
     """
-    from jwst.datamodels import util
+    from stdatamodels import util
 
     table_schema = {
         "allOf": [
@@ -430,11 +443,13 @@ def test_table_array_convert():
         assert x.table['my_string'][0] != table['my_string'][0]
 
 
+@pytest.mark.skip("requires MaskModel")
 def test_mask_model():
     with MaskModel(MASK_FILE) as dm:
         assert dm.dq.dtype == np.uint32
 
 
+@pytest.mark.skip("jwst schemas are unavailable here")
 def test_data_array():
     data_array_schema = {
         "allOf": [
@@ -522,6 +537,7 @@ def test_data_array():
              (None, None)])
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_model():
     array1 = np.asarray(np.random.rand(2, 2), dtype='float32')
     array2 = np.asarray(np.random.rand(2, 2), dtype='float32')
@@ -544,6 +560,7 @@ def test_multislit_model():
         assert_array_equal(ms.slits[0].data, array2)
 
 
+@pytest.mark.skip("requires RampModel")
 def test_implicit_creation_lower_dimensionality():
     with RampModel(np.zeros((10, 20, 30, 40))) as rm:
         assert rm.pixeldq.shape == (30, 40)
@@ -562,11 +579,13 @@ def test_add_schema_entry():
             assert False
 
 
+@pytest.mark.skip("requires AsnModel")
 def test_table_size_zero():
     with AsnModel() as dm:
         assert len(dm.asn_table) == 0
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_copy_multslit():
     model1 = MultiSlitModel()
     model2 = MultiSlitModel()
@@ -591,6 +610,7 @@ def test_copy_multslit():
     assert output.slits[0].data[330, 330] == -1
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_move_from_fits():
     from astropy.io import fits
 
@@ -610,6 +630,7 @@ def test_multislit_move_from_fits():
         assert len(n.slits) == 1
 
 
+@pytest.mark.skip("requires CollimatorModel")
 def test_validate_transform():
     """
     Tests that custom types, like transform, can be validated.
@@ -624,6 +645,7 @@ def test_validate_transform():
     m.validate()
 
 
+@pytest.mark.skip("requires CollimatorModel")
 def test_validate_transform_from_file():
     """
     Tests that custom types, like transform, can be validated.
@@ -633,6 +655,7 @@ def test_validate_transform_from_file():
         m.validate()
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_append_string():
     with pytest.raises(jsonschema.ValidationError):
         m = MultiSlitModel(strict_validation=True)
@@ -673,6 +696,7 @@ def test_merge_property_trees(combiner):
     assert f == s
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_schema_docstring():
     template = "{fits_hdu} {title}"
     docstring = build_docstring(ImageModel, template).split("\n")
@@ -680,7 +704,8 @@ def test_schema_docstring():
         assert docstring[i].startswith(hdu)
 
 
-@pytest.mark.parametrize("model", [v for v in defined_models.values()])
+# @pytest.mark.parametrize("model", [v for v in defined_models.values()])
+@pytest.mark.skip("defined_models is not available in this package")
 def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
@@ -695,6 +720,7 @@ def test_all_datamodels_init(model):
         model()
 
 
+@pytest.mark.skip("jwst schemas are unavailable here")
 def test_datamodel_schema_entry_points():
     """Test that entry points for DataModelExtension works as expected"""
     resolver = asdf.AsdfFile().resolver

@@ -1,6 +1,4 @@
 """Project default for pytest"""
-import os
-import tempfile
 import pytest
 
 import helpers

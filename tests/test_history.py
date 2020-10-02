@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 import numpy as np
 from astropy.io import fits
 from astropy.time import Time
@@ -43,6 +45,8 @@ def test_historylist_methods():
     h1.clear()
     assert len(h1) == 0, "Clear history list"
 
+
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_history_from_model_to_fits(tmpdir):
     tmpfits = str(tmpdir.join('tmp.fits'))
     m = DataModel()
@@ -74,6 +78,7 @@ def test_history_from_model_to_fits(tmpdir):
                                                       "Second entry"]
 
 
+@pytest.mark.skip("requires access to jwst model implementations")
 def test_history_from_fits(tmpdir):
     tmpfits = str(tmpdir.join('tmp.fits'))
     header = fits.Header()

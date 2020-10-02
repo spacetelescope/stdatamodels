@@ -32,6 +32,7 @@ def mock_get_available_memory(monkeypatch):
     monkeypatch.setattr(util, 'get_available_memory', mock)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 @pytest.mark.parametrize(
     'allowed_env, allowed_explicit, result',
     [
@@ -57,6 +58,7 @@ def test_check_memory_allocation_env(monkeypatch, mock_get_available_memory,
     assert can_allocate is result
 
 
+@pytest.mark.skip("requires jwst model implementations")
 @pytest.mark.parametrize(
     'dim, allowed, include_swap, result',
     [
@@ -75,6 +77,7 @@ def test_check_memory_allocation(mock_get_available_memory, dim, allowed, includ
     assert can_allocate is result
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_from_pathlib():
     """Test opening a PurePath object"""
     path = Path(t_path('test.fits'))
@@ -82,27 +85,29 @@ def test_open_from_pathlib():
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(path) as model:
+        with stdatamodels.open(path) as model:
             assert isinstance(model, DataModel)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_fits():
     """Test opening a model from a FITS file"""
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
         fits_file = t_path('test.fits')
-        with datamodels.open(fits_file) as model:
+        with stdatamodels.open(fits_file) as model:
             assert isinstance(model, DataModel)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_fits_s3(s3_root_dir):
     """Test opening a model from a FITS file on S3"""
     path = str(s3_root_dir.join("test.fits"))
     with DataModel() as dm:
         dm.save(path)
 
-    with datamodels.open("s3://test-s3-data/test.fits") as m:
+    with stdatamodels.open("s3://test-s3-data/test.fits") as m:
         assert isinstance(m, DataModel)
 
 
@@ -112,42 +117,47 @@ def test_open_asdf_s3(s3_root_dir):
     with DataModel() as dm:
         dm.save(path)
 
-    with datamodels.open("s3://test-s3-data/test.asdf") as m:
+    with stdatamodels.open("s3://test-s3-data/test.asdf") as m:
         assert isinstance(m, DataModel)
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_open_association():
     """Test for opening an association"""
 
     asn_file = t_path('association.json')
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(asn_file) as c:
+        with stdatamodels.open(asn_file) as c:
             assert isinstance(c, ModelContainer)
             for model in c:
                 assert model.meta.asn.table_name == "association.json"
                 assert model.meta.asn.pool_name == "pool"
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_container_open_asn_with_sourcecat():
     path = t_path("association_w_cat.json")
-    with datamodels.open(path, asn_exptypes="science") as c:
+    with stdatamodels.open(path, asn_exptypes="science") as c:
         for model in c:
             assert model.meta.asn.table_name == "association_w_cat.json"
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_open_shape():
     init = (200, 200)
-    with datamodels.open(init) as model:
+    with stdatamodels.open(init) as model:
         assert type(model) == ImageModel
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_illegal():
     with pytest.raises(ValueError):
         init = 5
-        datamodels.open(init)
+        stdatamodels.open(init)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_hdulist():
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
@@ -156,18 +166,20 @@ def test_open_hdulist():
     science = fits.ImageHDU(data=data, name='SCI')
     hdulist.append(science)
 
-    with datamodels.open(hdulist) as model:
+    with stdatamodels.open(hdulist) as model:
         assert type(model) == ImageModel
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_open_image():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
         image_name = t_path('jwst_image.fits')
-        with datamodels.open(image_name) as model:
+        with stdatamodels.open(image_name) as model:
             assert type(model) == ImageModel
 
 
+@pytest.mark.skip("requires RampModel")
 def test_open_ramp(tmpdir):
     """Open 4D data without a DQ as RampModel"""
     path = str(tmpdir.join("ramp.fits"))
@@ -178,10 +190,11 @@ def test_open_ramp(tmpdir):
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(path) as model:
+        with stdatamodels.open(path) as model:
             assert isinstance(model, RampModel)
 
 
+@pytest.mark.skip("requires CubeModel")
 def test_open_cube(tmpdir):
     """Open 3D data as CubeModel"""
     path = str(tmpdir.join("ramp.fits"))
@@ -192,16 +205,17 @@ def test_open_cube(tmpdir):
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(path) as model:
+        with stdatamodels.open(path) as model:
             assert isinstance(model, CubeModel)
 
 
-@pytest.mark.parametrize("model_class, shape", [
-    (ReferenceFileModel, None),
-    (ReferenceImageModel, (10, 10)),
-    (ReferenceCubeModel, (3, 3, 3)),
-    (ReferenceQuadModel, (2, 2, 2, 2)),
-])
+@pytest.mark.skip("requires Reference*Model")
+# @pytest.mark.parametrize("model_class, shape", [
+#     (ReferenceFileModel, None),
+#     (ReferenceImageModel, (10, 10)),
+#     (ReferenceCubeModel, (3, 3, 3)),
+#     (ReferenceQuadModel, (2, 2, 2, 2)),
+# ])
 def test_open_reffiles(tmpdir, model_class, shape):
     """Try opening files with a REFTYPE keyword and different data/dq shapes"""
     path = str(tmpdir.join("reffile.fits"))
@@ -214,10 +228,11 @@ def test_open_reffiles(tmpdir, model_class, shape):
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(path) as model:
+        with stdatamodels.open(path) as model:
             assert isinstance(model, model_class)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_open_fits_readonly(tmpdir):
     """Test opening a FITS-format datamodel that is read-only on disk"""
     tmpfile = str(tmpdir.join('readonly.fits'))
@@ -233,10 +248,11 @@ def test_open_fits_readonly(tmpdir):
     os.chmod(tmpfile, 0o440)
     assert os.access(tmpfile, os.W_OK) == False
 
-    with datamodels.open(tmpfile) as model:
+    with stdatamodels.open(tmpfile) as model:
         assert model.meta.telescope == 'JWST'
 
 
+@pytest.mark.skip("requires DistortionModel")
 def test_open_asdf_readonly(tmpdir):
     tmpfile = str(tmpdir.join('readonly.asdf'))
 
@@ -250,7 +266,7 @@ def test_open_asdf_readonly(tmpdir):
     os.chmod(tmpfile, 0o440)
     assert os.access(tmpfile, os.W_OK) == False
 
-    with datamodels.open(tmpfile) as model:
+    with stdatamodels.open(tmpfile) as model:
         assert model.meta.telescope == 'JWST'
 
 # Utilities

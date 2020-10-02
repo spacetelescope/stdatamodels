@@ -1,6 +1,4 @@
 """General utility objects"""
-import re
-
 
 def bytes2human(n):
     """Convert bytes to human-readable format

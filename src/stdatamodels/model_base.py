@@ -701,13 +701,15 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             If `return_result` is `True`, a list of the locations in
             the schema where this FITS keyword is used.  Each element
             is a dot-separated path.
-
-        Example
-        -------
-        >>> model = DataModel()
-        >>> model.find_fits_keyword('DATE-OBS')
-        ['meta.observation.date']
         """
+        # Example removed b/c DataModel schema no longer includes
+        # FITS keywords:
+        # Example
+        # -------
+        # >>> model = DataModel()
+        # >>> model.find_fits_keyword('DATE-OBS')
+        # ['meta.observation.date']
+        # """
         from . import schema
         return schema.find_fits_keyword(self.schema, keyword)
 

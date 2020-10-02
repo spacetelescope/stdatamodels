@@ -86,6 +86,7 @@ def make_models(tmpdir_factory):
     }
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_init_from_pathlib(make_models):
     """Test initializing model from a PurePath object"""
     path = Path(make_models['model'])
@@ -95,6 +96,7 @@ def test_init_from_pathlib(make_models):
     assert isinstance(model, ImageModel)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 @pytest.mark.parametrize(
     'which_file, skip_fits_update, expected_exp_type',
     [
@@ -108,7 +110,7 @@ def test_init_from_pathlib(make_models):
 )
 @pytest.mark.parametrize(
     'open_func',
-    [DataModel, datamodels.open]
+    [DataModel, stdatamodels.open]
 )
 @pytest.mark.parametrize(
     'use_env',
@@ -143,6 +145,7 @@ def test_skip_fits_update(jail_environ,
     assert model.meta.exposure.type == expected_exp_type
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_set_shape():
     with ImageModel((50, 50)) as dm:
         assert dm.shape == (50, 50)
@@ -151,12 +154,14 @@ def test_set_shape():
             dm.shape = (42, 23)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_broadcast():
     with ImageModel((50, 50)) as dm:
         data = np.empty((50,))
         dm.dq = data
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_broadcast2():
     with ImageModel() as dm:
         data = np.empty((52, 50))
@@ -166,11 +171,12 @@ def test_broadcast2():
         dm.dq = dq
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_from_hdulist():
     from astropy.io import fits
     warnings.simplefilter("ignore")
     with fits.open(FITS_FILE, memmap=False) as hdulist:
-        with datamodels.open(hdulist) as dm:
+        with stdatamodels.open(hdulist) as dm:
             dm.data
         assert not hdulist.fileinfo(0)['file'].closed
 
@@ -180,6 +186,7 @@ def delete_array():
         del dm.data
 
 
+@pytest.mark.skip("base model no longer includes attribute meta.subarray")
 def test_subarray():
     with DataModel(FITS_FILE) as dm:
         dm.meta.subarray.xstart
@@ -209,12 +216,14 @@ def roundtrip(func):
     return test
 
 
+@pytest.mark.skip("base model no longer includes attribute meta.instrument")
 @roundtrip
 def test_from_fits_write(dm):
     dm.to_fits(TMP_FITS, overwrite=True)
     return DataModel.from_fits(TMP_FITS)
 
 
+@pytest.mark.skip("base model no longer includes attribute meta.instrument")
 def test_delete():
     with DataModel() as dm:
         dm.meta.instrument.name = 'NIRCAM'
@@ -223,23 +232,25 @@ def test_delete():
         assert dm.meta.instrument.name is None
 
 
+@pytest.mark.skip("requires QuadModel")
 def test_open():
-    with datamodels.open():
+    with stdatamodels.open():
         pass
 
-    with datamodels.open((50, 50)):
+    with stdatamodels.open((50, 50)):
         pass
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
-        with datamodels.open(FITS_FILE) as dm:
+    with pytest.warns(stdatamodels.util.NoTypeWarning):
+        with stdatamodels.open(FITS_FILE) as dm:
             assert isinstance(dm, QuadModel)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_warning():
     with warnings.catch_warnings(record=True) as warners:
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
-        with datamodels.open(FITS_FILE) as model:
+        with stdatamodels.open(FITS_FILE) as model:
             pass
 
         class_name = model.__class__.__name__
@@ -250,6 +261,7 @@ def test_open_warning():
         assert j is not None
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_copy():
     with ImageModel((50, 50)) as dm:
         dm.meta.instrument.name = "NIRCAM"
@@ -267,6 +279,7 @@ def test_copy():
             assert dm.meta.observation.obs_id is None
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_stringify(tmpdir):
     im = DataModel()
     assert str(im) == '<DataModel>'
@@ -282,25 +295,29 @@ def test_stringify(tmpdir):
         assert str(im) == '<MaskModel(2048, 2048) from nircam_mask.fits>'
 
 
+@pytest.mark.skip("requires QuadModel")
 def test_section():
     with QuadModel((5, 35, 40, 32)) as dm:
         section = dm.get_section('data')[3:4, 1:3]
         assert section.shape == (1, 2, 40, 32)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_init_with_array():
     array = np.empty((50, 50))
-    with datamodels.open(array) as dm:
+    with stdatamodels.open(array) as dm:
         assert dm.data.shape == (50, 50)
         assert isinstance(dm, ImageModel)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_init_with_array2():
     array = np.empty((50, 50))
     with ImageModel(array) as dm:
         assert dm.data.shape == (50, 50)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_init_with_array3():
     with pytest.raises(ValueError):
         array = np.empty((50,))
@@ -308,6 +325,7 @@ def test_init_with_array3():
             dm.data
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_set_array():
     with pytest.raises(ValueError):
         with ImageModel() as dm:
@@ -315,6 +333,7 @@ def test_set_array():
             dm.data = data
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_set_array2():
     with ImageModel() as dm:
         data = np.empty((50, 50))
@@ -327,6 +346,7 @@ def test_base_model_has_no_arrays():
             dm.data
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_array_type():
     with ImageModel() as dm:
         assert dm.dq.dtype == np.uint32
@@ -338,11 +358,13 @@ def test_copy_model():
             assert hasattr(dm2, 'meta')
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_dtype_match():
     with ImageModel() as dm:
         dm.data = np.array([[1, 2, 3]], np.float32)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_default_value_anyof_schema():
     """Make sure default values are set properly when anyOf in schema"""
     with ImageModel((100, 100)) as im:
@@ -354,6 +376,7 @@ def test_default_value_anyof_schema():
         assert val.instance == {}
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_imagemodel():
     dims = (10, 10)
     with ImageModel(dims) as dm:
@@ -369,6 +392,7 @@ def test_imagemodel():
         assert dm.pathloss_uniform.shape == dims
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit():
     with MultiSlitModel() as dm:
         dm.slits.append(dm.slits.item())
@@ -382,12 +406,14 @@ def test_multislit():
         assert slit.barshadow.shape == (0, 0)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_secondary_shapes():
     with ImageModel((256, 256)) as dm:
         assert dm.dq.shape == (256, 256)
         dm.dq = [1]
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_multislit_from_image():
     with ImageModel((64, 64)) as im:
         with MultiSlitModel(im) as ms:
@@ -395,6 +421,7 @@ def test_multislit_from_image():
             assert ms.slits[0].data.shape == (64, 64)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_multislit_from_fits_image():
     with ImageModel((64, 64)) as im:
         im.save(TMP_FITS, overwrite=True)
@@ -411,6 +438,7 @@ def test_multislit_from_fits_image():
         assert len(ms2.slits) == 1
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_metadata():
     with MultiSlitModel() as ms:
         with ImageModel((64, 64)) as im:
@@ -421,6 +449,7 @@ def test_multislit_metadata():
         assert ms.slits[0].name == "FOO"
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_metadata2():
     with MultiSlitModel() as ms:
         ms.slits.append(ms.slits.item())
@@ -428,6 +457,7 @@ def test_multislit_metadata2():
             assert isinstance(val, (bytes, str, int, float, bool, Time))
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_copy():
     with MultiSlitModel() as input:
         for i in range(4):
@@ -463,6 +493,7 @@ def test_multislit_copy():
         assert len(output.slits) == 4
 
 
+@pytest.mark.skip("requires jwst schemas")
 def test_model_with_nonstandard_primary_array():
     ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -488,6 +519,7 @@ def test_model_with_nonstandard_primary_array():
     list(m.keys())
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_initialize_arrays_with_arglist():
     shape = (10, 10)
     thirteen = np.full(shape, 13.0)
@@ -516,6 +548,7 @@ def test_open_asdf_model_s3(s3_root_dir):
     assert isinstance(model, DataModel)
 
 
+@pytest.mark.skip("requires jwst model implementations")
 def test_open_fits_model_s3(s3_root_dir):
     path = str(s3_root_dir.join("test.fits"))
     with DataModel() as dm:
@@ -525,6 +558,7 @@ def test_open_fits_model_s3(s3_root_dir):
     assert isinstance(model, DataModel)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_image_with_extra_keyword_to_multislit():
     with ImageModel((32, 32)) as im:
         im.save(TMP_FITS, overwrite=True)
@@ -567,6 +601,7 @@ def datamodel_for_update(tmpdir):
     return tmpfile
 
 
+@pytest.mark.skip("requires ImageModel")
 @pytest.mark.parametrize("extra_fits", [True, False])
 @pytest.mark.parametrize("only", [None, "PRIMARY", "SCI"])
 def test_update_from_datamodel(tmpdir, datamodel_for_update, only, extra_fits):
@@ -619,6 +654,7 @@ def test_update_from_datamodel(tmpdir, datamodel_for_update, only, extra_fits):
                 assert "CRVAL1" in hdulist["SCI"].header
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_update_from_dict(tmpdir):
     """Test update method from a dictionary"""
     tmpfile = str(tmpdir.join("update.fits"))
@@ -651,15 +687,18 @@ def container():
         yield c
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_iteration(container):
     for model in container:
         assert model.meta.telescope == 'JWST'
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_indexing(container):
     assert isinstance(container[0], DataModel)
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_group1(container):
     for group in container.models_grouped:
         assert len(group) == 2
@@ -667,6 +706,7 @@ def test_modelcontainer_group1(container):
             pass
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_group2(container):
     container[0].meta.observation.exposure_number = '2'
     for group in container.models_grouped:
@@ -676,6 +716,7 @@ def test_modelcontainer_group2(container):
     container[0].meta.observation.exposure_number = '1'
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_group_names(container):
     assert len(container.group_names) == 1
     reset_group_id(container)
@@ -683,6 +724,7 @@ def test_modelcontainer_group_names(container):
     assert len(container.group_names) == 2
 
 
+@pytest.mark.skip("requires ModelContainer")
 def test_modelcontainer_error_from_asn(tmpdir):
     from jwst.associations.asn_from_list import asn_from_list
 
@@ -697,6 +739,7 @@ def test_modelcontainer_error_from_asn(tmpdir):
         datamodels.open(path)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_object_node_iterator():
     im = ImageModel()
     items = []
@@ -713,6 +756,7 @@ def test_hasattr():
     assert not model.meta.hasattr('filename')
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_validate_on_read():
     """ Test for proper validation error
 
@@ -727,6 +771,7 @@ def test_validate_on_read():
             ImageModel(hduls, schema=schema, strict_validation=True)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_validate_required_field():
     im = ImageModel((10, 10), strict_validation=True)
     schema = im.meta._schema
@@ -739,6 +784,7 @@ def test_validate_required_field():
     im.validate_required_fields()
 
 
+@pytest.mark.skip("requires MultiSlitModel")
 def test_multislit_model():
     data = np.arange(24, dtype=np.float32).reshape((6, 4))
     err = np.arange(24, dtype=np.float32).reshape((6, 4)) + 2
@@ -759,6 +805,7 @@ def test_multislit_model():
     assert_allclose(slit1.data, data + 1)
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_slit_from_image():
     data = np.arange(24, dtype=np.float32).reshape((6, 4))
     im = ImageModel(data=data, err=data/2, dq=data)
@@ -782,6 +829,7 @@ def test_slit_from_image():
     assert type(im) == ImageModel
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_ifuimage():
     data = np.arange(24, dtype=np.float32).reshape((6, 4))
     im = ImageModel(data=data, err=data/2, dq=data)
@@ -799,6 +847,7 @@ def test_datamodel_raises_filenotfound():
         DataModel(init='file_does_not_exist.fits')
 
 
+@pytest.mark.skip("requires ABVegaOffsetModel")
 def test_abvega_offset_model():
     filepath = os.path.join(ROOT_DIR, 'nircam_abvega_offset.asdf')
     model = ABVegaOffsetModel(filepath)
@@ -867,6 +916,7 @@ def test_get_envar_as_boolean(case, default, expected, jail_environ):
     assert value == expected
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_getarray_noinit_valid():
     """Test for valid value return"""
     arr = np.ones((5, 5))
@@ -875,6 +925,7 @@ def test_getarray_noinit_valid():
     assert (fetched == arr).all()
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_getarray_noinit_raises():
     """Test for error when accessing non-existent array"""
     arr = np.ones((5, 5))
@@ -883,6 +934,7 @@ def test_getarray_noinit_raises():
         model.getarray_noinit('area')
 
 
+@pytest.mark.skip("requires ImageModel")
 def test_getarray_noinit_noinit():
     """Test that calling on a non-existant array does not initialize that array"""
     arr = np.ones((5, 5))
