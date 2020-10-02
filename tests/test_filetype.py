@@ -1,6 +1,6 @@
 import pytest
 
-from ..filetype import check
+from stdatamodels.filetype import check
 
 SUPPORTED_EXTS = (('fits', 'fits'), ('json', 'asn'), ('asdf', 'asdf'))  # (ext, expected filetype)
 

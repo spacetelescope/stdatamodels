@@ -11,11 +11,12 @@ import pytest
 import numpy as np
 from astropy.io import fits
 
-from jwst.datamodels import (DataModel, ModelContainer, ImageModel,
-    DistortionModel, RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
-    ReferenceCubeModel, ReferenceQuadModel)
-from jwst import datamodels
-from jwst.datamodels import util
+# from jwst.datamodels import (DataModel, ModelContainer, ImageModel,
+#     DistortionModel, RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
+#     ReferenceCubeModel, ReferenceQuadModel)
+from stdatamodels import DataModel
+import stdatamodels
+from stdatamodels import util
 
 # Define artificial memory size
 MEMORY = 100  # 100 bytes

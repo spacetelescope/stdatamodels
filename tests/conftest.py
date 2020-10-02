@@ -3,10 +3,8 @@ import os
 import tempfile
 import pytest
 
-from jwst.associations import (AssociationRegistry, AssociationPool)
-from jwst.associations.tests.helpers import t_path
-from jwst.lib.tests import helpers as lib_helpers
-from jwst.lib import s3_utils
+import helpers
+from stdatamodels import s3_utils
 
 
 @pytest.fixture(autouse=True)
@@ -16,7 +14,7 @@ def monkey_patch_s3_client(monkeypatch, request):
         path = request.getfixturevalue("s3_root_dir")
     else:
         path = None
-    monkeypatch.setattr(s3_utils, "_CLIENT", lib_helpers.MockS3Client(path))
+    monkeypatch.setattr(s3_utils, "_CLIENT", helpers.MockS3Client(path))
 
 
 @pytest.fixture

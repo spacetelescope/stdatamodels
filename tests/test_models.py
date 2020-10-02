@@ -13,12 +13,13 @@ import numpy as np
 from numpy.testing import assert_allclose
 from astropy.io import fits
 
-from jwst.datamodels import (DataModel, ImageModel, MaskModel, QuadModel,
-                             MultiSlitModel, ModelContainer, SlitModel,
-                             SlitDataModel, IFUImageModel, ABVegaOffsetModel)
-from jwst import datamodels
-from jwst.datamodels.util import get_envar_as_boolean
-from jwst.lib.file_utils import pushdir
+# from jwst.datamodels import (DataModel, ImageModel, MaskModel, QuadModel,
+#                              MultiSlitModel, ModelContainer, SlitModel,
+#                              SlitDataModel, IFUImageModel, ABVegaOffsetModel)
+from stdatamodels import DataModel
+import stdatamodels
+from stdatamodels.util import get_envar_as_boolean
+# from jwst.lib.file_utils import pushdir
 
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')

@@ -1,7 +1,7 @@
 import pytest
 
-from jwst.lib import s3_utils
-from . import helpers
+from stdatamodels import s3_utils
+import helpers
 
 
 @pytest.fixture

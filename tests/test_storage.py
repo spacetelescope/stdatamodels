@@ -1,5 +1,5 @@
 import numpy as np
-from .. import util
+from stdatamodels import util
 
 
 def test_gentle_asarray():

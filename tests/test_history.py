@@ -6,7 +6,7 @@ from astropy.time import Time
 
 from asdf.tags.core import HistoryEntry
 
-from .. import DataModel
+from stdatamodels import DataModel
 
 
 def test_historylist_methods():
