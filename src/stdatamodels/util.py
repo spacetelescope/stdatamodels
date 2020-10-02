@@ -107,9 +107,10 @@ def open(init=None, memmap=False, **kwargs):
             file_to_close = hdulist
 
         elif file_type == "asn":
+            raise NotImplementedError("stdatamodels does not yet support associations")
             # Read the file as an association / model container
-            from . import container
-            return container.ModelContainer(init, **kwargs)
+            # from . import container
+            # return container.ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
             # Read the file as asdf, no need for a special class
@@ -128,8 +129,9 @@ def open(init=None, memmap=False, **kwargs):
         hdulist = init
 
     elif is_association(init) or isinstance(init, list):
-        from . import container
-        return container.ModelContainer(init, **kwargs)
+        raise NotImplementedError("stdatamodels does not yet support associations")
+        # from . import container
+        # return container.ModelContainer(init, **kwargs)
 
     # If we have it, determine the shape from the science hdu
     if hdulist:
@@ -199,100 +201,104 @@ def _class_from_model_type(hdulist):
     """
     Get the model type from the primary header, lookup to get class
     """
-    from . import _defined_models as defined_models
+    raise NotImplementedError("stdatamodels does not yet support automatic model class selection")
+    # from . import _defined_models as defined_models
 
-    if hdulist:
-        primary = hdulist[0]
-        model_type = primary.header.get('DATAMODL')
+    # if hdulist:
+    #     primary = hdulist[0]
+    #     model_type = primary.header.get('DATAMODL')
 
-        if model_type is None:
-            new_class = None
-        else:
-            new_class = defined_models.get(model_type)
-    else:
-        new_class = None
+    #     if model_type is None:
+    #         new_class = None
+    #     else:
+    #         new_class = defined_models.get(model_type)
+    # else:
+    #     new_class = None
 
-    return new_class
+    # return new_class
 
 
 def _class_from_ramp_type(hdulist, shape):
     """
     Special check to see if file is ramp file
     """
-    if not hdulist:
-        new_class = None
-    else:
-        if len(shape) == 4:
-            try:
-                hdulist['DQ']
-            except KeyError:
-                from . import ramp
-                new_class = ramp.RampModel
-            else:
-                new_class = None
-        else:
-            new_class = None
+    raise NotImplementedError("stdatamodels does not yet support automatic model class selection")
+    # if not hdulist:
+    #     new_class = None
+    # else:
+    #     if len(shape) == 4:
+    #         try:
+    #             hdulist['DQ']
+    #         except KeyError:
+    #             from . import ramp
+    #             new_class = ramp.RampModel
+    #         else:
+    #             new_class = None
+    #     else:
+    #         new_class = None
 
-    return new_class
+    # return new_class
 
 
 def _class_from_reftype(hdulist, shape):
     """
     Get the class name from the reftype and other header keywords
     """
-    if not hdulist:
-        new_class = None
+    raise NotImplementedError("stdatamodels does not yet support automatic model class selection")
+    # if not hdulist:
+    #     new_class = None
 
-    else:
-        primary = hdulist[0]
-        reftype = primary.header.get('REFTYPE')
-        if reftype is None:
-            new_class = None
+    # else:
+    #     primary = hdulist[0]
+    #     reftype = primary.header.get('REFTYPE')
+    #     if reftype is None:
+    #         new_class = None
 
-        else:
-            from . import reference
-            if len(shape) == 0:
-                new_class = reference.ReferenceFileModel
-            elif len(shape) == 2:
-                new_class = reference.ReferenceImageModel
-            elif len(shape) == 3:
-                new_class = reference.ReferenceCubeModel
-            elif len(shape) == 4:
-                new_class = reference.ReferenceQuadModel
-            else:
-                new_class = None
+    #     else:
+    #         from . import reference
+    #         if len(shape) == 0:
+    #             new_class = reference.ReferenceFileModel
+    #         elif len(shape) == 2:
+    #             new_class = reference.ReferenceImageModel
+    #         elif len(shape) == 3:
+    #             new_class = reference.ReferenceCubeModel
+    #         elif len(shape) == 4:
+    #             new_class = reference.ReferenceQuadModel
+    #         else:
+    #             new_class = None
 
-    return new_class
+    # return new_class
 
 
 def _class_from_shape(hdulist, shape):
     """
     Get the class name from the shape
     """
-    if len(shape) == 0:
-        from . import model_base
-        new_class = model_base.DataModel
-    elif len(shape) == 4:
-        from . import quad
-        new_class = quad.QuadModel
-    elif len(shape) == 3:
-        from . import cube
-        new_class = cube.CubeModel
-    elif len(shape) == 2:
-        try:
-            hdulist[('SCI', 2)]
-        except (KeyError, NameError):
-            # It's an ImageModel
-            from . import image
-            new_class = image.ImageModel
-        else:
-            # It's a MultiSlitModel
-            from . import multislit
-            new_class = multislit.MultiSlitModel
-    else:
-        new_class = None
+    raise NotImplementedError("stdatamodels does not yet support automatic model class selection")
+    # if len(shape) == 0:
+    #     from . import model_base
+    #     new_class = model_base.DataModel
+    # elif len(shape) == 4:
+    #     from . import quad
+    #     new_class = quad.QuadModel
+    # elif len(shape) == 3:
+    #     from . import cube
+    #     new_class = cube.CubeModel
+    # elif len(shape) == 2:
+    #     try:
+    #         hdulist[('SCI', 2)]
+    #     except (KeyError, NameError):
+    #         # It's an ImageModel
+    #         from . import image
+    #         new_class = image.ImageModel
+    #     else:
+    #         # It's a MultiSlitModel
+    #         from . import multislit
+    #         new_class = multislit.MultiSlitModel
+    # else:
+    #     new_class = None
 
-    return new_class
+    # return new_class
 
 
 def can_broadcast(a, b):
