@@ -32,12 +32,32 @@ from . import s3_utils
 from .history import HistoryList
 
 
+# This minimal schema creates metadata fields that
+# are accessed to be available by the core DataModel code.
+_DEFAULT_SCHEMA = {
+    "properties": {
+        "meta": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string",
+                },
+                "date": {
+                    "type": "string",
+                },
+                "model_type": {
+                    "type": "string",
+                },
+            },
+        },
+    },
+}
+
+
 class DataModel(properties.ObjectNode, ndmodel.NDModel):
     """
     Base class of all of the data models.
     """
-    schema_url = "http://stsci.edu/schemas/jwst_datamodel/core.schema"
-
     def __init__(self, init=None, schema=None, memmap=False,
                  pass_invalid_values=None, strict_validation=None,
                  ignore_missing_extensions=True, **kwargs):
@@ -117,11 +137,14 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
         # Load the schema files
         if schema is None:
-            # Create an AsdfFile so we can use its resolver for loading schemas
-            asdf_file = AsdfFile()
-            schema = asdf_schema.load_schema(self.schema_url,
-                                             resolver=asdf_file.resolver,
-                                             resolve_references=True)
+            if self.schema_url is None:
+                schema = _DEFAULT_SCHEMA
+            else:
+                # Create an AsdfFile so we can use its resolver for loading schemas
+                asdf_file = AsdfFile()
+                schema = asdf_schema.load_schema(self.schema_url,
+                                                resolver=asdf_file.resolver,
+                                                resolve_references=True)
 
         self._schema = mschema.merge_property_trees(schema)
 
@@ -262,6 +285,17 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                                                                 attr)
                 if 'datatype' in subschema:
                     setattr(self, attr, value)
+
+    @property
+    def schema_url(self):
+        """
+        The schema URI to validate the model against.  If
+        None, no validation will occur.
+        Returns
+        -------
+        str or None
+        """
+        return None
 
     @property
     def _model_type(self):
