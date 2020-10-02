@@ -149,10 +149,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                 schema = _DEFAULT_SCHEMA
             else:
                 # Create an AsdfFile so we can use its resolver for loading schemas
-                asdf_file = AsdfFile()
-                schema = asdf_schema.load_schema(self.schema_url,
-                                                resolver=asdf_file.resolver,
-                                                resolve_references=True)
+                schema = asdf_schema.load_schema(self.schema_url, resolve_references=True)
 
         self._schema = mschema.merge_property_trees(schema)
 
