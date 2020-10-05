@@ -58,6 +58,14 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
     """
     Base class of all of the data models.
     """
+
+    schema_url = None
+    """
+    The schema URI to validate the model against.  If
+    None, only basic validation of required metadata
+    properties (filename, date, model_type) will occur.
+    """
+
     def __init__(self, init=None, schema=None, memmap=False,
                  pass_invalid_values=None, strict_validation=None,
                  ignore_missing_extensions=True, **kwargs):
@@ -285,17 +293,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                                                                 attr)
                 if 'datatype' in subschema:
                     setattr(self, attr, value)
-
-    @property
-    def schema_url(self):
-        """
-        The schema URI to validate the model against.  If
-        None, no validation will occur.
-        Returns
-        -------
-        str or None
-        """
-        return None
 
     @property
     def _model_type(self):

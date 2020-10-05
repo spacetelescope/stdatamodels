@@ -530,6 +530,7 @@ def test_initialize_arrays_with_arglist():
     assert np.array_equal(im.dq, bitz)
 
 
+@pytest.mark.skip("the test file is jwst-specific")
 @pytest.mark.parametrize("init", [None, ASDF_FILE])
 def test_open_asdf_model(init):
     # Open an empty asdf file, pass extra arguments
