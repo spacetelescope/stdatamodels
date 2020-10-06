@@ -1,0 +1,36 @@
+os: linux
+dist: xenial
+language: python
+python: 3.8
+
+jobs:
+  include:
+    - name: Python 3.8
+      env: TOXENV=py38
+
+    - name: Coverage
+      env: TOXENV=coverage
+
+    - name: Code style checks
+      env: TOXENV=style
+
+    - name: Bandit security audit
+      env: TOXENV=bandit
+
+    - name: macOS
+      env:
+        - TOXENV=py38
+        - PATH=/usr/local/opt/python@3.8/bin:$PATH
+      os: osx
+      osx_image: xcode12
+      language: shell
+      addons:
+        homebrew:
+          packages:
+            - python@3.8
+      install:
+        - pip3 install tox
+
+install: pip install tox
+
+script: tox
