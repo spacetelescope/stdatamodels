@@ -678,7 +678,10 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
         return False
 
     # Ensure model types match
-    hdulist_class = util._class_from_model_type(hdulist)
+    # TODO: This doesn't work as written in stdatamodels because
+    # we don't have access to the jwst DataModel subclasses.
+    # hdulist_class = util._class_from_model_type(hdulist)
+    hdulist_class = None
     if hdulist_class is None:
         log.debug('Cannot determine model of the FITS file.'
                   ' Cannot skip updating from FITS headers.')

@@ -17,7 +17,7 @@ from astropy.io import fits
 #                              MultiSlitModel, ModelContainer, SlitModel,
 #                              SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels import DataModel
-import stdatamodels
+# from jwst import datamodels
 from stdatamodels.util import get_envar_as_boolean
 # from jwst.lib.file_utils import pushdir
 
@@ -108,10 +108,10 @@ def test_init_from_pathlib(make_models):
         ('model',     True,  'NRC_IMAGE')
     ]
 )
-@pytest.mark.parametrize(
-    'open_func',
-    [DataModel, stdatamodels.open]
-)
+# @pytest.mark.parametrize(
+#     'open_func',
+#     [DataModel, datamodels.open]
+# )
 @pytest.mark.parametrize(
     'use_env',
     [False, True]
@@ -176,7 +176,7 @@ def test_from_hdulist():
     from astropy.io import fits
     warnings.simplefilter("ignore")
     with fits.open(FITS_FILE, memmap=False) as hdulist:
-        with stdatamodels.open(hdulist) as dm:
+        with datamodels.open(hdulist) as dm:
             dm.data
         assert not hdulist.fileinfo(0)['file'].closed
 
@@ -234,14 +234,14 @@ def test_delete():
 
 @pytest.mark.skip("requires QuadModel")
 def test_open():
-    with stdatamodels.open():
+    with datamodels.open():
         pass
 
-    with stdatamodels.open((50, 50)):
+    with datamodels.open((50, 50)):
         pass
 
     with pytest.warns(stdatamodels.util.NoTypeWarning):
-        with stdatamodels.open(FITS_FILE) as dm:
+        with datamodels.open(FITS_FILE) as dm:
             assert isinstance(dm, QuadModel)
 
 
@@ -250,7 +250,7 @@ def test_open_warning():
     with warnings.catch_warnings(record=True) as warners:
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
-        with stdatamodels.open(FITS_FILE) as model:
+        with datamodels.open(FITS_FILE) as model:
             pass
 
         class_name = model.__class__.__name__
@@ -305,7 +305,7 @@ def test_section():
 @pytest.mark.skip("requires jwst model implementations")
 def test_init_with_array():
     array = np.empty((50, 50))
-    with stdatamodels.open(array) as dm:
+    with datamodels.open(array) as dm:
         assert dm.data.shape == (50, 50)
         assert isinstance(dm, ImageModel)
 
