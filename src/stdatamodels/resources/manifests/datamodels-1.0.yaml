@@ -1,0 +1,13 @@
+id: http://stsci.edu/datamodels/manifests/datamodels-1.0
+extension_uri: http://stsci.edu/datamodels/extensions/bozo-1.0
+title: Datamodels extension 1.0
+description: |-
+  A set of tags for serializing STScI datamodels.
+asdf_standard_requirement:
+  gte: 1.1.0
+tags:
+- tag_uri: tag:stsci.edu:datamodels/bozo-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/bozo-1.0.0
+  title: Bozo datamodel
+  description: |-
+    Representation of clowns
