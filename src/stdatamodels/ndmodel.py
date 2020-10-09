@@ -9,7 +9,6 @@ import collections
 from astropy.units import Quantity
 from astropy.nddata import nddata_base
 
-from . import util
 from . import filetype
 from . import properties
 
@@ -65,8 +64,14 @@ def read(data, *args, **kwargs):
     else:
         unit = kwargs.get("unit")
 
+    raise NotImplementedError("open function not available in stdatamodels")
+
     # Create the model using the transformed arguments
-    model = util.open(data, **xargs)
+    # TODO: We don't have access to the open function in stdatamodels,
+    # since the current plan is to implement that in the jwst
+    # and romancal packages.
+    # model = util.open(data, **xargs)
+    model = None
 
     # Add attributes passed as keyword arguments to model
     if unit:
