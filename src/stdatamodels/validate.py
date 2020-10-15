@@ -4,9 +4,7 @@ Functions that support validation of model changes
 
 import warnings
 import jsonschema
-from asdf import AsdfFile
 from asdf import schema as asdf_schema
-from asdf.util import HashableDict
 from asdf import yamlutil
 
 
@@ -14,45 +12,28 @@ class ValidationWarning(Warning):
     pass
 
 
-def value_change(path, value, schema, pass_invalid_values,
-                 strict_validation):
+def value_change(path, value, schema, ctx):
     """
     Validate a change in value against a schema.
     Trap error and return a flag.
     """
     try:
-        _check_value(value, schema)
+        _check_value(value, schema, ctx)
         update = True
 
     except jsonschema.ValidationError as error:
         update = False
         errmsg = _error_message(path, error)
-        if pass_invalid_values:
+        if ctx._pass_invalid_values:
             update = True
-        if strict_validation:
+        if ctx._strict_validation:
             raise jsonschema.ValidationError(errmsg)
         else:
             warnings.warn(errmsg, ValidationWarning)
     return update
 
 
-def _check_type(validator, types, instance, schema):
-    """
-    Callback to check data type. Skips over null values.
-    """
-    if instance is None:
-        errors = []
-    else:
-        errors = asdf_schema.validate_type(validator, types,
-                                           instance, schema)
-    return errors
-
-
-validator_callbacks = HashableDict(asdf_schema.YAML_VALIDATORS)
-validator_callbacks.update({'type': _check_type})
-
-
-def _check_value(value, schema):
+def _check_value(value, schema, ctx):
     """
     Perform the actual validation.
     """
@@ -62,21 +43,8 @@ def _check_value(value, schema):
             raise jsonschema.ValidationError("%s is a required value"
                                               % name)
     else:
-        validator_context = AsdfFile()
-        validator_resolver = validator_context.resolver
-
-        temp_schema = {
-            '$schema':
-            'http://stsci.edu/schemas/asdf-schema/0.1.0/asdf-schema'}
-        temp_schema.update(schema)
-        validator = asdf_schema.get_validator(temp_schema,
-                                              validator_context,
-                                              validator_callbacks,
-                                              validator_resolver)
-
-        value = yamlutil.custom_tree_to_tagged_tree(value, validator_context)
-        validator.validate(value, _schema=temp_schema)
-        validator_context.close()
+        value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
+        asdf_schema.validate(value, schema=schema)
 
 
 def _error_message(path, error):

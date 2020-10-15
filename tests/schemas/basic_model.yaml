@@ -1,0 +1,11 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/basic_model
+title: Basic model with a data array and minimal metadata.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      data:
+        ndim: 2
+        datatype: float32

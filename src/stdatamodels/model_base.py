@@ -389,9 +389,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         """
         Re-validate the model instance againsst its schema
         """
-        validate.value_change(str(self), self._instance, self._schema,
-                              self._pass_invalid_values,
-                              self._strict_validation)
+        validate.value_change(str(self), self._instance, self._schema, self)
 
     def validate_required_fields(self):
         """
@@ -411,9 +409,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                 if node is None:
                     break
 
-            validate.value_change(path, node, schema,
-                                  ctx._pass_invalid_values,
-                                  ctx._strict_validation)
+            validate.value_change(path, node, schema, self)
 
         mschema.walk_schema(self._schema, callback, ctx=self)
 

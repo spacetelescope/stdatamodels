@@ -477,13 +477,9 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 ctx.get('hdu_index'), known_keywords)
 
             if result is None:
-                validate.value_change(path, result, schema,
-                                      context._pass_invalid_values,
-                                      context._strict_validation)
+                validate.value_change(path, result, schema, context)
             else:
-                if validate.value_change(path, result, schema,
-                                         context._pass_invalid_values,
-                                         context._strict_validation):
+                if validate.value_change(path, result, schema, context):
                     properties.put_value(path, result, tree)
 
         elif 'fits_hdu' in schema and (
@@ -492,13 +488,9 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 hdulist, schema, ctx.get('hdu_index'), known_datas)
 
             if result is None:
-                validate.value_change(path, result, schema,
-                                      context._pass_invalid_values,
-                                      context._strict_validation)
+                validate.value_change(path, result, schema, context)
             else:
-                if validate.value_change(path, result, schema,
-                                         context._pass_invalid_values,
-                                         context._strict_validation):
+                if validate.value_change(path, result, schema, context):
                     properties.put_value(path, result, tree)
 
         if schema.get('type') == 'array':
