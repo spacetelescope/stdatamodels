@@ -88,6 +88,7 @@ def gentle_asarray(a, dtype):
             raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
         return a
 
+
 def get_short_doc(schema):
     title = schema.get('title', None)
     description = schema.get('description', None)
