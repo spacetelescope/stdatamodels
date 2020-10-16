@@ -35,3 +35,6 @@ def test_is_s3_uri(s3_text_file):
 def test_split_uri(s3_text_file):
     assert s3_utils.split_uri("s3://test-s3-data/key") == ("test-s3-data", "key")
     assert s3_utils.split_uri("s3://test-s3-data/some/longer/key") == ("test-s3-data", "some/longer/key")
+    with pytest.raises(ValueError):
+        s3_utils.split_uri("not a URI")
+
