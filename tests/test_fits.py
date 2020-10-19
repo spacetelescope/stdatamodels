@@ -13,6 +13,9 @@ from asdf import schema as mschema
 from stdatamodels import DataModel
 # from jwst.datamodels.util import open
 
+from stdatamodels import fits_support
+
+
 ROOT_DIR = None
 FITS_FILE = None
 TMP_FITS = None
@@ -484,3 +487,28 @@ def test_metadata_from_fits():
 
 #     with DataModel(TMP_FITS) as dm:
 #         assert dm.meta.subarray.xstart == 42.7
+
+
+def test_get_short_doc():
+    assert fits_support.get_short_doc({}) == ""
+    assert fits_support.get_short_doc({"title": "Some schema title."}) == "Some schema title."
+    assert fits_support.get_short_doc({
+        "title": "Some schema title.\nWhoops, another line."
+    }) == "Some schema title."
+    assert fits_support.get_short_doc({
+        "title": "Some schema title.",
+        "description": "Some schema description.",
+    }) == "Some schema title."
+    assert fits_support.get_short_doc({
+        "description": "Some schema description.",
+    }) == "Some schema description."
+    assert fits_support.get_short_doc({
+        "description": "Some schema description.\nWhoops, another line.",
+    }) == "Some schema description."
+
+
+def test_ensure_ascii():
+    for inp in [b"ABCDEFG", "ABCDEFG"]:
+        fits_support.ensure_ascii(inp) == "ABCDEFG"
+
+

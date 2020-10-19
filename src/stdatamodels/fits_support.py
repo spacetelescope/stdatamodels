@@ -208,7 +208,7 @@ def _fits_comment_section_handler(validator, properties, instance, schema):
     title = schema.get('title')
     if title is not None:
         current_comment_stack = validator.comment_stack
-        current_comment_stack.append(util.ensure_ascii(title))
+        current_comment_stack.append(ensure_ascii(title))
 
     for property, subschema in properties.items():
         if property in instance:
@@ -238,12 +238,12 @@ def _fits_element_writer(validator, fits_keyword, instance, schema):
         hdu.header.append((' ', ''), end=True)
     validator.comment_stack = []
 
-    comment = util.ensure_ascii(util.get_short_doc(schema))
-    instance = util.ensure_ascii(instance)
+    comment = ensure_ascii(get_short_doc(schema))
+    instance = ensure_ascii(instance)
 
     if fits_keyword in ('COMMENT', 'HISTORY'):
         for item in instance:
-            hdu.header[fits_keyword] = util.ensure_ascii(item)
+            hdu.header[fits_keyword] = ensure_ascii(item)
     elif fits_keyword in hdu.header:
         hdu.header[fits_keyword] = (instance, comment)
     else:
@@ -729,3 +729,24 @@ def fits_hash(hdulist):
             if hdu.name != 'ASDF').encode()
         )
     return fits_hash.hexdigest()
+
+
+def get_short_doc(schema):
+    title = schema.get('title', None)
+    description = schema.get('description', None)
+    if description is None:
+        description = title or ''
+    else:
+        if title is not None:
+            description = title + '\n\n' + description
+    return description.partition('\n')[0]
+
+
+def ensure_ascii(s):
+    # TODO: This function seems to only ever receive
+    # string input.  Also it's not checking that the
+    # characters in the string fall within the valid
+    # range for FITS headers.
+    if isinstance(s, bytes):
+        s = s.decode('ascii')
+    return s

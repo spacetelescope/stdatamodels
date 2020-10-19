@@ -139,29 +139,6 @@ def test_gentle_asarray_invalid_conversion():
         util.gentle_asarray(object(), dtype=np.float32)
 
 
-def test_get_short_doc():
-    assert util.get_short_doc({}) == ""
-    assert util.get_short_doc({"title": "Some schema title."}) == "Some schema title."
-    assert util.get_short_doc({
-        "title": "Some schema title.\nWhoops, another line."
-    }) == "Some schema title."
-    assert util.get_short_doc({
-        "title": "Some schema title.",
-        "description": "Some schema description.",
-    }) == "Some schema title."
-    assert util.get_short_doc({
-        "description": "Some schema description.",
-    }) == "Some schema description."
-    assert util.get_short_doc({
-        "description": "Some schema description.\nWhoops, another line.",
-    }) == "Some schema description."
-
-
-def test_ensure_ascii():
-    for inp in [b"ABCDEFG", "ABCDEFG"]:
-        util.ensure_ascii(inp) == "ABCDEFG"
-
-
 def test_create_history_entry():
     entry = util.create_history_entry("Once upon a time...")
     assert isinstance(entry, HistoryEntry)
