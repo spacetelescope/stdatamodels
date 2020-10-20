@@ -128,24 +128,29 @@ def test_validation_on_delete():
     assert model.meta.required_keyword is None
 
 
-def test_pass_invalid_values_attribute_assignment(monkeypatch):
-    def assert_passed(model, passed):
-        with pytest.warns(ValidationWarning):
-            model.meta.string_attribute = 42
-        if passed:
-            assert model.meta.string_attribute == 42
-        else:
-            assert model.meta.string_attribute is None
+@pytest.mark.parametrize(
+    "init_value,env_value,passed",
+    [
+        (None, None, False),
+        (True, None, True),
+        (False, None, False),
+        (None, "true", True),
+        (None, "false", False),
+    ],
+)
+def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_value, passed):
+    if env_value is not None:
+        monkeypatch.setenv("PASS_INVALID_VALUES", env_value)
 
-    assert_passed(ValidationModel(), False)
-    assert_passed(ValidationModel(pass_invalid_values=True), True)
-    assert_passed(ValidationModel(pass_invalid_values=False), False)
+    model = ValidationModel(pass_invalid_values=init_value)
 
-    monkeypatch.setenv("PASS_INVALID_VALUES", "true")
-    assert_passed(ValidationModel(), True)
+    with pytest.warns(ValidationWarning):
+        model.meta.string_attribute = 42
 
-    monkeypatch.setenv("PASS_INVALID_VALUES", "false")
-    assert_passed(ValidationModel(), False)
+    if passed:
+        assert model.meta.string_attribute == 42
+    else:
+        assert model.meta.string_attribute is None
 
 
 @pytest.mark.xfail(reason="validation on write not yet implemented for ASDF files", strict=True)
@@ -161,26 +166,30 @@ def test_pass_invalid_values_on_write(tmp_path):
         assert af["meta"]["string_attribute"] == 42
 
 
-def test_strict_validation_attribute_assignment(monkeypatch):
-    def assert_strict(model, strict):
-        if strict:
-            with pytest.raises(ValidationError):
-                model.meta.string_attribute = 42
-            assert model.meta.string_attribute is None
-        else:
-            with pytest.warns(ValidationWarning):
-                model.meta.string_attribute = 42
-            assert model.meta.string_attribute is None
+@pytest.mark.parametrize(
+    "init_value,env_value,exception_class",
+    [
+        (None, None, ValidationWarning),
+        (True, None, ValidationError),
+        (False, None, ValidationWarning),
+        (None, "true", ValidationError),
+        (None, "false", ValidationWarning),
+    ],
+)
+def test_strict_validation_attribute_assignment(monkeypatch, init_value, env_value, exception_class):
+    if env_value is not None:
+        monkeypatch.setenv("STRICT_VALIDATION", env_value)
 
-    assert_strict(ValidationModel(), False)
-    assert_strict(ValidationModel(strict_validation=True), True)
-    assert_strict(ValidationModel(strict_validation=False), False)
+    model = ValidationModel(strict_validation=init_value)
 
-    monkeypatch.setenv("STRICT_VALIDATION", "true")
-    assert_strict(ValidationModel(), True)
-
-    monkeypatch.setenv("STRICT_VALIDATION", "false")
-    assert_strict(ValidationModel(), False)
+    if issubclass(exception_class, Warning):
+        with pytest.warns(exception_class):
+            model.meta.string_attribute = 42
+        assert model.meta.string_attribute is None
+    else:
+        with pytest.raises(exception_class):
+            model.meta.string_attribute = 42
+        assert model.meta.string_attribute is None
 
 
 def test_validate():
@@ -198,7 +207,7 @@ def test_validate():
         model.validate()
 
 
-def test_validate_required_fields():
+def test_validate_fits_required_fields():
     model = FitsRequiredModel()
 
     with pytest.warns(ValidationWarning):
@@ -211,8 +220,8 @@ def test_validate_required_fields():
     assert len(warnings) == 0
 
 
-@pytest.mark.xfail(reason="validation on read not yet implemented for ASDF files", strict=True)
-def test_validation_on_read(tmp_path):
+@pytest.mark.xfail(reason="validation on init not yet implemented for ASDF files", strict=True)
+def test_validation_on_init(tmp_path):
     file_path = tmp_path/"test.asdf"
     with asdf.AsdfFile() as af:
         af["meta"] = {"string_attribute": "foo"}
