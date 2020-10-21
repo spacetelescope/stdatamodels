@@ -1,0 +1,19 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/fits_required_model
+title: Model with fits_required keywords and HDUs.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      meta:
+        type: object
+        properties:
+          required_keyword:
+            type: string
+            fits_required: true
+            fits_keyword: REQKWRD
+
+      required_hdu:
+        fits_required: true
+        fits_hdu: 1

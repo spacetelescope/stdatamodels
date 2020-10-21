@@ -7,7 +7,6 @@ from astropy.io import fits
 
 from astropy.utils.compat.misc import override__dir__
 
-from asdf import yamlutil
 from asdf.tags.core import ndarray
 
 from . import util
@@ -144,6 +143,7 @@ def _get_schema_type(schema):
         elif schema_type != a_type:
             schema_type = 'mixed'
             break
+
     return schema_type
 
 
@@ -259,10 +259,7 @@ class Node():
         self._ctx = ctx
 
     def _validate(self):
-        instance = yamlutil.custom_tree_to_tagged_tree(self._instance,
-                                                       self._ctx._asdf)
-        return validate.value_change(self._name, instance, self._schema,
-                                      False, self._ctx._strict_validation)
+        return validate.value_change(self._name, self._instance, self._schema, self._ctx)
 
     @property
     def instance(self):
@@ -326,15 +323,12 @@ class ObjectNode(Node):
             del self.__dict__[attr]
         else:
             schema = _get_schema_for_property(self._schema, attr)
-            if not validate.value_change(attr, None, schema, False,
-                                          self._ctx._strict_validation):
-                return
-
-            try:
-                del self._instance[attr]
-            except KeyError:
-                raise AttributeError(
-                    "Attribute '{0}' missing".format(attr))
+            if validate.value_change(attr, None, schema, self._ctx) or self._ctx._pass_invalid_values:
+                try:
+                    del self._instance[attr]
+                except KeyError:
+                    raise AttributeError(
+                        "Attribute '{0}' missing".format(attr))
 
     def __iter__(self):
         return NodeIterator(self)
