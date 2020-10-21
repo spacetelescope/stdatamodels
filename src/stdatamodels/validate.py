@@ -42,6 +42,9 @@ def _check_value(value, schema, ctx):
             name = schema.get("fits_keyword") or schema.get("fits_hdu")
             raise jsonschema.ValidationError("%s is a required value"
                                               % name)
+        # Unless fits_required is set, do not validate None values.  These are
+        # regarded as missing in DataModel, and will eventually be stripped out
+        # when the model is saved to FITS or ASDF.
     else:
         value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
         asdf_schema.validate(value, schema=schema)
