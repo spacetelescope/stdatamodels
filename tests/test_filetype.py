@@ -1,40 +1,63 @@
+import io
+import json
+
 import pytest
+import asdf
+from astropy.io import fits
 
 from stdatamodels.filetype import check
 
-SUPPORTED_EXTS = (('fits', 'fits'), ('json', 'asn'), ('asdf', 'asdf'))  # (ext, expected filetype)
+
+@pytest.mark.parametrize(
+    "filename,expected_filetype",
+    [
+        ("test_file.fits", "fits"),
+        ("test_file.fits.gz", "fits"),
+        ("test_file.json", "asn"),
+        ("test_file.json.gz", "asn"),
+        ("test_file.asdf", "asdf"),
+        ("test_file.asdf.gz", "asdf"),
+        ("stpipe.MyPipeline.fits", "fits"),
+        ("stpipe.MyPipeline.fits.gz", "fits"),
+    ],
+)
+def test_supported_filename(filename, expected_filetype):
+    assert check(filename) == expected_filetype
 
 
-@pytest.fixture(params=SUPPORTED_EXTS)
-def input_file(request):
-    return f'test_file.{request.param[0]}', request.param[-1]
-
-
-@pytest.fixture(params=['stpipe.MyPipeline.fits', 'stpipe.MyPipeline.fits.gz'])
-def pipeline_file(request):
-    return request.param
-
-
-def test_check_on_str_init(input_file):
-    filename, expected = input_file
-    filetype = check(filename)
-
-    assert filetype == expected
-
-
-def test_check_fails_on_unsupported_ext():
+@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4"])
+def test_unsupported_filename(filename):
     with pytest.raises(ValueError):
-        check('test_file')
+        check(filename)
 
 
-def test_check_works_for_zipped(input_file):
-    filename, expected = input_file
-    filename += '.gz'  # extra zip extension
+def test_seekable_file_object():
+    buff = io.BytesIO()
+    with asdf.AsdfFile() as af:
+        af.write_to(buff)
+    buff.seek(0)
+    assert check(buff) == "asdf"
 
-    filetype = check(filename)
+    buff = io.BytesIO()
+    hdul = fits.HDUList(fits.PrimaryHDU())
+    hdul.writeto(buff)
+    buff.seek(0)
+    assert check(buff) == "fits"
 
-    assert filetype == expected
+    buff = io.BytesIO()
+    buff.write(json.dumps({"foo": "bar"}).encode("utf-8"))
+    buff.seek(0)
+    assert check(buff) == "asn"
+
+    # Too short
+    buff = io.BytesIO(b"FOO")
+    with pytest.raises(ValueError):
+        check(buff)
 
 
-def test_check_works_for_pipeline_patters(pipeline_file):
-    assert check(pipeline_file) == 'fits'
+def test_non_seekable_object():
+    with pytest.raises(ValueError):
+        check(object())
+
+
+
