@@ -156,6 +156,8 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # Provide the object as context to other classes and functions
         self._ctx = self
 
+        self._asdf = AsdfFile()
+
         # Determine what kind of input we have (init) and execute the
         # proper code to intiailize the model
         self._files_to_close = []
