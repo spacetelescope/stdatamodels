@@ -156,6 +156,11 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # Provide the object as context to other classes and functions
         self._ctx = self
 
+        # Initialize with an empty AsdfFile instance as this is needed for
+        # reading in FITS files where validate._check_value() gets called, and
+        # ctx needs to have an _asdf attribute.
+        self._asdf = AsdfFile()
+
         # Determine what kind of input we have (init) and execute the
         # proper code to intiailize the model
         self._files_to_close = []
