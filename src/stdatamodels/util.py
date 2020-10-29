@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 from astropy.io import fits
+import asdf
 
 import logging
 log = logging.getLogger(__name__)
@@ -165,3 +166,26 @@ def get_envar_as_boolean(name, default=False):
 
     log.debug(f'Environmental "{name}" cannot be found. Using default value of "{default}".')
     return default
+
+
+def get_model_type(init):
+    """
+    Fetch the model type string from the underlying file object.
+
+    Parameters
+    ----------
+    init : asdf.AsdfFile or astropy.io.fits.HDUList
+
+    Returns
+    -------
+    str or None
+    """
+    if isinstance(init, asdf.AsdfFile):
+        if "meta" in init:
+            return init["meta"].get("model_type")
+        else:
+            return None
+    elif isinstance(init, fits.HDUList):
+        return init[0].header.get("DATAMODL")
+    else:
+        raise TypeError(f"Unhandled init type: {init.__class__.__name__}")

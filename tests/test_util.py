@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
+import asdf
 from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -200,3 +201,14 @@ def test_get_envar_as_boolean_invalid(monkeypatch):
     monkeypatch.setenv("TEST_VAR", "foo")
     with pytest.raises(ValueError):
         assert util.get_envar_as_boolean("TEST_VAR")
+
+
+def test_get_model_type():
+    assert util.get_model_type(asdf.AsdfFile()) is None
+    assert util.get_model_type(asdf.AsdfFile({"meta": {"model_type": "SomeModel"}})) == "SomeModel"
+
+    assert util.get_model_type(fits.HDUList([fits.PrimaryHDU()])) is None
+
+    hdu = fits.PrimaryHDU()
+    hdu.header["DATAMODL"] = "SomeOtherModel"
+    assert util.get_model_type(fits.HDUList([hdu])) == "SomeOtherModel"
