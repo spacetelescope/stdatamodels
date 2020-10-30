@@ -670,16 +670,9 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
         return False
 
     # Ensure model types match
-    # TODO: This doesn't work as written in stdatamodels because
-    # we don't have access to the jwst DataModel subclasses.
-    # hdulist_class = util._class_from_model_type(hdulist)
-    hdulist_class = None
-    if hdulist_class is None:
-        log.debug('Cannot determine model of the FITS file.'
-                  ' Cannot skip updating from FITS headers.')
-        return False
-    if not isinstance(context, hdulist_class):
-        log.debug(f'Input model {hdulist_class} does not match the'
+    hdulist_model_type = util.get_model_type(hdulist)
+    if hdulist_model_type != context.__class__.__name__:
+        log.debug(f'Input model type {hdulist_model_type} does not match the'
                   f' requested model {type(context)}.'
                   ' Cannot skip updating from FITS headers.')
         return False
