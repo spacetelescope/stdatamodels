@@ -46,8 +46,12 @@ def _check_value(value, schema, ctx):
         # regarded as missing in DataModel, and will eventually be stripped out
         # when the model is saved to FITS or ASDF.
     else:
+        # The YAML_VALIDATORS dictionary excludes the ASDF ndarray validators
+        # (datatype, shape, ndim, max_ndim), which we can't use here because
+        # they don't fully support recarray columns whose elements are arrays.
+        # Currently ndarray validation is handled in properties._cast instead.
         value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
-        asdf_schema.validate(value, schema=schema)
+        asdf_schema.validate(value, schema=schema, validators=asdf_schema.YAML_VALIDATORS)
 
 
 def _error_message(path, error):
