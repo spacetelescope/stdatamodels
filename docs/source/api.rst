@@ -1,0 +1,4 @@
+stdatamodels API
+================
+
+.. automodapi:: stdatamodels
