@@ -17,6 +17,9 @@ jobs:
     - name: Bandit security audit
       env: TOXENV=bandit
 
+    - name: Build documentation and check warnings
+      env: TOXENV=build-docs
+
     - name: macOS
       env:
         - TOXENV=py38
