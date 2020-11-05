@@ -250,3 +250,17 @@ def test_getarray_noinit_noinit():
     except AttributeError:
         pass
     assert 'area' not in model.instance
+
+
+@pytest.mark.parametrize("filename", ["null.fits", "null.asdf"])
+def test_skip_serializing_null(tmp_path, filename):
+    """Make sure that None is not written out to the ASDF tree"""
+    file_path = tmp_path/filename
+    with BasicModel() as model:
+        model.meta.telescope = None
+        model.save(file_path)
+
+    with BasicModel(file_path) as model:
+        # Make sure that 'telescope' is not in the tree
+        with pytest.raises(KeyError):
+            assert model.meta["telescope"] is None
