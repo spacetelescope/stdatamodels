@@ -359,14 +359,20 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         _drop_array(self._instance)
 
     def close(self):
-        if not self._iscopy:
-            if self._asdf is not None:
+        # This method is called by __del__, which may be invoked
+        # even when the model failed to initialize.  Consequently,
+        # we can't assume that any attributes have been set.
+        if hasattr(self, "_iscopy") and not self._iscopy:
+            if hasattr(self, "_asdf") and self._asdf is not None:
                 self._asdf.close()
+
+            if hasattr(self, "_instance"):
                 self._drop_arrays()
 
-            for fd in self._files_to_close:
-                if fd is not None:
-                    fd.close()
+            if hasattr(self, "_files_to_close"):
+                for fd in self._files_to_close:
+                    if fd is not None:
+                        fd.close()
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
