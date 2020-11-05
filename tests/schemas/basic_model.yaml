@@ -25,3 +25,4 @@ allOf:
         ndim: 2
         datatype: float32
         default: 0.0
+...

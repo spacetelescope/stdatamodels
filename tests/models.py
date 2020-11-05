@@ -11,9 +11,6 @@ class BasicModel(DataModel):
     """
     schema_url = "http://example.com/schemas/basic_model"
 
-    def get_primary_array_name(self):
-        return "data"
-
 
 class ValidationModel(DataModel):
     """

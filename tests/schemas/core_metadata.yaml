@@ -13,3 +13,4 @@ properties:
         type: string
       model_type:
         type: string
+...
