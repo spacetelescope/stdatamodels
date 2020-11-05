@@ -44,11 +44,6 @@ def test_broadcast2():
         dm.dq = dq
 
 
-def delete_array():
-    with BasicModel() as m:
-        del m.data
-
-
 def test_delete():
     with BasicModel() as dm:
         dm.meta.telescope= 'JWST'
