@@ -180,7 +180,6 @@ def _header_to_dict(x):
     return dict((a, b) for (a, b, c) in x)
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
 def test_extra_fits():
     path = os.path.join(ROOT_DIR, "headers.fits")
 
@@ -510,5 +509,3 @@ def test_get_short_doc():
 def test_ensure_ascii():
     for inp in [b"ABCDEFG", "ABCDEFG"]:
         fits_support.ensure_ascii(inp) == "ABCDEFG"
-
-
