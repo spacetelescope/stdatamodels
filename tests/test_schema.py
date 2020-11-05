@@ -137,7 +137,7 @@ def test_list2():
             dm.meta.transformations.append({'transformation': 'FOO', 'coeff': 2.0})
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
+@pytest.mark.skip("requires access to datamodels.open")
 def test_invalid_fits():
     hdulist = fits.open(FITS_FILE)
     header = hdulist[0].header
@@ -238,7 +238,6 @@ def test_ad_hoc_json():
         assert dm2.meta.foo == {'a': 42, 'b': ['a', 'b', 'c']}
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
 def test_ad_hoc_fits():
     with DataModel() as dm:
         dm.meta.foo = {'a': 42, 'b': ['a', 'b', 'c']}
