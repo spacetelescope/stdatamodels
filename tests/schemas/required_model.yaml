@@ -12,3 +12,4 @@ allOf:
           required_attribute:
             type: string
         required: [required_attribute]
+...

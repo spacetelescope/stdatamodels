@@ -33,3 +33,10 @@ class RequiredModel(DataModel):
     """
     schema_url = "http://example.com/schemas/required_model"
 
+
+class AnyOfModel(DataModel):
+    """
+    Model for which the attribute 'meta.foo' has conflicting
+    default values due to use of an anyOf combiner.
+    """
+    schema_url = "http://example.com/schemas/anyof_model"

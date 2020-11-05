@@ -17,3 +17,4 @@ allOf:
       required_hdu:
         fits_required: true
         fits_hdu: 1
+...

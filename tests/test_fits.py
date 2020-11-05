@@ -509,3 +509,102 @@ def test_get_short_doc():
 def test_ensure_ascii():
     for inp in [b"ABCDEFG", "ABCDEFG"]:
         fits_support.ensure_ascii(inp) == "ABCDEFG"
+
+
+@pytest.mark.skip("requires jwst model implementations")
+@pytest.mark.parametrize(
+    'which_file, skip_fits_update, expected_exp_type',
+    [
+        ('just_fits', None,  'FGS_DARK'),
+        ('just_fits', False, 'FGS_DARK'),
+        ('just_fits', True,  'FGS_DARK'),
+        ('model',     None,  'FGS_DARK'),
+        ('model',     False, 'FGS_DARK'),
+        ('model',     True,  'NRC_IMAGE')
+    ]
+)
+# @pytest.mark.parametrize(
+#     'open_func',
+#     [DataModel, datamodels.open]
+# )
+@pytest.mark.parametrize(
+    'use_env',
+    [False, True]
+)
+def test_skip_fits_update(jail_environ,
+                          use_env,
+                          make_models,
+                          open_func,
+                          which_file,
+                          skip_fits_update,
+                          expected_exp_type):
+    """Test skip_fits_update setting"""
+    # Setup the FITS file, modifying a header value
+    path = make_models[which_file]
+    hduls = fits.open(path)
+    hduls[0].header['exp_type'] = 'FGS_DARK'
+
+    # Decide how to skip. If using the environmental,
+    # set that and pass None to the open function.
+    try:
+        del os.environ['SKIP_FITS_UPDATE']
+    except KeyError:
+        # No need to worry, environmental doesn't exist anyways
+        pass
+    if use_env:
+        if skip_fits_update is not None:
+            os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
+            skip_fits_update = None
+
+    model = open_func(hduls, skip_fits_update=skip_fits_update)
+    assert model.meta.exposure.type == expected_exp_type
+
+
+@pytest.mark.skip("requires jwst model implementations")
+def test_from_hdulist():
+    from astropy.io import fits
+    warnings.simplefilter("ignore")
+    with fits.open(FITS_FILE, memmap=False) as hdulist:
+        with datamodels.open(hdulist) as dm:
+            dm.data
+        assert not hdulist.fileinfo(0)['file'].closed
+
+
+def roundtrip(func):
+    def _create_source():
+        dm = DataModel(FITS_FILE)
+
+        assert dm.meta.instrument.name == 'MIRI'
+
+        dm.meta.instrument.name = 'NIRCAM'
+        dm.meta.subarray.xstart = 42
+        return dm
+
+    def _check_output(dm):
+        assert dm.meta.instrument.name == 'NIRCAM'
+        assert dm.meta.subarray.xstart == 42
+
+    def test():
+        with _create_source() as dm:
+            with func(dm) as dm2:
+                _check_output(dm2)
+
+    test.__name__ = func.__name__
+
+    return test
+
+
+@pytest.mark.skip("base model no longer includes attribute meta.instrument")
+@roundtrip
+def test_from_fits_write(dm):
+    dm.to_fits(TMP_FITS, overwrite=True)
+    return DataModel.from_fits(TMP_FITS)
+
+
+def test_open_fits_model_s3(s3_root_dir):
+    path = str(s3_root_dir.join("test.fits"))
+    with DataModel() as dm:
+        dm.save(path)
+
+    model = DataModel("s3://test-s3-data/test.fits")
+    assert isinstance(model, DataModel)
