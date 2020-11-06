@@ -19,13 +19,6 @@ class ValidationModel(DataModel):
     schema_url = "http://example.com/schemas/validation_model"
 
 
-class FitsRequiredModel(DataModel):
-    """
-    Model that includes fits_required attributes.
-    """
-    schema_url = "http://example.com/schemas/fits_required_model"
-
-
 class RequiredModel(DataModel):
     """
     Model that includes a required attribute.  Uses JSON Schema's
