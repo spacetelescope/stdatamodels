@@ -78,6 +78,7 @@ def test_required_attribute_assignment():
 
     with pytest.warns(None) as warnings:
         model.meta.required_attribute = "foo"
+    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.required_attribute = None
@@ -176,6 +177,7 @@ def test_validate():
     with pytest.warns(None) as warnings:
         model.meta.string_attribute = "foo"
         model.validate()
+    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -187,7 +189,6 @@ def test_validate():
 
 @pytest.mark.xfail(reason="validation on init not yet implemented for ASDF files", strict=True)
 def test_validation_on_init(tmp_path):
-    file_path = tmp_path/"test.asdf"
     with asdf.AsdfFile() as af:
         af["meta"] = {"string_attribute": "foo"}
 
