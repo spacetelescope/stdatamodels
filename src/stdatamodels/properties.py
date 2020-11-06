@@ -315,15 +315,11 @@ class ObjectNode(Node):
             val = _cast(val, schema)
 
             node = ObjectNode(attr, val, schema, self._ctx)
-            if node._validate():
-                self._instance[attr] = val
-            """
-            if self._ctx.validate_on_assignment: # Not an attribute
+            if self._ctx._validate_on_assignment:
                 if node._validate():
                     self._instance[attr] = val
             else:
                 self._instance[attr] = val
-            """
 
     def __delattr__(self, attr):
         if attr.startswith('_'):
@@ -380,7 +376,7 @@ class ListNode(Node):
         schema = _get_schema_for_index(self._schema, i)
         val =  _cast(val, schema)
         node = ObjectNode(self._name, val, schema, self._ctx)
-        if self._ctx.validate_on_assignment: # Not an attribute
+        if self._ctx._validate_on_assignment:
             if node._validate():
                 self._instance[i] = val
         else:
@@ -388,7 +384,7 @@ class ListNode(Node):
 
     def __delitem__(self, i):
         del self._instance[i]
-        if self._ctx.validate_on_assignment: # Not an attribute
+        if self._ctx._validate_on_assignment:
             self._validate()
 
     def __getslice__(self, i, j):
@@ -407,35 +403,30 @@ class ListNode(Node):
         parts = [_cast(x, _get_schema_for_index(self._schema, k))
                  for (k, x) in enumerate(parts)]
         self._instance[i:j] = _unmake_node(other)
-        if self._ctx.validate_on_assignment: # Not an attribute
+        if self._ctx._validate_on_assignment:
             self._validate()
 
     def __delslice__(self, i, j):
         del self._instance[i:j]
-        if self._ctx.validate_on_assignment: # Not an attribute
+        if self._ctx._validate_on_assignment:
             self._validate()
 
     def append(self, item):
         schema = _get_schema_for_index(self._schema, len(self._instance))
         item = _cast(item, schema)
         node = ObjectNode(self._name, item, schema, self._ctx)
-        if node._validate():
-            self._instance.append(item)
-        """
-        # Fails test_validate.py::test_list_attribute_assignment::line 60
-        if self._ctx.validate_on_assignment: # Not an attribute
+        if self._ctx._validate_on_assignment:
             if node._validate():
                 self._instance.append(item)
         else:
             self._instance.append(item)
-        """
 
 
     def insert(self, i, item):
         schema = _get_schema_for_index(self._schema, i)
         item = _cast(item, schema)
         node = ObjectNode(self._name, item, schema, self._ctx)
-        if self._ctx.validate_on_assignment:
+        if self._ctx._validate_on_assignment:
             if node._validat():
                 self._instance.insert(i, item)
         else:
@@ -469,7 +460,7 @@ class ListNode(Node):
         assert isinstance(self._schema['items'], dict)
         node = ObjectNode(self._name, kwargs, self._schema['items'],
                           self._ctx)
-        if not self._ctx.validate_on_assignment:
+        if not self._ctx._validate_on_assignment:
             return node
         if not node._validate():
             node = None

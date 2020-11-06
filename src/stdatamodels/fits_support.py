@@ -476,10 +476,13 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 hdulist, fits_keyword, schema,
                 ctx.get('hdu_index'), known_keywords)
 
-            if result is None:
+            if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
             else:
-                if validate.value_change(path, result, schema, context):
+                if context._validate_on_assignment:
+                    if validate.value_change(path, result, schema, context):
+                        properties.put_value(path, result, tree)
+                else:
                     properties.put_value(path, result, tree)
 
         elif 'fits_hdu' in schema and (
@@ -487,10 +490,13 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
             result = _fits_array_loader(
                 hdulist, schema, ctx.get('hdu_index'), known_datas)
 
-            if result is None:
+            if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
             else:
-                if validate.value_change(path, result, schema, context):
+                if context._validate_on_assignment:
+                    if validate.value_change(path, result, schema, context):
+                        properties.put_value(path, result, tree)
+                else:
                     properties.put_value(path, result, tree)
 
         if schema.get('type') == 'array':
