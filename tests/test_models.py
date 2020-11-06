@@ -259,3 +259,19 @@ def test_skip_serializing_null(tmp_path, filename):
         # Make sure that 'telescope' is not in the tree
         with pytest.raises(KeyError):
             assert model.meta["telescope"] is None
+
+
+def test_delete_failed_model():
+    """
+    Test that a model that failed to initialize does not
+    error when deleted.
+    """
+    class FailedModel(DataModel):
+        def __init__(self, *args, **kwargs):
+            # Simulate a failed init by not invoking the
+            # superclass __init__.
+            pass
+
+    model = FailedModel()
+    # "Asserting" no error here:
+    model.__del__()
