@@ -84,12 +84,6 @@ def test_stringify(tmp_path):
         assert str(dm) == '<BasicModel(10, 100) from test.asdf>'
 
 
-def test_section():
-    with BasicModel((5, 35)) as dm:
-        section = dm.get_section('data')[3:4, 1:3]
-        assert section.shape == (1, 2)
-
-
 def test_init_with_array():
     array = np.empty((50, 50))
     with BasicModel(array) as dm:

@@ -135,12 +135,6 @@ def test_delete():
         assert dm.meta.instrument.name is None
 
 
-# def test_section():
-#     with RampModel((5, 35, 40, 32)) as dm:
-#         section = dm.get_section('data')[3:4, 1:3]
-#         assert section.shape == (1, 2, 40, 32)
-
-
 # def test_date_obs():
 #     with DataModel(FITS_FILE) as dm:
 #         assert dm.meta.observation.date.microsecond == 314592
@@ -221,9 +215,9 @@ def test_casting():
 
 # def test_comments():
 #     with RampModel(FITS_FILE) as dm:
-#         assert 'COMMENT' in (x[0] for x in dm._extra_fits.PRIMARY)
-#         dm._extra_fits.PRIMARY.COMMENT = ['foobar']
-#         assert dm._extra_fits.PRIMARY.COMMENT == ['foobar']
+#         assert 'COMMENT' in (x[0] for x in dm.extra_fits.PRIMARY)
+#         dm.extra_fits.PRIMARY.COMMENT = ['foobar']
+#         assert dm.extra_fits.PRIMARY.COMMENT == ['foobar']
 
 
 @pytest.mark.skip("requires ImageModel")

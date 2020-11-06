@@ -17,7 +17,7 @@ from astropy.wcs import WCS
 
 import asdf
 from asdf import AsdfFile
-from asdf import yamlutil, treeutil
+from asdf import treeutil
 from asdf import schema as asdf_schema
 
 try:
@@ -405,31 +405,9 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
     def validate(self):
         """
-        Re-validate the model instance againsst its schema
+        Re-validate the model instance against its schema
         """
         validate.value_change(str(self), self._instance, self._schema, self)
-
-    def validate_required_fields(self):
-        """
-        Walk the schema and make sure all required fields are
-        in the model
-        """
-        def callback(schema, path, combiner, ctx, recurse):
-            if 'fits_required' not in schema:
-                return
-
-            # Get the value pointed at by the path to the node,
-            # or None in case there is no entry for the node
-
-            node = ctx
-            for attr in path:
-                node = getattr(node, attr)
-                if node is None:
-                    break
-
-            validate.value_change(path, node, schema, self)
-
-        mschema.walk_schema(self._schema, callback, ctx=self)
 
     def info(self, *args, **kwargs):
         return self._asdf.info(**kwargs)
@@ -757,21 +735,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                 raise KeyError(repr(key))
         return meta
 
-    def get_item_as_json_value(self, key):
-        """
-        Equivalent to __getitem__, except returns the value as a JSON
-        basic type, rather than an arbitrary Python type.
-        """
-        assert isinstance(key, str)
-        meta = self
-        parts = key.split('.')
-        for part in parts:
-            try:
-                meta = getattr(meta, part)
-            except AttributeError:
-                raise KeyError(repr(key))
-        return yamlutil.custom_tree_to_tagged_tree(meta, self._instance)
-
     def __setitem__(self, key, value):
         """
         Set a metadata value using a dotted name.
@@ -798,7 +761,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         else:
             meta[part] = value
 
-    def iteritems(self):
+    def items(self):
         """
         Iterates over all of the schema items in a flat way.
 
@@ -823,10 +786,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         for x in recurse(self._instance):
             yield x
 
-    # We are just going to define the items to return the iteritems
-    items = iteritems
-
-    def iterkeys(self):
+    def keys(self):
         """
         Iterates over all of the schema keys in a flat way.
 
@@ -835,19 +795,15 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         `meta.observation.date` will end up in the result as the
         string `"meta.observation.date"`.
         """
-        for key, val in self.iteritems():
+        for key, val in self.items():
             yield key
 
-    keys = iterkeys
-
-    def itervalues(self):
+    def values(self):
         """
         Iterates over all of the schema values in a flat way.
         """
-        for key, val in self.iteritems():
+        for key, val in self.items():
             yield val
-
-    values = itervalues
 
     def update(self, d, only=None, extra_fits=False):
         """
@@ -989,9 +945,9 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             return val
 
         if include_arrays:
-            return dict((key, convert_val(val)) for (key, val) in self.iteritems())
+            return dict((key, convert_val(val)) for (key, val) in self.items())
         else:
-            return dict((key, convert_val(val)) for (key, val) in self.iteritems()
+            return dict((key, convert_val(val)) for (key, val) in self.items()
                         if not isinstance(val, np.ndarray))
 
     @property
@@ -1000,15 +956,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
     def get_fileext(self):
         return 'fits'
-
-    # TODO: This is just here for backward compatibility
-    @property
-    def _extra_fits(self):
-        return self.extra_fits
-
-    # TODO: For backward compatibility
-    def get_section(self, name):
-        return getattr(self, name)
 
     @property
     def history(self):
