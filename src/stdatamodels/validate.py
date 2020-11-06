@@ -16,6 +16,7 @@ def value_change(path, value, schema, ctx):
     """
     Validate a change in value against a schema.
     Trap error and return a flag.
+    TODO - this is where I should look to start making changes.
     """
     try:
         _check_value(value, schema, ctx)
