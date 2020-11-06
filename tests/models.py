@@ -40,3 +40,25 @@ class AnyOfModel(DataModel):
     default values due to use of an anyOf combiner.
     """
     schema_url = "http://example.com/schemas/anyof_model"
+
+
+class FitsModel(DataModel):
+    """
+    Model whose schema includes support for writing to FITS
+    files.
+    """
+    schema_url = "http://example.com/schemas/fits_model"
+
+
+class TransformModel(DataModel):
+    """
+    Model with an astropy.modeling model in one of its attributes.
+    """
+    schema_url = "http://example.com/schemas/transform_model"
+
+
+class TableModel(DataModel):
+    """
+    Model that includes a recarray-style table.
+    """
+    schema_url = "http://example.com/schemas/table_model"
