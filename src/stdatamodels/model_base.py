@@ -144,7 +144,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                                                           False)
         if validate_on_assignment is None:
             validate_on_assignment = get_envar_as_boolean("VALIDATE_ON_ASSIGNMENT",
-                                                          False)
+                                                          True)
         self._strict_validation = strict_validation
         self._ignore_missing_extensions = ignore_missing_extensions
         self._validate_on_assignment = validate_on_assignment
