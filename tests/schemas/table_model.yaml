@@ -1,0 +1,24 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/basic_model
+title: Model with a recarray-style table.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      table:
+        fits_hdu: TABLE
+        datatype:
+          - name: int16_column
+            datatype: int16
+          - name: float32_column
+            datatype: float32
+          - name: ascii_column
+            datatype: [ascii, 64]
+          - name: float32_column_with_shape
+            datatype: float32
+            shape: [3, 2]
+          - name: float32_column_with_ndim
+            datatype: float32
+            ndim: 2
+...
