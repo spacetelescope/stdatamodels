@@ -58,6 +58,3 @@ def test_seekable_file_object():
 def test_non_seekable_object():
     with pytest.raises(ValueError):
         check(object())
-
-
-

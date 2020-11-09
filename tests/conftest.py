@@ -42,4 +42,3 @@ def patch_env_variables(monkeypatch):
     """
     for var in ["PASS_INVALID_VALUES", "STRICT_VALIDATION", "SKIP_FITS_UPDATE"]:
         monkeypatch.delenv(var, raising=False)
-

@@ -10,8 +10,6 @@ from astropy import time
 from stdatamodels.schema import merge_property_trees, build_docstring
 from stdatamodels import DataModel
 
-import asdf
-
 from models import FitsModel, TransformModel, BasicModel, ValidationModel, TableModel
 
 
