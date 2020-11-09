@@ -74,10 +74,6 @@ def test_from_scratch(tmp_path):
             assert np.all(dm2.data == data)
 
 
-def _header_to_dict(x):
-    return dict((a, b) for (a, b, c) in x)
-
-
 def test_extra_fits(tmp_path):
     file_path = tmp_path/"test.fits"
 
