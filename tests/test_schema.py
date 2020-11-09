@@ -137,24 +137,14 @@ def test_add_schema_entry():
             assert False
 
 
-def test_validate_transform():
-    """
-    Tests that custom types, like transform, can be validated.
-    """
-    m = TransformModel(
-        transform=models.Shift(1) & models.Shift(2),
-        strict_validation=True
-    )
-    m.validate()
-
-
-def test_validate_transform_from_file(tmp_path):
+def test_validate_transform(tmp_path):
     """
     Tests that custom types, like transform, can be validated.
     """
     file_path = tmp_path/"test.asdf"
-    with asdf.AsdfFile({"transform": models.Shift(1) & models.Shift(2)}) as af:
-        af.write_to(file_path)
+    with TransformModel(transform=models.Shift(1) & models.Shift(2), strict_validation=True) as m:
+        m.validate()
+        m.save(file_path)
 
     with TransformModel(file_path, strict_validation=True) as m:
         m.validate()
