@@ -1,44 +1,14 @@
-import os
-import shutil
-import tempfile
-
 import pytest
-
+from astropy.io import fits
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal
+import asdf.schema
 
-from asdf import schema as mschema
-
-# from .. import DataModel, ImageModel, RampModel
 from stdatamodels import DataModel
-# from jwst.datamodels.util import open
-
 from stdatamodels import fits_support
 
+from models import FitsModel
 
-ROOT_DIR = None
-FITS_FILE = None
-TMP_FITS = None
-TMP_FITS2 = None
-TMP_YAML = None
-TMP_JSON = None
-TMP_DIR = None
-
-
-def setup():
-    global ROOT_DIR, FITS_FILE, TMP_DIR, TMP_FITS, TMP_YAML, TMP_JSON, TMP_FITS2
-    ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
-    FITS_FILE = os.path.join(ROOT_DIR, 'test.fits')
-
-    TMP_DIR = tempfile.mkdtemp()
-    TMP_FITS = os.path.join(TMP_DIR, 'tmp.fits')
-    TMP_YAML = os.path.join(TMP_DIR, 'tmp.yaml')
-    TMP_JSON = os.path.join(TMP_DIR, 'tmp.json')
-    TMP_FITS2 = os.path.join(TMP_DIR, 'tmp2.fits')
-
-
-def teardown():
-    shutil.rmtree(TMP_DIR)
 
 def records_equal(a, b):
     a = a.item()
@@ -52,16 +22,14 @@ def records_equal(a, b):
     return equal
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
 def test_from_new_hdulist():
     with pytest.raises(AttributeError):
         from astropy.io import fits
         hdulist = fits.HDUList()
-        with open(hdulist) as dm:
-            dm.data
+        with FitsModel(hdulist) as dm:
+            dm.foo
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
 def test_from_new_hdulist2():
     from astropy.io import fits
     hdulist = fits.HDUList()
@@ -70,12 +38,11 @@ def test_from_new_hdulist2():
     hdulist.append(primary)
     science = fits.ImageHDU(data=data, name='SCI')
     hdulist.append(science)
-    with open(hdulist) as dm:
+    with FitsModel(hdulist) as dm:
         dq = dm.dq
         assert dq is not None
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
 def test_setting_arrays_on_fits():
     from astropy.io import fits
     hdulist = fits.HDUList()
@@ -84,182 +51,89 @@ def test_setting_arrays_on_fits():
     hdulist.append(primary)
     science = fits.ImageHDU(data=data, name='SCI')
     hdulist.append(science)
-    with open(hdulist) as dm:
+    with FitsModel(hdulist) as dm:
         dm.data = np.empty((50, 50), dtype=np.float32)
-        dm.dq = np.empty((10, 50, 50), dtype=np.uint32)
+        dm.dq = np.empty((10,), dtype=np.uint32)
 
 
-def delete_array():
-    with pytest.raises(AttributeError):
-        from astropy.io import fits
-        hdulist = fits.HDUList()
-        data = np.empty((50, 50))
-        science = fits.ImageHDU(data=data, name='SCI')
-        hdulist.append(science)
-        hdulist.append(science)
-        with open(hdulist) as dm:
-            del dm.data
-            assert len(hdulist) == 1
+def test_from_scratch(tmp_path):
+    file_path = tmp_path/"test.fits"
 
-
-@pytest.mark.skip("requires RampModel")
-def test_from_fits():
-    with RampModel(FITS_FILE) as dm:
-        assert dm.meta.instrument.name == 'MIRI'
-        assert dm.shape == (5, 35, 40, 32)
-
-
-@pytest.mark.skip("requires ImageModel")
-def test_from_scratch():
-    with ImageModel((50, 50)) as dm:
+    with FitsModel((50, 50)) as dm:
         data = np.asarray(np.random.rand(50, 50), np.float32)
         dm.data[...] = data
 
-        dm.meta.instrument.name = 'NIRCAM'
+        dm.meta.telescope = "EYEGLASSES"
 
-        dm.to_fits(TMP_FITS, overwrite=True)
+        dm.to_fits(file_path)
 
-        with ImageModel.from_fits(TMP_FITS) as dm2:
+        with FitsModel.from_fits(file_path) as dm2:
             assert dm2.shape == (50, 50)
-            assert dm2.meta.instrument.name == 'NIRCAM'
+            assert dm2.meta.telescope == "EYEGLASSES"
             assert dm2.dq.dtype.name == 'uint32'
             assert np.all(dm2.data == data)
 
 
-@pytest.mark.skip("base DataModel no longer has an instrument.name field")
-def test_delete():
-    with DataModel(FITS_FILE) as dm:
-        dm.meta.instrument.name = 'NIRCAM'
-        assert dm.meta.instrument.name == 'NIRCAM'
-        del dm.meta.instrument.name
-        assert dm.meta.instrument.name is None
+def test_extra_fits(tmp_path):
+    file_path = tmp_path/"test.fits"
+
+    with FitsModel() as dm:
+        dm.save(file_path)
+
+    with fits.open(file_path) as hdul:
+        hdul[0].header["FOO"] = "BAR"
+        hdul.writeto(file_path, overwrite=True)
+
+    with DataModel(file_path) as dm:
+        assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
-# def test_date_obs():
-#     with DataModel(FITS_FILE) as dm:
-#         assert dm.meta.observation.date.microsecond == 314592
+def test_hdu_order(tmp_path):
+    file_path = tmp_path/"test.fits"
 
+    with FitsModel(data=np.array([[0.0]]),
+                   dq=np.array([[0.0]]),
+                   err=np.array([[0.0]])) as dm:
+        dm.save(file_path)
 
-@pytest.mark.skip("schemas are not available in this package")
-def test_fits_without_sci():
-    from astropy.io import fits
-    schema = {
-        "allOf": [
-            mschema.load_schema(
-                os.path.join(os.path.dirname(__file__),
-                             "../schemas/core.schema.yaml"),
-                resolve_references=True),
-            {
-                "type": "object",
-                "properties": {
-                    "coeffs": {
-                        'max_ndim': 1,
-                        'fits_hdu': 'COEFFS',
-                        'datatype': 'float32'
-                    }
-                }
-            }
-        ]
-    }
-
-    fits = fits.HDUList(
-        [fits.PrimaryHDU(),
-         fits.ImageHDU(name='COEFFS', data=np.array([0.0], np.float32))])
-
-    with DataModel(fits, schema=schema) as dm:
-        assert_array_equal(dm.coeffs, [0.0])
-
-
-def _header_to_dict(x):
-    return dict((a, b) for (a, b, c) in x)
-
-
-def test_extra_fits():
-    path = os.path.join(ROOT_DIR, "headers.fits")
-
-    assert os.path.exists(path)
-
-    with DataModel(path) as dm:
-        assert 'BITPIX' not in _header_to_dict(dm.extra_fits.PRIMARY.header)
-        assert _header_to_dict(dm.extra_fits.PRIMARY.header)['SCIYSTRT'] == 705
-        dm2 = dm.copy()
-        dm2.to_fits(TMP_FITS, overwrite=True)
-
-    with DataModel(TMP_FITS) as dm:
-        assert 'BITPIX' not in _header_to_dict(dm.extra_fits.PRIMARY.header)
-        assert _header_to_dict(dm.extra_fits.PRIMARY.header)['SCIYSTRT'] == 705
-
-
-@pytest.mark.skip("requires ImageModel")
-def test_hdu_order():
-    from astropy.io import fits
-
-    with ImageModel(data=np.array([[0.0]]),
-                    dq=np.array([[0.0]]),
-                    err=np.array([[0.0]])) as dm:
-        dm.save(TMP_FITS)
-
-    with fits.open(TMP_FITS, memmap=False) as hdulist:
+    with fits.open(file_path, memmap=False) as hdulist:
         assert hdulist[1].header['EXTNAME'] == 'SCI'
         assert hdulist[2].header['EXTNAME'] == 'DQ'
         assert hdulist[3].header['EXTNAME'] == 'ERR'
 
 
-@pytest.mark.skip("requires RampModel")
-def test_casting():
-    with RampModel(FITS_FILE) as dm:
-        sum = np.sum(dm.data)
-        dm.data[:] = dm.data + 2
-        assert np.sum(dm.data) > sum
+def test_fits_comments(tmp_path):
+    file_path = tmp_path/"test.fits"
 
-
-# def test_comments():
-#     with RampModel(FITS_FILE) as dm:
-#         assert 'COMMENT' in (x[0] for x in dm.extra_fits.PRIMARY)
-#         dm.extra_fits.PRIMARY.COMMENT = ['foobar']
-#         assert dm.extra_fits.PRIMARY.COMMENT == ['foobar']
-
-
-@pytest.mark.skip("requires ImageModel")
-def test_fits_comments():
-    with ImageModel() as dm:
-        dm.meta.subarray.xstart = 42
-        dm.save(TMP_FITS, overwrite=True)
+    with FitsModel() as dm:
+        dm.meta.origin = "STScI"
+        dm.save(file_path)
 
     from astropy.io import fits
-    with fits.open(TMP_FITS, memmap=False) as hdulist:
-        header = hdulist[0].header
-        find = ['Subarray parameters']
-        found = 0
-
-        for card in header.cards:
-            if card[1] in find:
-                found += 1
-
-        assert found == len(find)
+    with fits.open(file_path, memmap=False) as hdulist:
+        assert any(c for c in hdulist[0].header.cards if c[-1] == "Organization responsible for creating file")
 
 
-@pytest.mark.skip("requires ImageModel")
-def test_metadata_doesnt_override():
-    with ImageModel() as dm:
-        dm.save(TMP_FITS, overwrite=True)
+def test_metadata_doesnt_override(tmp_path):
+    file_path = tmp_path/"test.fits"
+
+    with FitsModel() as dm:
+        dm.save(file_path)
 
     from astropy.io import fits
-    with fits.open(TMP_FITS, mode='update', memmap=False) as hdulist:
-        hdulist[0].header['FILTER'] = 'F150W2'
+    with fits.open(file_path, mode='update', memmap=False) as hdulist:
+        hdulist[0].header['ORIGIN'] = 'UNDER THE COUCH'
 
-    with ImageModel(TMP_FITS) as dm:
-        assert dm.meta.instrument.filter == 'F150W2'
+    with FitsModel(file_path) as dm:
+        assert dm.meta.origin == 'UNDER THE COUCH'
 
 
-@pytest.mark.skip("schemas are not available in this package")
-def test_table_with_metadata():
+def test_table_with_metadata(tmp_path):
+    file_path = tmp_path/"test.fits"
+
     schema = {
         "allOf": [
-            mschema.load_schema(
-                os.path.join(os.path.dirname(__file__),
-                             "../schemas/core.schema.yaml"),
-                resolve_references=True),
+            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
             {"type": "object",
             "properties": {
                 "flux_table": {
@@ -296,7 +170,7 @@ def test_table_with_metadata():
 
     class FluxModel(DataModel):
         def __init__(self, init=None, flux_table=None, **kwargs):
-            super(FluxModel, self).__init__(init=init, schema=schema, **kwargs)
+            super().__init__(init=init, schema=schema, **kwargs)
 
             if flux_table is not None:
                 self.flux_table = flux_table
@@ -307,27 +181,24 @@ def test_table_with_metadata():
         ]
     with FluxModel(flux_table=flux_im) as datamodel:
         datamodel.meta.fluxinfo.exposure = 'Exposure info'
-        datamodel.save(TMP_FITS, overwrite=True)
+        datamodel.save(file_path, overwrite=True)
         del datamodel
 
     from astropy.io import fits
-    with fits.open(TMP_FITS, memmap=False) as hdulist:
+    with fits.open(file_path, memmap=False) as hdulist:
         assert len(hdulist) == 3
         assert isinstance(hdulist[1], fits.BinTableHDU)
         assert hdulist[1].name == 'FLUX'
         assert hdulist[2].name == 'ASDF'
 
 
-@pytest.mark.skip("schemas are not available in this package")
-def test_replace_table():
-    from astropy.io import fits
+def test_replace_table(tmp_path):
+    file_path = tmp_path/"test.fits"
+    file_path2 = tmp_path/"test2.fits"
 
     schema_narrow = {
         "allOf": [
-            mschema.load_schema(
-                os.path.join(os.path.dirname(__file__),
-                             "../schemas/core.schema.yaml"),
-                resolve_references=True),
+            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
             {
                 "type": "object",
                 "properties": {
@@ -349,10 +220,7 @@ def test_replace_table():
 
     schema_wide = {
         "allOf": [
-            mschema.load_schema(
-                os.path.join(os.path.dirname(__file__),
-                             "../schemas/core.schema.yaml"),
-                resolve_references=True),
+            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
             {
                 "type": "object",
                 "properties": {
@@ -381,24 +249,25 @@ def test_replace_table():
 
     m = DataModel(schema=schema_narrow)
     m.data = x
-    m.to_fits(TMP_FITS, overwrite=True)
+    m.to_fits(file_path, overwrite=True)
 
-    with fits.open(TMP_FITS, memmap=False) as hdulist:
+    with fits.open(file_path, memmap=False) as hdulist:
         assert records_equal(x, np.asarray(hdulist[1].data))
         assert hdulist[1].data.dtype[1].str == '>f4'
         assert hdulist[1].header['TFORM2'] == 'E'
 
-    with DataModel(TMP_FITS, schema=schema_wide) as m:
-        m.to_fits(TMP_FITS2, overwrite=True)
+    with DataModel(file_path, schema=schema_wide) as m:
+        m.to_fits(file_path2, overwrite=True)
 
-    with fits.open(TMP_FITS2, memmap=False) as hdulist:
+    with fits.open(file_path2, memmap=False) as hdulist:
         assert records_equal(x, np.asarray(hdulist[1].data))
         assert hdulist[1].data.dtype[1].str == '>f8'
         assert hdulist[1].header['TFORM2'] == 'D'
 
 
-@pytest.mark.skip("requires access to jwst model implementations")
-def test_table_with_unsigned_int():
+def test_table_with_unsigned_int(tmp_path):
+    file_path = tmp_path/"test.fits"
+
     schema = {
         'title': 'Test data model',
         '$schema': 'http://stsci.edu/schemas/fits-schema/fits-schema',
@@ -448,38 +317,26 @@ def test_table_with_unsigned_int():
 
         # Confirm that saving the table (and converting the uint32 values to signed int w/TZEROn)
         # doesn't mangle the data.
-        dm.save(TMP_FITS)
+        dm.save(file_path)
         assert_table_correct(dm)
 
     # Confirm that the data loads from the file intact (converting the signed ints back to
     # the appropriate uint32 values).
-    with DataModel(TMP_FITS, schema=schema) as dm2:
+    with DataModel(file_path, schema=schema) as dm2:
         assert_table_correct(dm2)
 
 
-def test_metadata_from_fits():
-    from astropy.io import fits
+def test_metadata_from_fits(tmp_path):
+    file_path = tmp_path/"test.fits"
+    file_path2 = tmp_path/"test2.fits"
 
     mask = np.array([[0, 1], [2, 3]])
-    fits.ImageHDU(data=mask, name='DQ').writeto(TMP_FITS, overwrite=True)
-    with DataModel(init=TMP_FITS) as dm:
-        dm.save(TMP_FITS2)
+    fits.ImageHDU(data=mask, name='DQ').writeto(file_path)
+    with FitsModel(file_path) as dm:
+        dm.save(file_path2)
 
-    with fits.open(TMP_FITS2, memmap=False) as hdulist:
+    with fits.open(file_path2, memmap=False) as hdulist:
         assert hdulist[2].name == 'ASDF'
-
-
-# def test_float_as_int():
-#     from astropy.io import fits
-
-#     hdulist = fits.HDUList()
-#     primary = fits.PrimaryHDU()
-#     hdulist.append(primary)
-#     hdulist[0].header['SUBSTRT1'] = 42.7
-#     hdulist.writeto(TMP_FITS, overwrite=True)
-
-#     with DataModel(TMP_FITS) as dm:
-#         assert dm.meta.subarray.xstart == 42.7
 
 
 def test_get_short_doc():
@@ -505,7 +362,6 @@ def test_ensure_ascii():
         fits_support.ensure_ascii(inp) == "ABCDEFG"
 
 
-@pytest.mark.skip("requires jwst model implementations")
 @pytest.mark.parametrize(
     'which_file, skip_fits_update, expected_exp_type',
     [
@@ -517,82 +373,53 @@ def test_ensure_ascii():
         ('model',     True,  'NRC_IMAGE')
     ]
 )
-# @pytest.mark.parametrize(
-#     'open_func',
-#     [DataModel, datamodels.open]
-# )
 @pytest.mark.parametrize(
     'use_env',
     [False, True]
 )
-def test_skip_fits_update(jail_environ,
+def test_skip_fits_update(tmp_path,
+                          monkeypatch,
                           use_env,
-                          make_models,
-                          open_func,
                           which_file,
                           skip_fits_update,
                           expected_exp_type):
     """Test skip_fits_update setting"""
+    file_path = tmp_path/"test.fits"
+
     # Setup the FITS file, modifying a header value
-    path = make_models[which_file]
-    hduls = fits.open(path)
-    hduls[0].header['exp_type'] = 'FGS_DARK'
+    if which_file == "just_fits":
+        primary_hdu = fits.PrimaryHDU()
+        primary_hdu.header['EXP_TYPE'] = 'NRC_IMAGE'
+        primary_hdu.header['DATAMODL'] = "FitsModel"
+        hduls = fits.HDUList([primary_hdu])
+        hduls.writeto(file_path)
+    else:
+        model = FitsModel()
+        model.meta.exposure.type = 'NRC_IMAGE'
+        model.save(file_path)
 
-    # Decide how to skip. If using the environmental,
-    # set that and pass None to the open function.
-    try:
-        del os.environ['SKIP_FITS_UPDATE']
-    except KeyError:
-        # No need to worry, environmental doesn't exist anyways
-        pass
-    if use_env:
-        if skip_fits_update is not None:
-            os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
-            skip_fits_update = None
+    with fits.open(file_path) as hduls:
+        hduls[0].header['EXP_TYPE'] = 'FGS_DARK'
 
-    model = open_func(hduls, skip_fits_update=skip_fits_update)
-    assert model.meta.exposure.type == expected_exp_type
+        if use_env:
+            if skip_fits_update is not None:
+                monkeypatch.setenv("SKIP_FITS_UPDATE", str(skip_fits_update))
+                skip_fits_update = None
+
+        model = FitsModel(hduls, skip_fits_update=skip_fits_update)
+        assert model.meta.exposure.type == expected_exp_type
 
 
-@pytest.mark.skip("requires jwst model implementations")
-def test_from_hdulist():
-    from astropy.io import fits
-    warnings.simplefilter("ignore")
-    with fits.open(FITS_FILE, memmap=False) as hdulist:
-        with datamodels.open(hdulist) as dm:
+def test_from_hdulist(tmp_path):
+    file_path = tmp_path/"test.fits"
+
+    with FitsModel() as dm:
+        dm.save(file_path)
+
+    with fits.open(file_path, memmap=False) as hdulist:
+        with FitsModel(hdulist) as dm:
             dm.data
         assert not hdulist.fileinfo(0)['file'].closed
-
-
-def roundtrip(func):
-    def _create_source():
-        dm = DataModel(FITS_FILE)
-
-        assert dm.meta.instrument.name == 'MIRI'
-
-        dm.meta.instrument.name = 'NIRCAM'
-        dm.meta.subarray.xstart = 42
-        return dm
-
-    def _check_output(dm):
-        assert dm.meta.instrument.name == 'NIRCAM'
-        assert dm.meta.subarray.xstart == 42
-
-    def test():
-        with _create_source() as dm:
-            with func(dm) as dm2:
-                _check_output(dm2)
-
-    test.__name__ = func.__name__
-
-    return test
-
-
-@pytest.mark.skip("base model no longer includes attribute meta.instrument")
-@roundtrip
-def test_from_fits_write(dm):
-    dm.to_fits(TMP_FITS, overwrite=True)
-    return DataModel.from_fits(TMP_FITS)
 
 
 def test_open_fits_model_s3(s3_root_dir):
@@ -604,14 +431,13 @@ def test_open_fits_model_s3(s3_root_dir):
     assert isinstance(model, DataModel)
 
 
+def test_data_array(tmp_path):
+    file_path = tmp_path/"test.fits"
+    file_path2 = tmp_path/"test2.fits"
 
-@pytest.mark.skip("jwst schemas are unavailable here")
-def test_data_array():
     data_array_schema = {
         "allOf": [
-            mschema.load_schema(os.path.join(URL_PREFIX, "core.schema"),
-                resolver=asdf.AsdfFile().resolver,
-                resolve_references=True),
+            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
             {
                 "type": "object",
                 "properties": {
@@ -658,9 +484,9 @@ def test_data_array():
         x.arr[2].data = array3
         del x.arr[1]
         assert len(x.arr) == 2
-        x.to_fits(TMP_FITS, overwrite=True)
+        x.to_fits(file_path)
 
-    with DataModel(TMP_FITS, schema=data_array_schema) as x:
+    with DataModel(file_path, schema=data_array_schema) as x:
         assert len(x.arr) == 2
         assert_array_almost_equal(x.arr[0].data, array1)
         assert_array_almost_equal(x.arr[1].data, array3)
@@ -679,10 +505,9 @@ def test_data_array():
         assert len(x.arr) == 3
         del x.arr[1]
         assert len(x.arr) == 2
-        x.to_fits(TMP_FITS2, overwrite=True)
+        x.to_fits(file_path2, overwrite=True)
 
-    from astropy.io import fits
-    with fits.open(TMP_FITS2) as hdulist:
+    with fits.open(file_path2) as hdulist:
         x = set()
         for hdu in hdulist:
             x.add((hdu.header.get('EXTNAME'),

@@ -17,6 +17,12 @@ allOf:
             title: Telescope used to acquire the data
             type: string
             fits_keyword: TELESCOP
+          exposure:
+            type: object
+            properties:
+              type:
+                type: string
+                fits_keyword: EXP_TYPE
       data:
         title: The science data
         fits_hdu: SCI

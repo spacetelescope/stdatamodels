@@ -9,8 +9,11 @@ properties:
     properties:
       filename:
         type: string
+        fits_keyword: FILENAME
       date:
         type: string
+        fits_keyword: DATE
       model_type:
         type: string
+        fits_keyword: DATAMODL
 ...
