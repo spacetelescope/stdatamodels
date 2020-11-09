@@ -1,8 +1,6 @@
 import pytest
 
 import asdf
-import numpy as np
-from numpy.testing import assert_array_equal
 from jsonschema import ValidationError
 
 from stdatamodels.validate import ValidationWarning
