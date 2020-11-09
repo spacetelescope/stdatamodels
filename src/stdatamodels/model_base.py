@@ -508,6 +508,15 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)
 
+        ret = self.validate()
+
+        """
+        # Possibly change class state before writing out, then change
+        # back after write.  I think to use validate_required_fields, 
+        # which remains unchanged with the new validation checker.
+        # Validate the schema before outputting.
+        self.validate_required_fields()
+        """
         # TODO: Support gzip-compressed fits
         if ext == '.fits':
             # TODO: remove 'clobber' check once depreciated fully in astropy

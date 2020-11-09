@@ -153,7 +153,7 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
         assert model.meta.string_attribute is None
 
 
-@pytest.mark.xfail(reason="validation on write not yet implemented for ASDF files", strict=True)
+#@pytest.mark.xfail(reason="validation on write not yet implemented for ASDF files", strict=True)
 def test_pass_invalid_values_on_write(tmp_path):
     file_path = tmp_path/"test.asdf"
     model = ValidationModel(pass_invalid_values=True)
@@ -235,7 +235,7 @@ def test_validation_on_init(tmp_path):
             ValidationModel(af)
 
 
-@pytest.mark.xfail(reason="validation on write not yet implemented for ASDF files", strict=True)
+# @pytest.mark.xfail(reason="validation on write not yet implemented for ASDF files", strict=True)
 def test_validation_on_write(tmp_path):
     file_path = tmp_path/"test.asdf"
     model = ValidationModel(pass_invalid_values=True)
