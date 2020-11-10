@@ -400,7 +400,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
     def validate(self):
         """
-        Re-validate the model instance againsst its schema
+        Re-validate the model instance against its schema
         """
         validate.value_change(str(self), self._instance, self._schema, self)
 
@@ -508,8 +508,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)
 
-        ret = self.validate()
-
         """
         # Possibly change class state before writing out, then change
         # back after write.  I think to use validate_required_fields, 
@@ -590,6 +588,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             `~asdf.AsdfFile.write_to`.
         """
         self.on_save(init)
+        self.validate()
         asdffile = self.open_asdf(self._instance, **kwargs)
         asdffile.write_to(init, *args, **kwargs)
 
