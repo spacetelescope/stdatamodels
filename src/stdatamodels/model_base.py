@@ -115,7 +115,11 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             Otherwise, the default value is `False`.
 
         validate_on_assignment : bool
-            TODO - expand on what this means
+            Defaults to 'True'.
+            If 'True', attribute assignments are validated at the time of assignment.
+            Validation errors generate warnings.
+            If 'False', schema validation occurs only once at the time of write.
+            Validation errors generate warnings.
 
         ignore_missing_extensions : bool
             When `False`, raise warnings when a file is read that
@@ -508,13 +512,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)
 
-        """
-        # Possibly change class state before writing out, then change
-        # back after write.  I think to use validate_required_fields, 
-        # which remains unchanged with the new validation checker.
-        # Validate the schema before outputting.
-        self.validate_required_fields()
-        """
         # TODO: Support gzip-compressed fits
         if ext == '.fits':
             # TODO: remove 'clobber' check once depreciated fully in astropy
