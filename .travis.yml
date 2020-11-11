@@ -26,6 +26,15 @@ jobs:
             - texlive-latex-extra
             - dvipng
 
+    - name: Windows
+      env:
+        - TOXENV=py38
+        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version=3.8
+
     - name: macOS
       env:
         - TOXENV=py38
@@ -40,6 +49,7 @@ jobs:
       install:
         - pip3 install tox
 
-install: pip install tox
+install:
+  - pip install tox
 
 script: tox

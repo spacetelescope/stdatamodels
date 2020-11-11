@@ -46,7 +46,7 @@ def test_historylist_methods():
 
 def test_history_from_model_to_fits(tmpdir):
     tmpfits = str(tmpdir.join('tmp.fits'))
-    m = DataModel()
+    m = DataModel(memmap=False)
     m.history = [HistoryEntry({
         'description': 'First entry',
         'time': Time(datetime.datetime.now())})]
@@ -67,7 +67,6 @@ def test_history_from_model_to_fits(tmpdir):
 
         assert m2.history == [{'description': "First entry"},
                               {'description': "Second entry"}]
-
         m2.save(tmpfits)
 
     with fits.open(tmpfits, memmap=False) as hdulist:
@@ -80,7 +79,7 @@ def test_history_from_fits(tmpdir):
     header = fits.Header()
     header['HISTORY'] = "First entry"
     header['HISTORY'] = "Second entry"
-    fits.writeto(tmpfits, np.array([]), header, overwrite=True)
+    fits.writeto(tmpfits, np.array([]), header)
 
     with DataModel(tmpfits) as m:
         assert m.history == [{'description': 'First entry'},

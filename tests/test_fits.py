@@ -80,7 +80,7 @@ def test_extra_fits(tmp_path):
     with FitsModel() as dm:
         dm.save(file_path)
 
-    with fits.open(file_path) as hdul:
+    with fits.open(file_path, memmap=False) as hdul:
         hdul[0].header["FOO"] = "BAR"
         hdul.writeto(file_path, overwrite=True)
 

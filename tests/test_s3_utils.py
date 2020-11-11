@@ -20,7 +20,8 @@ def test_object_exists(s3_text_file):
 
 
 def test_get_object(s3_text_file):
-    assert s3_utils.get_object("s3://test-s3-data/test.txt").read() == b"foo\n"
+    string_as_bytes = s3_utils.get_object("s3://test-s3-data/test.txt").read()
+    assert string_as_bytes.decode("utf-8").strip() == "foo"
 
 
 def test_get_client(s3_text_file):
