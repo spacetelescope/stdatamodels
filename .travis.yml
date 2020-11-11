@@ -1,10 +1,14 @@
 os: linux
 dist: xenial
 language: python
-python: 3.8
+python: 3.8.5
 
 jobs:
   include:
+    - name: Python 3.9
+      python: 3.9.0
+      env: TOXENV=py39
+
     - name: Python 3.8
       env: TOXENV=py38
 
@@ -40,6 +44,21 @@ jobs:
       install:
         - pip3 install tox
 
-install: pip install tox
+    - name: jwst
+      env: TOXENV=jwst
 
-script: tox
+    - name: romancal
+      env: TOXENV=romancal
+
+  allow_failures:
+    - name: jwst
+      env: TOXENV=jwst
+
+    - name: romancal
+      env: TOXENV=romancal
+
+install:
+  - pip install tox
+
+script:
+  - tox
