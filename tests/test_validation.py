@@ -242,3 +242,13 @@ def test_validation_on_write(tmp_path):
 
     with pytest.warns(ValidationWarning):
         model.save(file_path)
+
+
+def test_validate_on_assignment(tmp_path):
+    file_path = tmp_path/"test.asdf"
+
+    model = ValidationModel(validate_on_assignment=False)
+    model.meta.string_attribute = 42  # Bad assignment should cause no warning
+
+    with pytest.warns(ValidationWarning):
+        model.save(file_path)
