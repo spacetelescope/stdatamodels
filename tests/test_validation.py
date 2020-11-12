@@ -255,6 +255,14 @@ def test_validate_on_assignment(tmp_path):
         model.save(file_path)
 
 
+def test_validate_on_assignment_default(tmp_path):
+    file_path = tmp_path/"test.asdf"
+
+    model = ValidationModel()
+    with pytest.warns(ValidationWarning):
+        model.meta.string_attribute = 42  # Bad assignment
+
+
 def test_validate_on_assignment_with_environ(tmp_path):
     file_path = tmp_path/"test.asdf"
 
