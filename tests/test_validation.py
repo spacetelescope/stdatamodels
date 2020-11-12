@@ -250,6 +250,7 @@ def test_validate_on_assignment(tmp_path):
 
     model = ValidationModel(validate_on_assignment=False)
     model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert model.meta.string_attribute == 42
 
     with pytest.warns(ValidationWarning):
         model.save(file_path)
@@ -261,6 +262,7 @@ def test_validate_on_assignment_default(tmp_path):
     model = ValidationModel()
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42  # Bad assignment
+    assert model.meta.string_attribute is None
 
 
 def test_validate_on_assignment_with_environ(tmp_path):
@@ -269,6 +271,7 @@ def test_validate_on_assignment_with_environ(tmp_path):
     os.environ['VALIDATE_ON_ASSIGNMENT'] = '0'
     model = ValidationModel()
     model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert model.meta.string_attribute == 42
 
     with pytest.warns(ValidationWarning):
         model.save(file_path)
