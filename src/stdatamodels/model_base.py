@@ -68,7 +68,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
     def __init__(self, init=None, schema=None, memmap=False,
                  pass_invalid_values=None, strict_validation=None,
-                 validate_on_assignment=True,
+                 validate_on_assignment=None,
                  ignore_missing_extensions=True, **kwargs):
         """
         Parameters
