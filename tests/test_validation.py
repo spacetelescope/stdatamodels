@@ -1,3 +1,4 @@
+import os
 import pytest
 
 import asdf
@@ -248,6 +249,17 @@ def test_validate_on_assignment(tmp_path):
     file_path = tmp_path/"test.asdf"
 
     model = ValidationModel(validate_on_assignment=False)
+    model.meta.string_attribute = 42  # Bad assignment should cause no warning
+
+    with pytest.warns(ValidationWarning):
+        model.save(file_path)
+
+
+def test_validate_on_assignment_with_environ(tmp_path):
+    file_path = tmp_path/"test.asdf"
+
+    os.environ['VALIDATE_ON_ASSIGNMENT'] = '0'
+    model = ValidationModel()
     model.meta.string_attribute = 42  # Bad assignment should cause no warning
 
     with pytest.warns(ValidationWarning):
