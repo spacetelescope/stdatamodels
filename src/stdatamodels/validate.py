@@ -37,15 +37,9 @@ def _check_value(value, schema, ctx):
     """
     Perform the actual validation.
     """
-    if value is None:
-        if schema.get('fits_required'):
-            name = schema.get("fits_keyword") or schema.get("fits_hdu")
-            raise jsonschema.ValidationError("%s is a required value"
-                                              % name)
-        # Unless fits_required is set, do not validate None values.  These are
-        # regarded as missing in DataModel, and will eventually be stripped out
-        # when the model is saved to FITS or ASDF.
-    else:
+    # Do not validate None values.  These are regarded as missing in DataModel,
+    # and will eventually be stripped out when the model is saved to FITS or ASDF.
+    if value is not None:
         # The YAML_VALIDATORS dictionary excludes the ASDF ndarray validators
         # (datatype, shape, ndim, max_ndim), which we can't use here because
         # they don't fully support recarray columns whose elements are arrays.

@@ -40,6 +40,5 @@ def patch_env_variables(monkeypatch):
     Make sure the environment doesn't initially contain these so
     that test results are consistent.
     """
-    for var in ["PASS_INVALID_VALUES", "STRICT_VALIDATION", "VALIDATE_ON_ASSIGNMENT"]:
+    for var in ["PASS_INVALID_VALUES", "STRICT_VALIDATION", "SKIP_FITS_UPDATE", "VALIDATE_ON_ASSIGNMENT"]:
         monkeypatch.delenv(var, raising=False)
-

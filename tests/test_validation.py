@@ -2,13 +2,11 @@ import os
 import pytest
 
 import asdf
-import numpy as np
-from numpy.testing import assert_array_equal
 from jsonschema import ValidationError
 
 from stdatamodels.validate import ValidationWarning
 
-from models import ValidationModel, FitsRequiredModel, RequiredModel
+from models import ValidationModel, RequiredModel
 
 
 def test_scalar_attribute_assignment():
@@ -79,31 +77,10 @@ def test_required_attribute_assignment():
 
     with pytest.warns(None) as warnings:
         model.meta.required_attribute = "foo"
+    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.required_attribute = None
-
-
-def test_fits_required_attribute_assignment():
-    model = FitsRequiredModel()
-
-    with pytest.warns(None) as warnings:
-        model.meta.required_keyword = "foo"
-    assert len(warnings) == 0
-    assert model.meta.required_keyword == "foo"
-
-    with pytest.warns(ValidationWarning, match="REQKWRD is a required value"):
-        model.meta.required_keyword = None
-    assert model.meta.required_keyword == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.required_hdu = np.zeros((2, 2))
-    assert len(warnings) == 0
-    assert_array_equal(model.required_hdu, np.zeros((2, 2)))
-
-    with pytest.warns(ValidationWarning, match="1 is a required value"):
-        model.required_hdu = None
-    assert_array_equal(model.required_hdu, np.zeros((2, 2)))
 
 
 @pytest.mark.xfail(reason="validation of required attributes not yet implemented", strict=True)
@@ -198,6 +175,7 @@ def test_validate():
     with pytest.warns(None) as warnings:
         model.meta.string_attribute = "foo"
         model.validate()
+    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -207,22 +185,8 @@ def test_validate():
         model.validate()
 
 
-def test_validate_fits_required_fields():
-    model = FitsRequiredModel()
-
-    with pytest.warns(ValidationWarning):
-        model.validate_required_fields()
-
-    model.meta.required_keyword = "foo"
-    model.required_hdu = np.zeros((0, 0))
-    with pytest.warns(None) as warnings:
-        model.validate_required_fields()
-    assert len(warnings) == 0
-
-
 @pytest.mark.xfail(reason="validation on init not yet implemented for ASDF files", strict=True)
 def test_validation_on_init(tmp_path):
-    file_path = tmp_path/"test.asdf"
     with asdf.AsdfFile() as af:
         af["meta"] = {"string_attribute": "foo"}
 
