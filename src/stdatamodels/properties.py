@@ -427,7 +427,7 @@ class ListNode(Node):
         item = _cast(item, schema)
         node = ObjectNode(self._name, item, schema, self._ctx)
         if self._ctx._validate_on_assignment:
-            if node._validat():
+            if node._validate():
                 self._instance.insert(i, item)
         else:
             self._instance.insert(i, item)

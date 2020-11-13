@@ -114,10 +114,12 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             If `None`, value will be taken from the environmental STRICT_VALIDATION.
             Otherwise, the default value is `False`.
 
-        validate_on_assignment : bool
-            Defaults to 'True'.
+        validate_on_assignment : bool or None
+            Defaults to 'None'.
+            If `None`, value will be taken from the environmental VALIDATE_ON_ASSIGNMENT,
+            defaulting to 'True' if  no environment variable is set.
             If 'True', attribute assignments are validated at the time of assignment.
-            Validation errors generate warnings.
+            Validation errors generate warnings and values will be set to `None`.
             If 'False', schema validation occurs only once at the time of write.
             Validation errors generate warnings.
 

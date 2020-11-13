@@ -244,34 +244,56 @@ def test_validation_on_write(tmp_path):
     with pytest.warns(ValidationWarning):
         model.save(file_path)
 
-
-def test_validate_on_assignment(tmp_path):
-    file_path = tmp_path/"test.asdf"
-
-    model = ValidationModel(validate_on_assignment=False)
-    model.meta.string_attribute = 42  # Bad assignment should cause no warning
-    assert model.meta.string_attribute == 42
-
-    with pytest.warns(ValidationWarning):
-        model.save(file_path)
-
-
-def test_validate_on_assignment_default(tmp_path):
-    file_path = tmp_path/"test.asdf"
-
+def test_validate_on_assignment_default():
     model = ValidationModel()
+    assert model._validate_on_assignment==True
+
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42  # Bad assignment
     assert model.meta.string_attribute is None
 
 
-def test_validate_on_assignment_with_environ(tmp_path):
+def test_validate_on_assignment_false(tmp_path):
     file_path = tmp_path/"test.asdf"
 
-    os.environ['VALIDATE_ON_ASSIGNMENT'] = '0'
-    model = ValidationModel()
+    model = ValidationModel(validate_on_assignment=False)
+    assert model._validate_on_assignment==False
+
     model.meta.string_attribute = 42  # Bad assignment should cause no warning
     assert model.meta.string_attribute == 42
 
     with pytest.warns(ValidationWarning):
         model.save(file_path)
+
+
+def test_validate_on_assignment_true():
+    model = ValidationModel(validate_on_assignment=True)
+    assert model._validate_on_assignment==True
+
+    with pytest.warns(ValidationWarning):
+        model.meta.string_attribute = 42  # Bad assignment
+    assert model.meta.string_attribute is None
+
+
+def test_validate_on_assignment_with_environ_false(monkeypatch, tmp_path):
+    file_path = tmp_path/"test.asdf"
+
+    monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", "False")
+    model = ValidationModel()
+    assert model._validate_on_assignment==False
+
+    model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert model.meta.string_attribute == 42
+
+    with pytest.warns(ValidationWarning):
+        model.save(file_path)
+
+
+def test_validate_on_assignment_with_environ_true(monkeypatch, tmp_path):
+    monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", "True")
+    model = ValidationModel()
+    assert model._validate_on_assignment==True
+
+    with pytest.warns(ValidationWarning):
+        model.meta.string_attribute = 42  # Bad assignment
+    assert model.meta.string_attribute is None
