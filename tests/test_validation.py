@@ -260,3 +260,66 @@ def test_validate_on_assignment_with_environ_true(monkeypatch, tmp_path):
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42  # Bad assignment
     assert model.meta.string_attribute is None
+
+
+def test_validate_on_assignment_setitem_default():
+    model = ValidationModel()
+
+    model.meta.list_attribute.append({"string_attribute": "foo"})
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute[0] = {"string_attribute": "bar"}
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+    model.meta.list_attribute[0].string_attribute = "foo"
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(ValidationWarning):
+        model.meta.list_attribute[0] = {"string_attribute": 42}
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(ValidationWarning):
+        model.meta.list_attribute[0].string_attribute = 42
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+def test_validate_on_assignment_setitem_false():
+    model = ValidationModel(validate_on_assignment=False)
+
+    model.meta.list_attribute.append({"string_attribute": "foo"})
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute[0] = {"string_attribute": 42}
+    assert model.meta.list_attribute[0].string_attribute == 42
+
+    model.meta.list_attribute[0].string_attribute = 13
+    assert model.meta.list_attribute[0].string_attribute == 13
+
+
+def test_validate_on_assignment_insert_default():
+    model = ValidationModel()
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+    with pytest.warns(ValidationWarning):
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+
+def test_validate_on_assignment_insert_false():
+    model = ValidationModel(validate_on_assignment=False)
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert model.meta.list_attribute[0].string_attribute == 42
