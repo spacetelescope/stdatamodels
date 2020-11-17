@@ -222,7 +222,9 @@ def test_validate_on_assignment_false(tmp_path):
     model = ValidationModel(validate_on_assignment=False)
     assert model._validate_on_assignment==False
 
-    model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    with pytest.warns(None) as warnings:
+        model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert len(warnings) == 0
     assert model.meta.string_attribute == 42
 
     with pytest.warns(ValidationWarning):
@@ -245,7 +247,9 @@ def test_validate_on_assignment_with_environ_false(monkeypatch, tmp_path):
     model = ValidationModel()
     assert model._validate_on_assignment==False
 
-    model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    with pytest.warns(None) as warnings:
+        model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert len(warnings) == 0
     assert model.meta.string_attribute == 42
 
     with pytest.warns(ValidationWarning):
@@ -288,7 +292,9 @@ def test_validate_on_assignment_setitem_false():
     model.meta.list_attribute.append({"string_attribute": "foo"})
     assert model.meta.list_attribute[0].string_attribute == "foo"
 
-    model.meta.list_attribute[0] = {"string_attribute": 42}
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute[0] = {"string_attribute": 42}
+    assert len(warnings) == 0
     assert model.meta.list_attribute[0].string_attribute == 42
 
     model.meta.list_attribute[0].string_attribute = 13
@@ -321,5 +327,7 @@ def test_validate_on_assignment_insert_false():
         model.meta.list_attribute.append(x)
     assert model.meta.list_attribute[0].string_attribute == "foo"
 
-    model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert len(warnings) == 0
     assert model.meta.list_attribute[0].string_attribute == 42
