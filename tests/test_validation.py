@@ -331,3 +331,87 @@ def test_validate_on_assignment_insert_false():
         model.meta.list_attribute.insert(0,{"string_attribute": 42})
     assert len(warnings) == 0
     assert model.meta.list_attribute[0].string_attribute == 42
+
+
+# This test is the same as one above, but with strict_validation=True.  This ensures
+# strict_validation=True doesn't effect this test.
+def test_validate_on_assignment_default_strict_validation():
+    model = ValidationModel(strict_validation=True)
+    assert model._validate_on_assignment==True
+
+    exception_class = ValidationError
+    with pytest.raises(exception_class):
+        model.meta.string_attribute = 42  # Bad assignment
+    assert model.meta.string_attribute is None
+
+
+def test_validate_on_assignment_false_strict_validation(tmp_path):
+    file_path = tmp_path/"test.asdf"
+    exception_class = ValidationError
+
+    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
+    assert model._validate_on_assignment==False
+
+    with pytest.warns(None) as warnings:
+        model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert len(warnings) == 0
+    assert model.meta.string_attribute == 42
+
+    # Exception instead of warning
+    with pytest.raises(exception_class):
+        model.save(file_path)
+
+
+# This test is the same as one above, but with strict_validation=True.  This ensures
+# strict_validation=True doesn't effect this test.
+def test_validate_on_assignment_setitem_false_strict_validation():
+    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
+
+    model.meta.list_attribute.append({"string_attribute": "foo"})
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute[0] = {"string_attribute": 42}
+    assert len(warnings) == 0
+    assert model.meta.list_attribute[0].string_attribute == 42
+
+    model.meta.list_attribute[0].string_attribute = 13
+    assert model.meta.list_attribute[0].string_attribute == 13
+
+
+def test_validate_on_assignment_insert_default_strict_validation():
+    model = ValidationModel(strict_validation=True)
+    exception_class = ValidationError
+
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+    # Get an exception, instead of warning.
+    with pytest.raises(exception_class):
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+
+# This test is the same as one above, but with strict_validation=True.  This ensures
+# strict_validation=True doesn't effect this test.
+def test_validate_on_assignment_insert_false_strict_validation():
+    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
+
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert len(warnings) == 0
+    assert model.meta.list_attribute[0].string_attribute == 42
