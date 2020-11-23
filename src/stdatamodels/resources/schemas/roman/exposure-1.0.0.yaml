@@ -1,0 +1,59 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/roman/exposure-1.0.0"
+
+
+title: |
+  Exposure information
+type: object
+properties:
+  type:
+    title: Type of data in the exposure
+    type: string
+    enum:
+      # Wide Field Imager
+     [WFI_CORON, WFI_DARK, WFI_FLAT, WFI_FOCUS,  WFI_IMAGE, WFI_WFSS,
+      WFI_LED, WFI_WFSC, WFI_TACONFIRM, WFI_TACQ, WFI_TSGRISM, WFI_TSIMAGE,
+      # WFI Spectrograph
+      WFI_PRISM, WFI_GRISM,
+      # Coronagraph
+      CGI_IMAGE,
+      # Misc
+      N/A, ANY]
+  start_time:
+    title: UTC exposure start time
+    #$ref: "http://stsci.edu/schemas/asdf/time/time-1.1.0"
+    tag: "tag:stsci.edu:asdf/time/time-1.1.0"
+  end_time:
+    title: UTC exposure end time
+    #$ref: "http://stsci.edu/schemas/asdf/time/time-1.1.0"
+    tag: "tag:stsci.edu:asdf/time/time-1.1.0"
+  readpatt:
+    title: Readout pattern
+    type: string
+    enum: [RAPID, ANY, N/A]
+  nints:
+    title: Number of integrations in exposure
+    type: integer
+  ngroups:
+    title: Number of groups in integration
+    type: integer
+  nframes:
+    title: Number of frames per group
+    type: integer
+  groupgap:
+    title: Number of frames dropped between groups
+    type: integer
+  frame_time:
+    title: "[s] Time between frames"
+    type: number
+  group_time:
+    title: "[s] Time between groups"
+    type: number
+  exposure_time:
+    title: "[s] Effective exposure time"
+    type: number
+required: [type, start_time, end_time, readpatt, nints, ngroups, nframes, 
+          groupgap, frame_time, group_time, exposure_time]
+...

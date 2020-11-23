@@ -1,9 +1,11 @@
 from asdf.extension import ManifestExtension
-from .bozo import BozoConverter
+from .stnode import WfiImageConverter, ExposureConverter, WfiConverter
 
 
 DATAMODEL_CONVERTERS = [
-    BozoConverter()
+    WfiImageConverter(),
+    ExposureConverter(),
+    WfiConverter(),
 ]
 
 DATAMODEL_EXTENSIONS = [

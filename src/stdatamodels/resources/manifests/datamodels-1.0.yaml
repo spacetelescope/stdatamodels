@@ -1,13 +1,26 @@
 id: http://stsci.edu/datamodels/manifests/datamodels-1.0
-extension_uri: http://stsci.edu/datamodels/extensions/bozo-1.0
+extension_uri: http://stsci.edu/datamodels/extensions/
 title: Datamodels extension 1.0
 description: |-
   A set of tags for serializing STScI datamodels.
 asdf_standard_requirement:
   gte: 1.1.0
 tags:
-- tag_uri: tag:stsci.edu:datamodels/bozo-1.0.0
-  schema_uri: http://stsci.edu/schemas/datamodels/bozo-1.0.0
-  title: Bozo datamodel
+- tag_uri: tag:stsci.edu:datamodels/roman/wfi_image-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/roman/wfi_image-1.0.0
+  title: Roman Data datamodel
   description: |-
-    Representation of clowns
+    Basic Roman data file
+- tag_uri: tag:stsci.edu:datamodels/roman/meta-1.0.0
+  schma_uri: http://stsci.edu/schemas/datamodels/roman/meta-1.0.0
+  description: |-
+    Metadata section of data file
+- tag_uri: tag:stsci.edu:datamodels/roman/exposure-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/roman/exposure-1.0.0
+  description: |-
+    Exposure information    
+- tag_uri: tag:stsci.edu:datamodels/roman/wfi-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/roman/wfi-1.0.0
+  description: |-
+    Instrument information
+    
