@@ -1,10 +1,13 @@
 0.2.0 (unreleased)
 ==================
 
+- Remove automatic management of meta.date attribute and create
+  on_init hook. [#44]
+
 0.1.0 (2020-12-04)
 ==================
 
-- Create package and import code from jwst.datamodels. [#1]
+- Create package and import code from jwst.datamodels. [#1, #27]
 
 - Remove stdatamodels.open. [#2]
 

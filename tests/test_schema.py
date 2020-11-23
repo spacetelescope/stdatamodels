@@ -1,24 +1,13 @@
-from datetime import datetime
-
 import pytest
 import numpy as np
 
 import jsonschema
 from astropy.modeling import models
-from astropy import time
 
 from stdatamodels.schema import merge_property_trees, build_docstring
 from stdatamodels import DataModel
 
 from models import FitsModel, TransformModel, BasicModel, ValidationModel, TableModel
-
-
-def test_automatic_date_assignment():
-    with BasicModel(strict_validation=True) as dm:
-        time_obj = time.Time(dm.meta.date)
-        assert isinstance(time_obj, time.Time)
-        date_obj = datetime.strptime(dm.meta.date, '%Y-%m-%dT%H:%M:%S.%f')
-        assert isinstance(date_obj, datetime)
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])

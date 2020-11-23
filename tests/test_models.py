@@ -192,19 +192,18 @@ def test_update_from_dict(tmp_path):
 
 
 def test_object_node_iterator():
-    m = BasicModel()
+    m = BasicModel({"meta": {"foo": "bar"}})
     items = []
     for i in m.meta.items():
         items.append(i[0])
 
-    assert 'date' in items
-    assert 'model_type' in items
+    assert 'foo' in items
 
 
 def test_hasattr():
-    model = DataModel()
-    assert model.meta.hasattr('date')
-    assert not model.meta.hasattr('filename')
+    model = DataModel({"meta": {"foo": "bar"}})
+    assert model.meta.hasattr('foo')
+    assert not model.meta.hasattr('baz')
 
 
 def test_datamodel_raises_filenotfound(tmp_path):
@@ -269,3 +268,27 @@ def test_delete_failed_model():
     model = FailedModel()
     # "Asserting" no error here:
     model.__del__()
+
+
+def test_on_init_hook():
+    class OnInitModel(DataModel):
+        def on_init(self, init):
+            super().on_init(init)
+
+            self.meta.foo = "bar"
+
+    model = OnInitModel()
+    assert model.meta.foo == "bar"
+
+
+def test_on_save_hook(tmp_path):
+    class OnSaveModel(DataModel):
+        def on_save(self, init):
+            super().on_save(init)
+
+            self.meta.foo = "bar"
+
+    model = OnSaveModel()
+    assert model.meta.get("foo") is None
+    model.save(tmp_path/"test.asdf")
+    assert model.meta.foo == "bar"
