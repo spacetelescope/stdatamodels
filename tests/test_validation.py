@@ -332,9 +332,11 @@ def test_validate_on_assignment_insert_false():
     assert len(warnings) == 0
     assert model.meta.list_attribute[0].string_attribute == 42
 
+# --------------------------------------------------------------------
+# Validation flag interaction testing.
 
-# This test is the same as one above, but with strict_validation=True.  This ensures
-# strict_validation=True doesn't effect this test.
+# This test is the same as one above, but with strict_validation=True.
+# This ensures strict_validation=True doesn't effect this test.
 def test_validate_on_assignment_default_strict_validation():
     model = ValidationModel(strict_validation=True)
     assert model._validate_on_assignment==True
@@ -403,6 +405,88 @@ def test_validate_on_assignment_insert_default_strict_validation():
 # strict_validation=True doesn't effect this test.
 def test_validate_on_assignment_insert_false_strict_validation():
     model = ValidationModel(strict_validation=True, validate_on_assignment=False)
+
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert len(warnings) == 0
+    assert model.meta.list_attribute[0].string_attribute == 42
+
+
+def test_validate_on_assignment_default_pass_invalid_values():
+    model = ValidationModel(pass_invalid_values=True)
+    assert model._validate_on_assignment==True
+
+    # pass_invalid_values=True allows for assignment,
+    # even with validate_on_assignment=True
+    with pytest.warns(ValidationWarning) as warnings:
+        model.meta.string_attribute = 42  # Bad assignment
+    assert len(warnings) == 1
+    assert model.meta.string_attribute == 42
+
+
+def test_validate_on_assignment_false_pass_invalid_values(tmp_path):
+    file_path = tmp_path/"test.asdf"
+
+    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
+    assert model._validate_on_assignment==False
+
+    with pytest.warns(None) as warnings:
+        model.meta.string_attribute = 42  # Bad assignment should cause no warning
+    assert len(warnings) == 0
+    assert model.meta.string_attribute == 42
+
+    with pytest.warns(ValidationWarning):
+        model.save(file_path)
+
+
+# This test is the same as one above, but with pass_invalid_values=True.  This ensures
+# pass_invalid_values=True doesn't effect this test.
+def test_validate_on_assignment_setitem_false_pass_invalid_values():
+    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
+
+    model.meta.list_attribute.append({"string_attribute": "foo"})
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    with pytest.warns(None) as warnings:
+        model.meta.list_attribute[0] = {"string_attribute": 42}
+    assert len(warnings) == 0
+    assert model.meta.list_attribute[0].string_attribute == 42
+
+    model.meta.list_attribute[0].string_attribute = 13
+    assert model.meta.list_attribute[0].string_attribute == 13
+
+
+def test_validate_on_assignment_insert_default_pass_invalid_values():
+    model = ValidationModel(pass_invalid_values=True)
+
+    attr_list = [
+        {"string_attribute": "foo"},
+    ]
+    for x in attr_list:
+        model.meta.list_attribute.append(x)
+    assert model.meta.list_attribute[0].string_attribute == "foo"
+
+    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
+    assert model.meta.list_attribute[0].string_attribute == "bar"
+
+    # Validate on assignment throws a warning, but passing invalid values
+    # allows for the change.
+    with pytest.warns(ValidationWarning):
+        model.meta.list_attribute.insert(0,{"string_attribute": 42})
+    assert model.meta.list_attribute[0].string_attribute == 42
+
+
+# This test is the same as one above, but with pass_invalid_values=True.  This ensures
+# pass_invalid_values=True doesn't effect this test.
+def test_validate_on_assignment_insert_false_pass_invalid_values():
+    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
 
     attr_list = [
         {"string_attribute": "foo"},
