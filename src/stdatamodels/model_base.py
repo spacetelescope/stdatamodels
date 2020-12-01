@@ -17,15 +17,7 @@ from astropy.wcs import WCS
 
 import asdf
 from asdf import AsdfFile
-from asdf import treeutil
 from asdf import schema as asdf_schema
-
-try:
-    from asdf.treeutil import RemoveNode
-except ImportError:
-    # Prior to asdf 2.8, None was used to indicate
-    # that a node should be removed.
-    RemoveNode = None
 
 from . import ndmodel
 from . import filetype
@@ -33,7 +25,7 @@ from . import fits_support
 from . import properties
 from . import schema as mschema
 from . import validate
-from .util import get_envar_as_boolean
+from .util import get_envar_as_boolean, remove_none_from_tree
 from . import s3_utils
 
 from .history import HistoryList
@@ -459,14 +451,10 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # Enforce model_type to be the actual type of model being saved.
         self.meta.model_type = self._model_type
 
-        # Remove None nodes from the tree:
-        def _remove_none(node):
-            if node is None:
-                return RemoveNode
-            else:
-                return node
-
-        self._instance = treeutil.walk_and_modify(self._instance, _remove_none)
+        # DataModel considers None to be equivalent to missing node, but
+        # asdf 2.8+ writes None as null values, so we need to remove
+        # Nones before proceeding with the save.
+        self._instance = remove_none_from_tree(self._instance)
 
     def save(self, path, dir_path=None, *args, **kwargs):
         """
