@@ -7,6 +7,14 @@ import os
 import numpy as np
 from astropy.io import fits
 import asdf
+from asdf import treeutil
+
+try:
+    from asdf.treeutil import RemoveNode
+except ImportError:
+    # Prior to asdf 2.8, None was used to indicate
+    # that a node should be removed.
+    RemoveNode = None
 
 import logging
 log = logging.getLogger(__name__)
@@ -189,3 +197,28 @@ def get_model_type(init):
         return init[0].header.get("DATAMODL")
     else:
         raise TypeError(f"Unhandled init type: {init.__class__.__name__}")
+
+
+def remove_none_from_tree(tree):
+    """
+    Remove None values from a tree.  Both dictionary keys
+    and list indices with None values will be removed.
+
+    Parameters
+    ----------
+    tree : object
+        The root node of the tree.
+
+    Returns
+    -------
+    object
+        Modified tree.
+    """
+
+    def _remove_none(node):
+        if node is None:
+            return RemoveNode
+        else:
+            return node
+
+    return treeutil.walk_and_modify(tree, _remove_none)

@@ -7,6 +7,8 @@ import jsonschema
 from asdf import schema as asdf_schema
 from asdf import yamlutil
 
+from .util import remove_none_from_tree
+
 
 class ValidationWarning(Warning):
     pass
@@ -40,11 +42,15 @@ def _check_value(value, schema, ctx):
     # Do not validate None values.  These are regarded as missing in DataModel,
     # and will eventually be stripped out when the model is saved to FITS or ASDF.
     if value is not None:
+        # There may also be Nones hiding within the value.  Do this before
+        # converting to tagged tree, so that we don't have to descend unnecessarily
+        # into nodes for custom types.
+        value = remove_none_from_tree(value)
+        value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
         # The YAML_VALIDATORS dictionary excludes the ASDF ndarray validators
         # (datatype, shape, ndim, max_ndim), which we can't use here because
         # they don't fully support recarray columns whose elements are arrays.
         # Currently ndarray validation is handled in properties._cast instead.
-        value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
         asdf_schema.validate(value, schema=schema, validators=asdf_schema.YAML_VALIDATORS)
 
 

@@ -70,11 +70,10 @@ def test_list_attribute_ssignment():
     assert len(model.meta.list_attribute) == 0
 
 
-@pytest.mark.xfail(reason="correct handling of nested null values not yet implemented", strict=True)
 def test_object_assignment_with_nested_null():
     model = ValidationModel()
 
-    with pytest.warns(ValidationWarning) as warnings:
+    with pytest.warns(None) as warnings:
         model.meta.object_attribute = {"string_attribute": None}
     assert len(warnings) == 0
 
