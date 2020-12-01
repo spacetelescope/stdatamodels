@@ -15,12 +15,111 @@ tags:
   schma_uri: http://stsci.edu/schemas/datamodels/roman/meta-1.0.0
   description: |-
     Metadata section of data file
+- tag_uri: tag:stsci.edu:datamodels/jwst/ephemeris-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/ephemeris-1.0.0
+  title: JWST ephemeris information
+  description: |-
+    JWST ephemeris information
 - tag_uri: tag:stsci.edu:datamodels/roman/exposure-1.0.0
   schema_uri: http://stsci.edu/schemas/datamodels/roman/exposure-1.0.0
   description: |-
-    Exposure information    
+    Exposure information 
+- tag_uri: tag:stsci.edu:datamodels/jwst/fits_wcs_info-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/fits_wcs_info-1.0.0
+  title: FITS WCS Information information
+  description: |-
+    FITS WCS Information information   
+- tag_uri: tag:stsci.edu:datamodels/jwst/guidestar-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/guidestar-1.0.0
+  title: Guide star information
+  description: |-
+    Guide star information
 - tag_uri: tag:stsci.edu:datamodels/roman/wfi-1.0.0
   schema_uri: http://stsci.edu/schemas/datamodels/roman/wfi-1.0.0
   description: |-
     Instrument information
-    
+- tag_uri: tag:stsci.edu:datamodels/jwst/aperture-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/aperture-1.0.0
+  title: Aperture information
+  description: |-
+    Aperture information   
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_image-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_image-1.0.0
+  title: JWST NIRCAM Image mode datamodel
+  description: |-
+    Basic JWST NIRCAM Image datamodel
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_dither-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_dither-1.0.0
+  title: NIRCAM dither information
+  description: |-
+    NIRCAM dither information    
+- tag_uri: tag:stsci.edu:datamodels/jwst/association-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/association-1.0.0
+  title: JWST association information
+  description: |-
+    Association information
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam-1.0.0
+  title: NIRCAM information
+  description: |-
+    NIRCAM information
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_calibration_steps-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_calibration_steps-1.0.0
+  title: NIRCAM calibration steps information
+  description: |-
+    NIRCAM calibration steps information
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_exposure-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_exposure-1.0.0
+  title: NIRCAM exposure information
+  description: |-
+    NIRCAM exposure  information   
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_focus-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_focus-1.0.0
+  title: Nircam focus information
+  description: |-
+    NIRCAM focus information
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_reference_files-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_reference_files-1.0.0
+  title: NIRCAM reference files information
+  description: |-
+    NIRCAM reference files information    
+- tag_uri: tag:stsci.edu:datamodels/jwst/nircam_subarray-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/nircam_subarray-1.0.0
+  title: NIRCAM subarray parameters 
+  description: |-
+    NIRCAM subarray parameters 
+- tag_uri: tag:stsci.edu:datamodels/jwst/observation-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/observation-1.0.0
+  title: Observation information
+  description: |-
+    Observation information
+- tag_uri: tag:stsci.edu:datamodels/jwst/photometry-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/photometry-1.0.0
+  title: Photometry information
+  description: |-
+    Photometry information
+- tag_uri: tag:stsci.edu:datamodels/jwst/program-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/program-1.0.0
+  title: Program information
+  description: |-
+    Program information
+- tag_uri: tag:stsci.edu:datamodels/jwst/target-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/target-1.0.0
+  title: Target information
+  description: |-
+    Target information 
+- tag_uri: tag:stsci.edu:datamodels/jwst/time-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/time-1.0.0
+  title: Time information
+  description: |-
+    Time information
+- tag_uri: tag:stsci.edu:datamodels/jwst/velocity_aberration-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/velocity_aberration-1.0.0
+  title: Velocity aberration correction information
+  description: |-
+    Velocity aberration correction information
+- tag_uri: tag:stsci.edu:datamodels/jwst/visit-1.0.0
+  schema_uri: http://stsci.edu/schemas/datamodels/jwst/visit-1.0.0
+  title: Visit information
+  description: |-
+    Visit information

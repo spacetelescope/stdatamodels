@@ -1,0 +1,75 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/target-1.0.0"
+
+title: Target information
+type: object
+properties:
+  proposer_name:
+    title: Proposer's name for the target
+    type: string
+    fits_keyword: TARGPROP
+    blend_table: True
+  catalog_name:
+    title: Standard astronomical catalog name for target
+    type: string
+    fits_keyword: TARGNAME
+    blend_table: True
+  type:
+    title: Type of target (fixed, moving, generic)
+    type: string
+    fits_keyword: TARGTYPE
+    blend_table: True
+  ra:
+    title: Target RA at mid time of exposure
+    type: number
+    fits_keyword: TARG_RA
+    blend_table: True
+  dec:
+    title: Target Dec at mid time of exposure
+    type: number
+    fits_keyword: TARG_DEC
+    blend_table: True
+  ra_uncertainty:
+    title: Target RA uncertainty
+    type: number
+    fits_keyword: TARGURA
+    blend_table: True
+  dec_uncertainty:
+    title: Target Dec uncertainty
+    type: number
+    fits_keyword: TARGUDEC
+    blend_table: True
+  proper_motion_ra:
+    title: Target proper motion in RA
+    type: number
+    fits_keyword: MU_RA
+    blend_table: True
+  proper_motion_dec:
+    title: Target proper motion in Dec
+    type: number
+    fits_keyword: MU_DEC
+    blend_table: True
+  proper_motion_epoch:
+    title: Target proper motion epoch
+    type: string
+    fits_keyword: MU_EPOCH
+    blend_table: True
+  proposer_ra:
+    title: Proposer's target RA
+    type: number
+    fits_keyword: PROP_RA
+    blend_table: True
+  proposer_dec:
+    title: Proposer's target Dec
+    type: number
+    fits_keyword: PROP_DEC
+    blend_table: True
+  source_type:
+    title: Advised source type (point/extended)
+    type: string
+    enum: [EXTENDED, POINT, UNKNOWN]
+    fits_keyword: SRCTYPE
+    blend_table: True
+
+...

@@ -1,17 +1,12 @@
-%YAML 1.1
 ---
-$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/datamodels/roman/program-1.0.0"
-tag: "tag:stsci.edu:datamodels/roman/program-1.0.0"
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/program-1.0.0"
 
-title: |
-  Contains observing program information
-
-description:
-  Contains information regarding observing proposal
+title: Program information
 type: object
 properties:
-  title: Proposal title
+  title:
+    title: Proposal title
     type: string
     fits_keyword: TITLE
     blend_table: True
@@ -40,3 +35,4 @@ properties:
     type: integer
     fits_keyword: CONT_ID
     blend_table: True
+...

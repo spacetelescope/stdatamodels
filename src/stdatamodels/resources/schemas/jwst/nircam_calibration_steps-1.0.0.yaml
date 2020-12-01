@@ -1,0 +1,258 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam_calibration_steps-1.0.0"
+
+title: Calibration step information
+type: object
+properties:
+  align_psfs:
+    title: Coronagraphic PSF Alignment
+    type: string
+    fits_keyword: S_PSFALI
+    blend_table: True
+  ami_analyze:
+    title: AMI Fringe Analysis
+    type: string
+    fits_keyword: S_AMIANA
+    blend_table: True
+  ami_average:
+    title: AMI Fringe Averaging
+    type: string
+    fits_keyword: S_AMIAVG
+    blend_table: True
+  ami_normalize:
+    title: AMI Fringe Normalization
+    type: string
+    fits_keyword: S_AMINOR
+    blend_table: True
+  assign_wcs:
+    title: Assign World Coordinate System
+    type: string
+    fits_keyword: S_WCS
+    blend_table: True
+  back_sub:
+    title: Background subtraction
+    type: string
+    fits_keyword: S_BKDSUB
+    blend_table: True
+  barshadow:
+    title: Bar shadow correction
+    type: string
+    fits_keyword: S_BARSHA
+    blend_table: True
+  combine_1d:
+    title: 1-D Spectral Combination
+    type: string
+    fits_keyword: S_COMB1D
+    blend_table: True
+  cube_build:
+    title: IFU Cube Creation
+    type: string
+    fits_keyword: S_IFUCUB
+    blend_table: True
+  dark_sub:
+    title: Dark Subtraction
+    type: string
+    fits_keyword: S_DARK
+    blend_table: True
+  dq_init:
+    title: Data Quality Initialization
+    type: string
+    fits_keyword: S_DQINIT
+    blend_table: True
+  emission:
+    title: Telescope Emission Correction
+    type: string
+    fits_keyword: S_TELEMI
+    blend_table: True
+  err_init:
+    title: Error Initialization
+    type: string
+    fits_keyword: S_ERRINI
+    blend_table: True
+  extract_1d:
+    title: 1-D Spectral Extraction
+    type: string
+    fits_keyword: S_EXTR1D
+    blend_table: True
+  extract_2d:
+    title: 2-D Spectral Extraction
+    type: string
+    fits_keyword: S_EXTR2D
+    blend_table: True
+  firstframe:
+    title: First Frame Correction
+    type: string
+    fits_keyword: S_FRSTFR
+    blend_table: True
+  flat_field:
+    title: Flat Field Correction
+    type: string
+    fits_keyword: S_FLAT
+    blend_table: True
+  fringe:
+    title: Fringe Correction
+    type: string
+    fits_keyword: S_FRINGE
+    blend_table: True
+  gain_scale:
+    title: Gain Scale Correction
+    type: string
+    fits_keyword: S_GANSCL
+    blend_table: True
+  group_scale:
+    title: Group Scale Correction
+    type: string
+    fits_keyword: S_GRPSCL
+    blend_table: True
+  guider_cds:
+    title: Guide Mode CDS Computation
+    type: string
+    fits_keyword: S_GUICDS
+    blend_table: True
+  imprint:
+    title: NIRSpec MSA Imprint Subtraction
+    type: string
+    fits_keyword: S_IMPRNT
+    blend_table: True
+  ipc:
+    title: Interpixel Capacitance Correction
+    type: string
+    fits_keyword: S_IPC
+    blend_table: True
+  jump:
+    title: Jump Detection
+    type: string
+    fits_keyword: S_JUMP
+    blend_table: True
+  klip:
+    title: Coronagraphic PSF Subtraction
+    type: string
+    fits_keyword: S_KLIP
+    blend_table: True
+  lastframe:
+    title: Last Frame Correction
+    type: string
+    fits_keyword: S_LASTFR
+    blend_table: True
+  linearity:
+    title: Linearity Correction
+    type: string
+    fits_keyword: S_LINEAR
+    blend_table: True
+  master_background:
+    title: Master Background Subtraction
+    type: string
+    fits_keyword: S_MSBSUB
+    blend_table: True
+  mrs_imatch:
+    title: MIRI MRS background matching
+    type: string
+    fits_keyword: S_MRSMAT
+    blend_table: True
+  msa_flagging:
+    title: NIRSpec MSA Stuck Shutter Flagging
+    type: string
+    fits_keyword: S_MSAFLG
+    blend_table: True
+  outlier_detection:
+    title: Outlier Detection
+    type: string
+    fits_keyword: S_OUTLIR
+    blend_table: True
+  pathloss:
+    title: Pathloss Correction
+    type: string
+    fits_keyword: S_PTHLOS
+    blend_table: True
+  persistence:
+    title: Persistence Correction
+    type: string
+    fits_keyword: S_PERSIS
+    blend_table: True
+  photom:
+    title: Photometric Calibration
+    type: string
+    fits_keyword: S_PHOTOM
+    blend_table: True
+  ramp_fit:
+    title: Ramp Fitting
+    type: string
+    fits_keyword: S_RAMP
+    blend_table: True
+  refpix:
+    title: Reference Pixel Correction
+    type: string
+    fits_keyword: S_REFPIX
+    blend_table: True
+  resample:
+    title: Image resampling
+    type: string
+    fits_keyword: S_RESAMP
+    blend_table: True
+  reset:
+    title: Reset Anomaly Correction
+    type: string
+    fits_keyword: S_RESET
+    blend_table: True
+  rscd:
+    title: RSCD Correction
+    type: string
+    fits_keyword: S_RSCD
+    blend_table: True
+  saturation:
+    title: Saturation Checking
+    type: string
+    fits_keyword: S_SATURA
+    blend_table: True
+  skymatch:
+    title: Sky Background Equalization or Subtraction
+    type: string
+    fits_keyword: S_SKYMAT
+    blend_table: True
+  source_catalog:
+    title: Source Photometry and Morphology
+    type: string
+    fits_keyword: S_SRCCAT
+    blend_table: True
+  srctype:
+    title: Source Type Determination
+    type: string
+    fits_keyword: S_SRCTYP
+    blend_table: True
+  stack_psfs:
+    title: Coronagraphic PSF Stacking
+    type: string
+    fits_keyword: S_PSFSTK
+    blend_table: True
+  straylight:
+    title: Straylight Correction
+    type: string
+    fits_keyword: S_STRAY
+    blend_table: True
+  superbias:
+    title: Superbias Subtraction
+    type: string
+    fits_keyword: S_SUPERB
+    blend_table: True
+  tso_photometry:
+    title: TSO Imaging Photometry
+    type: string
+    fits_keyword: S_TSPHOT
+    blend_table: True
+  tweakreg:
+    title: Image Alignment via Astronomical Sources
+    type: string
+    fits_keyword: S_TWKREG
+    blend_table: True
+  wfs_combine:
+    title: Wavefront Sensing Combination
+    type: string
+    fits_keyword: S_WFSCOM
+    blend_table: True
+  white_light:
+    title: TSO White-Light Curve
+    type: string
+    fits_keyword: S_WHTLIT
+    blend_table: True
+...

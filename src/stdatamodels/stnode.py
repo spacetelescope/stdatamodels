@@ -108,6 +108,12 @@ class TaggedObjectNodeConverter(Converter):
     def from_yaml_tree(self, node, tag, ctx):
         return (node)
 
+###################################
+#
+# Roman section
+#
+###################################
+
 class WfiImage(TaggedObjectNode):
     _tag = "tag:stsci.edu:datamodels/roman/wfi_image-1.0.0"
 
@@ -149,3 +155,278 @@ class WfiConverter(TaggedObjectNodeConverter):
         return Wfi(node)
 
 
+###################################
+#
+# JWST section
+#
+###################################
+
+class NircamImage(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_image-1.0.0"
+
+class NircamImageConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_image-*"]
+    types = ["stdatamodels.stnode.NircamImage"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamImage(node)
+
+class Aperture(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/aperture-1.0.0"
+
+class ApertureConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/aperture-*"]
+    types = ["stdatamodels.stnode.Aperture"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Aperture(node)
+
+
+class Association(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/association-1.0.0"
+
+class AssociationConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/association-*"]
+    types = ["stdatamodels.stnode.Association"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Association(node)
+
+class Ephemeris(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/ephemeris-1.0.0"
+
+class EphemerisConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/ephemeris-*"]
+    types = ["stdatamodels.stnode.Ephemeris"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Ephemeris(node)
+
+class FitsWcsInfo(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/fits_wcs_info-1.0.0"
+
+class FitsWcsInfoConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/fits_wcs_info-*"]
+    types = ["stdatamodels.stnode.FitsWcsInfo"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return FitsWcsInfo(node)
+
+
+class Guidestar(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/guidestar-1.0.0"
+
+class GuidestarConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/guidestar-*"]
+    types = ["stdatamodels.stnode.Guidestar"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Guidestar(node)
+
+
+class Nircam(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam-1.0.0"
+
+class NircamConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam-*"]
+    types = ["stdatamodels.stnode.Nircam"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Nircam(node)
+
+class NircamCalibrationSteps(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_calibration_steps-1.0.0"
+
+class NircamCalibrationStepsConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_calibration_steps-*"]
+    types = ["stdatamodels.stnode.NircamCalibrationSteps"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamCalibrationSteps(node)
+
+
+class NircamDither(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_dither-1.0.0"
+
+class NircamDitherConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_dither-*"]
+    types = ["stdatamodels.stnode.NircamDither"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamDither(node)
+
+
+class NircamExposure(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_exposure-1.0.0"
+
+class NircamExposureConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_exposure-*"]
+    types = ["stdatamodels.stnode.NircamExposure"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamExposure(node)
+
+class NircamFocus(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_focus-1.0.0"
+
+class NircamFocusConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_focus-*"]
+    types = ["stdatamodels.stnode.NircamFocus"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamFocus(node)
+
+class NircamReferenceFiles(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_reference_files-1.0.0"
+
+class NircamReferenceFilesConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_reference_files-*"]
+    types = ["stdatamodels.stnode.NircamReferenceFiles"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamReferenceFiles(node)
+
+class NircamSubarray(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/nircam_subarray-1.0.0"
+
+class NircamSubarrayConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/nircam_subarray-*"]
+    types = ["stdatamodels.stnode.NircamSubarray"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return NircamSubarray(node)
+
+
+class Observation(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/observation-1.0.0"
+
+class ObservationConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/observation-*"]
+    types = ["stdatamodels.stnode.Observation"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Observation(node)
+
+class Photometry(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/photometry-1.0.0"
+
+class PhotometryConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/photometry-*"]
+    types = ["stdatamodels.stnode.Photometry"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Photometry(node)
+
+
+class Program(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/program-1.0.0"
+
+class ProgramConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/program-*"]
+    types = ["stdatamodels.stnode.Program"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Program(node)
+
+
+class Target(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/target-1.0.0"
+
+class TargetConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/target-*"]
+    types = ["stdatamodels.stnode.Target"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Target(node)
+
+class Time(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/time-1.0.0"
+
+class TimeConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/time-*"]
+    types = ["stdatamodels.stnode.Time"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Time(node)
+
+
+class VelocityAberration(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/velocity_aberration-1.0.0"
+
+class VelocityAberrationConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/velocity_aberration-*"]
+    types = ["stdatamodels.stnode.VelocityAberration"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return VelocityAberration(node)
+
+
+class Visit(TaggedObjectNode):
+    _tag = "tag:stsci.edu:datamodels/jwst/visit-1.0.0"
+
+class VisitConverter(TaggedObjectNodeConverter):
+    tags = ["tag:stsci.edu:datamodels/jwst/visit-*"]
+    types = ["stdatamodels.stnode.Visit"]
+
+    def to_yaml_tree(self, obj, tags, ctx):
+        return obj._data
+
+    def from_yaml_tree(self, node, tag, ctx):
+        return Visit(node)

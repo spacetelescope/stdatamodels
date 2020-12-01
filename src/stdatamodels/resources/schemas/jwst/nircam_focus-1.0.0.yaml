@@ -1,0 +1,84 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam_focus-1.0.0"
+
+title: NIRCam Focus Adjust Mechanism parameters
+type: object
+properties:
+  fam_la1:
+    title: position in steps of linear actuator 1
+    type: integer
+    fits_keyword: FAM_LA1
+    blend_table: True
+  fastep1:
+    title: requested focus actuator 1 starting steps
+    type: integer
+    fits_keyword: FASTEP1
+    blend_table: True
+  faunit1:
+    title: requested focus actuator 1 starting units
+    type: number
+    fits_keyword: FAUNIT1
+    blend_table: True
+  faphase1:
+    title: requested focus actuator 1 starting phase
+    type: string
+    fits_keyword: FAPHASE1
+    blend_table: True
+  fa1value:
+    title: requested focus actuator 1 position value
+    type: integer
+    fits_keyword: FA1VALUE
+    blend_table: True
+  fam_la2:
+    title: position in steps of linear actuator 2
+    type: integer
+    fits_keyword: FAM_LA2
+    blend_table: True
+  fastep2:
+    title: requested focus actuator 2 starting steps
+    type: integer
+    fits_keyword: FASTEP2
+    blend_table: True
+  faunit2:
+    title: requested focus actuator 2 starting units
+    type: number
+    fits_keyword: FAUNIT2
+    blend_table: True
+  faphase2:
+    title: requested focus actuator 2 starting phase
+    type: string
+    fits_keyword: FAPHASE2
+    blend_table: True
+  fa2value:
+    title: requested focus actuator 2 position value
+    type: integer
+    fits_keyword: FA2VALUE
+    blend_table: True
+  fam_la3:
+    title: position in steps of linear actuator 3
+    type: integer
+    fits_keyword: FAM_LA3
+    blend_table: True
+  fastep3:
+    title: requested focus actuator 3 starting steps
+    type: integer
+    fits_keyword: FASTEP3
+    blend_table: True
+  faunit3:
+    title: requested focus actuator 3 starting units
+    type: number
+    fits_keyword: FAUNIT3
+    blend_table: True
+  faphase3:
+    title: requested focus actuator 3 starting phase
+    type: string
+    fits_keyword: FAPHASE3
+    blend_table: True
+  fa3value:
+    title: requested focus actuator 3 position value
+    type: integer
+    fits_keyword: FA3VALUE
+    blend_table: True
+
+...

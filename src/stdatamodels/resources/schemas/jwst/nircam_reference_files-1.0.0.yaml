@@ -1,0 +1,473 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam_reference_files-1.0.0"
+
+title: Reference file information
+type: object
+properties:
+  crds:
+    title: CRDS parameters
+    type: object
+    properties:
+      sw_version:
+        title: Version of CRDS file selection software used
+        type: string
+        fits_keyword: CRDS_VER
+        blend_table: True
+      context_used:
+        title: CRDS context (.pmap) used to select ref files
+        type: string
+        fits_keyword: CRDS_CTX
+        blend_table: True
+  area:
+    title: Pixel area reference file information
+    type: object
+    properties:
+      name:
+        title: Pixel area reference file name
+        type: string
+        fits_keyword: R_AREA
+        blend_table: True
+  badshutter:
+    title: NIRSpec bad shutter reference file information
+    type: object
+    properties:
+      name:
+        title: NIRSpec operability reference file name
+        type: string
+        fits_keyword: R_MSAOPE
+        blend_table: True
+  barshadow:
+    title: Nirspec Bar shadow reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec Barshadow reference file name
+        type: string
+        fits_keyword: R_BARSHA
+        blend_table: True
+  camera:
+    title: Nirspec Camera reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec Camera reference file name
+        type: string
+        fits_keyword: R_CAMERA
+        blend_table: True
+  collimator:
+    title: Nirspec Collimator reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec Collimator reference file name
+        type: string
+        fits_keyword: R_COLLIM
+        blend_table: True
+  cubepar:
+    title: IFU cube reference file information
+    type: object
+    properties:
+      name:
+        title: IFU cube parameters reference file name
+        type: string
+        fits_keyword: R_CUBPAR
+        blend_table: True
+  dark:
+    title: Dark reference file information
+    type: object
+    properties:
+      name:
+        title: Dark reference file name
+        type: string
+        fits_keyword: R_DARK
+        blend_table: True
+  disperser:
+    title: Disperser reference file information
+    type: object
+    properties:
+      name:
+        title: Disperser reference file name
+        type: string
+        fits_keyword: R_DISPER
+        blend_table: True
+  distortion:
+    title: Distortion reference file information
+    type: object
+    properties:
+      name:
+        title: Distortion reference file name
+        type: string
+        fits_keyword: R_DISTOR
+        blend_table: True
+  drizpars:
+    title: Drizzle parameters reference file information
+    type: object
+    properties:
+      name:
+        title: Drizzle parameters reference file name
+        type: string
+        fits_keyword: R_DRZPAR
+        blend_table: True
+  extract1d:
+    title: 1-D extraction parameters reference file information
+    type: object
+    properties:
+      name:
+        title: 1-D extraction parameters reference file name
+        type: string
+        fits_keyword: R_EXTR1D
+        blend_table: True
+  filteroffset:
+    title: Filter Offset reference file information
+    type: object
+    properties:
+      name:
+        title: Filter Offset reference file name
+        type: string
+        fits_keyword: R_FILOFF
+        blend_table: True
+  flat:
+    title: Flat reference file information
+    type: object
+    properties:
+      name:
+        title: Flat reference file name
+        type: string
+        fits_keyword: R_FLAT
+        blend_table: True
+  dflat:
+    title: DFlat reference file information
+    type: object
+    properties:
+      name:
+        title: DFlat reference file name
+        type: string
+        fits_keyword: R_DFLAT
+        blend_table: True
+  fflat:
+    title: FFlat reference file information
+    type: object
+    properties:
+      name:
+        title: FFlat reference file name
+        type: string
+        fits_keyword: R_FFLAT
+        blend_table: True
+  sflat:
+    title: SFlat reference file information
+    type: object
+    properties:
+      name:
+        title: SFlat reference file name
+        type: string
+        fits_keyword: R_SFLAT
+        blend_table: True
+  fore:
+    title: Nirspec FORE Model reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec FORE Model reference file name
+        type: string
+        fits_keyword: R_FORE
+        blend_table: True
+  fpa:
+    title: Nirspec FPA Model reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec FPA Model reference file name
+        type: string
+        fits_keyword: R_FPA
+        blend_table: True
+  fringe:
+    title: Fringe reference file information
+    type: object
+    properties:
+      name:
+        title: Fringe reference file name
+        type: string
+        fits_keyword: R_FRINGE
+        blend_table: True
+  gain:
+    title: Gain reference file information
+    type: object
+    properties:
+      name:
+        title: Gain reference file name
+        type: string
+        fits_keyword: R_GAIN
+        blend_table: True
+  ifufore:
+    title: IFU fore reference file information
+    type: object
+    properties:
+      name:
+        title: ifufore reference file name
+        type: string
+        fits_keyword: R_IFUFOR
+        blend_table: True
+  ifupost:
+    title: IFU post reference file information
+    type: object
+    properties:
+      name:
+        title: ifupost reference file name
+        type: string
+        fits_keyword: R_IFUPOS
+        blend_table: True
+  ifuslicer:
+    title: IFU slicer reference file information
+    type: object
+    properties:
+      name:
+        title: ifuslicer reference file name
+        type: string
+        fits_keyword: R_IFUSLI
+        blend_table: True
+  ipc:
+    title: IPC reference file information
+    type: object
+    properties:
+      name:
+        title: IPC reference file name
+        type: string
+        fits_keyword: R_IPC
+        blend_table: True
+  lastframe:
+    title: Last frame reference file information
+    type: object
+    properties:
+      name:
+        title: Last Frame reference file name
+        type: string
+        fits_keyword: R_LASTFR
+        blend_table: True
+  linearity:
+    title: Linearity reference file information
+    type: object
+    properties:
+      name:
+        title: Linearity reference file name
+        type: string
+        fits_keyword: R_LINEAR
+        blend_table: True
+  mask:
+    title: Mask reference file information
+    type: object
+    properties:
+      name:
+        title: Mask reference file name
+        type: string
+        fits_keyword: R_MASK
+        blend_table: True
+  msa:
+    title: Nirspec MSA Model reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec MSA Model reference file name
+        type: string
+        fits_keyword: R_MSA
+        blend_table: True
+  ote:
+    title: Nirspec OTE Model reference file information
+    type: object
+    properties:
+      name:
+        title: Nirspec OTE Model reference file name
+        type: string
+        fits_keyword: R_OTE
+        blend_table: True
+  pathloss:
+    title: Pathloss reference file information
+    type: object
+    properties:
+      name:
+        title: Pathloss reference file name
+        type: string
+        fits_keyword: R_PTHLOS
+        blend_table: True
+  persat:
+    title: Persistence saturation reference file information
+    type: object
+    properties:
+      name:
+        title: Persistence saturation reference file name
+        type: string
+        fits_keyword: R_PERSAT
+        blend_table: True
+  photom:
+    title: Photometric reference file information
+    type: object
+    properties:
+      name:
+        title: Photometric reference file name
+        type: string
+        fits_keyword: R_PHOTOM
+        blend_table: True
+  psfmask:
+    title: PSF mask reference file information
+    type: object
+    properties:
+      name:
+        title: PSF mask reference file name
+        type: string
+        fits_keyword: R_PSFMAS
+        blend_table: True
+  readnoise:
+    title: Read noise reference file information
+    type: object
+    properties:
+      name:
+        title: Read noise reference file name
+        type: string
+        fits_keyword: R_READNO
+        blend_table: True
+  refpix:
+    title: Reference pixels reference file information
+    type: object
+    properties:
+      name:
+        title: Reference pixels reference file name
+        type: string
+        fits_keyword: R_REFPIX
+        blend_table: True
+  regions:
+    title: Regions reference file information
+    type: object
+    properties:
+      name:
+        title: Regions reference file name
+        type: string
+        fits_keyword: R_REGION
+        blend_table: True
+  resample:
+    title: Resample processing reference file information
+    type: object
+    properties:
+      name:
+        title: Resample parameters reference file name
+        type: string
+        fits_keyword: R_RESAMP
+        blend_table: True
+  resolution:
+    title: MRS resolution reference file information
+    type: object
+    properties:
+      name:
+        title: MRS resolution reference file name
+        type: string
+        fits_keyword: R_RESOL
+        blend_table: True
+  reset:
+    title: Reset reference file information
+    type: object
+    properties:
+      name:
+        title: Reset reference file name
+        type: string
+        fits_keyword: R_RESET
+        blend_table: True
+  rscd:
+    title: RSCD reference file information
+    type: object
+    properties:
+      name:
+        title: RSCD reference file name
+        type: string
+        fits_keyword: R_RSCD
+        blend_table: True
+  saturation:
+    title: Saturation reference file information
+    type: object
+    properties:
+      name:
+        title: Saturation reference file name
+        type: string
+        fits_keyword: R_SATURA
+        blend_table: True
+  specwcs:
+    title: Spectral distortion reference file information
+    type: object
+    properties:
+      name:
+        title: Spectral distortion reference file name
+        type: string
+        fits_keyword: R_SPCWCS
+        blend_table: True
+  straylight:
+    title: Straylight reference file information
+    type: object
+    properties:
+      name:
+        title: Straylight reference file name
+        type: string
+        fits_keyword: R_STRAY
+        blend_table: True
+  superbias:
+    title: Superbias reference file information
+    type: object
+    properties:
+      name:
+        title: Superbias reference file name
+        type: string
+        fits_keyword: R_SUPERB
+        blend_table: True
+  throughput:
+    title: Filter throughput reference file information
+    type: object
+    properties:
+      name:
+        title: Filter throughput reference file name
+        type: string
+        fits_keyword: R_THRPUT
+        blend_table: True
+  trapdensity:
+    title: Trap density reference file information
+    type: object
+    properties:
+      name:
+        title: Trap density reference file name
+        type: string
+        fits_keyword: R_TRPDEN
+        blend_table: True
+  trappars:
+    title: Trap parameters reference file information
+    type: object
+    properties:
+      name:
+        title: Trap parameters reference file name
+        type: string
+        fits_keyword: R_TRPPAR
+        blend_table: True
+  tso_photometry:
+    title: TSO imaging photometry reference file information
+    type: object
+    properties:
+      name:
+        title: TSO imaging photometry reference file name
+        type: string
+        fits_keyword: R_TSPHOT
+        blend_table: True
+  v2v3:
+    title: V2_V3 Model reference file information
+    type: object
+    properties:
+      name:
+        title: V2_V3 Model reference file name
+        type: string
+        fits_keyword: R_V2V3
+        blend_table: True
+  wavelengthrange:
+    title: Wavelength Range reference file information
+    type: object
+    properties:
+      name:
+        title: Wavelength Range reference file name
+        type: string
+        fits_keyword: R_WAVRAN
+        blend_table: True
+
+...
