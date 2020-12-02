@@ -516,3 +516,14 @@ def test_data_array(tmp_path):
         assert x == set(
             [('FOO', 2), ('FOO', 1), ('ASDF', None), ('DQ', 2),
              (None, None)])
+
+
+@pytest.mark.parametrize("keyword,result", [
+    ("BZERO", True),
+    ("TFORM53", True),
+    ("SIMPLE", True),
+    ("EXTEND", True),
+    ("INSTRUME", False),
+])
+def test_is_builtin_fits_keyword(keyword, result):
+    assert fits_support.is_builtin_fits_keyword(keyword) is result

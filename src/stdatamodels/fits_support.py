@@ -30,7 +30,7 @@ log.setLevel(logging.DEBUG)
 log.addHandler(logging.NullHandler())
 
 
-__all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu']
+__all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_keyword']
 
 
 _ASDF_GE_2_6 = parse_version(asdf.__version__) >= parse_version('2.6')
@@ -51,7 +51,7 @@ _builtin_regex = re.compile(
     '|'.join('(^{0}$)'.format(x) for x in _builtin_regexes))
 
 
-def _is_builtin_fits_keyword(key):
+def is_builtin_fits_keyword(key):
     """
     Returns `True` if the given `key` is a built-in FITS keyword, i.e.
     a keyword that is managed by ``astropy.io.fits`` and we wouldn't
@@ -182,7 +182,7 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
             new_hdu = _make_hdu(hdulist, hdu_name, index=index,
                                 hdu_type=hdu_type, value=value)
             for key, val in hdu.header.items():
-                if not _is_builtin_fits_keyword(key):
+                if not is_builtin_fits_keyword(key):
                     new_hdu.header[key] = val
             hdulist.remove(hdu)
             hdu = new_hdu
@@ -364,7 +364,7 @@ def _save_extra_fits(hdulist, tree):
         if 'header' in parts:
             hdu = _get_or_make_hdu(hdulist, hdu_name)
             for key, val, comment in parts['header']:
-                if _is_builtin_fits_keyword(key):
+                if is_builtin_fits_keyword(key):
                     continue
                 hdu.header.append((key, val, comment), end=True)
 
@@ -518,7 +518,7 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
 
         cards = []
         for key, val, comment in hdu.header.cards:
-            if not (_is_builtin_fits_keyword(key) or
+            if not (is_builtin_fits_keyword(key) or
                     key in known):
                 cards.append([key, val, comment])
 
