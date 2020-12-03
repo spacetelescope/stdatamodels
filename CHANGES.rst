@@ -10,3 +10,6 @@
 
 - Rename is_builtin_fits_keyword to make clear that it is
   used outside of this package. [#47]
+
+- Add flag to disable validation on DataModel attribute
+  assignment. [#36]
