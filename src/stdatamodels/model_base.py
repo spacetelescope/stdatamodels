@@ -67,6 +67,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
     def __init__(self, init=None, schema=None, memmap=False,
                  pass_invalid_values=None, strict_validation=None,
+                 validate_on_assignment=None,
                  ignore_missing_extensions=True, **kwargs):
         """
         Parameters
@@ -112,6 +113,15 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             If `None`, value will be taken from the environmental STRICT_VALIDATION.
             Otherwise, the default value is `False`.
 
+        validate_on_assignment : bool or None
+            Defaults to 'None'.
+            If `None`, value will be taken from the environmental VALIDATE_ON_ASSIGNMENT,
+            defaulting to 'True' if  no environment variable is set.
+            If 'True', attribute assignments are validated at the time of assignment.
+            Validation errors generate warnings and values will be set to `None`.
+            If 'False', schema validation occurs only once at the time of write.
+            Validation errors generate warnings.
+
         ignore_missing_extensions : bool
             When `False`, raise warnings when a file is read that
             contains metadata about extensions that are not available.
@@ -137,8 +147,12 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         if strict_validation is None:
             strict_validation = get_envar_as_boolean("STRICT_VALIDATION",
                                                           False)
+        if validate_on_assignment is None:
+            validate_on_assignment = get_envar_as_boolean("VALIDATE_ON_ASSIGNMENT",
+                                                          True)
         self._strict_validation = strict_validation
         self._ignore_missing_extensions = ignore_missing_extensions
+        self._validate_on_assignment = validate_on_assignment
 
         kwargs.update({'ignore_missing_extensions': ignore_missing_extensions})
 
@@ -561,6 +575,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             `~asdf.AsdfFile.write_to`.
         """
         self.on_save(init)
+        self.validate()
         asdffile = self.open_asdf(self._instance, **kwargs)
         asdffile.write_to(init, *args, **kwargs)
 
