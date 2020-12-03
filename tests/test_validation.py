@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 import pytest
 import asdf
 from jsonschema import ValidationError
@@ -321,7 +319,6 @@ def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
 def test_validate_on_assignment_strict_validation(tmp_path, validate_on_assignment,
                                                   strict_validation,
                                                   expected_context_manager, value):
-    path = tmp_path / "test.asdf"
     model = ValidationModel(validate_on_assignment=validate_on_assignment,
                             strict_validation=strict_validation)
 
