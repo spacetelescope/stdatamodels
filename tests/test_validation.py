@@ -1,11 +1,29 @@
-import pytest
+from contextlib import contextmanager
 
+import pytest
 import asdf
 from jsonschema import ValidationError
 
 from stdatamodels.validate import ValidationWarning
-
 from models import ValidationModel, RequiredModel
+
+
+
+class _DoesNotRaiseContext:
+    """
+    Dummy context manager for use in parametrized tests, for non-raising cases.
+    """
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def __repr__(self):
+        return "does_not_raise"
+
+# Define a singleton to use
+does_not_raise = _DoesNotRaiseContext()
 
 
 def test_scalar_attribute_assignment():
@@ -106,7 +124,7 @@ def test_validation_on_delete():
 
 
 @pytest.mark.parametrize(
-    "init_value,env_value,passed",
+    "init_value, env_value, passed",
     [
         (None, None, False),
         (True, None, True),
@@ -115,7 +133,8 @@ def test_validation_on_delete():
         (None, "false", False),
     ],
 )
-def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_value, passed):
+def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value,
+                                                  env_value, passed):
     if env_value is not None:
         monkeypatch.setenv("PASS_INVALID_VALUES", env_value)
 
@@ -130,8 +149,14 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
         assert model.meta.string_attribute is None
 
 
-def test_pass_invalid_values_on_write(tmp_path):
-    file_path = tmp_path/"test.asdf"
+@pytest.mark.parametrize("suffix",
+    [
+        "asdf",
+        pytest.param("fits",
+            marks=pytest.mark.xfail(reason="save to FITS raises error, not just warning", strict=True))
+    ])
+def test_pass_invalid_values_on_write(tmp_path, suffix):
+    file_path = tmp_path / f"test.{suffix}"
     model = ValidationModel(pass_invalid_values=True)
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -143,29 +168,25 @@ def test_pass_invalid_values_on_write(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "init_value,env_value,exception_class",
+    "init_value, env_value, expected_context_manager",
     [
-        (None, None, ValidationWarning),
-        (True, None, ValidationError),
-        (False, None, ValidationWarning),
-        (None, "true", ValidationError),
-        (None, "false", ValidationWarning),
+        (None, None, pytest.warns(ValidationWarning)),
+        (True, None, pytest.raises(ValidationError)),
+        (False, None, pytest.warns(ValidationWarning)),
+        (None, "true", pytest.raises(ValidationError)),
+        (None, "false", pytest.warns(ValidationWarning)),
     ],
 )
-def test_strict_validation_attribute_assignment(monkeypatch, init_value, env_value, exception_class):
+def test_strict_validation_attribute_assignment(monkeypatch, init_value, env_value,
+                                                expected_context_manager):
     if env_value is not None:
         monkeypatch.setenv("STRICT_VALIDATION", env_value)
 
     model = ValidationModel(strict_validation=init_value)
 
-    if issubclass(exception_class, Warning):
-        with pytest.warns(exception_class):
-            model.meta.string_attribute = 42
-        assert model.meta.string_attribute is None
-    else:
-        with pytest.raises(exception_class):
-            model.meta.string_attribute = 42
-        assert model.meta.string_attribute is None
+    with expected_context_manager:
+        model.meta.string_attribute = 42
+    assert model.meta.string_attribute is None
 
 
 def test_validate():
@@ -198,8 +219,14 @@ def test_validation_on_init(tmp_path):
             ValidationModel(af)
 
 
-def test_validation_on_write(tmp_path):
-    file_path = tmp_path/"test.asdf"
+@pytest.mark.parametrize("suffix",
+    [
+        "asdf",
+        pytest.param("fits",
+            marks=pytest.mark.xfail(reason="save to FITS raises error, not just warning", strict=True))
+    ])
+def test_validation_on_write(tmp_path, suffix):
+    file_path = tmp_path / f"test.{suffix}"
     model = ValidationModel(pass_invalid_values=True)
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -207,295 +234,120 @@ def test_validation_on_write(tmp_path):
     with pytest.warns(ValidationWarning):
         model.save(file_path)
 
-def test_validate_on_assignment_default():
-    model = ValidationModel()
-    assert model._validate_on_assignment==True
 
-    with pytest.warns(ValidationWarning):
+@pytest.mark.parametrize(
+    "init_value, env_value, expected_context_manager, string_attribute_value",
+    [
+        (None, None, pytest.warns(ValidationWarning), None),
+        (True, None, pytest.warns(ValidationWarning), None),
+        (False, None, does_not_raise, 42),
+        (None, "true", pytest.warns(ValidationWarning), None),
+        (None, "false", does_not_raise, 42),
+    ],
+)
+def test_validate_on_assignment(monkeypatch, init_value, env_value,
+                                expected_context_manager, string_attribute_value):
+    if env_value is not None:
+        monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", env_value)
+    model = ValidationModel(validate_on_assignment=init_value)
+
+    with expected_context_manager:
         model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute is None
+    assert model.meta.string_attribute is string_attribute_value
 
 
-def test_validate_on_assignment_false(tmp_path):
-    file_path = tmp_path/"test.asdf"
+@pytest.mark.parametrize(
+    "init_value, warning_class, string_attribute_value",
+    [
+        (True, ValidationWarning, "bar"),
+        (False, None, 42),
+    ],
+)
+def test_validate_on_assignment_setitem(init_value, warning_class,
+                                        string_attribute_value):
+    model = ValidationModel(validate_on_assignment=init_value)
 
-    model = ValidationModel(validate_on_assignment=False)
-    assert model._validate_on_assignment==False
+    # Check values assigned that are valid
+    value = "foo"
+    model.meta.list_attribute.append({"string_attribute": value})
+    assert model.meta.list_attribute[0].string_attribute == value
 
-    with pytest.warns(None) as warnings:
-        model.meta.string_attribute = 42  # Bad assignment should cause no warning
-    assert len(warnings) == 0
-    assert model.meta.string_attribute == 42
+    value2 = "bar"
+    model.meta.list_attribute[0] = {"string_attribute": value2}
+    assert model.meta.list_attribute[0].string_attribute == value2
 
-    with pytest.warns(ValidationWarning):
-        model.save(file_path)
-
-
-def test_validate_on_assignment_true():
-    model = ValidationModel(validate_on_assignment=True)
-    assert model._validate_on_assignment==True
-
-    with pytest.warns(ValidationWarning):
-        model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute is None
-
-
-def test_validate_on_assignment_with_environ_false(monkeypatch, tmp_path):
-    file_path = tmp_path/"test.asdf"
-
-    monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", "False")
-    model = ValidationModel()
-    assert model._validate_on_assignment==False
-
-    with pytest.warns(None) as warnings:
-        model.meta.string_attribute = 42  # Bad assignment should cause no warning
-    assert len(warnings) == 0
-    assert model.meta.string_attribute == 42
-
-    with pytest.warns(ValidationWarning):
-        model.save(file_path)
+    # Now check invalid assignments.  Currently string_attribute="bar".  Try
+    # assigning an invalid type
+    value3 = 42
+    with pytest.warns(warning_class):
+        model.meta.list_attribute[0] = {"string_attribute": value3}
+    assert model.meta.list_attribute[0].string_attribute == string_attribute_value
 
 
-def test_validate_on_assignment_with_environ_true(monkeypatch, tmp_path):
-    monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", "True")
-    model = ValidationModel()
-    assert model._validate_on_assignment==True
+@pytest.mark.parametrize(
+    "validate_on_assignment, warning_class, string_attribute_value",
+    [
+        (True, ValidationWarning, "bar"),
+        (False, None, 42),
+    ],
+)
+def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
+                                       string_attribute_value):
+    model = ValidationModel(validate_on_assignment=validate_on_assignment)
 
-    with pytest.warns(ValidationWarning):
-        model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute is None
-
-
-def test_validate_on_assignment_setitem_default():
-    model = ValidationModel()
-
-    model.meta.list_attribute.append({"string_attribute": "foo"})
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    model.meta.list_attribute[0] = {"string_attribute": "bar"}
+    model.meta.list_attribute.insert(0, {"string_attribute": "bar"})
     assert model.meta.list_attribute[0].string_attribute == "bar"
 
-    model.meta.list_attribute[0].string_attribute = "foo"
-    assert model.meta.list_attribute[0].string_attribute == "foo"
+    with pytest.warns(warning_class):
+        model.meta.list_attribute.insert(0, {"string_attribute": 42})
+    assert model.meta.list_attribute[0].string_attribute == string_attribute_value
 
-    with pytest.warns(ValidationWarning):
-        model.meta.list_attribute[0] = {"string_attribute": 42}
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(ValidationWarning):
-        model.meta.list_attribute[0].string_attribute = 42
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-def test_validate_on_assignment_setitem_false():
-    model = ValidationModel(validate_on_assignment=False)
-
-    model.meta.list_attribute.append({"string_attribute": "foo"})
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute[0] = {"string_attribute": 42}
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
-
-    model.meta.list_attribute[0].string_attribute = 13
-    assert model.meta.list_attribute[0].string_attribute == 13
-
-
-def test_validate_on_assignment_insert_default():
-    model = ValidationModel()
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
-    assert model.meta.list_attribute[0].string_attribute == "bar"
-
-    with pytest.warns(ValidationWarning):
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert model.meta.list_attribute[0].string_attribute == "bar"
-
-
-def test_validate_on_assignment_insert_false():
-    model = ValidationModel(validate_on_assignment=False)
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
 
 # --------------------------------------------------------------------
 # Validation flag interaction testing.
 
 # This test is the same as one above, but with strict_validation=True.
 # This ensures strict_validation=True doesn't effect this test.
-def test_validate_on_assignment_default_strict_validation():
-    model = ValidationModel(strict_validation=True)
-    assert model._validate_on_assignment==True
 
-    exception_class = ValidationError
-    with pytest.raises(exception_class):
-        model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute is None
+@pytest.mark.parametrize(
+    "validate_on_assignment, strict_validation, expected_context_manager, value",
+    [
+        (True, False, pytest.warns(ValidationWarning), None),
+        (True, True, pytest.raises(ValidationError), None),
+        (False, False, does_not_raise, 42),
+        (False, True, does_not_raise, 42),
+    ],
+)
+def test_validate_on_assignment_strict_validation(tmp_path, validate_on_assignment,
+                                                  strict_validation,
+                                                  expected_context_manager, value):
+    path = tmp_path / "test.asdf"
+    model = ValidationModel(validate_on_assignment=validate_on_assignment,
+                            strict_validation=strict_validation)
 
-
-def test_validate_on_assignment_false_strict_validation(tmp_path):
-    file_path = tmp_path/"test.asdf"
-    exception_class = ValidationError
-
-    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
-    assert model._validate_on_assignment==False
-
-    with pytest.warns(None) as warnings:
-        model.meta.string_attribute = 42  # Bad assignment should cause no warning
-    assert len(warnings) == 0
-    assert model.meta.string_attribute == 42
-
-    # Exception instead of warning
-    with pytest.raises(exception_class):
-        model.save(file_path)
+    with expected_context_manager:
+        model.meta.string_attribute = 42
+    assert model.meta.string_attribute is value
 
 
-# This test is the same as one above, but with strict_validation=True.  This ensures
-# strict_validation=True doesn't effect this test.
-def test_validate_on_assignment_setitem_false_strict_validation():
-    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
-
-    model.meta.list_attribute.append({"string_attribute": "foo"})
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute[0] = {"string_attribute": 42}
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
-
-    model.meta.list_attribute[0].string_attribute = 13
-    assert model.meta.list_attribute[0].string_attribute == 13
-
-
-def test_validate_on_assignment_insert_default_strict_validation():
-    model = ValidationModel(strict_validation=True)
-    exception_class = ValidationError
-
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
-    assert model.meta.list_attribute[0].string_attribute == "bar"
-
-    # Get an exception, instead of warning.
-    with pytest.raises(exception_class):
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert model.meta.list_attribute[0].string_attribute == "bar"
-
-
-# This test is the same as one above, but with strict_validation=True.  This ensures
-# strict_validation=True doesn't effect this test.
-def test_validate_on_assignment_insert_false_strict_validation():
-    model = ValidationModel(strict_validation=True, validate_on_assignment=False)
-
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
-
-
-def test_validate_on_assignment_default_pass_invalid_values():
-    model = ValidationModel(pass_invalid_values=True)
-    assert model._validate_on_assignment==True
+@pytest.mark.parametrize(
+    "validate_on_assignment, pass_invalid_values, expected_context_manager, value",
+    [
+        (True, False, pytest.warns(ValidationWarning), None),
+        (True, True, pytest.warns(ValidationWarning), 42),
+        (False, False, does_not_raise, 42),
+        (False, True, does_not_raise, 42),
+    ],
+)
+def test_validate_on_assignment_pass_invalid_values(validate_on_assignment,
+                                                    pass_invalid_values,
+                                                    expected_context_manager,
+                                                    value):
+    model = ValidationModel(validate_on_assignment=validate_on_assignment,
+                            pass_invalid_values=pass_invalid_values)
 
     # pass_invalid_values=True allows for assignment,
     # even with validate_on_assignment=True
-    with pytest.warns(ValidationWarning) as warnings:
+    with expected_context_manager:
         model.meta.string_attribute = 42  # Bad assignment
-    assert len(warnings) == 1
-    assert model.meta.string_attribute == 42
-
-
-def test_validate_on_assignment_false_pass_invalid_values(tmp_path):
-    file_path = tmp_path/"test.asdf"
-
-    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
-    assert model._validate_on_assignment==False
-
-    with pytest.warns(None) as warnings:
-        model.meta.string_attribute = 42  # Bad assignment should cause no warning
-    assert len(warnings) == 0
-    assert model.meta.string_attribute == 42
-
-    with pytest.warns(ValidationWarning):
-        model.save(file_path)
-
-
-# This test is the same as one above, but with pass_invalid_values=True.  This ensures
-# pass_invalid_values=True doesn't effect this test.
-def test_validate_on_assignment_setitem_false_pass_invalid_values():
-    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
-
-    model.meta.list_attribute.append({"string_attribute": "foo"})
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute[0] = {"string_attribute": 42}
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
-
-    model.meta.list_attribute[0].string_attribute = 13
-    assert model.meta.list_attribute[0].string_attribute == 13
-
-
-def test_validate_on_assignment_insert_default_pass_invalid_values():
-    model = ValidationModel(pass_invalid_values=True)
-
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    model.meta.list_attribute.insert(0,{"string_attribute": "bar"})
-    assert model.meta.list_attribute[0].string_attribute == "bar"
-
-    # Validate on assignment throws a warning, but passing invalid values
-    # allows for the change.
-    with pytest.warns(ValidationWarning):
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert model.meta.list_attribute[0].string_attribute == 42
-
-
-# This test is the same as one above, but with pass_invalid_values=True.  This ensures
-# pass_invalid_values=True doesn't effect this test.
-def test_validate_on_assignment_insert_false_pass_invalid_values():
-    model = ValidationModel(pass_invalid_values=True, validate_on_assignment=False)
-
-    attr_list = [
-        {"string_attribute": "foo"},
-    ]
-    for x in attr_list:
-        model.meta.list_attribute.append(x)
-    assert model.meta.list_attribute[0].string_attribute == "foo"
-
-    with pytest.warns(None) as warnings:
-        model.meta.list_attribute.insert(0,{"string_attribute": 42})
-    assert len(warnings) == 0
-    assert model.meta.list_attribute[0].string_attribute == 42
+    assert model.meta.string_attribute == value
