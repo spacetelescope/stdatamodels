@@ -1,4 +1,4 @@
-0.1.0 (unreleased)
+0.1.0 (2020-12-04)
 ==================
 
 - Create package and import code from jwst.datamodels. [#1]
