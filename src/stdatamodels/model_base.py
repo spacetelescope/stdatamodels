@@ -1,5 +1,5 @@
 """
-Data model class heirarchy
+Data model class hierarchy
 """
 
 import copy
@@ -41,9 +41,6 @@ _DEFAULT_SCHEMA = {
                 "filename": {
                     "type": "string",
                 },
-                "date": {
-                    "type": "string",
-                },
                 "model_type": {
                     "type": "string",
                 },
@@ -62,7 +59,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
     """
     The schema URI to validate the model against.  If
     None, only basic validation of required metadata
-    properties (filename, date, model_type) will occur.
+    properties (filename, model_type) will occur.
     """
 
     def __init__(self, init=None, schema=None, memmap=False,
@@ -278,28 +275,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             # referenced. Do so now.
             getattr(self, primary_array_name)
 
-        # if the input is from a file, set the filename attribute
-        if isinstance(init, str):
-            self.meta.filename = os.path.basename(init)
-        elif isinstance(init, fits.HDUList):
-            info = init.fileinfo(0)
-            if info is not None:
-                filename = info.get('filename')
-                if filename is not None:
-                    self.meta.filename = os.path.basename(filename)
-
-        # if the input model doesn't have a date set, use the current date/time
-        if not self.meta.hasattr('date'):
-            current_date = Time(datetime.datetime.now())
-            current_date.format = 'isot'
-            self.meta.date = current_date.value
-
-        # store the data model type, if not already set
-        klass = self.__class__.__name__
-        if klass != 'DataModel':
-            if not self.meta.hasattr('model_type'):
-                self.meta.model_type = klass
-
         # initialize arrays from keyword arguments when they are present
 
         for attr, value in kwargs.items():
@@ -308,6 +283,9 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                                                                 attr)
                 if 'datatype' in subschema:
                     setattr(self, attr, value)
+
+        # Call hook that sets model properties
+        self.on_init(init)
 
     @property
     def _model_type(self):
@@ -440,6 +418,31 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             primary_array_name = ''
         return primary_array_name
 
+    def on_init(self, init):
+        """
+        Hook used to customize model attributes at the end of ``__init__``.
+
+        Parameters
+        ----------
+        init : object
+            First argument to ``__init__``.
+        """
+        # if the input is from a file, set the filename attribute
+        if isinstance(init, str):
+            self.meta.filename = os.path.basename(init)
+        elif isinstance(init, fits.HDUList):
+            info = init.fileinfo(0)
+            if info is not None:
+                filename = info.get('filename')
+                if filename is not None:
+                    self.meta.filename = os.path.basename(filename)
+
+        # store the data model type, if not already set
+        klass = self.__class__.__name__
+        if klass != 'DataModel':
+            if not self.meta.hasattr('model_type'):
+                self.meta.model_type = klass
+
     def on_save(self, path=None):
         """
         This is a hook that is called just before saving the file.
@@ -457,10 +460,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         """
         if isinstance(path, str):
             self.meta.filename = os.path.basename(path)
-
-        current_date = Time(datetime.datetime.now())
-        current_date.format = 'isot'
-        self.meta.date = current_date.value
 
         # Enforce model_type to be the actual type of model being saved.
         self.meta.model_type = self._model_type
