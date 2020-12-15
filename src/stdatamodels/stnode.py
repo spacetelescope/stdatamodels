@@ -5,10 +5,14 @@ Proof of concept of using tags with the data model framework
 from asdf.extension import Converter
 from collections import UserList
 from .stuserdict import STUserDict as UserDict
+import asdf
+import asdf.schema as asdfschema
 
 class DNode(UserDict):
 
     _tag = None
+    _ctx = None
+
     def __init__(self, node=None):
 
         if node is None:
@@ -17,9 +21,18 @@ class DNode(UserDict):
             self.__dict__['_data'] = node
         else:
             raise ValueError("Initializer only accepts dicts")
+        self._x_schema = None
+        self._schema_uri = None
         # else:
         #     self.data = node.data
+
+    @property
+    def ctx(self):
+        if self._ctx is None:
+            DNode._ctx = asdf.AsdfFile()
+        return self._ctx
     
+   
     def __getattr__(self, key):
         """
         Permit accessing dict keys as attributes, assuming they are legal Python
@@ -40,10 +53,13 @@ class DNode(UserDict):
         """
         Permit assigning dict keys as attributes.
         """
-        if key in self._data:
-            self.__dict__['_data'][key] = value
+        if key[0] != '_':
+            if key in self._data:
+                self.__dict__['_data'][key] = value
+            else:
+                raise KeyError(f"No such key ({key}) found in node")
         else:
-            raise KeyError(f"No such key ({key}) found in node")
+            self.__dict__[key] = value
 
     # def __getindex__(self, key):
     #     return self.data[key]
@@ -82,12 +98,29 @@ class TaggedObjectNode(DNode):
     def tag(self):
         return self._tag
 
+    def _schema(self):
+        if self._x_schema is None:
+            self._x_schema = self.get_schema()
+        return self._x_schema
+
+
+
+    def get_schema(self):
+        """Retrieve the schema associated with this tag"""
+        extension_manager = self.ctx.extension_manager
+        tag_def = extension_manager.get_tag_definition(self.tag)
+        schema_uri = tag_def.schema_uri
+        print(schema_uri)
+        schema = asdfschema._load_schema_cached(
+            schema_uri, self.ctx, False, False)
+        return schema
+
 class TaggedListNode(LNode):
 
     @property
     def tag(self):
         return self._tag
-    
+
 
 class TaggedObjectNodeConverter(Converter):
     """
