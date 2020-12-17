@@ -1,5 +1,6 @@
 from . import stnode
 from  astropy.time import Time
+import numpy as np
 def mk_test_object():
     exp = stnode.Exposure()
     exp['type'] = "WFI_CORON"
@@ -17,6 +18,7 @@ def mk_test_object():
     wfi['name'] = 'WFI'
     wfi['detector'] = 'WFI01'
     wfi['optical_element'] = 'GRISM'
+    wfi['dummy_data'] = np.arange(10)
     rd = stnode.WfiImage()
     rd['meta'] = {}
     rd['meta']['filename'] = 'bozo.asdf'
