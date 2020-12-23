@@ -54,7 +54,7 @@ jobs:
           - name: romancal.datamodels tests
             runs-on: ubuntu-latest
             python-version: 3.8
-            toxenv: jwst
+            toxenv: romancal
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
