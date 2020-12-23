@@ -46,12 +46,12 @@ jobs:
             python-version: 3.8
             toxenv: py38
 
-          - name: jwst.datamodels tests (allowed failure)
+          - name: jwst.datamodels tests
             runs-on: ubuntu-latest
             python-version: 3.8
             toxenv: jwst
 
-          - name: romancal.datamodels tests (allowed failure)
+          - name: romancal.datamodels tests
             runs-on: ubuntu-latest
             python-version: 3.8
             toxenv: jwst
