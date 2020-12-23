@@ -57,6 +57,8 @@ jobs:
             toxenv: romancal
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -78,6 +80,8 @@ jobs:
         run: |
           sudo apt-get install graphviz texlive-latex-extra dvipng
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
