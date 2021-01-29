@@ -178,11 +178,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # Provide the object as context to other classes and functions
         self._ctx = self
 
-        # If a model has been instantiated from a file, a list of later shallow clones
-        # will need that file to remain open. Keep the list of models that need
-        # these resources. This list needs to be common among all related models.
-        self._models_using_resources = SingletonList()
-
         # Initialize with an empty AsdfFile instance as this is needed for
         # reading in FITS files where validate._check_value() gets called, and
         # ctx needs to have an _asdf attribute.
@@ -191,6 +186,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # Determine what kind of input we have (init) and execute the
         # proper code to intiailize the model
         self._files_to_close = []
+        self._models_using_resources = []
         self._iscopy = False
         is_array = False
         is_shape = False
@@ -250,9 +246,11 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                     hdulist, self._schema, self._ctx, **kwargs
                 )
                 self._files_to_close.append(hdulist)
+                self._models_using_resources.append(self)
 
             elif file_type == "asdf":
                 asdffile = self.open_asdf(init=init, **kwargs)
+                self._models_using_resources.append(self)
 
             else:
                 # TODO handle json files as well
@@ -363,17 +361,21 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # This method is called by __del__, which may be invoked
         # even when the model failed to initialize.  Consequently,
         # we can't assume that any attributes have been set.
-        if hasattr(self, "_iscopy") and not self._iscopy:
-            if hasattr(self, "_asdf") and self._asdf is not None:
-                self._asdf.close()
+        if hasattr(self, "_models_using_resources") and self in self._models_using_resources:
+            self._models_using_resources.remove(self)
 
-            if hasattr(self, "_instance"):
-                self._drop_arrays()
+            # If there are no more models, close the resources.
+            if not len(self._models_using_resources):
+                if hasattr(self, "_asdf") and self._asdf is not None:
+                    self._asdf.close()
 
-            if hasattr(self, "_files_to_close"):
-                for fd in self._files_to_close:
-                    if fd is not None:
-                        fd.close()
+                if hasattr(self, "_instance"):
+                    self._drop_arrays()
+
+                if hasattr(self, "_files_to_close"):
+                    for fd in self._files_to_close:
+                        if fd is not None:
+                            fd.close()
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
@@ -381,13 +383,13 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             instance = copy.deepcopy(source._instance, memo=memo)
             target._asdf = AsdfFile(instance)
             target._instance = instance
-            target._iscopy = source._iscopy
         else:
             target._asdf = source._asdf
             target._instance = source._instance
-            target._iscopy = True
+            source._models_using_resources.append(target)
+            target._models_using_resources = source._models_using_resources
+            target._files_to_close = source._files_to_close
 
-        target._files_to_close = []
         target._shape = source._shape
         target._ctx = target
         target._no_asdf_extension = source._no_asdf_extension
