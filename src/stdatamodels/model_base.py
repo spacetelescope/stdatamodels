@@ -50,18 +50,6 @@ _DEFAULT_SCHEMA = {
 }
 
 
-class SingletonList(list):
-    """Create single-copy list
-
-    The `__copy__` and `__deepcopy__` methods are essentially noops.
-    """
-    def __copy__(self):
-        return self
-
-    def __deepcopy__(self, memo=None):
-        return self
-
-
 class DataModel(properties.ObjectNode, ndmodel.NDModel):
     """
     Base class of all of the data models.
