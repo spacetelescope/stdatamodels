@@ -175,7 +175,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         # proper code to intiailize the model
         self._files_to_close = []
         self._models_using_resources = []
-        self._iscopy = False
         is_array = False
         is_shape = False
         shape = None
