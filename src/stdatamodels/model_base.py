@@ -50,6 +50,18 @@ _DEFAULT_SCHEMA = {
 }
 
 
+class SingletonList(list):
+    """Create single-copy list
+
+    The `__copy__` and `__deepcopy__` methods are essentially noops.
+    """
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo=None):
+        return self
+
+
 class DataModel(properties.ObjectNode, ndmodel.NDModel):
     """
     Base class of all of the data models.
@@ -165,6 +177,11 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
         # Provide the object as context to other classes and functions
         self._ctx = self
+
+        # If a model has been instantiated from a file, a list of later shallow clones
+        # will need that file to remain open. Keep the list of models that need
+        # these resources. This list needs to be common among all related models.
+        self._models_using_resources = SingletonList()
 
         # Initialize with an empty AsdfFile instance as this is needed for
         # reading in FITS files where validate._check_value() gets called, and
