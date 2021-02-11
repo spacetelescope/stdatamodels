@@ -174,8 +174,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
 
         # Determine what kind of input we have (init) and execute the
         # proper code to intiailize the model
-        self._files_to_close = []
-        self._iscopy = False
+        self._file_references = []
         is_array = False
         is_shape = False
         shape = None
@@ -233,7 +232,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                 asdffile = fits_support.from_fits(
                     hdulist, self._schema, self._ctx, **kwargs
                 )
-                self._files_to_close.append(hdulist)
+                self._file_references.append(_FileReference(hdulist))
 
             elif file_type == "asdf":
                 asdffile = self.open_asdf(init=init, **kwargs)
@@ -246,6 +245,8 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         else:
             raise ValueError(
                 "Can't initialize datamodel using {0}".format(str(type(init))))
+
+        self._file_references.append(_FileReference(asdffile))
 
         # Initialize object fields as determined from the code above
         self._shape = shape
@@ -349,36 +350,13 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def _drop_arrays(self):
-        def _drop_array(d):
-            # Walk tree and delete numpy arrays
-            if isinstance(d, dict):
-                for val in d.values():
-                    _drop_array(val)
-            elif isinstance(d, list):
-                for val in d:
-                    _drop_array(val)
-            elif isinstance(d, np.ndarray):
-                del d
-            else:
-                pass
-        _drop_array(self._instance)
-
     def close(self):
         # This method is called by __del__, which may be invoked
         # even when the model failed to initialize.  Consequently,
         # we can't assume that any attributes have been set.
-        if hasattr(self, "_iscopy") and not self._iscopy:
-            if hasattr(self, "_asdf") and self._asdf is not None:
-                self._asdf.close()
-
-            if hasattr(self, "_instance"):
-                self._drop_arrays()
-
-            if hasattr(self, "_files_to_close"):
-                for fd in self._files_to_close:
-                    if fd is not None:
-                        fd.close()
+        if hasattr(self, "_file_references"):
+            for file_reference in self._file_references:
+                file_reference.decrement()
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
@@ -386,13 +364,13 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             instance = copy.deepcopy(source._instance, memo=memo)
             target._asdf = AsdfFile(instance)
             target._instance = instance
-            target._iscopy = source._iscopy
         else:
             target._asdf = source._asdf
             target._instance = source._instance
-            target._iscopy = True
+            for file_reference in source._file_references:
+                file_reference.increment()
+                target._file_references.append(file_reference)
 
-        target._files_to_close = []
         target._shape = source._shape
         target._ctx = target
         target._no_asdf_extension = source._no_asdf_extension
@@ -1107,3 +1085,27 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         if attribute in self.instance:
             return getattr(self, attribute)
         raise AttributeError(f'{self} has no attribute "{attribute}"')
+
+
+class _FileReference:
+    """
+    Reference counter for open file pointers managed by
+    DataModel.  Once decremented to zero the file will
+    be closed.
+    """
+
+    def __init__(self, file):
+        self._file = file
+        self._count = 1
+
+    def increment(self):
+        self._count += 1
+
+    def decrement(self):
+        if self._count <= 0:
+            return
+
+        self._count -= 1
+        if self._count <= 0:
+            self._file.close()
+            self._file = None
