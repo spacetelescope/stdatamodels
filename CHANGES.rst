@@ -7,6 +7,9 @@
 - Fix bug where asdf.tags.core.NDArrayType instances remain
   in flat dict when include_arrays=False. [#58]
 
+- Improve handling of open files among shallow copies
+  of a DataModel. [#59]
+
 0.1.0 (2020-12-04)
 ==================
 
