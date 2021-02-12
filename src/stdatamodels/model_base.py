@@ -357,6 +357,8 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         if hasattr(self, "_file_references"):
             for file_reference in self._file_references:
                 file_reference.decrement()
+            # Discard the list in case close is called a second time.
+            self._file_references = []
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
