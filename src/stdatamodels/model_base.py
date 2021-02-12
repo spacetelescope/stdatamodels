@@ -16,6 +16,7 @@ from astropy.time import Time
 from astropy.wcs import WCS
 
 import asdf
+from asdf.tags.core import NDArrayType
 from asdf import AsdfFile
 from asdf import schema as asdf_schema
 
@@ -971,7 +972,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             return dict((key, convert_val(val)) for (key, val) in self.items())
         else:
             return dict((key, convert_val(val)) for (key, val) in self.items()
-                        if not isinstance(val, np.ndarray))
+                        if not isinstance(val, (np.ndarray, NDArrayType)))
 
     @property
     def schema(self):

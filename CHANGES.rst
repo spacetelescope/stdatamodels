@@ -4,6 +4,9 @@
 - Remove automatic management of meta.date attribute and create
   on_init hook. [#44]
 
+- Fix bug where asdf.tags.core.NDArrayType instances remain
+  in flat dict when include_arrays=False. [#58]
+
 0.1.0 (2020-12-04)
 ==================
 
