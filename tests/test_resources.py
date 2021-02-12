@@ -98,6 +98,51 @@ def test_close(extension, tmp_path):
 
 
 @pytest.mark.parametrize("extension", ["asdf", "fits"])
+def test_multiple_close(extension, tmp_path):
+    """
+    Confirm that multiple calls to close() on the same
+    model does not prematurely close the file.
+    """
+    file_path = tmp_path / f"test.{extension}"
+
+    process = psutil.Process()
+    base_count = len(process.open_files())
+
+    array = np.random.uniform(size=(1024, 1024))
+
+    model = FitsModel()
+    model.data = array
+    model.save(file_path)
+    model.close()
+
+    # No files left open by creating and saving a model:
+    assert len(process.open_files()) == base_count
+
+    model = FitsModel(file_path)
+    # Count should be higher due to opening the file:
+    model_count = len(process.open_files())
+    assert model_count > base_count
+
+    new_model = FitsModel(model)
+    model.close()
+
+    # No files should be closed yet because new_model still
+    # needs the resources:
+    assert len(process.open_files()) == model_count
+
+    # Close the original model a second time:
+    model.close()
+
+    # Still no files closed:
+    assert len(process.open_files()) == model_count
+
+    new_model.close()
+
+    # Back to the original state:
+    assert len(process.open_files()) == base_count
+
+
+@pytest.mark.parametrize("extension", ["asdf", "fits"])
 def test_delete(extension, tmp_path):
     """Deleting the model should also not close files
     until the last model has been deleted."""
