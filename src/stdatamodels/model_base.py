@@ -288,6 +288,27 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         self.on_init(init)
 
     @property
+    def crds_observatory(self):
+        """
+        Get the CRDS observatory code for this model.
+
+        Returns
+        -------
+        str
+        """
+        raise NotImplementedError("The base DataModel class cannot be used to select best references")
+
+    def get_crds_parameters(self):
+        """
+        Get the parameters used by CRDS to select references for this model.
+
+        Returns
+        -------
+        dict
+        """
+        raise NotImplementedError("The base DataModel class cannot be used to select best references")
+
+    @property
     def _model_type(self):
         return self.__class__.__name__
 
