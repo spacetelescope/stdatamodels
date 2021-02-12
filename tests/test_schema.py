@@ -1,6 +1,9 @@
 import pytest
 import numpy as np
+from numpy.testing import assert_array_equal
 
+import asdf
+from asdf.tags.core import NDArrayType
 import jsonschema
 from astropy.modeling import models
 
@@ -51,13 +54,37 @@ def test_dictionary_like():
 
 
 def test_to_flat_dict():
+    array = np.arange(1024)
+
     with DataModel() as x:
         x.meta.origin = 'FOO'
+        x.data = array
         assert x['meta.origin'] == 'FOO'
 
         d = x.to_flat_dict()
 
         assert d['meta.origin'] == 'FOO'
+        assert_array_equal(d['data'], array)
+
+        d = x.to_flat_dict(include_arrays=False)
+        assert "data" not in d
+
+
+def test_to_flat_dict_ndarraytype(tmp_path):
+    file_path = tmp_path / "test.asdf"
+
+    array = np.arange(1024)
+    with asdf.AsdfFile() as af:
+        af["data"] = array
+        af.write_to(file_path)
+
+    with DataModel(file_path) as dm:
+        d = dm.to_flat_dict()
+        assert_array_equal(d["data"], array)
+        assert isinstance(d["data"], NDArrayType)
+
+        d = dm.to_flat_dict(include_arrays=False)
+        assert "data" not in d
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
