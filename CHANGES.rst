@@ -1,4 +1,4 @@
-0.2.0 (unreleased)
+0.2.0 (2021-02-15)
 ==================
 
 - Remove automatic management of meta.date attribute and create
@@ -8,7 +8,7 @@
   in flat dict when include_arrays=False. [#58]
 
 - Improve handling of open files among shallow copies
-  of a DataModel. [#59]
+  of a DataModel. [#59, #60]
 
 0.1.0 (2020-12-04)
 ==================
