@@ -1,0 +1,158 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam_dither-1.0.0"
+
+title: NIRCAM dither information
+type: object
+properties:
+  primary_type:
+    title: Primary dither pattern type
+    type: string
+    enum:
+      # MIRI coron
+     [5-POINT-SMALL-GRID, 9-POINT-SMALL-GRID,
+      # MIRI imaging
+      4-POINT-SETS, CYCLING, GAUSSIAN, REULEAUX, WFSC,
+      # MIRI LRS
+      2PIXEL-SLITLESS-SCAN-SHORT, ALONG-SLIT-NOD, MAPPING,
+      # MIRI MRS
+      2-POINT, 4-POINT, EXTENDED-SOURCE, POINT-SOURCE,
+      # NIRCam
+      FULL, FULLBOX, FULL-TIGHT,
+      INTRAMODULE, INTRAMODULEBOX, INTRAMODULEX, INTRASCA,
+      SUBARRAY-DITHER,
+      # NIRISS
+      AMI, IMAGING, MIMF, PARALLEL, WFSS,
+      # NIRSpec FS, IFU, and MOS
+      2-POINT-WITH-NIRCAM-SIZE1, 2-POINT-WITH-NIRCAM-SIZE2, 2-POINT-WITH-NIRCAM-SIZE3,
+      3-POINT-WITH-NIRCAM-SIZE1, 3-POINT-WITH-NIRCAM-SIZE2, 3-POINT-WITH-NIRCAM-SIZE3,
+      2-POINT-NOD, 3-POINT-NOD, 5-POINT-NOD,
+      # NIRSpec IFU
+      4-POINT-NOD, 4-POINT-DITHER, CYCLING, SPARSE-CYCLING,
+      # Misc
+      N/A, NONE, ANY]
+    fits_keyword: PATTTYPE
+    blend_table: True
+  position_number:
+    title: Position number in primary pattern
+    type: integer
+    fits_keyword: PATT_NUM
+    blend_table: True
+  pattern_start:
+    title: Starting point in pattern
+    type: integer
+    fits_keyword: PATTSTRT
+    blend_table: True
+  total_points:
+    title: Total number of points in pattern
+    type: integer
+    fits_keyword: NUMDTHPT
+    blend_table: True
+  dither_points:
+    title: Total number of points in image dither pattern
+    fits_keyword: NRIMDTPT
+    blend_table: True
+  pattern_size:
+    title: "Primary dither pattern size"
+    type: string
+    fits_keyword: PATTSIZE
+    blend_table: True
+  subpixel_number:
+    title: Subpixel pattern number
+    type: integer
+    fits_keyword: SUBPXNUM
+    blend_table: True
+  subpixel_total_points:
+    title: Total number of points in subpixel pattern
+    type: integer
+    fits_keyword: SUBPXPNS
+    blend_table: True
+  subpixel_dither_pattern:
+    title: subpixel dither pattern
+    type: string
+    fits_keyword: SUBPXPAT
+    blend_table: True
+  spectral_position_number:
+    title: Position number within spectral steps
+    type: integer
+    fits_keyword: SPEC_NUM
+    blend_table: True
+  spectral_total_points:
+    title: Total number of steps in spectral direction
+    type: integer
+    fits_keyword: SPECNSTP
+    blend_table: True
+  spectral_step_size:
+    title: Size of steps in spectral direction
+    type: number
+    fits_keyword: SPECSTEP
+    blend_table: True
+  spectral_offset:
+    title: "[arcsec] Spectral offset from pattern start"
+    type: number
+    fits_keyword: SPCOFFST
+    blend_table: True
+  spatial_position_number:
+    title: Position number within spatial steps
+    type: integer
+    fits_keyword: SPAT_NUM
+    blend_table: True
+  spatial_total_points:
+    title: Total number of steps in spatial direction
+    type: integer
+    fits_keyword: SPATNSTP
+    blend_table: True
+  spatial_step_size:
+    title: Size of steps in spatial direction
+    type: number
+    fits_keyword: SPATSTEP
+    blend_table: True
+  spatial_offset:
+    title: "[arcsec] Spatial offset from pattern start"
+    type: number
+    fits_keyword: SPTOFFST
+    blend_table: True
+  x_offset:
+    title: x offset from pattern starting position
+    type: number
+    fits_keyword: XOFFSET
+    blend_table: True
+  y_offset:
+    title: y offset from pattern starting position
+    type: number
+    fits_keyword: YOFFSET
+    blend_table: True
+  starting_set:
+    title: Starting 4-point set number
+    type: integer
+    enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    fits_keyword: DSETSTRT
+  number_of_sets:
+    title: Total number of 4-point sets
+    type: integer
+    enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    fits_keyword: NUMDSETS
+  direction:
+    title: Direction of dither pattern offsets
+    type: string
+    enum: [NEGATIVE, POSITIVE, NONE]
+    fits_keyword: DITHDIRC
+  optimized_for:
+    title: Dither pattern optimization
+    type: string
+    enum: ["POINT-SOURCE", "EXTENDED-SOURCE", NONE]
+    fits_keyword: DITHOPFR
+  sparse_points:
+    title: Sparse cycling dither points
+    type: string
+    fits_keyword: DITHPNTS
+  primary_channel:
+    title: MRS primary channel
+    type: string
+    enum: [ALL, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4]
+    fits_keyword: MRSPRCHN
+  dither_points:
+    title: Total number of points in primary dither pattern
+    type: string
+    fits_keyword: NDITHPTS
+...

@@ -1,0 +1,203 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam-1.0.0"
+
+title: NIRCAM nstrument configuration information
+type: object
+properties:
+  name:
+    title: Instrument used to acquire the data
+    type: string
+    enum: [NIRCAM, NIRSPEC, MIRI, TFI, FGS, NIRISS, ANY, N/A]
+    fits_keyword: INSTRUME
+    blend_table: True
+  detector:
+    title: Name of detector used to acquire the data
+    type: string
+    enum: [NRCA1, NRCA2, NRCA3, NRCA4, NRCALONG, NRCB1, NRCB2, NRCB3, NRCB4,
+      NRCBLONG, NRS1, NRS2, ANY, MIRIMAGE, MIRIFULONG, MIRIFUSHORT,
+      NIS, GUIDER1, GUIDER2, N/A]
+    fits_keyword: DETECTOR
+    blend_table: True
+  module:
+    title: 'NIRCam module: A or B'
+    type: string
+    fits_keyword: MODULE
+    blend_table: True
+  channel:
+    title: 'NIRCam channel: long or short'
+    type: string
+    # Values grouped by instrument:
+    anyOf:
+      # MIRI
+      - enum:
+         ['1', '2', '3', '4', '12', '34', '123', '234', '1234']
+      # NIRCam
+      - enum:
+          [LONG, SHORT]
+      # All
+      - enum:
+          [ANY, N/A]
+    fits_keyword: CHANNEL
+    blend_table: True
+  filter:
+    title: Name of the filter element used
+    type: string
+    enum: [ANY, CLEAR, F070LP, F070W, F090W, F1000W, F100LP, F1065C,
+      F110W, F1130W, F1140C, F115W, F1280W, F140M, F140X, F1500W, F150W,
+      F150W2, F1550C, F170LP, F1800W, F182M, F187N, F200W, F2100W, F210M,
+      F212N, F2300C, F250M, F2550W, F2550WR, F277W, F290LP, F300M,
+      F322W2, F335M, F356W, F360M, F380M, F410M, F430M, F444W,
+      F460M, F480M, F560W, F770W, FLENS, FND, GR150C,
+      GR150R, OPAQUE, P750L, WLP4, N/A, MULTIPLE]
+    fits_keyword: FILTER
+    blend_table: True
+    blend_rule: multi
+  pupil:
+    title: Name of the pupil element used
+    type: string
+    enum: [ANY, CLEAR, CLEARP, F090W, F115W, F140M, F150W, F158M, F162M, F164N,
+      F200W, F323N, F405N, F466N, F470N, FLAT, GDHS0, GDHS60, GR700XD,
+      GRISMC, GRISMR, GRISMV2, GRISMV3, MASKBAR, MASKIPR, MASKRND, NRM, PINHOLES,
+      WLM8, WLP8, N/A]
+    fits_keyword: PUPIL
+    blend_table: True
+  pupil_imaging_lens:
+    title: Pupil imaging lens in the optical path?
+    type: boolean
+    fits_keyword: PILIN
+    blend_table: True
+  grating:
+    title: Name of the grating element used
+    type: string
+    enum: [G140M, G235M, G395M, G140H, G235H, G395H, PRISM, MIRROR, N/A, ANY, UNKNOWN, MULTIPLE]
+    fits_keyword: GRATING
+    blend_table: True
+    blend_rule: multi
+  band:
+    title: MRS wavelength band
+    type: string
+    enum: [SHORT, MEDIUM, LONG, SHORT-MEDIUM, SHORT-LONG, MEDIUM-SHORT,
+      MEDIUM-LONG, LONG-SHORT, LONG-MEDIUM, N/A, ANY, MULTIPLE]
+    fits_keyword: BAND
+    blend_table: True
+    blend_rule: multi
+  fixed_slit:
+    title: Name of fixed slit aperture used
+    type: string
+    enum: [S200A1, S200A2, S200B1, S400A1, S1600A1, NONE]
+    fits_keyword: FXD_SLIT
+    blend_table: True
+  focus_position:
+    title: Focus position
+    type: number
+    fits_keyword: FOCUSPOS
+    blend_table: True
+  pre_image_id:
+    title: Pre-image ID from PPS DB
+    type: string
+    fits_keyword: PREIMAGE
+    blend_table: True
+  ccc_state:
+    title: Contamination control cover state
+    type: string
+    enum: [OPEN, CLOSED, LOCKED, UNKNOWN]
+    fits_keyword: CCCSTATE
+    blend_table: True
+  coronagraph:
+    title: coronagraph mask used
+    type: string
+    anyOf:
+      # MIRI
+      - enum:
+          [4QPM, 4QPM_1065, 4QPM_1140, 4QPM_1550,
+           LYOT, LYOT_2300]
+      # NIRCam
+      - enum:
+          [MASKA210R, MASKA335R, MASKA430R, MASKALWB, MASKASWB]
+      # All
+      - enum:
+          [NONE]
+      # Obsolete NIRCam
+      - enum:
+          [MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB]
+    fits_keyword: CORONMSK
+    blend_table: True
+  msa_state:
+    title: State of the MSA
+    type: string
+    #enum: [ALL OPEN, ALL CLOSED, CONFIGURED]
+    fits_keyword: MSASTATE
+    blend_table: True
+  msa_metadata_file:
+    title: MSA metadata file name
+    type: string
+    fits_keyword: MSAMETFL
+    blend_table: True
+  msa_metadata_id:
+    title: MSA metadata ID
+    type: integer
+    fits_keyword: MSAMETID
+    blend_table: True
+  msa_configuration_id:
+    title: MSA configuration ID
+    type: integer
+    fits_keyword: MSACONID
+    blend_table: True
+  lamp_state:
+    title: Internal lamp state
+    type: string
+    fits_keyword: LAMP
+    blend_table: True
+  lamp_mode:
+    title: Lamp operating mode
+    type: string
+    fits_keyword: OPMODE
+    blend_table: True
+  gwa_xtilt:
+    title: Grating Y tilt angle relative to mirror
+    type: number
+    fits_keyword: GWA_XTIL
+    blend_table: True
+  gwa_ytilt:
+    title: Grating X tilt angle relative to mirror
+    type: number
+    fits_keyword: GWA_YTIL
+    blend_table: True
+  gwa_xp_v:
+    title: GWA X-position/tilt sensor calib
+    type: number
+    fits_keyword: GWA_XP_V
+    blend_table: True
+  gwa_yp_v:
+    title: GWA Y-position/tilt sensor calib
+    type: number
+    fits_keyword: GWA_YP_V
+    blend_table: True
+  gwa_pxav:
+    title: GWA REC avg X-pos/tilt sensor calib
+    type: number
+    fits_keyword: GWA_PXAV
+    blend_table: True
+  gwa_pyav:
+    title: GWA REC avg Y-pos/tilt sensor calib
+    type: number
+    fits_keyword: GWA_PYAV
+    blend_table: True
+  gwa_tilt:
+    title: "[K] GWA TILT (avg/calib) temperature"
+    type: number
+    fits_keyword: GWA_TILT
+    blend_table: True
+  filter_position:
+    title: NIRISS filter wheel position
+    type: number
+    fits_keyword: FWCPOS
+    blend_table: True
+  pupil_position:
+    title: NIRISS pupil wheel position
+    type: number
+    fits_keyword: PWCPOS
+    blend_table: True
+
+...

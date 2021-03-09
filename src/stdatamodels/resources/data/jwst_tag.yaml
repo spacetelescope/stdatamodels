@@ -1,0 +1,355 @@
+#ASDF 1.0.0
+#ASDF_STANDARD 1.5.0
+%YAML 1.1
+%TAG ! tag:stsci.edu:asdf/
+--- !core/asdf-1.1.0
+asdf_library: !core/software-1.0.0 {author: The ASDF Developers, homepage: 'http://github.com/asdf-format/asdf',
+  name: asdf, version: 2.8.0.dev63+g046bf8b}
+history:
+  extensions:
+  - !core/extension_metadata-1.0.0
+    extension_class: asdf.extension.BuiltinExtension
+    software: !core/software-1.0.0 {name: asdf, version: 2.8.0.dev63+g046bf8b}
+  # - !core/extension_metadata-1.0.0
+  #   extension_class: astropy.io.misc.asdf.extension.AstropyExtension
+  #   software: !core/software-1.0.0 {name: astropy, version: 4.0.1.post1}
+  # - !core/extension_metadata-1.0.0
+  #   extension_class: jwst.transforms.jwextension.JWSTExtension
+  #   software: !core/software-1.0.0 {name: jwst, version: 0.17.1}
+  # - !core/extension_metadata-1.0.0
+  #   extension_class: astropy.io.misc.asdf.extension.AstropyAsdfExtension
+  #   software: !core/software-1.0.0 {name: astropy, version: 4.0.1.post1}
+  # - !core/extensio#n_metadata-1.0.0
+  #   extension_class: gwcs.extension.GWCSExtension
+  #   software: !core/software-1.0.0 {name: gwcs, version: 0.14.0}
+
+#area: !core/ndarray-1.0.0
+#  source: asdf_tut_1_exploded0000.asdf
+#  datatype: float32
+#  byteorder: big
+#  shape: [2048, 2048]
+#data: !core/ndarray-1.0.0
+#  source: asdf_tut_1_exploded0001.asdf
+#  datatype: float32
+#  byteorder: big
+#  shape: [2048, 2048]
+#dq: !core/ndarray-1.0.0
+#  source: asdf_tut_1_exploded0002.asdf
+#  datatype: uint32
+#  byteorder: little
+#  shape: [2048, 2048]
+#err: !core/ndarray-1.0.0
+#  source: asdf_tut_1_exploded0003.asdf
+#  datatype: float32
+#  byteorder: big
+#  shape: [2048, 2048]
+jwst: !<tag:stsci.edu:datamodels/jwst/nircam_image-1.0.0>
+  meta:
+    asn: !<tag:stsci.edu:datamodels/jwst/association-1.0.0>  
+      {pool_name: singleton, table_name: singleton}
+    bunit_data: MJy/sr
+    bunit_err: MJy/sr
+    cal_step: !<tag:stsci.edu:datamodels/jwst/nircam_calibration_steps-1.0.0>
+      {assign_wcs: COMPLETE, dark_sub: COMPLETE, dq_init: COMPLETE, flat_field: COMPLETE,
+      gain_scale: SKIPPED, group_scale: SKIPPED, jump: COMPLETE, linearity: COMPLETE,
+      photom: COMPLETE, ramp_fit: COMPLETE, refpix: COMPLETE, saturation: COMPLETE,
+      superbias: COMPLETE}
+    calibration_software_revision: RELEASE
+    calibration_software_version: 0.17.1
+    coordinates:
+      {reference_frame: ICRS}
+    date:  '2020-09-30T14:29:41.341'
+    dither: !<tag:stsci.edu:datamodels/jwst/nircam_dither-1.0.0>
+      {pattern_size: NONE, position_number: 1, primary_type: NONE, subpixel_number: 1,
+      subpixel_total_points: 1, subpixel_type: UNKNOWN, total_points: 1}
+    exposure: !<tag:stsci.edu:datamodels/jwst/nircam_exposure-1.0.0>
+      {datamode: 33, duration: 128.84112, end_time: 57877.0048426241, exposure_time: 107.3676,
+      frame_time: 10.73676, group_time: 10.73676, groupgap: 0, integration_time: 107.3676,
+      mid_time: 57877.00422128382, nframes: 1, ngroups: 10, nints: 1, nresets_at_start: 2,
+      nresets_between_ints: 1, readpatt: RAPID, sample_time: 10, start_time: 57877.00359994354,
+      type: NRC_IMAGE}
+    filename: xxx.asdf
+    filetype: raw
+    group_id: jw99999001001_01101_1
+    instrument: !<tag:stsci.edu:datamodels/jwst/nircam-1.0.0>
+      {channel: LONG, detector: NRCALONG, filter: F410M, lamp_mode: NONE,
+      module: A, name: NIRCAM, pupil: CLEAR}
+    observation: !<tag:stsci.edu:datamodels/jwst/observation-1.0.0>
+      {activity_id: '01', date: '2017-05-04', exposure_number: '1', obs_id: A1,
+      observation_number: '001', program_number: '99999', sequence_id: '1', time: '00:03:01.194',
+      visit_group: '01', visit_id: AA, visit_number: '001'}
+    origin: STScI
+    photometry: !<tag:stsci.edu:datamodels/jwst/photometry-1.0.0>  
+      {conversion_megajanskys: 1.1269280910491943, conversion_microjanskys: 26.48780303862397,
+      pixelarea_arcsecsq: 0.0039597270172987, pixelarea_steradians: 9.30711286318865e-14}
+    pointing: {dec_v1: -71.99550858333333, pa_v3: 0, ra_v1: 5.868934166666667}
+    prd_software_version: PRDITCIITS-L-052_PRDITCSC-L-012_PRDITCLOADS-A-020_PRDITCFLT-L-004_2A
+    program: !<tag:stsci.edu:datamodels/jwst/program-1.0.0>  
+      {category: UNKNOWN, continuation_id: 0, pi_name: UNKNOWN, science_category: UNKNOWN,
+      sub_category: UNKNOWN, title: UNKNOWN}
+    ref_file: !<tag:stsci.edu:datamodels/jwst/nircam_reference_files-1.0.0>
+      area: {name: 'crds://jwst_nircam_area_0015.fits'}
+      camera: {name: N/A}
+      collimator: {name: N/A}
+      crds: {context_used: jwst_0641.pmap, sw_version: 10.0.0}
+      dark: {name: 'crds://jwst_nircam_dark_0043.fits'}
+      dflat: {name: N/A}
+      disperser: {name: N/A}
+      distortion: {name: 'crds://jwst_nircam_distortion_0090.asdf'}
+      fflat: {name: N/A}
+      filteroffset: {name: 'crds://jwst_nircam_filteroffset_0002.asdf'}
+      flat: {name: 'crds://jwst_nircam_flat_0343.fits'}
+      fore: {name: N/A}
+      fpa: {name: N/A}
+      gain: {name: 'crds://jwst_nircam_gain_0041.fits'}
+      ifufore: {name: N/A}
+      ifupost: {name: N/A}
+      ifuslicer: {name: N/A}
+      linearity: {name: 'crds://jwst_nircam_linearity_0052.fits'}
+      mask: {name: 'crds://jwst_nircam_mask_0024.fits'}
+      msa: {name: N/A}
+      ote: {name: N/A}
+      photom: {name: 'crds://jwst_nircam_photom_0071.fits'}
+      readnoise: {name: 'crds://jwst_nircam_readnoise_0022.fits'}
+      regions: {name: N/A}
+      saturation: {name: 'crds://jwst_nircam_saturation_0063.fits'}
+      sflat: {name: N/A}
+      specwcs: {name: N/A}
+      superbias: {name: 'crds://jwst_nircam_superbias_0022.fits'}
+      v2v3: {name: N/A}
+      wavelengthrange: {name: N/A}
+    subarray: !<tag:stsci.edu:datamodels/jwst/nircam_subarray-1.0.0>
+      {fastaxis: -1, name: FULL, slowaxis: 2, xsize: 2048, xstart: 1, ysize: 2048, ystart: 1}
+    target: !<tag:stsci.edu:datamodels/jwst/target-1.0.0>
+      {catalog_name: UNKNOWN, dec: -71.99550858333333, ra: 5.868934166666667}
+    telescope: JWST
+    wcs: !<tag:stsci.edu:gwcs/wcs-1.1.0>
+      name: ''
+      steps:
+      - !<tag:stsci.edu:gwcs/step-1.1.0>
+        frame: !<tag:stsci.edu:gwcs/frame2d-1.0.0>
+          axes_names: [x, y]
+          axes_order: [0, 1]
+          axis_physical_types: ['custom:x', 'custom:y']
+          name: detector
+          unit: [!unit/unit-1.0.0 pixel, !unit/unit-1.0.0 pixel]
+        transform: !transform/compose-1.2.0
+          bounding_box:
+          - [-0.5, 2047.5]
+          - [-0.5, 2047.5]
+          forward:
+          - !transform/compose-1.2.0
+            forward:
+            - !transform/compose-1.2.0
+              forward:
+              - !transform/concatenate-1.2.0
+                forward:
+                - !transform/shift-1.2.0 {offset: 1.0}
+                - !transform/shift-1.2.0 {offset: 1.0}
+              - !transform/concatenate-1.2.0
+                forward:
+                - !transform/shift-1.2.0 {offset: -1024.5}
+                - !transform/shift-1.2.0 {offset: -1024.5}
+            - !transform/compose-1.2.0
+              forward:
+              - !transform/compose-1.2.0
+                forward:
+                - !transform/remap_axes-1.1.0
+                  mapping: [0, 1, 0, 1]
+                - !transform/concatenate-1.2.0
+                  forward:
+                  - !transform/polynomial-1.2.0
+                    coefficients: !core/ndarray-1.0.0
+                      data:
+                      - [-0.0, 0.0, -9.721046535057192e-08, -2.164006028817789e-13,
+                        -3.590620404845533e-16, 4.354424173002358e-20]
+                      - [0.06277674557948036, -7.244807505775117e-07, 9.66518115581259e-11,
+                        -3.191824242088728e-15, 4.71684808024088e-18, 0.0]
+                      - [1.198364733530203e-07, -5.782468597491751e-12, 2.117937146007029e-16,
+                        5.143162171129567e-19, 0.0, 0.0]
+                      - [9.094661041997164e-11, -2.949576253844291e-15, 9.531355664635004e-18,
+                        0.0, 0.0, 0.0]
+                      - [6.449038115869934e-16, 4.879315376187496e-19, 0.0, 0.0, 0.0,
+                        0.0]
+                      - [4.706941538958384e-18, 0.0, 0.0, 0.0, 0.0, 0.0]
+                      datatype: float64
+                      shape: [6, 6]
+                  - !transform/polynomial-1.2.0
+                    coefficients: !core/ndarray-1.0.0
+                      data:
+                      - [0.0, 0.0630762699429303, -4.239854922865822e-07, 9.762139471915262e-11,
+                        -2.015274358881797e-15, 4.410393661077231e-18]
+                      - [-9.102681200381172e-05, 2.287097298253153e-07, -6.481047139577153e-12,
+                        1.0853593918469e-15, 4.941571953195922e-19, 0.0]
+                      - [3.086258377388918e-07, 8.751405385759113e-11, -5.078890561912942e-16,
+                        9.736970732740994e-18, 0.0, 0.0]
+                      - [-6.696189796258203e-13, 1.146884680565914e-15, 5.986044579428994e-19,
+                        0.0, 0.0, 0.0]
+                      - [1.454596109813538e-15, 5.27551747031014e-18, 0.0, 0.0, 0.0,
+                        0.0]
+                      - [9.296183515265389e-20, 0.0, 0.0, 0.0, 0.0, 0.0]
+                      datatype: float64
+                      shape: [6, 6]
+              - !transform/compose-1.2.0
+                forward:
+                - !transform/remap_axes-1.1.0
+                  mapping: [0, 1, 0, 1]
+                - !transform/concatenate-1.2.0
+                  forward:
+                  - !transform/polynomial-1.2.0
+                    coefficients: !core/ndarray-1.0.0
+                      data:
+                      - [0.0, -0.0012889474613725963]
+                      - [-0.9999991693068759, 0.0]
+                      datatype: float64
+                      shape: [2, 2]
+                  - !transform/polynomial-1.2.0
+                    coefficients: !core/ndarray-1.0.0
+                      data:
+                      - [0.0, 0.9999991693068759]
+                      - [-0.0012889474613725963, 0.0]
+                      datatype: float64
+                      shape: [2, 2]
+          - !transform/concatenate-1.2.0
+            forward:
+            - !transform/shift-1.2.0 {offset: 86.039011}
+            - !transform/shift-1.2.0 {offset: -493.385704}
+          inverse: !transform/compose-1.2.0
+            forward:
+            - !transform/concatenate-1.2.0
+              forward:
+              - !transform/shift-1.2.0 {offset: -86.039011}
+              - !transform/shift-1.2.0 {offset: 493.385704}
+            - !transform/compose-1.2.0
+              forward:
+              - !transform/compose-1.2.0
+                forward:
+                - !transform/compose-1.2.0
+                  forward:
+                  - !transform/remap_axes-1.1.0
+                    mapping: [0, 1, 0, 1]
+                  - !transform/concatenate-1.2.0
+                    forward:
+                    - !transform/polynomial-1.2.0
+                      coefficients: !core/ndarray-1.0.0
+                        data:
+                        - [0.0, -0.0012889474613725963]
+                        - [-0.9999991693068759, 0.0]
+                        datatype: float64
+                        shape: [2, 2]
+                    - !transform/polynomial-1.2.0
+                      coefficients: !core/ndarray-1.0.0
+                        data:
+                        - [0.0, 0.9999991693068759]
+                        - [-0.0012889474613725963, 0.0]
+                        datatype: float64
+                        shape: [2, 2]
+                - !transform/compose-1.2.0
+                  forward:
+                  - !transform/remap_axes-1.1.0
+                    mapping: [0, 1, 0, 1]
+                  - !transform/concatenate-1.2.0
+                    forward:
+                    - !transform/polynomial-1.2.0
+                      coefficients: !core/ndarray-1.0.0
+                        data:
+                        - [0.001606802685174102, 1.072121003490439e-05, 0.0003899472961152239,
+                          1.741491572219416e-07, -1.730326086686541e-10, -1.214407164376713e-12]
+                        - [15.92985674331845, 0.002932499409606826, -5.492406520770091e-06,
+                          -3.48506269432795e-09, -6.053447585998923e-11, 0.0]
+                        - [-0.0004827156577026869, -1.704997124234288e-07, 4.500242110641451e-10,
+                          -7.573478292656556e-12, 0.0, 0.0]
+                        - [-6.181790050341375e-06, -3.7994370832503e-09, -1.214837102200545e-10,
+                          0.0, 0.0, 0.0]
+                        - [6.600092079203932e-10, -6.325812350975392e-12, 0.0, 0.0,
+                          0.0, 0.0]
+                        - [-5.99901579643954e-11, 0.0, 0.0, 0.0, 0.0, 0.0]
+                        datatype: float64
+                        shape: [6, 6]
+                    - !transform/polynomial-1.2.0
+                      coefficients: !core/ndarray-1.0.0
+                        data:
+                        - [-0.006780939009559006, 15.85435606632966, 0.001699308339193117,
+                          -5.931127954103713e-06, -2.505780246788893e-09, -5.582941651153512e-11]
+                        - [0.02314264781384863, -0.0009119151347307442, -1.968853925968155e-07,
+                          9.314930747598225e-10, -6.10620822524126e-12, 0.0]
+                        - [-0.001244711452021884, -6.450451269943015e-06, -2.485642883412269e-09,
+                          -1.192566344000974e-10, 0.0, 0.0]
+                        - [1.499394209694464e-07, 1.029780982881483e-09, -7.045014588881225e-12,
+                          0.0, 0.0, 0.0]
+                        - [3.124699039332876e-10, -6.284891892869384e-11, 0.0, 0.0,
+                          0.0, 0.0]
+                        - [-9.811118954903338e-13, 0.0, 0.0, 0.0, 0.0, 0.0]
+                        datatype: float64
+                        shape: [6, 6]
+              - !transform/compose-1.2.0
+                forward:
+                - !transform/concatenate-1.2.0
+                  forward:
+                  - !transform/shift-1.2.0 {offset: 1024.5}
+                  - !transform/shift-1.2.0 {offset: 1024.5}
+                - !transform/concatenate-1.2.0
+                  forward:
+                  - !transform/shift-1.2.0 {offset: -1.0}
+                  - !transform/shift-1.2.0 {offset: -1.0}
+      - !<tag:stsci.edu:gwcs/step-1.1.0>
+        frame: !<tag:stsci.edu:gwcs/frame2d-1.0.0>
+          axes_names: [x, y]
+          axes_order: [0, 1]
+          axis_physical_types: ['custom:x', 'custom:y']
+          name: v2v3
+          unit: [!unit/unit-1.0.0 arcsec, !unit/unit-1.0.0 arcsec]
+        transform: !transform/compose-1.2.0
+          forward:
+          - !transform/compose-1.2.0
+            forward:
+            - !transform/compose-1.2.0
+              forward:
+              - !transform/concatenate-1.2.0
+                forward:
+                - !transform/scale-1.2.0 {factor: 0.0002777777777777778}
+                - !transform/scale-1.2.0 {factor: 0.0002777777777777778}
+              - !<tag:stsci.edu:gwcs/spherical_cartesian-1.1.0> {transform_type: spherical_to_cartesian,
+                wrap_lon_at: 180}
+            - !transform/rotate_sequence_3d-1.0.0
+              angles: [0.023917627222222224, 0.13700764222222223, 359.9258631115845,
+                -71.99550858333333, -5.868934166666667]
+              axes_order: zyxyz
+              rotation_type: cartesian
+          - !<tag:stsci.edu:gwcs/spherical_cartesian-1.1.0> {transform_type: cartesian_to_spherical,
+            wrap_lon_at: 360}
+          name: v23tosky
+      - !<tag:stsci.edu:gwcs/step-1.1.0>
+        frame: !<tag:stsci.edu:gwcs/celestial_frame-1.0.0>
+          axes_names: [lon, lat]
+          axes_order: [0, 1]
+          axis_physical_types: [pos.eq.ra, pos.eq.dec]
+          name: world
+          reference_frame: !<tag:astropy.org:astropy/coordinates/frames/icrs-1.1.0>
+            frame_attributes: {}
+          unit: [!unit/unit-1.0.0 deg, !unit/unit-1.0.0 deg]
+    wcsinfo: !<tag:stsci.edu:datamodels/jwst/fits_wcs_info-1.0.0> 
+      {cdelt1: 1.74460055555555e-05, cdelt2: 1.75306861111111e-05, crpix1: 1024.5,
+      crpix2: 1024.5, crval1: 5.868934166666667, crval2: -71.99550858333333, ctype1: RA---TAN,
+      ctype2: DEC--TAN, cunit1: deg, cunit2: deg, dec_ref: -71.99550858333333, pc1_1: -0.999995921428299,
+      pc1_2: -0.00285606841084094, pc2_1: -0.00285606841084094, pc2_2: 0.999995921428299,
+      ra_ref: 5.868934166666667, roll_ref: 359.9258631115844, s_region: POLYGON ICRS  5.927686603
+        -72.013430017 5.925908460 -71.977560598 5.811454275 -71.977572319 5.810255976
+        -72.013713422, v2_ref: 86.103458, v3_ref: -493.227512, v3yangle: -0.089504,
+      vparity: -1, wcsaxes: 2}
+#xxx:nircam_image-  var_flat: !core/ndarray-1.0.0
+#xxx:nircam_image-    source: asdf_tut_1_exploded0004.asdf
+#xxx:nircam_image-    datatype: float32
+#xxx:nircam_image-    byteorder: big
+#xxx:nircam_image-    shape: [2048, 2048]
+#xxx:nircam_image-  var_poisson: !core/ndarray-1.0.0
+#xxx:nircam_image-    source: asdf_tut_1_exploded0005.asdf
+#xxx:nircam_image-    datatype: float32
+#xxx:nircam_image-    byteorder: big
+#xxx:nircam_image-    shape: [2048, 2048]
+#xxx:nircam_image-  var_rnoise: !core/ndarray-1.0.0
+#xxx:nircam_image-    source: asdf_tut_1_exploded0006.asdf
+#xxx:nircam_image-    datatype: float32
+#xxx:nircam_image-    byteorder: big
+#xxx:nircam_image-    shape: [2048, 2048]
+...

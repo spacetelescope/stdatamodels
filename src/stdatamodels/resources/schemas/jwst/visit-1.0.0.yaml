@@ -1,0 +1,60 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/visit-1.0.0"
+
+
+title: Visit information
+type: object
+properties:
+  engineering_quality:
+    title: Engineering data quality indicator from EngDB
+    type: string
+    enum: [OK, SUSPECT]
+    fits_keyword: ENG_QUAL
+    blend_table: True
+  type:
+    title: Visit type
+    type: string
+    enum: [GENERIC, PARALLEL_DARK_CALIBRATION, PARALLEL_EXTERNAL_CALIBRATION,
+           PARALLEL_PURE, PARALLEL_SLEW_CALIBRATION, PRIME_STATION_KEEPING,
+           PRIME_TARGETED_FIXED, PRIME_TARGETED_MOVING, PRIME_UNTARGETED,
+           PRIME_WFSC_ROUTINE, PRIME_WFSC_SENSING_CONTROL,
+           PRIME_WFSC_SENSING_ONLY, PRIOR_MOMENTUM_UNLOAD]
+    fits_keyword: VISITYPE
+    blend_table: True
+  start_time:
+    title: UTC visit start time
+    type: string
+    fits_keyword: VSTSTART
+    blend_table: True
+  status:
+    title: Status of a visit
+    type: string
+    fits_keyword: VISITSTA
+    blend_table: True
+  total_exposures:
+    title: Total number of planned exposures in visit
+    type: integer
+    fits_keyword: NEXPOSUR
+    blend_table: True
+  internal_target:
+    title: At least one exposure in visit is internal
+    type: boolean
+    fits_keyword: INTARGET
+    blend_table: True
+  too_visit:
+    title: Visit scheduled as target of opportunity
+    type: boolean
+    fits_keyword: TARGOOPP
+    blend_table: True
+  tsovisit:
+    title: Time Series Observation visit indicator
+    type: boolean
+    fits_keyword: TSOVISIT
+    blend_table: True
+  exp_only:
+    title: Special commanding without SI configuration
+    type: boolean
+    fits_keyword: EXP_ONLY
+    blend_table: True
+...

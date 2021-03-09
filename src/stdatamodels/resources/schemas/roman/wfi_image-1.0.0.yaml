@@ -1,0 +1,23 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/roman/wfi_image-1.0.0"
+
+title: |
+  Roman WFI image file
+
+properties:
+  meta:
+    type: object
+    properties:
+      filename:
+        title: Name of the file
+        type: string
+      telescope:
+        title: Telescope used to acquire the data
+        type: string
+        enum: [Roman]
+      exposure: 
+        tag: "tag:stsci.edu:datamodels/roman/exposure-1.0.0"
+      instrument: 
+        tag: "tag:stsci.edu:datamodels/roman/wfi-1.0.0"

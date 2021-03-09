@@ -1,0 +1,49 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/time-1.0.0"
+
+title: Time information
+type: object
+properties:
+  barycentric_correction:
+    title: Barycentric time correction
+    type: number
+    fits_keyword: BARTDELT
+    blend_table: True
+  barycentric_expstart:
+    title: Barycentric exposure start time
+    type: number
+    fits_keyword: BSTRTIME
+    blend_table: True
+  barycentric_expend:
+    title: Barycentric exposure end time
+    type: number
+    fits_keyword: BENDTIME
+    blend_table: True
+  barycentric_expmid:
+    title: Barycentric exposure mid time
+    type: number
+    fits_keyword: BMIDTIME
+    blend_table: True
+  heliocentric_correction:
+    title: Heliocentric time correction
+    type: number
+    fits_keyword: HELIDELT
+    blend_table: True
+  heliocentric_expstart:
+    title: Heliocentric exposure start time
+    type: number
+    fits_keyword: HSTRTIME
+    blend_table: True
+  heliocentric_expend:
+    title: Heliocentric exposure end time
+    type: number
+    fits_keyword: HENDTIME
+    blend_table: True
+  heliocentric_expmid:
+    title: Heliocentric exposure mid time
+    type: number
+    fits_keyword: HMIDTIME
+    blend_table: True
+
+...

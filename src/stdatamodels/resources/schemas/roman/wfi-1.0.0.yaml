@@ -1,0 +1,30 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/roman/wfi-1.0.0"
+
+title: |
+  Roman Wide Field Instrument information and configuration
+
+description:
+  WFI configuration
+
+type: object
+properties:
+  name:
+    title: Instrument usedd to acquire the data # redundant?
+    type: string
+    enum: [WFI]
+  detector:
+    title: Name of detector used to acquire the data
+    type: string
+    enum: [WFI01, WFI02, WFI03, WFI04, WFI05, WFI06, WFI07, WFI08, WFI09,
+           WFI10, WFI11, WFI12, WFI13, WFI14, WFI15, WFI16, WFI17, WFI18,
+           ANY, N/A]
+  optical_element:
+    title: Name of the optical element used
+    type: string
+    enum: [F062, F087, F106, F129, W146, F158, F184, GRISM, PRISM, CLEAR,
+            N/A, ANY, UNKNOWN]
+required: [name, detector, optical_element]
+...

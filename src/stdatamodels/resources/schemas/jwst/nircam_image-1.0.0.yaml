@@ -1,0 +1,92 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/nircam_image-1.0.0"
+
+title: |
+  JWST NIRCAM image file
+
+properties:
+  meta:
+    type: object
+    properties:
+      date:
+        title: "[yyyy-mm-ddThh:mm:ss.ss] UTC date file created"
+        type: string
+        fits_keyword: DATE
+        blend_table: True
+      origin:
+        title: Organization responsible for creating file
+        type: string
+        fits_keyword: ORIGIN
+        blend_table: True
+      time_sys:
+        title: principal time system for time-related keywords
+        type: string
+        fits_keyword: TIMESYS
+        blend_table: True
+      filename:
+        title: Name of the file
+        type: string
+        fits_keyword: FILENAME
+        blend_table: True
+      filetype:
+        title: Type of data in the file
+        type: string
+        fits_keyword: FILETYPE
+        blend_table: True
+      data_processing_software_version:
+        title: Data processing software version number
+        type: string
+        fits_keyword: SDP_VER
+        blend_table: True
+      prd_software_version:
+        title: S&OC PRD version number used in data processing
+        type: string
+        fits_keyword: PRD_VER
+        blend_table: True
+      calibration_software_version:
+        title: Calibration software version number
+        type: string
+        fits_keyword: CAL_VER
+        blend_table: True
+      calibration_software_revision:
+        title: Calibration software version control sys number
+        type: string
+        fits_keyword: CAL_VCS
+        blend_table: True
+      model_type:
+        title: Type of data model
+        type: string
+        fits_keyword: DATAMODL
+        blend_table: True
+      telescope:
+        title: Telescope used to acquire the data
+        type: string
+        fits_keyword: TELESCOP
+        blend_table: True
+      hga_move:
+        title: High Gain Antenna moved during data collection
+        type: boolean
+        fits_keyword: HGA_MOVE
+        blend_table: True
+      hga_start_time:
+        title: Start time of HGA motion
+        type: string
+        fits_keyword: HGA_STRT
+        blend_table: True
+      hga_stop_time:
+        title: Stop time of HGA motion
+        type: string
+        fits_keyword: HGA_STOP
+        blend_table: True
+      pwfseet:
+        title: Previous WFS exposure end time
+        type: number
+        fits_keyword: PWFSEET
+        blend_table: True
+      nwfsest:
+        title: Next WFS exposure start time
+        type: number
+        fits_keyword: NWFSEST
+        blend_table: True
