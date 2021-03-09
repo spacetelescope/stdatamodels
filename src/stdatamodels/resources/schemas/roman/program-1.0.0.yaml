@@ -1,0 +1,42 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/datamodels/program-1.0.0"
+tag: "tag:stsci.edu:datamodels/program-1.0.0"
+
+title: |
+  Contains observing program information
+
+description:
+  Contains information regarding observing proposal
+type: object
+properties:
+  title: Proposal title
+    type: string
+    fits_keyword: TITLE
+    blend_table: True
+  pi_name:
+    title: Principal investigator name
+    type: string
+    fits_keyword: PI_NAME
+    blend_table: True
+  category:
+    title: Program category
+    type: string
+    fits_keyword: CATEGORY
+    blend_table: True
+  sub_category:
+    title: Program sub-category
+    type: string
+    fits_keyword: SUBCAT
+    blend_table: True
+  science_category:
+    title: Science category assigned during TAC process
+    type: string
+    fits_keyword: SCICAT
+    blend_table: True
+  continuation_id:
+    title: Continuation of previous program
+    type: integer
+    fits_keyword: CONT_ID
+    blend_table: True
