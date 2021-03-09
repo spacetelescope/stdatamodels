@@ -1,0 +1,282 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/exposure-1.0.0"
+
+title: Exposure parameters
+type: object
+properties:
+  count:
+    title: Running count of exposures in visit
+    type: integer
+    fits_keyword: EXPCOUNT
+    blend_table: True
+  prime_parallel:
+    title: Prime or parallel exposure
+    type: string
+    enum: [PRIME, PARALLEL_COORDINATED, PARALLEL_PURE]
+    fits_keyword: EXPRIPAR
+    blend_table: True
+  type:
+    title: Type of data in the exposure
+    type: string
+    enum:
+      # FGS science
+     [FGS_DARK, FGS_FOCUS, FGS_IMAGE, FGS_INTFLAT, FGS_SKYFLAT,
+      # FGS guide star
+      FGS_ACQ1, FGS_ACQ2, FGS_FINEGUIDE, FGS_ID-IMAGE, FGS_ID-STACK, FGS_TRACK,
+      # MIRI
+      MIR_4QPM, MIR_CORONCAL, MIR_DARKALL, MIR_DARKIMG, MIR_DARKMRS,
+      MIR_FLATALL, MIR_FLATIMAGE, MIR_FLATIMAGE-EXT, MIR_FLATMRS, MIR_FLATMRS-EXT,
+      MIR_IMAGE, MIR_LRS-FIXEDSLIT, MIR_LRS-SLITLESS, MIR_LYOT, MIR_MRS,
+      MIR_TACONFIRM, MIR_TACQ,
+      # NIRISS
+      NIS_AMI, NIS_DARK, NIS_EXTCAL, NIS_FOCUS, NIS_IMAGE, NIS_LAMP,
+      NIS_SOSS, NIS_TACQ, NIS_TACONFIRM, NIS_WFSS,
+      # NIRCam
+      NRC_CORON, NRC_DARK, NRC_FLAT, NRC_FOCUS, NRC_GRISM, NRC_IMAGE, NRC_WFSS,
+      NRC_LED, NRC_WFSC, NRC_TACONFIRM, NRC_TACQ, NRC_TSGRISM, NRC_TSIMAGE,
+      # NIRSpec
+      NRS_AUTOFLAT, NRS_AUTOWAVE, NRS_BRIGHTOBJ, NRS_CONFIRM, NRS_DARK,
+      NRS_FIXEDSLIT, NRS_FOCUS, NRS_IFU, NRS_IMAGE, NRS_LAMP, NRS_MIMF,
+      NRS_MSASPEC, NRS_MSATA, NRS_TACONFIRM, NRS_TACQ, NRS_TASLIT, NRS_WATA,
+      # Misc
+      N/A, ANY]
+    fits_keyword: EXP_TYPE
+    blend_table: True
+  start_time:
+    title: UTC exposure start time
+    type: number
+    fits_keyword: EXPSTART
+    blend_table: True
+    blend_rule: min
+  start_time_mjd:
+    title: "[d] exposure start time in MJD"
+    type: number
+    fits_keyword: MJD-BEG
+    fits_hdu: SCI
+    blend_table: True
+    blend_rule: min
+  mid_time:
+    title: UTC exposure mid time
+    type: number
+    fits_keyword: EXPMID
+    blend_table: True
+    blend_rule: mean
+  mid_time_mjd:
+    title: "[d] exposure mid-point in MJD"
+    type: number
+    fits_keyword: MJD-AVG
+    fits_hdu: SCI
+    blend_table: True
+    blend_rule: mean
+  end_time:
+    title: UTC exposure end time
+    type: number
+    fits_keyword: EXPEND
+    blend_table: True
+    blend_rule: max
+  end_time_mjd:
+    title: "[d] exposure end time in MJD"
+    type: number
+    fits_keyword: MJD-END
+    fits_hdu: SCI
+    blend_table: True
+    blend_rule: max
+  start_time_eng:
+    title: UTC exposure start time from engineering data
+    type: string
+    fits_keyword: EXPSTENG
+  osf_file:
+    title: Observatory Status File name covering this exposure
+    type: string
+    fits_keyword: OSF_FILE
+  readpatt:
+    title: Readout pattern
+    type: string
+    enum: [ACQ1, ACQ2, BRIGHT1, BRIGHT2,
+      DEEP2, DEEP8, FAST, FASTGRPAVG,
+      FGS, FGS60, FGS8370, FGS840, FGSRAPID, FINEGUIDE,
+      ID, MEDIUM2, MEDIUM8, NIS, NISRAPID,
+      NRS, NRSIRS2, NRSN16R4, NRSN32R8, NRSN8R2,
+      NRSRAPID, NRSIRS2RAPID, NRSRAPIDD1, NRSRAPIDD2, NRSRAPIDD6,
+      NRSSLOW, RAPID, SHALLOW2, SHALLOW4, SLOW, TRACK, ANY, N/A]
+    fits_keyword: READPATT
+    blend_table: True
+  segment_number:
+    title: Sequential segment number
+    type: integer
+    fits_keyword: EXSEGNUM
+    blend_table: True
+    blend_rule: first
+  segment_total:
+    title: Total number of segments
+    type: integer
+    fits_keyword: EXSEGTOT
+    blend_table: True
+  noutputs:
+    title: Number of detector outputs used
+    type: integer
+    enum: [1, 4]
+    fits_keyword: NOUTPUTS
+    blend_table: True
+  nints:
+    title: Number of integrations in exposure
+    type: integer
+    fits_keyword: NINTS
+    blend_table: True
+  integration_start:
+    title: Starting integration number in this segment
+    type: integer
+    fits_keyword: INTSTART
+    blend_table: True
+    blend_rule: min
+  integration_end:
+    title: Ending integration number in this segment
+    type: integer
+    fits_keyword: INTEND
+    blend_table: True
+    blend_rule: max
+  ngroups:
+    title: Number of groups in integration
+    type: integer
+    fits_keyword: NGROUPS
+    blend_table: True
+  nframes:
+    title: Number of frames per group
+    type: integer
+    fits_keyword: NFRAMES
+    blend_table: True
+  miri_fsw_ngroups:
+    title: MIRI flight system number of groups
+    type: integer
+    fits_keyword: MIRNGRPS
+    blend_table: True
+  miri_fsw_nframes:
+    title: MIRI flight system number of frames
+    type: integer
+    fits_keyword: MIRNFRMS
+    blend_table: True
+  frame_divisor:
+    title: Divisor applied to frame-averaged groups
+    type: integer
+    fits_keyword: FRMDIVSR
+    blend_table: True
+  groupgap:
+    title: Number of frames dropped between groups
+    type: integer
+    fits_keyword: GROUPGAP
+    blend_table: True
+  drop_frames1:
+    title: Frames dropped at start of each integration
+    type: integer
+    fits_keyword: DRPFRMS1
+    blend_table: True
+  drop_frames3:
+    title: Frames dropped at end of each integration
+    type: integer
+    fits_keyword: DRPFRMS3
+    blend_table: True
+  nsamples:
+    title: Number of A/D samples per pixel
+    type: integer
+    fits_keyword: NSAMPLES
+    blend_table: True
+  sample_time:
+    title: "[us] Time between samples"
+    type: number
+    fits_keyword: TSAMPLE
+    blend_table: True
+  frame_time:
+    title: "[s] Time between frames"
+    type: number
+    fits_keyword: TFRAME
+    blend_table: True
+  group_time:
+    title: "[s] Time between groups"
+    type: number
+    fits_keyword: TGROUP
+    blend_table: True
+  integration_time:
+    title: "[s] Effective integration time"
+    type: number
+    fits_keyword: EFFINTTM
+    blend_table: True
+  exposure_time:
+    title: "[s] Effective exposure time"
+    type: number
+    fits_keyword: EFFEXPTM
+    blend_rule: sum
+    blend_table: True
+  duration:
+    title: "[s] Total duration of exposure"
+    type: number
+    fits_keyword: DURATION
+    blend_rule: sum
+    blend_table: True
+  nresets_at_start:
+    title: Number of resets at start of exposure
+    type: integer
+    fits_keyword: NRSTSTRT
+    blend_table: True
+  nresets_between_ints:
+    title: Number of resets between integrations
+    type: integer
+    fits_keyword: NRESETS
+    blend_table: True
+  zero_frame:
+    title: Zero frame was downlinked separately
+    type: boolean
+    fits_keyword: ZEROFRAM
+    blend_table: True
+  data_problem:
+    title: Science telemetry indicated a problem
+    type: boolean
+    fits_keyword: DATAPROB
+    blend_table: True
+  sca_num:
+    title: Sensor Chip Assembly number
+    type: integer
+    fits_keyword: SCA_NUM
+    blend_table: True
+  datamode:
+    title: post-processing method used in FPAP
+    type: integer
+    fits_keyword: DATAMODE
+    blend_table: True
+  nrs_normal:
+    title: Number of normal pixels in IRS2 readout
+    type: integer
+    fits_keyword: NRS_NORM
+    blend_table: True
+  nrs_reference:
+    title: Number of reference pixels in IRS2 readout
+    type: integer
+    fits_keyword: NRS_REF
+    blend_table: True
+  clock_adjust_rate:
+    title: Spacecraft Clock Time Adjust RATE
+    type: number
+    fits_keyword: SCTARATE
+    blend_table: True
+  gain_factor:
+    title: Gain scale factor
+    type: number
+    fits_keyword: GAINFACT
+    blend_table: True
+  imprint:
+    title: NIRSpec imprint exposure
+    type: boolean
+    fits_keyword: IS_IMPRT
+    blend_table: True
+  psf_reference:
+    title: exposure is PSF reference
+    type: boolean
+    fits_keyword: IS_PSF
+    blend_table: True
+  self_reference_survey:
+    title: self-referencing PSF
+    type: boolean
+    fits_keyword: SELFREF
+    blend_table: True
+
+...

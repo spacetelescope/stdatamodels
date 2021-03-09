@@ -1,0 +1,263 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/fits_wcs_info-1.0.0"
+
+title: WCS parameters
+type: object
+properties:
+  wcsaxes:
+    title: number of World Coordinate System axes
+    type: integer
+    fits_keyword: WCSAXES
+    fits_hdu: SCI
+    blend_table: True
+  crpix1:
+    title: axis 1 coordinate of the reference pixel
+    type: number
+    fits_keyword: CRPIX1
+    fits_hdu: SCI
+    blend_table: True
+  crpix2:
+    title: axis 2 coordinate of the reference pixel
+    type: number
+    fits_keyword: CRPIX2
+    fits_hdu: SCI
+    blend_table: True
+  crpix3:
+    title: axis 3 coordinate of the reference pixel
+    type: number
+    fits_keyword: CRPIX3
+    fits_hdu: SCI
+    blend_table: True
+  crval1:
+    title: first axis value at the reference pixel
+    type: number
+    fits_keyword: CRVAL1
+    fits_hdu: SCI
+    blend_table: True
+  crval2:
+    title: second axis value at the reference pixel
+    type: number
+    fits_keyword: CRVAL2
+    fits_hdu: SCI
+    blend_table: True
+  crval3:
+    title: third axis value at the reference pixel
+    type: number
+    fits_keyword: CRVAL3
+    fits_hdu: SCI
+    blend_table: True
+  ctype1:
+    title: first axis coordinate type
+    type: string
+    fits_keyword: CTYPE1
+    fits_hdu: SCI
+    blend_table: True
+  ctype2:
+    title: second axis coordinate type
+    type: string
+    fits_keyword: CTYPE2
+    fits_hdu: SCI
+    blend_table: True
+  ctype3:
+    title: third axis coordinate type
+    type: string
+    fits_keyword: CTYPE3
+    fits_hdu: SCI
+    blend_table: True
+  cunit1:
+    title: first axis units
+    type: string
+    fits_keyword: CUNIT1
+    fits_hdu: SCI
+    blend_table: True
+  cunit2:
+    title: second axis units
+    type: string
+    fits_keyword: CUNIT2
+    fits_hdu: SCI
+    blend_table: True
+  cunit3:
+    title: third axis units
+    type: string
+    fits_keyword: CUNIT3
+    fits_hdu: SCI
+    blend_table: True
+  cdelt1:
+    title: first axis increment per pixel
+    type: number
+    fits_keyword: CDELT1
+    fits_hdu: SCI
+    blend_table: True
+  cdelt2:
+    title: second axis increment per pixel
+    type: number
+    fits_keyword: CDELT2
+    fits_hdu: SCI
+    blend_table: True
+  cdelt3:
+    title: third axis increment per pixel
+    type: number
+    fits_keyword: CDELT3
+    fits_hdu: SCI
+    blend_table: True
+  pc1_1:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC1_1
+    fits_hdu: SCI
+    blend_table: True
+  pc1_2:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC1_2
+    fits_hdu: SCI
+    blend_table: True
+  pc1_3:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC1_3
+    fits_hdu: SCI
+    blend_table: True
+  pc2_1:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC2_1
+    fits_hdu: SCI
+    blend_table: True
+  pc2_2:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC2_2
+    fits_hdu: SCI
+    blend_table: True
+  pc2_3:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC2_3
+    fits_hdu: SCI
+    blend_table: True
+  pc3_1:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC3_1
+    fits_hdu: SCI
+    blend_table: True
+  pc3_2:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC3_2
+    fits_hdu: SCI
+    blend_table: True
+  pc3_3:
+    title: linear transformation matrix element
+    type: number
+    fits_keyword: PC3_3
+    fits_hdu: SCI
+    blend_table: True
+  ps3_0:
+    title: Coordinate table extension name
+    type: string
+    fits_keyword: PS3_0
+    fits_hdu: SCI
+  ps3_1:
+    title: Coordinate table column name
+    type: string
+    fits_keyword: PS3_1
+    fits_hdu: SCI
+  s_region:
+    title: spatial extent of the observation
+    type: string
+    default: " "
+    fits_keyword: S_REGION
+    fits_hdu: SCI
+    blend_table: True
+  waverange_start:
+    title: lower bound of the default wavelength range
+    type: number
+    fits_keyword: WAVSTART
+    fits_hdu: SCI
+    blend_table: True
+  waverange_end:
+    title: upper bound of the default wavelength range
+    type: number
+    fits_keyword: WAVEND
+    fits_hdu: SCI
+    blend_table: True
+  dispersion_direction:
+    title: Dispersion direction
+    type: integer
+    fits_keyword: DISPAXIS
+    fits_hdu: SCI
+    blend_table: True
+  spectral_order:
+    title: Spectral order number
+    type: integer
+    fits_keyword: SPORDER
+    fits_hdu: SCI
+    blend_table: True
+  v2_ref:
+    title: "[arcsec] Telescope v2 coordinate of the reference point"
+    type: number
+    fits_keyword: V2_REF
+    fits_hdu: SCI
+    blend_table: True
+  v3_ref:
+    title: "[arcsec] Telescope v3 coordinate of the reference point"
+    type: number
+    fits_keyword: V3_REF
+    fits_hdu: SCI
+    blend_table: True
+  vparity:
+    title: Relative sense of rotation between Ideal xy and V2V3
+    type: integer
+    fits_keyword: VPARITY
+    fits_hdu: SCI
+    blend_table: True
+  v3yangle:
+    title: "[deg] Angle from V3 axis to Ideal y axis"
+    type: number
+    fits_keyword: V3I_YANG
+    fits_hdu: SCI
+    blend_table: True
+  ra_ref:
+    title: "[deg] Right ascension of the reference point"
+    type: number
+    fits_keyword: RA_REF
+    fits_hdu: SCI
+    blend_table: True
+  dec_ref:
+    title: "[deg] Declination of the reference point"
+    type: number
+    fits_keyword: DEC_REF
+    fits_hdu: SCI
+    blend_table: True
+  roll_ref:
+    title: "[deg] V3 roll angle at the ref point (N over E)"
+    type: number
+    fits_keyword: ROLL_REF
+    fits_hdu: SCI
+    blend_table: True
+  velosys:
+    title: "[m/s] Radial velocity wrt Barycenter"
+    type: number
+    fits_keyword: VELOSYS
+    fits_hdu: SCI
+  specsys:
+    title: Spectral reference frame
+    type: string
+    fits_keyword: SPECSYS
+    fits_hdu: SCI
+  siaf_xref_sci:
+    title: Aperture X reference point in SCI frame
+    type: number
+    fits_keyword: XREF_SCI
+    fits_hdu: SCI
+  siaf_yref_sci:
+    title: Aperture Y reference point in SCI frame
+    type: number
+    fits_keyword: YREF_SCI
+    fits_hdu: SCI
+
+
+...

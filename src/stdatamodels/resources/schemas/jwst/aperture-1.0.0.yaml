@@ -1,0 +1,20 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/aperture-1.0.0"
+
+title: |
+  Aperture information
+type: object
+properties:
+  name:
+    title: PRD science aperture used
+    type: string
+    fits_keyword: APERNAME
+    blend_table: True
+  pps_name:
+    title: original AperName supplied by PPS
+    type: string
+    fits_keyword: PPS_APER
+    blend_table: True
+
+...

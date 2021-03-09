@@ -1,0 +1,53 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/ephemeris-1.0.0"
+
+title: JWST ephemeris information
+type: object
+properties:
+  reference_frame:
+    title: Ephemeris reference frame
+    type: string
+    fits_keyword: REFFRAME
+    blend_table: True
+  type:
+    title: Definitive or Predicted
+    type: string
+    fits_keyword: EPH_TYPE
+    blend_table: True
+  time:
+    title: UTC time of position and velocity vectors in ephemeris (MJD)
+    type: number
+    fits_keyword: EPH_TIME
+    blend_table: True
+  spatial_x:
+    title: "[km] X spatial coordinate of JWST"
+    type: number
+    fits_keyword: JWST_X
+    blend_table: True
+  spatial_y:
+    title: "[km] Y spatial coordinate of JWST"
+    type: number
+    fits_keyword: JWST_Y
+    blend_table: True
+  spatial_z:
+    title: "[km] Z spatial coordinate of JWST"
+    type: number
+    fits_keyword: JWST_Z
+    blend_table: True
+  velocity_x:
+    title: "[km/s] X component of JWST velocity"
+    type: number
+    fits_keyword: JWST_DX
+    blend_table: True
+  velocity_y:
+    title: "[km/s] Y component of JWST velocity"
+    type: number
+    fits_keyword: JWST_DY
+    blend_table: True
+  velocity_z:
+    title: "[km/s] Z component of JWST velocity"
+    type: number
+    fits_keyword: JWST_DZ
+    blend_table: True
+...

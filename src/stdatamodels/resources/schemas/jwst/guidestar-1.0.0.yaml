@@ -1,0 +1,167 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/guidestar-1.0.0"
+
+title: Guide star information
+type: object
+properties:
+  gs_order:
+    title: index of guide star within list of selected guide stars
+    type: integer
+    fits_keyword: GS_ORDER
+    blend_table: True
+  gs_start_time:
+    title: UTC time when guide star activity started
+    type: string
+    fits_keyword: GSSTRTTM
+    blend_table: True
+  gs_stop_time:
+    title: UTC time when guide star activity completed
+    type: string
+    fits_keyword: GSENDTIM
+    blend_table: True
+  gs_id:
+    title: guide star identifier
+    type: string
+    fits_keyword: GDSTARID
+    blend_table: True
+  gs_ra:
+    title: guide star right ascension
+    type: number
+    fits_keyword: GS_RA
+    blend_table: True
+  gs_dec:
+    title: guide star declination
+    type: number
+    fits_keyword: GS_DEC
+    blend_table: True
+  gs_ura:
+    title: guide star right ascension uncertainty
+    type: number
+    fits_keyword: GS_URA
+    blend_table: True
+  gs_udec:
+    title: guide star declination uncertainty
+    type: number
+    fits_keyword: GS_UDEC
+    blend_table: True
+  gs_mag:
+    title: guide star magnitude in FGS detector
+    type: number
+    fits_keyword: GS_MAG
+    blend_table: True
+  gs_umag:
+    title: guide star magnitude uncertainty
+    type: number
+    fits_keyword: GS_UMAG
+    blend_table: True
+  gs_pcs_mode:
+    title: Pointing Control System mode
+    type: string
+    enum: [COARSE, FINEGUIDE, MOVING, NONE, TRACK]
+    fits_keyword: PCS_MODE
+    blend_table: True
+  visit_end_time:
+    title: Observatory UTC time when the visit completed
+    type: string
+    fits_keyword: VISITEND
+    blend_table: True
+  gs_function_start_time:
+    title: Observatory UTC time at guider function start
+    type: string
+    fits_keyword: GF_START
+  gs_function_end_time:
+    title: Observatory UTC time at guider function end
+    type: string
+    fits_keyword: GF_END
+  data_start:
+    title: MJD start time of guider data within this file
+    type: number
+    fits_keyword: DATASTRT
+  data_end:
+    title: MJD end time of guider data within this file
+    type: number
+    fits_keyword: DATAEND
+  gs_acq_exec_stat:
+    title: Guide star acquisition execution status
+    type: string
+    fits_keyword: GSACSTAT
+    blend_table: True
+  gs_ctd_x:
+    title: "[arcsec] guide star centroid x position in FGS ideal frame"
+    type: number
+    fits_keyword: GSCENTX
+    blend_table: True
+  gs_ctd_y:
+    title: "[arcsec] guide star centroid y position in FGS ideal frame"
+    type: number
+    fits_keyword: GSCENTY
+    blend_table: True
+  gs_epoch:
+    title: Epoch of guide star coordinates
+    type: string
+    fits_keyword: GS_EPOCH
+    blend_table: True
+  gs_mura:
+    title: Guide star IRCS right ascension proper motion
+    type: number
+    fits_keyword: GS_MURA
+    blend_table: True
+  gs_mudec:
+    title: Guide star IRCS declination proper motion
+    type: number
+    fits_keyword: GS_MUDEC
+    blend_table: True
+  gs_para:
+    title: Guide star annual parallax
+    type: number
+    fits_keyword: GS_PARA
+    blend_table: True
+  gs_jmag:
+    title: Guide star NIR J magnitude
+    type: number
+    fits_keyword: GS_JMAG
+    blend_table: True
+  gs_ujmag:
+    title: Guide star NIR J magnitude uncertainy
+    type: number
+    fits_keyword: GS_UJMAG
+    blend_table: True
+  gs_srcjm:
+    title: Guide star NIR J magnitude source
+    type: string
+    fits_keyword: GS_SRCJM
+    blend_table: True
+  gs_hmag:
+    title: Guide star NIR H magnitude
+    type: number
+    fits_keyword: GS_HMAG
+    blend_table: True
+  gs_uhmag:
+    title: Guide star NIR H magnitude uncertainy
+    type: number
+    fits_keyword: GS_UHMAG
+    blend_table: True
+  gs_srchm:
+    title: Guide star NIR H magnitude source
+    type: string
+    fits_keyword: GS_SRCHM
+    blend_table: True
+  gs_kmag:
+    title: Guide star NIR K magnitude
+    type: number
+    fits_keyword: GS_KMAG
+    blend_table: True
+  gs_ukmag:
+    title: Guide star NIR K magnitude uncertainy
+    type: number
+    fits_keyword: GS_UKMAG
+    blend_table: True
+  gs_srckm:
+    title: Guide star NIR K magnitude source
+    type: string
+    fits_keyword: GS_SRCKM
+    blend_table: True
+
+
+...

@@ -1,0 +1,20 @@
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/datamodels/jwst/velocity_aberration-1.0.0"
+
+title: Velocity aberration correction information
+type: object
+properties:
+  ra_offset:
+    title: "[rad] Velocity aberration correction RA offset"
+    type: number
+    fits_keyword: DVA_RA
+    blend_table: True
+  dec_offset:
+    title: "[rad] Velocity aberration correction Dec offset"
+    type: number
+    fits_keyword: DVA_DEC
+    blend_table: True
+
+
+...
