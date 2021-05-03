@@ -50,7 +50,7 @@ jobs:
             python-version: 3.8
             toxenv: py38
 
-          - name: jwst.datamodels tests
+          - name: jwst tests
             runs-on: ubuntu-latest
             python-version: 3.8
             toxenv: jwst
