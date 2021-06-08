@@ -1,3 +1,9 @@
+0.2.2 (unreleased)
+==================
+
+- Make arrays contiguous on save to prevent issue with duplicate
+  array data between ASDF and FITS. [#70]
+
 0.2.1 (2021-03-08)
 ==================
 

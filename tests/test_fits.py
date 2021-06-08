@@ -1,7 +1,7 @@
 import pytest
 from astropy.io import fits
 import numpy as np
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 import asdf.schema
 
 from stdatamodels import DataModel
@@ -126,6 +126,25 @@ def test_metadata_doesnt_override(tmp_path):
 
     with FitsModel(file_path) as dm:
         assert dm.meta.origin == 'UNDER THE COUCH'
+
+
+def test_non_contiguous_array(tmp_path):
+    file_path = tmp_path/"test.fits"
+
+    data = np.arange(60, dtype=np.float32).reshape(5, 12)
+    err = data[::-1, ::2]
+
+    with FitsModel() as dm:
+        dm.data = data
+        dm.err = err
+        dm.save(file_path)
+
+    with FitsModel(file_path) as dm:
+        assert dm.data.block.array_storage == "fits"
+        assert_array_equal(dm.data, data)
+
+        assert dm.err.block.array_storage == "fits"
+        assert_array_equal(dm.err, err)
 
 
 def test_table_with_metadata(tmp_path):
