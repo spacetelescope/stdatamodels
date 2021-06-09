@@ -352,6 +352,25 @@ def _save_from_schema(hdulist, tree, schema):
     validator.validate(tree, _schema=schema)
 
 
+def _normalize_arrays(tree):
+    """
+    Convert arrays in the tree to C-contiguous, since that is
+    how they are written to disk by astropy.io.fits and we
+    don't want the asdf library to notice the change in memory
+    layout and duplicate the array in the embedded ASDF.
+    """
+    def normalize_array(node, json_id):
+        if isinstance(node, np.ndarray):
+            # We can't use np.ascontiguousarray because it converts FITS_rec
+            # to vanilla np.ndarray, which results in misinterpretation of
+            # unsigned int values.
+            if not node.flags.c_contiguous:
+                node = node.copy()
+        return node
+
+    return treeutil.walk_and_modify(tree, normalize_array)
+
+
 def _save_extra_fits(hdulist, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get('extra_fits', {}).items():
@@ -392,6 +411,7 @@ def to_fits(tree, schema):
     hdulist = fits.HDUList()
     hdulist.append(fits.PrimaryHDU())
 
+    tree = _normalize_arrays(tree)
     _save_from_schema(hdulist, tree, schema)
     _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
