@@ -1,4 +1,4 @@
-0.2.2 (unreleased)
+0.2.2 (2021-06-09)
 ==================
 
 - Make arrays contiguous on save to prevent issue with duplicate
