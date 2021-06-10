@@ -539,23 +539,25 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
 
     # Add header keywords and data not in schema to extra_fits
     for hdu in hdulist:
-        known = known_keywords.get(hdu, set())
+        # Don't add ASDF hdus to extra_fits for any reason
+        if hdu.name != "ASDF":
+            known = known_keywords.get(hdu, set())
 
-        cards = []
-        for key, val, comment in hdu.header.cards:
-            if not (is_builtin_fits_keyword(key) or
-                    key in known):
-                cards.append([key, val, comment])
+            cards = []
+            for key, val, comment in hdu.header.cards:
+                if not (is_builtin_fits_keyword(key) or
+                        key in known):
+                    cards.append([key, val, comment])
 
-        if len(cards):
-            properties.put_value(
-                ['extra_fits', hdu.name, 'header'], cards, tree)
+            if len(cards):
+                properties.put_value(
+                    ['extra_fits', hdu.name, 'header'], cards, tree)
 
-        if hdu not in known_datas:
-            if hdu.name.lower() != 'asdf':
-                if hdu.data is not None:
-                    properties.put_value(
-                        ['extra_fits', hdu.name, 'data'], hdu.data, tree)
+            if hdu not in known_datas:
+                if hdu.name.lower() != 'asdf':
+                    if hdu.data is not None:
+                        properties.put_value(
+                            ['extra_fits', hdu.name, 'data'], hdu.data, tree)
 
 
 def _load_history(hdulist, tree):

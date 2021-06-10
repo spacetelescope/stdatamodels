@@ -624,6 +624,13 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             with warnings.catch_warnings():
                 warnings.filterwarnings('ignore', message='Card is too long')
                 if self._no_asdf_extension:
+                    # For some old files that were written out before the
+                    # _no_asdf_extension existed, these will have an ASDF
+                    # extension, which may get passed along through extra_fits.
+                    # Avoid this.
+                    if "ASDF" in [hdu.name for hdu in ff._hdulist]:
+                        del ff._hdulist["ASDF"]
+                    # Use HDUList.writeto instead of AsdfInFits.write_to
                     ff._hdulist.writeto(init, *args, **kwargs)
                 else:
                     ff.write_to(init, *args, **kwargs)

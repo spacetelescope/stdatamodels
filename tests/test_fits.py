@@ -7,7 +7,7 @@ import asdf.schema
 from stdatamodels import DataModel
 from stdatamodels import fits_support
 
-from models import FitsModel
+from models import FitsModel, PureFitsModel
 
 
 def records_equal(a, b):
@@ -546,3 +546,42 @@ def test_data_array(tmp_path):
 ])
 def test_is_builtin_fits_keyword(keyword, result):
     assert fits_support.is_builtin_fits_keyword(keyword) is result
+
+
+def test_no_asdf_extension(tmp_path):
+    """Verify an ASDF extension is not written out"""
+    path = tmp_path / "no_asdf.fits"
+
+    with PureFitsModel((5, 5)) as m:
+        m.save(path)
+
+    with fits.open(path, memmap=False) as hdulist:
+        assert "ASDF" not in [hdu.name for hdu in hdulist]
+
+
+def test_no_asdf_extension_extra_fits(tmp_path):
+    path = tmp_path / "no_asdf.fits"
+
+    extra_fits = {
+        'ASDF': {
+            'header': [
+                ['CHECKSUM', '9kbGAkbF9kbFAkbF', 'HDU checksum updated 2018-03-07T08:48:27'],
+                ['DATASUM', '136453353', 'data unit checksum updated 2018-03-07T08:48:27']
+            ]
+        }
+    }
+
+    with PureFitsModel((5, 5)) as m:
+        m.extra_fits = {}
+        m.extra_fits.instance.update(extra_fits)
+        assert "ASDF" in m.extra_fits.instance
+        assert "CHECKSUM" in m.extra_fits.ASDF.header[0]
+        assert "DATASUM" in m.extra_fits.ASDF.header[1]
+        m.save(path)
+
+    with fits.open(path, memmap=False) as hdulist:
+        assert "ASDF" not in [hdu.name for hdu in hdulist]
+
+    with PureFitsModel(path) as m:
+        with pytest.raises(AttributeError):
+            m.extra_fits
