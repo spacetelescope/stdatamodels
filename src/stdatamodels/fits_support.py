@@ -408,6 +408,7 @@ def _save_history(hdulist, tree):
 
 
 def to_fits(tree, schema):
+    """Create hdulist and modified ASDF tree"""
     hdulist = fits.HDUList()
     hdulist.append(fits.PrimaryHDU())
 
@@ -419,8 +420,7 @@ def to_fits(tree, schema):
     # Store the FITS hash in the tree
     tree[FITS_HASH_KEY] = fits_hash(hdulist)
 
-    asdf = fits_embed.AsdfInFits(hdulist, tree)
-    return asdf
+    return hdulist, tree
 
 
 ##############################################################################
