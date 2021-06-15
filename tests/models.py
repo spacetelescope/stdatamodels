@@ -43,6 +43,13 @@ class FitsModel(DataModel):
     schema_url = "http://example.com/schemas/fits_model"
 
 
+class PureFitsModel(FitsModel):
+
+    def __init__(self, init=None, **kwargs):
+        super().__init__(init=init, **kwargs)
+        self._no_asdf_extension = True
+
+
 class TransformModel(DataModel):
     """
     Model with an astropy.modeling model in one of its attributes.
