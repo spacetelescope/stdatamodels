@@ -1,3 +1,15 @@
+0.2.3 (unreleased)
+==================
+
+- Don't allow ASDF hdus to get passed through ``extra_fits``, and don't
+  write out any ASDF extension if ``self._no_asdf_extension=True`` [#71]
+
+0.2.2 (2021-06-09)
+==================
+
+- Make arrays contiguous on save to prevent issue with duplicate
+  array data between ASDF and FITS. [#70]
+
 0.2.1 (2021-03-08)
 ==================
 

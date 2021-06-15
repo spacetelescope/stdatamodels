@@ -352,6 +352,25 @@ def _save_from_schema(hdulist, tree, schema):
     validator.validate(tree, _schema=schema)
 
 
+def _normalize_arrays(tree):
+    """
+    Convert arrays in the tree to C-contiguous, since that is
+    how they are written to disk by astropy.io.fits and we
+    don't want the asdf library to notice the change in memory
+    layout and duplicate the array in the embedded ASDF.
+    """
+    def normalize_array(node, json_id):
+        if isinstance(node, np.ndarray):
+            # We can't use np.ascontiguousarray because it converts FITS_rec
+            # to vanilla np.ndarray, which results in misinterpretation of
+            # unsigned int values.
+            if not node.flags.c_contiguous:
+                node = node.copy()
+        return node
+
+    return treeutil.walk_and_modify(tree, normalize_array)
+
+
 def _save_extra_fits(hdulist, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get('extra_fits', {}).items():
@@ -389,9 +408,11 @@ def _save_history(hdulist, tree):
 
 
 def to_fits(tree, schema):
+    """Create hdulist and modified ASDF tree"""
     hdulist = fits.HDUList()
     hdulist.append(fits.PrimaryHDU())
 
+    tree = _normalize_arrays(tree)
     _save_from_schema(hdulist, tree, schema)
     _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
@@ -399,8 +420,7 @@ def to_fits(tree, schema):
     # Store the FITS hash in the tree
     tree[FITS_HASH_KEY] = fits_hash(hdulist)
 
-    asdf = fits_embed.AsdfInFits(hdulist, tree)
-    return asdf
+    return hdulist, tree
 
 
 ##############################################################################
@@ -519,20 +539,21 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
 
     # Add header keywords and data not in schema to extra_fits
     for hdu in hdulist:
-        known = known_keywords.get(hdu, set())
+        # Don't add ASDF hdus to extra_fits for any reason
+        if hdu.name != "ASDF":
+            known = known_keywords.get(hdu, set())
 
-        cards = []
-        for key, val, comment in hdu.header.cards:
-            if not (is_builtin_fits_keyword(key) or
-                    key in known):
-                cards.append([key, val, comment])
+            cards = []
+            for key, val, comment in hdu.header.cards:
+                if not (is_builtin_fits_keyword(key) or
+                        key in known):
+                    cards.append([key, val, comment])
 
-        if len(cards):
-            properties.put_value(
-                ['extra_fits', hdu.name, 'header'], cards, tree)
+            if len(cards):
+                properties.put_value(
+                    ['extra_fits', hdu.name, 'header'], cards, tree)
 
-        if hdu not in known_datas:
-            if hdu.name.lower() != 'asdf':
+            if hdu not in known_datas:
                 if hdu.data is not None:
                     properties.put_value(
                         ['extra_fits', hdu.name, 'data'], hdu.data, tree)

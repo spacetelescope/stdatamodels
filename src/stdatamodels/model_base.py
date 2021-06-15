@@ -18,6 +18,7 @@ from astropy.wcs import WCS
 import asdf
 from asdf.tags.core import NDArrayType
 from asdf import AsdfFile
+from asdf.fits_embed import AsdfInFits
 from asdf import schema as asdf_schema
 
 from . import ndmodel
@@ -620,13 +621,21 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
         """
         self.on_save(init)
 
-        with fits_support.to_fits(self._instance, self._schema) as ff:
-            with warnings.catch_warnings():
-                warnings.filterwarnings('ignore', message='Card is too long')
-                if self._no_asdf_extension:
-                    ff._hdulist.writeto(init, *args, **kwargs)
-                else:
-                    ff.write_to(init, *args, **kwargs)
+        hdulist, tree = fits_support.to_fits(self._instance, self._schema)
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', message='Card is too long')
+            if self._no_asdf_extension:
+                # For some old files that were written out before the
+                # _no_asdf_extension existed, these will have an ASDF
+                # extension, which may get passed along through extra_fits.
+                # Avoid this.
+                if "ASDF" in hdulist:
+                    del hdulist["ASDF"]
+                # Use HDUList.writeto instead of AsdfInFits.write_to
+                hdulist.writeto(init, *args, **kwargs)
+            else:
+                ff = AsdfInFits(hdulist, tree)
+                ff.write_to(init, *args, **kwargs)
 
     @property
     def shape(self):
@@ -1017,8 +1026,8 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
             The type will depend on what libraries are installed on
             this system.
         """
-        ff = fits_support.to_fits(self._instance, self._schema)
-        hdu = fits_support.get_hdu(ff._hdulist, hdu_name, index=hdu_ver-1)
+        hdulist, _ = fits_support.to_fits(self._instance, self._schema)
+        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver-1)
         header = hdu.header
         return WCS(header, key=key, relax=True, fix=True)
 
