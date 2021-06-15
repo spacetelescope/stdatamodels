@@ -1,6 +1,9 @@
 0.2.3 (unreleased)
 ==================
 
+- Don't allow ASDF hdus to get passed through ``extra_fits``, and don't
+  write out any ASDF extension if ``self._no_asdf_extension=True`` [#71]
+
 0.2.2 (2021-06-09)
 ==================
 

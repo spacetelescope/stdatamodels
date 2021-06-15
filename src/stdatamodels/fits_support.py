@@ -554,10 +554,9 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
                     ['extra_fits', hdu.name, 'header'], cards, tree)
 
             if hdu not in known_datas:
-                if hdu.name.lower() != 'asdf':
-                    if hdu.data is not None:
-                        properties.put_value(
-                            ['extra_fits', hdu.name, 'data'], hdu.data, tree)
+                if hdu.data is not None:
+                    properties.put_value(
+                        ['extra_fits', hdu.name, 'data'], hdu.data, tree)
 
 
 def _load_history(hdulist, tree):

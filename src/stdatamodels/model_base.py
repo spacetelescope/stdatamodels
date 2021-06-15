@@ -628,7 +628,7 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
                     # _no_asdf_extension existed, these will have an ASDF
                     # extension, which may get passed along through extra_fits.
                     # Avoid this.
-                    if "ASDF" in [hdu.name for hdu in ff._hdulist]:
+                    if "ASDF" in ff._hdulist:
                         del ff._hdulist["ASDF"]
                     # Use HDUList.writeto instead of AsdfInFits.write_to
                     ff._hdulist.writeto(init, *args, **kwargs)

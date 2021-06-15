@@ -556,7 +556,7 @@ def test_no_asdf_extension(tmp_path):
         m.save(path)
 
     with fits.open(path, memmap=False) as hdulist:
-        assert "ASDF" not in [hdu.name for hdu in hdulist]
+        assert "ASDF" not in hdulist
 
 
 def test_no_asdf_extension_extra_fits(tmp_path):
@@ -580,7 +580,7 @@ def test_no_asdf_extension_extra_fits(tmp_path):
         m.save(path)
 
     with fits.open(path, memmap=False) as hdulist:
-        assert "ASDF" not in [hdu.name for hdu in hdulist]
+        assert "ASDF" not in hdulist
 
     with PureFitsModel(path) as m:
         with pytest.raises(AttributeError):
