@@ -1,4 +1,4 @@
-0.2.3 (unreleased)
+0.2.3 (2021-06-15)
 ==================
 
 - Don't allow ASDF hdus to get passed through ``extra_fits``, and don't
