@@ -22,21 +22,10 @@ def test_gentle_asarray_array_input():
     assert result.dtype == np.int16
     assert_array_equal(result, inp)
 
-    # This will require casting, since int8 != int16:
-    result = util.gentle_asarray(inp, dtype=np.int8)
-    assert result.dtype == np.int8
+    # This will require casting, since int32 != int16:
+    result = util.gentle_asarray(inp, dtype=np.int32)
+    assert result.dtype == np.int32
     assert_array_equal(result, inp)
-
-    # Test broadcasting the same 1D array to a recarray with
-    # two columns.  The input array should be copied into
-    # each column and cast as necessary:
-    dtype = np.dtype([("col1", np.int16), ("col2", np.float32)])
-    result = util.gentle_asarray(inp, dtype=dtype)
-    assert result.dtype == dtype
-    assert result["col1"].dtype == np.int16
-    assert_array_equal(result["col1"], np.array([1, 2, 3, 4], dtype=np.int16))
-    assert result["col2"].dtype == np.float32
-    assert_array_equal(result["col1"], np.array([1, 2, 3, 4], dtype=np.float32))
 
 
 def test_gentle_asarray_recarray_input():
@@ -91,7 +80,7 @@ def test_gentle_asarray_nested_array():
     # '2f' is a numpy data type code for an array of two 32-bit floats:
     in_dtype = np.dtype([("col1", np.dtype("2f")), ("col2", np.int16)])
     inp = np.array([1, 2, 3, 4], dtype=in_dtype)
-    out_dtype = np.dtype([("col1", np.dtype("2f")), ("col2", np.int8)])
+    out_dtype = np.dtype([("col1", np.dtype("2f")), ("col2", np.int32)])
     result = util.gentle_asarray(inp, dtype=out_dtype)
     assert result.dtype == out_dtype
     assert_array_equal(result["col2"], inp["col2"])
@@ -138,6 +127,19 @@ def test_gentle_asarray_invalid_conversion():
     """
     with pytest.raises(ValueError):
         util.gentle_asarray(object(), dtype=np.float32)
+
+
+def test_gentle_asarray_unsafe_cast():
+    """
+    Test gentle_asarray with dtypes that cannot be
+    safely cast without risking overflow or loss of
+    precision.
+    """
+    with pytest.raises(ValueError, match="cannot be safely cast to schema dtype"):
+        util.gentle_asarray(np.array([3.141592653589793], dtype=np.float64), dtype=np.float32)
+
+    with pytest.raises(ValueError, match="cannot be safely cast to schema dtype"):
+        util.gentle_asarray(np.array([4294967295], dtype=np.uint32), dtype=np.int32)
 
 
 def test_create_history_entry():

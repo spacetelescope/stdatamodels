@@ -18,7 +18,7 @@ def test_context_management(extension, tmp_path):
     process = psutil.Process()
     base_count = len(process.open_files())
 
-    array = np.random.uniform(size=(1024, 1024))
+    array = np.random.uniform(size=(1024, 1024)).astype(np.float32)
 
     with FitsModel() as model:
         model.data = array
@@ -63,7 +63,7 @@ def test_close(extension, tmp_path):
     process = psutil.Process()
     base_count = len(process.open_files())
 
-    array = np.random.uniform(size=(1024, 1024))
+    array = np.random.uniform(size=(1024, 1024)).astype(np.float32)
 
     model = FitsModel()
     model.data = array
@@ -108,7 +108,7 @@ def test_multiple_close(extension, tmp_path):
     process = psutil.Process()
     base_count = len(process.open_files())
 
-    array = np.random.uniform(size=(1024, 1024))
+    array = np.random.uniform(size=(1024, 1024)).astype(np.float32)
 
     model = FitsModel()
     model.data = array
@@ -152,7 +152,7 @@ def test_delete(extension, tmp_path):
     process = psutil.Process()
     base_count = len(process.open_files())
 
-    array = np.random.uniform(size=(1024, 1024))
+    array = np.random.uniform(size=(1024, 1024)).astype(np.float32)
 
     model = FitsModel()
     model.data = array

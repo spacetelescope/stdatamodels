@@ -91,9 +91,9 @@ def test_extra_fits(tmp_path):
 def test_hdu_order(tmp_path):
     file_path = tmp_path/"test.fits"
 
-    with FitsModel(data=np.array([[0.0]]),
-                   dq=np.array([[0.0]]),
-                   err=np.array([[0.0]])) as dm:
+    with FitsModel(data=np.array([[0.0]], dtype=np.float32),
+                   dq=np.array([[0.0]], dtype=np.uint32),
+                   err=np.array([[0.0]], dtype=np.float32)) as dm:
         dm.save(file_path)
 
     with fits.open(file_path, memmap=False) as hdulist:
@@ -349,7 +349,7 @@ def test_metadata_from_fits(tmp_path):
     file_path = tmp_path/"test.fits"
     file_path2 = tmp_path/"test2.fits"
 
-    mask = np.array([[0, 1], [2, 3]])
+    mask = np.array([[0, 1], [2, 3]], dtype=np.uint32)
     fits.ImageHDU(data=mask, name='DQ').writeto(file_path)
     with FitsModel(file_path) as dm:
         dm.save(file_path2)

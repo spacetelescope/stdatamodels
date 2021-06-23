@@ -34,8 +34,10 @@ def gentle_asarray(a, dtype):
         if in_dtype.fields is None and out_dtype.fields is None:
             if np.can_cast(in_dtype, out_dtype, 'equiv'):
                 return a
-            else:
+            elif np.can_cast(in_dtype, out_dtype, 'safe'):
                 return np.asanyarray(a, dtype=out_dtype)
+            else:
+                raise ValueError(f"Array dtype {in_dtype} cannot be safely cast to schema dtype {out_dtype}")
         elif in_dtype.fields is not None and out_dtype.fields is not None:
             # When a FITS file includes a pseudo-unsigned-int column, astropy will return
             # a FITS_rec with an incorrect table dtype.  The following code rebuilds
@@ -85,11 +87,15 @@ def gentle_asarray(a, dtype):
                         (out_dtype.names[i],
                          type_str,
                          in_type.shape))
-                else:
+                elif np.can_cast(in_dtype, out_dtype, 'safe'):
                     return np.asanyarray(a, dtype=out_dtype)
+                else:
+                    raise ValueError(f"Array dtype {in_dtype} cannot be safely cast to schema dtype {out_dtype}")
             return a.view(dtype=np.dtype(new_dtype))
-        else:
+        elif np.can_cast(in_dtype, out_dtype, 'safe'):
             return np.asanyarray(a, dtype=out_dtype)
+        else:
+            raise ValueError(f"Array dtype {in_dtype} cannot be safely cast to schema dtype {out_dtype}")
     else:
         try:
             a = np.asarray(a, dtype=out_dtype)

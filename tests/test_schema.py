@@ -111,13 +111,17 @@ def test_table_array_shape_ndim(filename, tmp_path):
         x.save(file_path)
 
     with TableModel(file_path) as x:
-        assert x.table.dtype == [
-            ('int16_column', '=i2'),
-            ('float32_column', '=f4'),
-            ('ascii_column', 'S64'),
-            ('float32_column_with_shape', '=f4', (3, 2)),
-            ('float32_column_with_ndim', '=f4', (3, 2)),
-        ]
+        assert np.can_cast(
+            x.table.dtype,
+            [
+                ('int16_column', '=i2'),
+                ('float32_column', '=f4'),
+                ('ascii_column', 'S64'),
+                ('float32_column_with_shape', '=f4', (3, 2)),
+                ('float32_column_with_ndim', '=f4', (3, 2)),
+            ],
+            'equiv'
+        )
 
     with TableModel() as x:
         with pytest.raises(ValueError):
@@ -134,7 +138,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
 
 
 def test_implicit_creation_lower_dimensionality():
-    with BasicModel(np.zeros((10, 20))) as m:
+    with BasicModel(np.zeros((10, 20), dtype=np.float32)) as m:
         assert m.dq.shape == (20,)
 
 

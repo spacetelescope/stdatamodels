@@ -31,16 +31,16 @@ def test_set_shape():
 
 def test_broadcast():
     with BasicModel((50, 50)) as dm:
-        data = np.empty((50,))
+        data = np.empty((50,), dtype=np.uint32)
         dm.dq = data
 
 
 def test_broadcast2():
     with BasicModel() as dm:
-        data = np.empty((52, 50))
+        data = np.empty((52, 50), dtype=np.float32)
         dm.data = data
 
-        dq = np.empty((50,))
+        dq = np.empty((50,), dtype=np.uint32)
         dm.dq = dq
 
 
@@ -85,14 +85,14 @@ def test_stringify(tmp_path):
 
 
 def test_init_with_array():
-    array = np.empty((50, 50))
+    array = np.empty((50, 50), dtype=np.float32)
     with BasicModel(array) as dm:
         assert dm.data.shape == (50, 50)
 
 
 def test_init_with_array2():
     with pytest.raises(ValueError):
-        array = np.empty((50,))
+        array = np.empty((50,), dtype=np.float32)
         with BasicModel(array) as dm:
             dm.data
 
@@ -100,13 +100,13 @@ def test_init_with_array2():
 def test_set_array():
     with pytest.raises(ValueError):
         with BasicModel() as dm:
-            data = np.empty((50,))
+            data = np.empty((50,), dtype=np.float32)
             dm.data = data
 
 
 def test_set_array2():
     with BasicModel() as dm:
-        data = np.empty((50, 50))
+        data = np.empty((50, 50), dtype=np.float32)
         dm.data = data
 
 
@@ -149,7 +149,7 @@ def test_secondary_shapes():
 
 def test_initialize_arrays_with_arglist():
     shape = (10, 10)
-    area = np.full((2, 2), 13.0)
+    area = np.full((2, 2), 13.0, dtype=np.float32)
     m = BasicModel(shape, area=area)
     assert np.array_equal(m.area, area)
 
@@ -215,7 +215,7 @@ def test_datamodel_raises_filenotfound(tmp_path):
 
 def test_getarray_noinit_valid():
     """Test for valid value return"""
-    arr = np.ones((5, 5))
+    arr = np.ones((5, 5), dtype=np.float32)
     model = BasicModel(data=arr)
     fetched = model.getarray_noinit('data')
     assert (fetched == arr).all()
@@ -223,7 +223,7 @@ def test_getarray_noinit_valid():
 
 def test_getarray_noinit_raises():
     """Test for error when accessing non-existent array"""
-    arr = np.ones((5, 5))
+    arr = np.ones((5, 5), dtype=np.float32)
     model = BasicModel(data=arr)
     with pytest.raises(AttributeError):
         model.getarray_noinit('area')
@@ -231,7 +231,7 @@ def test_getarray_noinit_raises():
 
 def test_getarray_noinit_noinit():
     """Test that calling on a non-existant array does not initialize that array"""
-    arr = np.ones((5, 5))
+    arr = np.ones((5, 5), dtype=np.float32)
     model = BasicModel(data=arr)
     try:
         model.getarray_noinit('area')
