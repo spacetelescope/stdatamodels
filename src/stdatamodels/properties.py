@@ -276,8 +276,6 @@ class ObjectNode(Node):
             return self._instance == other
 
     def __getattr__(self, attr):
-        from . import ndmodel
-
         if attr.startswith('_'):
             raise AttributeError('No attribute {0}'.format(attr))
 
@@ -292,11 +290,7 @@ class ObjectNode(Node):
                 self._instance[attr] = val
 
         if isinstance(val, dict):
-            # Meta is special cased to support NDData interface
-            if attr == 'meta':
-                node = ndmodel.MetaNode(attr, val, schema, self._ctx)
-            else:
-                node = ObjectNode(attr, val, schema, self._ctx)
+            node = ObjectNode(attr, val, schema, self._ctx)
         elif isinstance(val, list):
             node = ListNode(attr, val, schema, self._ctx)
         else:
