@@ -21,7 +21,6 @@ from asdf import AsdfFile
 from asdf.fits_embed import AsdfInFits
 from asdf import schema as asdf_schema
 
-from . import ndmodel
 from . import filetype
 from . import fits_support
 from . import properties
@@ -52,7 +51,7 @@ _DEFAULT_SCHEMA = {
 }
 
 
-class DataModel(properties.ObjectNode, ndmodel.NDModel):
+class DataModel(properties.ObjectNode):
     """
     Base class of all of the data models.
     """
@@ -653,8 +652,6 @@ class DataModel(properties.ObjectNode, ndmodel.NDModel):
     def __setattr__(self, attr, value):
         if self.my_attribute(attr):
             object.__setattr__(self, attr, value)
-        elif ndmodel.NDModel.my_attribute(self, attr):
-            ndmodel.NDModel.__setattr__(self, attr, value)
         else:
             properties.ObjectNode.__setattr__(self, attr, value)
 

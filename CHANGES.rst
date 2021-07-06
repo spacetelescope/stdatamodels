@@ -1,3 +1,8 @@
+0.3.0 (unreleased)
+==================
+
+- Remove NDData interface from DataModel. [#77]
+
 0.2.3 (2021-06-15)
 ==================
 

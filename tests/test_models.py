@@ -250,8 +250,7 @@ def test_skip_serializing_null(tmp_path, filename):
 
     with BasicModel(file_path) as model:
         # Make sure that 'telescope' is not in the tree
-        with pytest.raises(KeyError):
-            assert model.meta["telescope"] is None
+        assert "telescope" not in model.meta._instance
 
 
 def test_delete_failed_model():
@@ -289,6 +288,6 @@ def test_on_save_hook(tmp_path):
             self.meta.foo = "bar"
 
     model = OnSaveModel()
-    assert model.meta.get("foo") is None
+    assert "foo" not in model.meta._instance
     model.save(tmp_path/"test.asdf")
     assert model.meta.foo == "bar"
