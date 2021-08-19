@@ -1,10 +1,10 @@
 import pytest
 import asdf
 from jsonschema import ValidationError
+import numpy as np
 
 from stdatamodels.validate import ValidationWarning
-from models import ValidationModel, RequiredModel
-
+from models import BasicModel, ValidationModel, RequiredModel
 
 
 class _DoesNotRaiseContext:
@@ -356,3 +356,25 @@ def test_validate_on_assignment_pass_invalid_values(validate_on_assignment,
     with expected_context_manager:
         model.meta.string_attribute = 42  # Bad assignment
     assert model.meta.string_attribute == value
+
+
+def test_ndarray_validation(tmp_path):
+    file_path = tmp_path / "test.asdf"
+
+    # Wrong dtype
+    with asdf.AsdfFile() as af:
+        af["data"] = np.ones((4, 4), dtype=np.float64)
+        af.write_to(file_path)
+
+    with pytest.raises(ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"):
+        with BasicModel(file_path, strict_validation=True, validate_arrays=True) as model:
+            model.validate()
+
+    # Wrong dimensions
+    with asdf.AsdfFile() as af:
+        af["data"] = np.ones((4,), dtype=np.float32)
+        af.write_to(file_path)
+
+    with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
+        with BasicModel(file_path, strict_validation=True, validate_arrays=True) as model:
+            model.validate()

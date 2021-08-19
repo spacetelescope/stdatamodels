@@ -11,6 +11,8 @@ allOf:
         datatype:
           - name: int16_column
             datatype: int16
+          - name: uint16_column
+            datatype: uint16
           - name: float32_column
             datatype: float32
           - name: ascii_column

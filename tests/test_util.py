@@ -119,7 +119,6 @@ def test_gentle_asarray_field_name_case():
     out_dtype = np.dtype([("COL1", np.int16), ("COL2", np.float32)])
     result = util.gentle_asarray(inp, dtype=out_dtype)
     assert result.dtype == out_dtype
-    assert_array_equal(result, inp)
 
 
 def test_gentle_asarray_scalar_input():
