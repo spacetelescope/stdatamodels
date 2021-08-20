@@ -58,11 +58,11 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             array = ndarray.inline_data_asarray(instance['data'])
             instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(array.dtype)
         else:
-            raise ValidationError("Not an array")
+            yield ValidationError("Not an array")
     elif isinstance(instance, (np.ndarray, ndarray.NDArrayType)):
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.dtype)
     else:
-        raise ValidationError("Not an array")
+        yield ValidationError("Not an array")
 
     schema_dtype = ndarray.asdf_datatype_to_numpy_dtype(schema_datatype)
     instance_dtype = ndarray.asdf_datatype_to_numpy_dtype(instance_datatype)
