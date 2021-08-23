@@ -3,6 +3,9 @@
 
 - Remove NDData interface from DataModel. [#77]
 
+- Add cast_fits_arrays and validate_arrays options for controlling
+  array validation behavior. [#79]
+
 0.2.3 (2021-06-15)
 ==================
 
