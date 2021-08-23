@@ -51,11 +51,6 @@ jobs:
             python-version: 3.8
             toxenv: jwst
 
-          - name: romancal.datamodels tests
-            runs-on: ubuntu-latest
-            python-version: 3.8
-            toxenv: romancal
-
           - name: Build documentation
             runs-on: ubuntu-latest
             python-version: 3.8
