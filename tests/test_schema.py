@@ -93,7 +93,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
     with TableModel() as x:
         x.table = [
             (
-                42,
+                -42,
+                42000,
                 37.5,
                 'STRING',
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
@@ -102,6 +103,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
         ]
         assert x.table.dtype == [
             ('int16_column', '=i2'),
+            ('uint16_column', '=u2'),
             ('float32_column', '=f4'),
             ('ascii_column', 'S64'),
             ('float32_column_with_shape', '=f4', (3, 2)),
@@ -115,6 +117,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
             x.table.dtype,
             [
                 ('int16_column', '=i2'),
+                ('uint16_column', '=u2'),
                 ('float32_column', '=f4'),
                 ('ascii_column', 'S64'),
                 ('float32_column_with_shape', '=f4', (3, 2)),
@@ -127,7 +130,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
         with pytest.raises(ValueError):
             x.table = [
                 (
-                    42,
+                    -42,
+                    42000,
                     37.5,
                     'STRING',
                     # This element should fail because it's shape is (2, 2) and not (3, 2):

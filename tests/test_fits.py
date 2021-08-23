@@ -3,6 +3,7 @@ from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 import asdf.schema
+from jsonschema import ValidationError
 
 from stdatamodels import DataModel
 from stdatamodels import fits_support
@@ -585,3 +586,36 @@ def test_no_asdf_extension_extra_fits(tmp_path):
     with PureFitsModel(path) as m:
         with pytest.raises(AttributeError):
             m.extra_fits
+
+
+def test_ndarray_validation(tmp_path):
+    file_path = tmp_path / "test.fits"
+
+    # Wrong dtype
+    hdu = fits.ImageHDU(data=np.ones((4, 4), dtype=np.float64), name="SCI")
+    hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
+    hdul.writeto(file_path)
+
+    # Should be able to cast
+    with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
+        model.validate()
+
+    # But raise an error when casting is disabled
+    with pytest.raises(ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"):
+        with FitsModel(file_path, strict_validation=True, cast_fits_arrays=False, validate_arrays=True) as model:
+            model.validate()
+
+    # Wrong dimensions
+    hdu = fits.ImageHDU(data=np.ones((4,), dtype=np.float64), name="SCI")
+    hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
+    hdul.writeto(file_path, overwrite=True)
+
+    # Can't cast this problem away
+    with pytest.raises(ValueError, match="Array has wrong number of dimensions"):
+        with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
+            model.validate()
+
+    # Should also be caught by validation
+    with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
+        with FitsModel(file_path, strict_validation=True, cast_fits_arrays=False, validate_arrays=True) as model:
+            model.validate()

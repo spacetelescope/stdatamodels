@@ -44,18 +44,8 @@ def gentle_asarray(a, dtype):
             # We can remove this once the issue is resolved in astropy:
             # https://github.com/astropy/astropy/issues/8862
             if isinstance(a, fits.fitsrec.FITS_rec):
-                new_in_dtype = []
-                updated = False
-                for field_name in in_dtype.fields:
-                    table_dtype = in_dtype[field_name]
-                    field_dtype = a.field(field_name).dtype
-                    if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(field_dtype, np.unsignedinteger):
-                        new_in_dtype.append((field_name, field_dtype))
-                        updated = True
-                    else:
-                        new_in_dtype.append((field_name, table_dtype))
-                if updated:
-                    in_dtype = np.dtype(new_in_dtype)
+                a.dtype = rebuild_fits_rec_dtype(a)
+                in_dtype = a.dtype
 
             if in_dtype == out_dtype:
                 return a
@@ -222,3 +212,16 @@ def remove_none_from_tree(tree):
             return node
 
     return treeutil.walk_and_modify(tree, _remove_none)
+
+
+def rebuild_fits_rec_dtype(fits_rec):
+    dtype = fits_rec.dtype
+    new_dtype = []
+    for field_name in dtype.fields:
+        table_dtype = dtype[field_name]
+        field_dtype = fits_rec.field(field_name).dtype
+        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(field_dtype, np.unsignedinteger):
+            new_dtype.append((field_name, field_dtype))
+        else:
+            new_dtype.append((field_name, table_dtype))
+    return np.dtype((np.record, new_dtype))
