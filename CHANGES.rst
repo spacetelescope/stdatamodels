@@ -6,6 +6,11 @@
 - Add cast_fits_arrays and validate_arrays options for controlling
   array validation behavior. [#79]
 
+0.2.4 (2021-08-26)
+==================
+
+- Workaround for setuptools_scm issues with recent versions of pip. [#83]
+
 0.2.3 (2021-06-15)
 ==================
 
