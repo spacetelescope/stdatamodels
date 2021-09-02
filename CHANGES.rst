@@ -6,6 +6,9 @@
 - Add cast_fits_arrays and validate_arrays options for controlling
   array validation behavior. [#79]
 
+- Prevent data corruption by raising an error when asked to cast a
+  table with a pseudo-unsigned integer column. [#82]
+
 0.2.4 (2021-08-26)
 ==================
 
