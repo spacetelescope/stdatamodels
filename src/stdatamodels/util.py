@@ -35,7 +35,7 @@ def gentle_asarray(a, dtype):
             if np.can_cast(in_dtype, out_dtype, 'equiv'):
                 return a
             else:
-                return np.asanyarray(a, dtype=out_dtype)
+                return _safe_asanyarray(a, out_dtype)
         elif in_dtype.fields is not None and out_dtype.fields is not None:
             # When a FITS file includes a pseudo-unsigned-int column, astropy will return
             # a FITS_rec with an incorrect table dtype.  The following code rebuilds
@@ -76,16 +76,27 @@ def gentle_asarray(a, dtype):
                          type_str,
                          in_type.shape))
                 else:
-                    return np.asanyarray(a, dtype=out_dtype)
+                    return _safe_asanyarray(a, out_dtype)
             return a.view(dtype=np.dtype(new_dtype))
         else:
-            return np.asanyarray(a, dtype=out_dtype)
+            return _safe_asanyarray(a, out_dtype)
     else:
         try:
             a = np.asarray(a, dtype=out_dtype)
         except Exception:
             raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
         return a
+
+
+def _safe_asanyarray(a, dtype):
+    if isinstance(a, fits.fitsrec.FITS_rec):
+        if any(c.bzero is not None for c in a.columns):
+            # Due to an issue in astropy, it's not safe to convert
+            # a FITS_rec with a pseudo-unsigned column.
+            # See https://github.com/astropy/astropy/issues/12112
+            raise ValueError("Cannot convert FITS_rec dtype")
+
+    return np.asanyarray(a, dtype=dtype)
 
 
 def create_history_entry(description, software=None):
