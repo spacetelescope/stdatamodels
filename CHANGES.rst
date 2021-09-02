@@ -1,4 +1,4 @@
-0.3.0 (unreleased)
+0.3.0 (2021-09-02)
 ==================
 
 - Remove NDData interface from DataModel. [#77]
@@ -8,6 +8,8 @@
 
 - Prevent data corruption by raising an error when asked to cast a
   table with a pseudo-unsigned integer column. [#82]
+
+- Remove DataModel.my_attribute function. [#72]
 
 0.2.4 (2021-08-26)
 ==================
