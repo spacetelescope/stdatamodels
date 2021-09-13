@@ -60,6 +60,7 @@ jobs:
       - name: Install extra system packages
         if: ${{ contains(matrix.toxenv,'docs') }}
         run: |
+          sudo apt update -y
           sudo apt-get install graphviz texlive-latex-extra dvipng
       - uses: actions/checkout@v2
         with:
