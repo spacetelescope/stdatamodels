@@ -289,7 +289,6 @@ class ObjectNode(Node):
             node = node._parent
 
         path.reverse()
-        path.insert(0, "model")
 
         old_attr = ".".join(path + [attr])
 
