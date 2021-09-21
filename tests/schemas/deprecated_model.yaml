@@ -13,6 +13,19 @@ allOf:
             type: string
           telescope:
             type: string
+          array_property:
+            type: array
+            items:
+              type: object
+              properties:
+                foo:
+                  type: string
+                bar:
+                  type: string
+                bam:
+                  type: string
+              deprecated_properties:
+                baz: bam
         deprecated_properties:
           old_data: ../data
       data:

@@ -280,6 +280,31 @@ class ObjectNode(Node):
     def _is_deprecated(self, attr):
         return "deprecated_properties" in self._schema and attr in self._schema["deprecated_properties"]
 
+    def _warn_deprecated_attr(self, attr):
+        node = self
+        path = []
+        while node._parent != None:
+            if not isinstance(node, ListNode):
+                path.append(node._name)
+            node = node._parent
+
+        path.reverse()
+        path.insert(0, "model")
+
+        old_attr = ".".join(path + [attr])
+
+        property_path = self._schema["deprecated_properties"][attr]
+        parts = property_path.split("/")
+        for part in parts:
+            if part == "..":
+                path.pop()
+            else:
+                path.append(part)
+
+        new_attr = ".".join(path)
+
+        warnings.warn(f"Attribute '{old_attr}' has been deprecated.  Use '{new_attr}' instead.", DeprecationWarning)
+
     def _get_deprecated(self, attr):
         property_path = self._schema["deprecated_properties"][attr]
         node = self
@@ -296,7 +321,7 @@ class ObjectNode(Node):
             raise AttributeError('No attribute {0}'.format(attr))
 
         if self._is_deprecated(attr):
-            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            self._warn_deprecated_attr(attr)
             node, new_attr = self._get_deprecated(attr)
             return getattr(node, new_attr)
 
@@ -324,7 +349,7 @@ class ObjectNode(Node):
         if attr.startswith('_'):
             self.__dict__[attr] = val
         elif self._is_deprecated(attr):
-            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            self._warn_deprecated_attr(attr)
             node, new_attr = self._get_deprecated(attr)
             setattr(node, new_attr, val)
         else:
@@ -344,7 +369,7 @@ class ObjectNode(Node):
         if attr.startswith('_'):
             del self.__dict__[attr]
         elif self._is_deprecated(attr):
-            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            self._warn_deprecated_attr(attr)
             node, new_attr = self._get_deprecated(attr)
             delattr(node, new_attr)
         else:
