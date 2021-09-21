@@ -62,3 +62,12 @@ class TableModel(DataModel):
     Model that includes a recarray-style table.
     """
     schema_url = "http://example.com/schemas/table_model"
+
+
+class DeprecatedModel(DataModel):
+    """
+    Model with a top-level "old_origin" property that has
+    moved to "meta.origin", and a "meta.old_data" property that has
+    moved to "data".
+    """
+    schema_url = "http://example.com/schemas/deprecated_model"

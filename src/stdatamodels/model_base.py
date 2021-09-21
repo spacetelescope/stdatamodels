@@ -177,6 +177,7 @@ class DataModel(properties.ObjectNode):
 
         # Provide the object as context to other classes and functions
         self._ctx = self
+        self._parent = None
 
         # Initialize with an empty AsdfFile instance as this is needed for
         # reading in FITS files where validate._check_value() gets called, and

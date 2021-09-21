@@ -4,7 +4,7 @@ import numpy as np
 
 from stdatamodels import DataModel
 
-from models import BasicModel, AnyOfModel
+from models import BasicModel, AnyOfModel, DeprecatedModel
 
 
 def test_init_from_pathlib(tmp_path):
@@ -291,3 +291,42 @@ def test_on_save_hook(tmp_path):
     assert "foo" not in model.meta._instance
     model.save(tmp_path/"test.asdf")
     assert model.meta.foo == "bar"
+
+
+def test_deprecated_properties():
+    model = DeprecatedModel()
+
+    model.meta.origin = "somewhere"
+
+    with pytest.warns(DeprecationWarning, match="Attribute 'old_origin' has been deprecated.  Use 'meta.origin' instead."):
+        assert model.old_origin == "somewhere"
+
+    with pytest.warns(DeprecationWarning, match="Attribute 'old_origin' has been deprecated.  Use 'meta.origin' instead."):
+        model.old_origin = "somewhere else"
+    assert model.meta.origin == "somewhere else"
+
+    data = np.arange(100, dtype=np.float32).reshape(10, 10)
+    model.data = data
+    with pytest.warns(DeprecationWarning, match="Attribute 'meta.old_data' has been deprecated.  Use 'data' instead."):
+        assert model.meta.old_data is data
+
+    data = np.arange(80, dtype=np.float32).reshape(8, 10)
+    with pytest.warns(DeprecationWarning, match="Attribute 'meta.old_data' has been deprecated.  Use 'data' instead."):
+        model.meta.old_data = data
+    assert model.data is data
+
+    model.meta.array_property.append(model.meta.array_property.item())
+    model.meta.array_property[0].bam = "some value"
+    with pytest.warns(
+            DeprecationWarning,
+            match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead.",
+    ):
+        assert model.meta.array_property[0].baz == "some value"
+
+    with pytest.warns(
+            DeprecationWarning,
+            match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead.",
+    ):
+        model.meta.array_property[0].baz = "some other value"
+
+    assert model.meta.array_property[0].bam == "some other value"
