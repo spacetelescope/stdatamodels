@@ -317,10 +317,16 @@ def test_deprecated_properties():
 
     model.meta.array_property.append(model.meta.array_property.item())
     model.meta.array_property[0].bam = "some value"
-    with pytest.warns(DeprecationWarning, match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead."):
+    with pytest.warns(
+            DeprecationWarning,
+            match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead.",
+    ):
         assert model.meta.array_property[0].baz == "some value"
 
-    with pytest.warns(DeprecationWarning, match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead."):
+    with pytest.warns(
+            DeprecationWarning,
+            match="Attribute 'meta.array_property.baz' has been deprecated.  Use 'meta.array_property.bam' instead.",
+    ):
         model.meta.array_property[0].baz = "some other value"
 
     assert model.meta.array_property[0].bam == "some other value"

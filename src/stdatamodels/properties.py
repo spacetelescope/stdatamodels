@@ -283,7 +283,7 @@ class ObjectNode(Node):
     def _warn_deprecated_attr(self, attr):
         node = self
         path = []
-        while node._parent != None:
+        while node._parent is not None:
             if not isinstance(node, ListNode):
                 path.append(node._name)
             node = node._parent
