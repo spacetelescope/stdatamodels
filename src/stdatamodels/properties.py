@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
+import warnings
 import numpy as np
 from collections.abc import Mapping
 from astropy.io import fits
@@ -205,11 +206,11 @@ def _make_default(attr, schema, ctx):
             return None
 
 
-def _make_node(attr, instance, schema, ctx):
+def _make_node(attr, instance, schema, ctx, parent):
     if isinstance(instance, dict):
-        return ObjectNode(attr, instance, schema, ctx)
+        return ObjectNode(attr, instance, schema, ctx, parent)
     elif isinstance(instance, list):
-        return ListNode(attr, instance, schema, ctx)
+        return ListNode(attr, instance, schema, ctx, parent)
     else:
         return instance
 
@@ -251,11 +252,12 @@ def _find_property(schema, attr):
     return find
 
 class Node():
-    def __init__(self, attr, instance, schema, ctx):
+    def __init__(self, attr, instance, schema, ctx, parent):
         self._name = attr
         self._instance = instance
         self._schema = schema
         self._ctx = ctx
+        self._parent = parent
 
     def _validate(self):
         return validate.value_change(self._name, self._instance, self._schema, self._ctx)
@@ -275,9 +277,28 @@ class ObjectNode(Node):
         else:
             return self._instance == other
 
+    def _is_deprecated(self, attr):
+        return "deprecated_properties" in self._schema and attr in self._schema["deprecated_properties"]
+
+    def _get_deprecated(self, attr):
+        property_path = self._schema["deprecated_properties"][attr]
+        node = self
+        parts = property_path.split("/")
+        for part in parts[:-1]:
+            if part == "..":
+                node = node._parent
+            else:
+                node = getattr(node, part)
+        return node, parts[-1]
+
     def __getattr__(self, attr):
         if attr.startswith('_'):
             raise AttributeError('No attribute {0}'.format(attr))
+
+        if self._is_deprecated(attr):
+            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            node, new_attr = self._get_deprecated(attr)
+            return getattr(node, new_attr)
 
         schema = _get_schema_for_property(self._schema, attr)
         try:
@@ -285,14 +306,15 @@ class ObjectNode(Node):
         except KeyError:
             if schema == {}:
                 raise AttributeError("No attribute '{0}'".format(attr))
+
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
                 self._instance[attr] = val
 
         if isinstance(val, dict):
-            node = ObjectNode(attr, val, schema, self._ctx)
+            node = ObjectNode(attr, val, schema, self._ctx, self)
         elif isinstance(val, list):
-            node = ListNode(attr, val, schema, self._ctx)
+            node = ListNode(attr, val, schema, self._ctx, self)
         else:
             node = val
 
@@ -301,13 +323,17 @@ class ObjectNode(Node):
     def __setattr__(self, attr, val):
         if attr.startswith('_'):
             self.__dict__[attr] = val
+        elif self._is_deprecated(attr):
+            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            node, new_attr = self._get_deprecated(attr)
+            setattr(node, new_attr, val)
         else:
             schema = _get_schema_for_property(self._schema, attr)
             if val is None:
                 val = _make_default(attr, schema, self._ctx)
             val = _cast(val, schema)
 
-            node = ObjectNode(attr, val, schema, self._ctx)
+            node = ObjectNode(attr, val, schema, self._ctx, self)
             if self._ctx._validate_on_assignment:
                 if node._validate():
                     self._instance[attr] = val
@@ -317,6 +343,10 @@ class ObjectNode(Node):
     def __delattr__(self, attr):
         if attr.startswith('_'):
             del self.__dict__[attr]
+        elif self._is_deprecated(attr):
+            warnings.warn(f"Attribute '{attr}' has been deprecated", DeprecationWarning)
+            node, new_attr = self._get_deprecated(attr)
+            delattr(node, new_attr)
         else:
             schema = _get_schema_for_property(self._schema, attr)
             if validate.value_change(attr, None, schema, self._ctx) or self._ctx._pass_invalid_values:
@@ -363,12 +393,12 @@ class ListNode(Node):
 
     def __getitem__(self, i):
         schema = _get_schema_for_index(self._schema, i)
-        return _make_node(self._name, self._instance[i], schema, self._ctx)
+        return _make_node(self._name, self._instance[i], schema, self._ctx, self)
 
     def __setitem__(self, i, val):
         schema = _get_schema_for_index(self._schema, i)
         val =  _cast(val, schema)
-        node = ObjectNode(self._name, val, schema, self._ctx)
+        node = ObjectNode(self._name, val, schema, self._ctx, self)
         if self._ctx._validate_on_assignment:
             if node._validate():
                 self._instance[i] = val
@@ -389,7 +419,7 @@ class ListNode(Node):
         else:
             schema_parts = self._schema['items']
         schema = {'type': 'array', 'items': schema_parts}
-        return _make_node(self._name, self._instance[i:j], schema, self._ctx)
+        return _make_node(self._name, self._instance[i:j], schema, self._ctx, self)
 
     def __setslice__(self, i, j, other):
         parts = _unmake_node(other)
@@ -407,7 +437,7 @@ class ListNode(Node):
     def append(self, item):
         schema = _get_schema_for_index(self._schema, len(self._instance))
         item = _cast(item, schema)
-        node = ObjectNode(self._name, item, schema, self._ctx)
+        node = ObjectNode(self._name, item, schema, self._ctx, self)
         if self._ctx._validate_on_assignment:
             if node._validate():
                 self._instance.append(item)
@@ -418,7 +448,7 @@ class ListNode(Node):
     def insert(self, i, item):
         schema = _get_schema_for_index(self._schema, i)
         item = _cast(item, schema)
-        node = ObjectNode(self._name, item, schema, self._ctx)
+        node = ObjectNode(self._name, item, schema, self._ctx, self)
         if self._ctx._validate_on_assignment:
             if node._validate():
                 self._instance.insert(i, item)
@@ -428,7 +458,7 @@ class ListNode(Node):
     def pop(self, i=-1):
         schema = _get_schema_for_index(self._schema, 0)
         x = self._instance.pop(i)
-        return _make_node(self._name, x, schema, self._ctx)
+        return _make_node(self._name, x, schema, self._ctx, self)
 
     def remove(self, item):
         self._instance.remove(item)
@@ -452,7 +482,7 @@ class ListNode(Node):
     def item(self, **kwargs):
         assert isinstance(self._schema['items'], dict)
         node = ObjectNode(self._name, kwargs, self._schema['items'],
-                          self._ctx)
+                          self._ctx, self)
         if not self._ctx._validate_on_assignment:
             return node
         if not node._validate():

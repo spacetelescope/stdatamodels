@@ -1,3 +1,9 @@
+0.4.0 (unreleased)
+==================
+
+- Add schema feature to forward deprecated model attributes to
+  a new location. [#85]
+
 0.3.0 (2021-09-03)
 ==================
 
