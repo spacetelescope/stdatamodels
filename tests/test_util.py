@@ -87,8 +87,8 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned(tmp_path):
     assert result["col1"][3] == 4
 
     # This tests the case where a table with a pseudo unsigned integer column
-    # is opened from a FITS file and needs to be cast.  Due to a bug in astropy
-    # this isn't safe so we expect an exception.
+    # is opened from a FITS file and needs to be cast.  This requires special
+    # handling on our end to dodge the bug.
     file_path = tmp_path / "test.fits"
 
     data = np.array([(0,)], dtype=[("col1", np.uint16)])
@@ -98,8 +98,10 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned(tmp_path):
     hdul.writeto(file_path)
 
     with fits.open(file_path) as hdul:
-        with pytest.raises(ValueError, match="Cannot convert FITS_rec dtype"):
-            util.gentle_asarray(hdul[-1].data, dtype=[("col1", np.uint32)])
+        result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", np.uint32)])
+        # Without the fix, the value in the array would be 128 due to bzero
+        # shift being applied twice.
+        assert result[0][0] == 0
 
 
 def test_gentle_asarray_nested_array():

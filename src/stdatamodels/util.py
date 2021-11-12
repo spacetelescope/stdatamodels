@@ -91,10 +91,13 @@ def gentle_asarray(a, dtype):
 def _safe_asanyarray(a, dtype):
     if isinstance(a, fits.fitsrec.FITS_rec):
         if any(c.bzero is not None for c in a.columns):
-            # Due to an issue in astropy, it's not safe to convert
+            # Due to an issue in astropy, it's not safe to directly cast
             # a FITS_rec with a pseudo-unsigned column.
             # See https://github.com/astropy/astropy/issues/12112
-            raise ValueError("Cannot convert FITS_rec dtype")
+            result = np.zeros(a.shape, dtype=dtype)
+            for old_col, new_col in zip(a.dtype.names, result.dtype.names):
+                result[new_col] = a[old_col]
+            return result
 
     return np.asanyarray(a, dtype=dtype)
 

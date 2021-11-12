@@ -4,6 +4,8 @@
 - Add schema feature to forward deprecated model attributes to
   a new location. [#86]
 
+- Support casting of FITS_rec tables with unsigned integer columns. [#87]
+
 0.3.0 (2021-09-03)
 ==================
 
