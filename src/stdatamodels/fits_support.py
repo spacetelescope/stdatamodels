@@ -13,6 +13,7 @@ import asdf
 from asdf import fits_embed
 from asdf import resolver
 from asdf import schema as asdf_schema
+from asdf.tags.core import NDArrayType
 from asdf.tags.core import ndarray, HistoryEntry
 from asdf import treeutil
 from asdf.util import HashableDict
@@ -163,6 +164,9 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     if hdu_type == fits.PrimaryHDU:
         hdu = hdu_type(value)
     else:
+        # XXX This is where the problem is occurring.
+        if isinstance(value, NDArrayType):
+            value = np.asarray(value)
         hdu = hdu_type(value, name=hdu_name)
     if index is not None:
         hdu.ver = index + 1
