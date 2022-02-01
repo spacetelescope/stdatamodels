@@ -164,7 +164,6 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     if hdu_type == fits.PrimaryHDU:
         hdu = hdu_type(value)
     else:
-        # XXX This is where the problem is occurring.
         if isinstance(value, NDArrayType):
             value = np.asarray(value)
         hdu = hdu_type(value, name=hdu_name)
