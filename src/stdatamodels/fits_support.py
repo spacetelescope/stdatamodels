@@ -156,6 +156,9 @@ def get_hdu(hdulist, hdu_name, index=None):
 
 
 def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
+    if isinstance(value, NDArrayType):
+        value = np.asarray(value)
+
     if hdu_type is None:
         hdu_type = _get_hdu_type(hdu_name, value=value)
         if hdu_type is None:
@@ -164,8 +167,6 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     if hdu_type == fits.PrimaryHDU:
         hdu = hdu_type(value)
     else:
-        if isinstance(value, NDArrayType):
-            value = np.asarray(value)
         hdu = hdu_type(value, name=hdu_name)
     if index is not None:
         hdu.ver = index + 1
