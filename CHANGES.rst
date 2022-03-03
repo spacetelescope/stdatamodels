@@ -1,3 +1,8 @@
+0.4.1 (unreleased)
+==================
+
+- Changed the way NDArrayType wrappers are handled on write. [#89]
+
 0.4.0 (2021-11-18)
 ==================
 
