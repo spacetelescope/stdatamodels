@@ -2,6 +2,7 @@
 ==================
 
 - Changed the way NDArrayType wrappers are handled on write. [#89]
+- Bugfix for JWST failing with latest asdf-transform-schemas. [#90]
 
 0.4.0 (2021-11-18)
 ==================

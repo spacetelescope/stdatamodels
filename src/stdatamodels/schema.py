@@ -191,7 +191,8 @@ def merge_property_trees(schema):
         type = schema.get('type')
         schema = OrderedDict(schema)
         if type == 'object':
-            del schema['properties']
+            if 'properties' in schema:
+                del schema['properties']
         elif type == 'array':
             del schema['items']
         if 'allOf' in schema:
