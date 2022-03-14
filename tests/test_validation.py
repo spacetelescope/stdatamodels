@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 import asdf
 from jsonschema import ValidationError
@@ -28,18 +30,18 @@ def test_scalar_attribute_assignment():
     model = ValidationModel()
 
     assert model.meta.string_attribute is None
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.string_attribute = "foo"
-    assert len(warnings) == 0
     assert model.meta.string_attribute == "foo"
 
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
     assert model.meta.string_attribute == "foo"
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.string_attribute = None
-    assert len(warnings) == 0
     assert model.meta.string_attribute is None
 
 
@@ -47,9 +49,9 @@ def test_object_attribute_assignment():
     model = ValidationModel()
 
     assert model.meta.object_attribute.string_attribute is None
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.object_attribute = {"string_attribute": "foo"}
-    assert len(warnings) == 0
     assert model.meta.object_attribute.string_attribute == "foo"
 
     with pytest.warns(ValidationWarning):
@@ -60,9 +62,9 @@ def test_object_attribute_assignment():
         model.meta.object_attribute = {"string_attribute": 42}
     assert model.meta.object_attribute.string_attribute == "foo"
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.object_attribute = None
-    assert len(warnings) == 0
     assert model.meta.object_attribute.string_attribute is None
 
 
@@ -70,9 +72,9 @@ def test_list_attribute_ssignment():
     model = ValidationModel()
 
     assert len(model.meta.list_attribute) == 0
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.list_attribute.append({"string_attribute": "foo"})
-    assert len(warnings) == 0
     assert model.meta.list_attribute[0].string_attribute == "foo"
 
     with pytest.warns(ValidationWarning):
@@ -80,27 +82,27 @@ def test_list_attribute_ssignment():
     assert len(model.meta.list_attribute) == 1
     assert model.meta.list_attribute[0].string_attribute == "foo"
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.list_attribute = None
-    assert len(warnings) == 0
     assert len(model.meta.list_attribute) == 0
 
 
 def test_object_assignment_with_nested_null():
     model = ValidationModel()
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.object_attribute = {"string_attribute": None}
-    assert len(warnings) == 0
 
 
 @pytest.mark.xfail(reason="validation of a required attribute not yet implemented", strict=True)
 def test_required_attribute_assignment():
     model = RequiredModel()
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.required_attribute = "foo"
-    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.required_attribute = None
@@ -110,9 +112,9 @@ def test_required_attribute_assignment():
 def test_validation_on_delete():
     model = RequiredModel()
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.required_keyword = "foo"
-    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         del model.meta.required_keyword
@@ -120,9 +122,9 @@ def test_validation_on_delete():
 
     model = RequiredModel(pass_invalid_values=True)
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.required_keyword = "foo"
-    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         del model.meta.required_keyword
@@ -198,10 +200,10 @@ def test_strict_validation_attribute_assignment(monkeypatch, init_value, env_val
 def test_validate():
     model = ValidationModel(pass_invalid_values=True)
 
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         model.meta.string_attribute = "foo"
         model.validate()
-    assert len(warnings) == 0
 
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -216,9 +218,9 @@ def test_validation_on_init(tmp_path):
     with asdf.AsdfFile() as af:
         af["meta"] = {"string_attribute": "foo"}
 
-        with pytest.warns(None) as warnings:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             ValidationModel(af)
-        assert len(warnings) == 0
 
         af["meta"]["string_attribute"] = 42
         with pytest.warns(ValidationWarning):
@@ -285,8 +287,14 @@ def test_validate_on_assignment_setitem(init_value, warning_class,
     # Now check invalid assignments.  Currently string_attribute="bar".  Try
     # assigning an invalid type
     value3 = 42
-    with pytest.warns(warning_class):
-        model.meta.list_attribute[0] = {"string_attribute": value3}
+    if warning_class is None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            model.meta.list_attribute[0] = {"string_attribute": value3}
+    else:
+        with pytest.warns(warning_class):
+            model.meta.list_attribute[0] = {"string_attribute": value3}
+
     assert model.meta.list_attribute[0].string_attribute == string_attribute_value
 
 
@@ -304,8 +312,13 @@ def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
     model.meta.list_attribute.insert(0, {"string_attribute": "bar"})
     assert model.meta.list_attribute[0].string_attribute == "bar"
 
-    with pytest.warns(warning_class):
-        model.meta.list_attribute.insert(0, {"string_attribute": 42})
+    if warning_class is None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            model.meta.list_attribute.insert(0, {"string_attribute": 42})
+    else:
+        with pytest.warns(warning_class):
+            model.meta.list_attribute.insert(0, {"string_attribute": 42})
     assert model.meta.list_attribute[0].string_attribute == string_attribute_value
 
 
