@@ -1,3 +1,8 @@
+0.4.2 (unreleased)
+==================
+
+- Fix FITS writing validators with jsonschema 4.x. [#92]
+
 0.4.1 (2022-03-07)
 ==================
 

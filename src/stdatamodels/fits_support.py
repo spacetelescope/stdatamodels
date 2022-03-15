@@ -1,4 +1,5 @@
 import datetime
+from functools import partial
 import hashlib
 import os
 from pkg_resources import parse_version
@@ -204,13 +205,13 @@ def _assert_non_primary_hdu(hdu_name):
 # WRITER
 
 
-def _fits_comment_section_handler(validator, properties, instance, schema):
+def _fits_comment_section_handler(fits_context, validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
     title = schema.get('title')
     if title is not None:
-        current_comment_stack = validator.comment_stack
+        current_comment_stack = fits_context.comment_stack
         current_comment_stack.append(ensure_ascii(title))
 
     for property, subschema in properties.items():
@@ -227,19 +228,19 @@ def _fits_comment_section_handler(validator, properties, instance, schema):
         current_comment_stack.pop(-1)
 
 
-def _fits_element_writer(validator, fits_keyword, instance, schema):
+def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema):
     if schema.get('type', 'object') == 'array':
         raise ValueError("'fits_keyword' is not valid with type of 'array'")
 
     hdu_name = _get_hdu_name(schema)
-    index = getattr(validator, 'sequence_index', None)
-    hdu = _get_or_make_hdu(validator.hdulist, hdu_name, index=index)
 
-    for comment in validator.comment_stack:
+    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=fits_context.sequence_index)
+
+    for comment in fits_context.comment_stack:
         hdu.header.append((' ', ''), end=True)
         hdu.header.append((' ', comment), end=True)
         hdu.header.append((' ', ''), end=True)
-    validator.comment_stack = []
+    fits_context.comment_stack = []
 
     comment = ensure_ascii(get_short_doc(schema))
     instance = ensure_ascii(instance)
@@ -253,7 +254,7 @@ def _fits_element_writer(validator, fits_keyword, instance, schema):
         hdu.header.append((fits_keyword, instance, comment), end=True)
 
 
-def _fits_array_writer(validator, _, instance, schema):
+def _fits_array_writer(fits_context, validator, _, instance, schema):
     if instance is None:
         return
 
@@ -271,10 +272,12 @@ def _fits_array_writer(validator, _, instance, schema):
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
-    index = getattr(validator, 'sequence_index', 0)
+    index = fits_context.sequence_index
+    if index is None:
+        index = 0
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(validator.hdulist, hdu_name,
+    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name,
                            index=index, hdu_type=hdu_type)
 
     hdu.data = instance
@@ -283,13 +286,13 @@ def _fits_array_writer(validator, _, instance, schema):
 
 # This is copied from jsonschema._validators and modified to keep track
 # of the index of the item we've recursed into.
-def _fits_item_recurse(validator, items, instance, schema):
+def _fits_item_recurse(fits_context, validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
     if validator.is_type(items, "object"):
         for index, item in enumerate(instance):
-            validator.sequence_index = index
+            fits_context.sequence_index = index
             for error in validator.descend(item, items, path=index):
                 yield error
     else:
@@ -301,24 +304,37 @@ def _fits_item_recurse(validator, items, instance, schema):
                 yield error
 
 
-def _fits_type(validator, items, instance, schema):
+def _fits_type(fits_context, validator, items, instance, schema):
     if instance in ('N/A', '#TODO', '', None):
         return
     return validators.Draft4Validator.VALIDATORS["type"](validator, items, instance, schema)
 
 
-FITS_VALIDATORS = HashableDict(asdf_schema.YAML_VALIDATORS)
+class FitsContext:
+    def __init__(self, hdulist):
+        self.hdulist = hdulist
+        self.comment_stack = []
+        self.sequence_index = None
 
 
-FITS_VALIDATORS.update({
-    'fits_keyword': _fits_element_writer,
-    'ndim': _fits_array_writer,
-    'max_ndim': _fits_array_writer,
-    'datatype': _fits_array_writer,
-    'items': _fits_item_recurse,
-    'properties': _fits_comment_section_handler,
-    'type': _fits_type
-})
+def _get_validators(hdulist):
+    fits_context = FitsContext(hdulist)
+
+    validators = HashableDict(asdf_schema.YAML_VALIDATORS)
+
+    partial_fits_array_writer = partial(_fits_array_writer, fits_context)
+
+    validators.update({
+        'fits_keyword': partial(_fits_element_writer, fits_context),
+        'ndim': partial_fits_array_writer,
+        'max_ndim': partial_fits_array_writer,
+        'datatype': partial_fits_array_writer,
+        'items': partial(_fits_item_recurse, fits_context),
+        'properties': partial(_fits_comment_section_handler, fits_context),
+        'type': partial(_fits_type, fits_context),
+    })
+
+    return validators
 
 
 META_SCHEMA_PATH = os.path.abspath(
@@ -347,11 +363,8 @@ def _save_from_schema(hdulist, tree, schema):
         kwargs = {}
 
     validator = asdf_schema.get_validator(
-        schema, None, FITS_VALIDATORS, FITS_SCHEMA_URL_MAPPING, **kwargs)
+        schema, None, _get_validators(hdulist), FITS_SCHEMA_URL_MAPPING, **kwargs)
 
-    validator.hdulist = hdulist
-    # TODO: Handle comment stack on per-hdu-basis
-    validator.comment_stack = []
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
 
