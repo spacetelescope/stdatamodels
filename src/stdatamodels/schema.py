@@ -140,7 +140,7 @@ def walk_schema(schema, callback, ctx=None):
             items = schema.get('items', {})
             if isinstance(items, list):
                 for i, item in enumerate(items):
-                    recurse(item, path + [i], combiner, ctx)
+                    recurse(item, path + ['items'], combiner, ctx)
             elif len(items):
                 recurse(items, path + ['items'], combiner, ctx)
 
