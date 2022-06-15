@@ -79,7 +79,7 @@ jobs:
       - run: pip install -e ".[test]" pytest-xdist
       - run: pip install "jwst[test] @ git+https://github.com/spacetelescope/jwst.git"
       - run: pip freeze
-      - run: pytest --pyargs jwst.datamodels
+      - run: pytest -n auto --pyargs jwst.datamodels
         env:
           CRDS_PATH: $HOME/crds_cache
   test_with_coverage:
