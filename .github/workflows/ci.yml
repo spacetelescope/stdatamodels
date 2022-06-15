@@ -84,7 +84,6 @@ jobs:
       - run: pip install -e ".[test]" pytest-xdist
       - run: pip install "jwst[test] @ git+https://github.com/spacetelescope/jwst.git"
       - run: pip freeze
-      - run: crds sync --all
       - run: pytest -n auto --pyargs jwst.datamodels
   test_with_coverage:
     name: Coverage
