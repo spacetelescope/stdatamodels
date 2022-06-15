@@ -82,7 +82,7 @@ jobs:
       - run: pytest --pyargs jwst.datamodels
   test_with_coverage:
     name: Coverage
-    needs: [ style, audit ]
+    needs: [ test, test_jwst ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
