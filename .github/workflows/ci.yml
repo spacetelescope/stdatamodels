@@ -83,6 +83,11 @@ jobs:
           key: test-${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('**/pyproject.toml', '**/setup.*') }}
       - run: pip install -e ".[test]" pytest-xdist
       - run: pip install "jwst[test] @ git+https://github.com/spacetelescope/jwst.git"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.CRDS_PATH }}
+          key: crds-jwst-datamodels
+      - run: crds sync --contexts jwst_0865.pmap
       - run: pip freeze
       - run: pytest -n auto --pyargs jwst.datamodels
   test_with_coverage:
