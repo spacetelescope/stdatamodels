@@ -94,7 +94,7 @@ jobs:
       - run: pytest -n auto --pyargs jwst.datamodels
   test_with_coverage:
     name: Coverage
-    needs: [ test, test_jwst_datamodels ]
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
           file: ./coverage.xml
   build-docs:
     name: Build documentation
-    needs: [ test, test_jwst_datamodels ]
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get install graphviz texlive-latex-extra dvipng
