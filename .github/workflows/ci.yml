@@ -63,8 +63,8 @@ jobs:
       - run: pip install -e ".[test]" pytest-xdist
       - run: pip freeze
       - run: pytest -n auto
-  test_jwst:
-    name: jwst.datamodels tests
+  test_jwst_datamodels:
+    name: test latest version of `jwst.datamodels` with this commit
     needs: [ style, audit ]
     runs-on: ubuntu-latest
     env:
@@ -83,17 +83,18 @@ jobs:
           key: test-${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('**/pyproject.toml', '**/setup.*') }}
       - run: pip install -e ".[test]" pytest-xdist
       - run: pip install "jwst[test] @ git+https://github.com/spacetelescope/jwst.git"
-      - run: export CRDS_VERSION=$(crds list --contexts jwst_0865.pmap --version)
+      - run: echo "::set-output name=crds_context::$(crds list --operational-context)"
+        id: crds_context
       - uses: actions/cache@v3
         with:
           path: ${{ env.CRDS_PATH }}
-          key: crds-jwst-datamodels-${{ env.CRDS_VERSION }}
-      - run: crds sync --contexts jwst_0865.pmap
+          key: crds-jwst-datamodels-${{ steps.crds_context.outputs.crds_context }}
+      - run: crds sync --contexts ${{ steps.crds_context.outputs.crds_context }}
       - run: pip freeze
       - run: pytest -n auto --pyargs jwst.datamodels
   test_with_coverage:
     name: Coverage
-    needs: [ test, test_jwst ]
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -114,7 +115,7 @@ jobs:
           file: ./coverage.xml
   build-docs:
     name: Build documentation
-    needs: [ test, test_jwst ]
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - run: sudo apt-get install graphviz texlive-latex-extra dvipng
