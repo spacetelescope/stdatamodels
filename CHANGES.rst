@@ -14,6 +14,8 @@ Changes to API
 Other
 -----
 
+- Add abstract base class for datamodel container inheritance [#102]
+
 0.4.3 (2022-06-03)
 ==================
 

@@ -8,6 +8,7 @@ import os
 from pathlib import PurePath
 import sys
 import warnings
+import abc
 
 import numpy as np
 
@@ -1125,3 +1126,11 @@ class _FileReference:
         if self._count <= 0:
             self._file.close()
             self._file = None
+
+
+class ModelList(abc.ABC):
+    """Abstract base class to use as a
+    marker to differentiate behavior for
+    datamodels versus datamodel containers.
+    """
+    pass
