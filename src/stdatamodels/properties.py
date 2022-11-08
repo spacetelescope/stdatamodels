@@ -6,8 +6,6 @@ import numpy as np
 from collections.abc import Mapping
 from astropy.io import fits
 
-from astropy.utils.compat.misc import override__dir__
-
 from asdf.tags.core import ndarray
 
 from . import util
@@ -267,9 +265,9 @@ class Node():
         return self._instance
 
 class ObjectNode(Node):
-    @override__dir__
     def __dir__(self):
-        return list(self._schema.get('properties', {}).keys())
+        added = set(self._schema.get('properties', {}).keys())
+        return sorted(set(super().__dir__()) | added)
 
     def __eq__(self, other):
         if isinstance(other, ObjectNode):
