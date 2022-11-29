@@ -619,3 +619,23 @@ def test_ndarray_validation(tmp_path):
     with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
         with FitsModel(file_path, strict_validation=True, cast_fits_arrays=False, validate_arrays=True) as model:
             model.validate()
+
+
+def test_resave_duplication_bug(tmp_path):
+    """
+    An issue in asdf (https://github.com/asdf-format/asdf/issues/1232)
+    resulted in duplication of data when a model was read from and then
+    written to a fits file.
+    """
+    fn1 = tmp_path / "test1.fits"
+    fn2 = tmp_path / "test2.fits"
+
+    arr = np.zeros((1000, 100), dtype='f4')
+    m = FitsModel(arr)
+    m.save(fn1)
+
+    m2 = FitsModel.from_fits(fn1)
+    m2.save(fn2)
+
+    with fits.open(fn1) as ff1, fits.open(fn2) as ff2:
+        assert ff1['ASDF'].size == ff2['ASDF'].size
