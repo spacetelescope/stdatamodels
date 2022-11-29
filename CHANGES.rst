@@ -4,7 +4,7 @@
 Bug Fixes
 ---------
 
--
+- Increase asdf version to >=2.14.1 to fix hdu data duplication [#105]
 
 Changes to API
 --------------
