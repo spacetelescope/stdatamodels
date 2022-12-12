@@ -1,20 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import copy
-import warnings
-import numpy as np
 from collections.abc import Mapping
+import copy
+import logging
+import warnings
+
 from astropy.io import fits
-
-from astropy.utils.compat.misc import override__dir__
-
 from asdf.tags.core import ndarray
+import numpy as np
 
 from . import util
 from . import validate
 from . import schema as mschema
 
-import logging
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -267,9 +265,9 @@ class Node():
         return self._instance
 
 class ObjectNode(Node):
-    @override__dir__
     def __dir__(self):
-        return list(self._schema.get('properties', {}).keys())
+        added = set(self._schema.get('properties', {}).keys())
+        return sorted(set(super().__dir__()) | added)
 
     def __eq__(self, other):
         if isinstance(other, ObjectNode):
