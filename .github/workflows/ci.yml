@@ -86,7 +86,11 @@ jobs:
         with:
           path: ${{ env.CRDS_PATH }}
           key: crds-${{ steps.cache-date.outputs.today }}
-      - run: pytest -n auto --pyargs jwst.datamodels
+      - run: pytest -n auto --pyargs jwst.datamodels --cov-report=xml --cov=src/stdatamodels
+      - run: coverage report -m
+      - uses: codecov/codecov-action@v2
+        with:
+          file: ./coverage.xml
   test_with_coverage:
     name: Coverage
     needs: [ style, audit ]
@@ -124,4 +128,3 @@ jobs:
           cache-dependency-path: setup.cfg
       - run: pip install -e ".[docs]"
       - run: sphinx-build -W docs/source build/docs
-
