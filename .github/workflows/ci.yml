@@ -14,121 +14,58 @@ on:
     - cron: '0 9 * * 1'
 
 jobs:
-  style:
-    name: Code style checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: setup.cfg
-      - run: pip install pyproject-flake8
-      - run: pflake8 --count src
-  audit:
-    name: Bandit security audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: setup.cfg
-      - run: pip install bandit
-      - run: bandit -r -ll src
-  test:
-    name: test
-    needs: [ style, audit ]
+  check:
+    name: ${{ matrix.toxenv }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python: [ 3.8, 3.9, '3.10' ]
+        toxenv: [ check-style, check-security, check-build ]
+        python-version: [ '3.11' ]
+        os: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: setup.cfg
+      - run: pip install "tox>=4.0"
+      - run: tox -e ${{ matrix.toxenv }}
+  test:
+    name: ${{ matrix.toxenv }} (Python ${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        toxenv: [ test-xdist ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
         os: [ ubuntu-latest, macos-latest ]
+        include:
+          - toxenv: test-xdist-cov
+            os: ubuntu-latest
+            python-version: '3.11'
+          - toxenv: test-jwst-xdist-cov
+            os: ubuntu-latest
+            python-version: '3.11'
     steps:
+      - if: ${{ contains(matrix.toxenv,'docs') }}
+        run: sudo apt-get install graphviz texlive-latex-extra dvipng
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: setup.cfg
-      - run: pip install -e ".[test]" pytest-xdist
-      - run: pip freeze
-      - run: pytest -n auto
-  test_jwst_datamodels:
-    name: test latest version of `jwst.datamodels` with this commit
-    needs: [ style, audit ]
-    runs-on: ubuntu-latest
-    env:
-      CRDS_SERVER_URL: https://jwst-crds.stsci.edu
-      CRDS_PATH: /home/runner/work/stdatamodels/crds_cache
-      CRDS_CLIENT_RETRY_COUNT: 3
-      CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-          cache: 'pip'
-          cache-dependency-path: setup.cfg
-      - run: pip install -e ".[test]" pytest-xdist
-      - run: pip install "jwst[test] @ git+https://github.com/spacetelescope/jwst.git"
-      - run: pip freeze
-      - run: echo "crds_context=$(crds list --operational-context)" >> $GITHUB_OUTPUT
-        id: crds_context
-      - run: crds sync --contexts ${{ steps.crds_context.outputs.crds_context }}
-      # Have actions/cache update monthly
-      - run: echo "today=$(date +'%Y-%m')" >> $GITHUB_OUTPUT
-        id: cache-date
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.CRDS_PATH }}
-          key: crds-${{ steps.cache-date.outputs.today }}
-      - run: pytest -n auto --pyargs jwst.datamodels --cov-report=xml --cov=src/stdatamodels
-      - run: coverage report -m
-      - uses: codecov/codecov-action@v2
+      - run: pip install "tox>=4.0"
+      - run: tox -e ${{ matrix.toxenv }}
+      - if: ${{ contains(matrix.toxenv,'-cov') }}
+        uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
-  test_with_coverage:
-    name: Coverage
-    needs: [ style, audit ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: setup.cfg
-      - run: pip install -e ".[test]" pytest-xdist pytest-cov
-      - run: pip install "asdf @ git+https://github.com/asdf-format/asdf.git"
-      - run: pip freeze
-      - run: pytest -n auto --cov-report=xml --cov=src/stdatamodels
-      - run: coverage report -m
-      - uses: codecov/codecov-action@v2
-        with:
-          file: ./coverage.xml
-  build-docs:
-    name: Build documentation
-    needs: [ style, audit ]
-    runs-on: ubuntu-latest
-    steps:
-      - run: sudo apt-get install graphviz texlive-latex-extra dvipng
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: setup.cfg
-      - run: pip install -e ".[docs]"
-      - run: sphinx-build -W docs/source build/docs
+          flags: unit
+          fail_ci_if_error: true
