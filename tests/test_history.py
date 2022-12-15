@@ -49,10 +49,10 @@ def test_history_from_model_to_fits(tmpdir):
     m = DataModel()
     m.history = [HistoryEntry({
         'description': 'First entry',
-        'time': Time(datetime.datetime.now())})]
+        'time': Time(datetime.datetime.now().isoformat())})]
     m.history.append(HistoryEntry({
         'description': 'Second entry',
-        'time': Time(datetime.datetime.now())
+        'time': Time(datetime.datetime.now().isoformat())
     }))
     m.save(tmpfits)
 
