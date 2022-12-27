@@ -1,21 +1,13 @@
-0.4.4 (unreleased)
+0.4.4 (2022-12-27)
 ==================
 
 Bug Fixes
 ---------
 
 - Increase asdf version to >=2.14.1 to fix hdu data duplication [#105]
-- Remove use of deprecated override__dir__ [#103]
+- Remove use of deprecated ``override__dir__`` [#103]
 - Add requirement of asdf-astropy >= 0.3.0 to prevent future issues with using deprecated
   astropy serialization methods [#104]
-
-Changes to API
---------------
-
--
-
-Other
------
 
 0.4.3 (2022-06-03)
 ==================
