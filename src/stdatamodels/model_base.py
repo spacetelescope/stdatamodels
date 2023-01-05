@@ -176,7 +176,6 @@ class DataModel(properties.ObjectNode):
         self._schema = mschema.merge_property_trees(schema)
 
         # Provide the object as context to other classes and functions
-        self._ctx = self
         self._parent = None
 
         # Initialize with an empty AsdfFile instance as this is needed for
@@ -300,6 +299,15 @@ class DataModel(properties.ObjectNode):
 
         # Call hook that sets model properties
         self.on_init(init)
+
+    @property
+    def _ctx(self):
+        # self._ctx is a property to avoid reference cycle that would be
+        # created if we set self._ctx = self
+        # a reference cycle would make DataModel difficult to garbage
+        # collect and could reopen the memory leak issues fixed in
+        # https://github.com/spacetelescope/stdatamodels/pull/109
+        return self
 
     @property
     def crds_observatory(self):

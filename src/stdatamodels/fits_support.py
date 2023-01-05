@@ -5,6 +5,7 @@ import os
 from pkg_resources import parse_version
 import re
 import warnings
+import weakref
 
 import numpy as np
 from astropy.io import fits
@@ -176,6 +177,17 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
 
 
 def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
+    if isinstance(hdulist, weakref.ReferenceType):
+        ref = hdulist()
+        result = _get_or_make_hdu(ref, hdu_name, index=index, hdu_type=hdu_type, value=value)
+        # While likely not needed (as ref will fall out of scope on
+        # return), del ref to remove the reference to the hdulist we
+        # resolved from the weakref. weakref is important here as
+        # this function is called within a validator which will be
+        # cached holding referenced objects in memory.
+        # https://github.com/spacetelescope/stdatamodels/pull/109
+        del ref
+        return result
     try:
         hdu = get_hdu(hdulist, hdu_name, index=index)
     except AttributeError:
@@ -312,7 +324,7 @@ def _fits_type(fits_context, validator, items, instance, schema):
 
 class FitsContext:
     def __init__(self, hdulist):
-        self.hdulist = hdulist
+        self.hdulist = weakref.ref(hdulist)
         self.comment_stack = []
         self.sequence_index = None
 

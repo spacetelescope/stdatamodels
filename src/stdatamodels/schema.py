@@ -121,32 +121,40 @@ def walk_schema(schema, callback, ctx=None):
         An arbitrary context object
     """
     def recurse(schema, path, combiner, ctx):
-        if callback(schema, path, combiner, ctx, recurse):
+        if callback(schema, path, combiner, ctx, recurse):  # noqa: F821
             return
 
         for c in ['allOf', 'not']:
             for sub in schema.get(c, []):
-                recurse(sub, path, c, ctx)
+                recurse(sub, path, c, ctx)  # noqa: F821
 
         for c in ['anyOf', 'oneOf']:
             for i, sub in enumerate(schema.get(c, [])):
-                recurse(sub, path + [c], c, ctx)
+                recurse(sub, path + [c], c, ctx)  # noqa: F821
 
         if schema.get('type') == 'object':
             for key, val in schema.get('properties', {}).items():
-                recurse(val, path + [key], combiner, ctx)
+                recurse(val, path + [key], combiner, ctx)  # noqa: F821
 
         if schema.get('type') == 'array':
             items = schema.get('items', {})
             if isinstance(items, list):
                 for item in items:
-                    recurse(item, path + ['items'], combiner, ctx)
+                    recurse(item, path + ['items'], combiner, ctx)  # noqa: F821
             elif len(items):
-                recurse(items, path + ['items'], combiner, ctx)
+                recurse(items, path + ['items'], combiner, ctx)  # noqa: F821
 
     if ctx is None:
         ctx = {}
     recurse(schema, [], None, ctx)
+    # testing memory usage and garbage collection revealed that recurse
+    # was diffcult to garbage collect (often resulting in models and associated
+    # data ending up in generation 2 for the garbage collector).
+    # calling del here seems to improve the situation (one test used 1/2 the memory
+    # with this del)
+    # see the following PR for more information
+    # https://github.com/spacetelescope/stdatamodels/pull/109
+    del recurse
 
 
 def merge_property_trees(schema):
