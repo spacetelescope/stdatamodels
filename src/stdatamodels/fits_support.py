@@ -1,6 +1,7 @@
 import datetime
 from functools import partial
 import hashlib
+import io
 import os
 from pkg_resources import parse_version
 import re
@@ -12,14 +13,14 @@ from astropy.io import fits
 from astropy import time
 from astropy.utils.exceptions import AstropyWarning
 import asdf
-from asdf import fits_embed
 from asdf import resolver
 from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from asdf.tags.core import ndarray, HistoryEntry
 from asdf import treeutil
-from asdf.util import HashableDict
+from asdf.util import HashableDict, get_array_base
 from asdf import tagged
+from asdf import generic_io
 from jsonschema import validators
 
 from . import properties
@@ -34,6 +35,10 @@ log.addHandler(logging.NullHandler())
 
 __all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_keyword']
 
+
+_ASDF_EXTENSION_NAME = "ASDF"
+_FITS_SOURCE_PREFIX = "fits:"
+_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.1.0"
 
 _ASDF_GE_2_6 = parse_version(asdf.__version__) >= parse_version('2.6')
 
@@ -361,13 +366,21 @@ FITS_SCHEMA_URL_MAPPING = resolver.Resolver(
 
 
 def _save_from_schema(hdulist, tree, schema):
-    def convert_datetimes(node, json_id):
+    def callback(node, json_id):
         if isinstance(node, datetime.datetime):
             node = time.Time(node)
+
         if isinstance(node, time.Time):
             node = str(time.Time(node, format='iso'))
+        elif (isinstance(node, (np.ndarray, NDArrayType))):
+            base = get_array_base(node)
+            for hdu_index, hdu in enumerate(hdulist):
+                if hdu.data is not None and base is get_array_base(hdu.data):
+                    return _create_tagged_dict_for_fits_array(node, base, hdu, hdu_index)
+
         return node
-    tree = treeutil.walk_and_modify(tree, convert_datetimes)
+
+    tree = treeutil.walk_and_modify(tree, callback)
 
     if _ASDF_GE_2_6:
         kwargs = {"_visit_repeat_nodes": True}
@@ -379,6 +392,46 @@ def _save_from_schema(hdulist, tree, schema):
 
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
+
+
+def _create_tagged_dict_for_fits_array(node, base, hdu, hdu_index):
+     # Views over arrays stored in FITS files have some idiosyncrasies.
+     # astropy.io.fits always writes arrays C-contiguous with big-endian
+     # byte order, whereas asdf preserves the "contiguousity" and byte order
+     # of the base array.
+    if (
+        base.shape != node.shape
+        or base.dtype != node.dtype
+        or base.ctypes.data != node.ctypes.data
+        or base.strides != node.strides
+    ):
+        raise ValueError(
+            "stdatamodels has only limited support for serializing views over arrays stored "
+            "in FITS HDUs.  This error likely means that a slice of such an array "
+            "was found in the ASDF tree.  The slice can be decoupled from the FITS "
+            "array by calling copy() before assigning it to the DataModel."
+        )
+
+    dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(
+        node.dtype,
+        include_byteorder=True,
+        override_byteorder="big"
+    )
+
+    if hdu.name == "":
+        source = f"{_FITS_SOURCE_PREFIX}{hdu_index}"
+    else:
+        source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
+
+    return tagged.TaggedDict(
+        data={
+            "source": source,
+            "shape": list(node.shape),
+            "datatype": dtype,
+            "byteorder": byteorder
+        },
+        tag=_NDARRAY_TAG
+    )
 
 
 def _normalize_arrays(tree):
@@ -449,7 +502,23 @@ def to_fits(tree, schema):
     # Store the FITS hash in the tree
     tree[FITS_HASH_KEY] = fits_hash(hdulist)
 
-    return hdulist, tree
+    if _ASDF_EXTENSION_NAME in hdulist:
+        del hdulist[_ASDF_EXTENSION_NAME]
+
+    hdulist.append(_create_asdf_hdu(tree))
+
+    return hdulist
+
+
+def _create_asdf_hdu(tree):
+    buffer = io.BytesIO()
+    asdf.AsdfFile(tree).write_to(buffer)
+    buffer.seek(0)
+
+    data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
+    fmt = f"{len(data[0])}B"
+    column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
+    return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
 
 
 ##############################################################################
@@ -656,10 +725,52 @@ def from_fits_asdf(hdulist,
     Wrap asdf call to extract optional arguments
     """
     ignore_missing_extensions = kwargs.pop('ignore_missing_extensions')
-    return fits_embed.AsdfInFits.open(hdulist,
-                                      ignore_version_mismatch=ignore_version_mismatch,
-                                      ignore_unrecognized_tag=ignore_unrecognized_tag,
-                                      ignore_missing_extensions=ignore_missing_extensions)
+
+    try:
+        asdf_extension = hdulist[_ASDF_EXTENSION_NAME]
+    except (KeyError, IndexError, AttributeError):
+        # This means there is no ASDF extension
+        return asdf.AsdfFile(
+            ignore_version_mismatch=ignore_version_mismatch,
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+        )
+
+    generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
+    return asdf.open(
+        generic_file,
+        ignore_version_mismatch=ignore_version_mismatch,
+        ignore_unrecognized_tag=ignore_unrecognized_tag,
+        ignore_missing_extensions=ignore_missing_extensions,
+        tree_mapper=partial(_convert_fits_arrays, hdulist)
+    )
+
+
+def _convert_fits_arrays(hdulist, tree):
+    def callback(node, json_id):
+        if (hasattr(node, "_tag")
+            and node._tag == _NDARRAY_TAG
+            and isinstance(node.get("source"), str)
+            and node["source"].startswith(_FITS_SOURCE_PREFIX)):
+
+            source = node["source"]
+            parts = re.match(
+                # All printable ASCII characters are allowed in EXTNAME
+                "((?P<name>[ -~]+),)?(?P<ver>[0-9]+)",
+                source[len(_FITS_SOURCE_PREFIX) :],
+            )
+            if parts is not None:
+                ver = int(parts.group("ver"))
+                if parts.group("name"):
+                    pair = (parts.group("name"), ver)
+                else:
+                    pair = ver
+                return hdulist[pair].data
+            else:
+                raise ValueError(f"Can not parse FITS block source '{source}'")
+
+        return node
+
+    return treeutil.walk_and_modify(tree, callback)
 
 
 def from_fits_hdu(hdu, schema, cast_arrays=True):

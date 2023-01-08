@@ -18,7 +18,6 @@ from astropy.wcs import WCS
 import asdf
 from asdf.tags.core import NDArrayType
 from asdf import AsdfFile
-from asdf.fits_embed import AsdfInFits
 from asdf import schema as asdf_schema
 
 from . import filetype
@@ -640,7 +639,7 @@ class DataModel(properties.ObjectNode):
         """
         self.on_save(init)
 
-        hdulist, tree = fits_support.to_fits(self._instance, self._schema)
+        hdulist = fits_support.to_fits(self._instance, self._schema)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', message='Card is too long')
             if self._no_asdf_extension:
@@ -650,11 +649,7 @@ class DataModel(properties.ObjectNode):
                 # Avoid this.
                 if "ASDF" in hdulist:
                     del hdulist["ASDF"]
-                # Use HDUList.writeto instead of AsdfInFits.write_to
-                hdulist.writeto(init, *args, **kwargs)
-            else:
-                ff = AsdfInFits(hdulist, tree)
-                ff.write_to(init, *args, **kwargs)
+            hdulist.writeto(init, *args, **kwargs)
 
     @property
     def shape(self):
@@ -1039,7 +1034,7 @@ class DataModel(properties.ObjectNode):
             The type will depend on what libraries are installed on
             this system.
         """
-        hdulist, _ = fits_support.to_fits(self._instance, self._schema)
+        hdulist = fits_support.to_fits(self._instance, self._schema)
         hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver-1)
         header = hdu.header
         return WCS(header, key=key, relax=True, fix=True)

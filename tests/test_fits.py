@@ -141,10 +141,7 @@ def test_non_contiguous_array(tmp_path):
         dm.save(file_path)
 
     with FitsModel(file_path) as dm:
-        assert dm.data.block.array_storage == "fits"
         assert_array_equal(dm.data, data)
-
-        assert dm.err.block.array_storage == "fits"
         assert_array_equal(dm.err, err)
 
 
