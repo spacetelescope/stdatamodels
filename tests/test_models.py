@@ -1,10 +1,12 @@
+import gc
+
 import asdf
 import pytest
 import numpy as np
 
 from stdatamodels import DataModel
 
-from models import BasicModel, AnyOfModel, DeprecatedModel
+from models import BasicModel, AnyOfModel, DeprecatedModel, TableModel, TransformModel
 
 
 def test_init_from_pathlib(tmp_path):
@@ -330,3 +332,46 @@ def test_deprecated_properties():
         model.meta.array_property[0].baz = "some other value"
 
     assert model.meta.array_property[0].bam == "some other value"
+
+
+@pytest.mark.parametrize("ModelType", [DataModel, BasicModel, TableModel, TransformModel])
+def test_garbage_collectable(ModelType, tmp_path):
+    # This is a regression test to attempt to avoid future changes that might
+    # reintroduce the 'difficult to garbage collect' bugs fixed in PR:
+    # https://github.com/spacetelescope/stdatamodels/pull/109
+
+
+    def find_gen_by_id(object_id):
+        for g in (0, 1, 2):
+            for o in gc.get_objects(g):
+                if id(o) == object_id:
+                    return g
+        return None
+
+
+    # make a bunch of models, keep track of where they are in memory
+    ofn = tmp_path / 'test.fits'
+    mids = set()
+    for i in range(30):
+        m = ModelType()
+        mid = id(m)
+        # python might reuse memory for models, this is OK and
+        # indicates that the previous model was collected
+        mids.add(mid)
+        m.save(ofn)
+        del m
+
+        # only do a generation 0 collection
+        gc.collect(0)
+        for mid in mids.copy():
+            # check how many models are still in memory by looking for
+            # objects that the garbage collector is aware of and comparing
+            # the locations in memory
+            gen = find_gen_by_id(mid)
+            if gen is None:  # object is not tracked or was cleaned up
+                mids.remove(mid)
+            # models should be easy to clean up (as they often consume large
+            # amounts of memory). Check here that we aren't holding onto too
+            # many models which would indicate they are difficult to garbage
+            # collect.
+            assert len(mids) < 2
