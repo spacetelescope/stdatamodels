@@ -14,6 +14,8 @@ Changes to API
 Other
 -----
 
+- added environments in ``tox.ini`` to support Tox 4 [#108]
+
 0.4.4 (2022-12-27)
 ==================
 
