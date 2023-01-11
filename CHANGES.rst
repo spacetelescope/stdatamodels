@@ -4,6 +4,8 @@
 Bug Fixes
 ---------
 
+- improve datamodels memory usage [#109]
+
 Changes to API
 --------------
 
