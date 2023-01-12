@@ -78,6 +78,8 @@ jobs:
           path: ${{ env.CRDS_PATH }}
           key: crds-${{ steps.crds-context.outputs.pmap }}
         if: contains(matrix.toxenv,'-jwst')
+      - run: pip install crds
+        if: contains(matrix.toxenv,'-jwst')
       - run: crds sync --contexts ${{ steps.crds-context.outputs.pmap }}
         if: contains(matrix.toxenv,'-jwst')
       - run: pip install "tox>=4.0"
