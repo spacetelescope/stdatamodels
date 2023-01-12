@@ -37,6 +37,8 @@ jobs:
   test:
     name: ${{ matrix.toxenv }} (Python ${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    env:
+      CRDS_PATH: /home/runner/work/stdatamodels/crds_cache
     strategy:
       fail-fast: false
       matrix:
