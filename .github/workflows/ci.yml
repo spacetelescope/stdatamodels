@@ -39,6 +39,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CRDS_PATH: /home/runner/work/stdatamodels/crds_cache
+      CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      CRDS_CLIENT_RETRY_COUNT: 3
+      CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
     strategy:
       fail-fast: false
       matrix:
@@ -63,9 +66,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: setup.cfg
+      - run: >
+          echo "pmap=$(
+          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["jwst"], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
+          python -c "import sys, json; print(json.load(sys.stdin)['result'])"
+          )" >> $GITHUB_OUTPUT
+        id: crds-context
+        if: contains(matrix.toxenv,'-jwst')
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.CRDS_PATH }}
+          key: crds-${{ steps.crds-context.outputs.pmap }}
+        if: contains(matrix.toxenv,'-jwst')
+      - run: crds sync --contexts ${{ steps.crds-context.outputs.pmap }}
+        if: contains(matrix.toxenv,'-jwst')
       - run: pip install "tox>=4.0"
       - run: tox -e ${{ matrix.toxenv }}
-      - if: ${{ contains(matrix.toxenv,'-cov') }}
+      - if: contains(matrix.toxenv,'-cov')
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
