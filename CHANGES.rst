@@ -1,15 +1,10 @@
-0.4.5 (unreleased)
+0.4.5 (2023-01-12)
 ==================
 
 Bug Fixes
 ---------
 
 - improve datamodels memory usage [#109]
-
-Changes to API
---------------
-
--
 
 Other
 -----
