@@ -366,21 +366,16 @@ FITS_SCHEMA_URL_MAPPING = resolver.Resolver(
 
 
 def _save_from_schema(hdulist, tree, schema):
-    def callback(node, json_id):
+    def datetime_callback(node, json_id):
         if isinstance(node, datetime.datetime):
             node = time.Time(node)
 
         if isinstance(node, time.Time):
             node = str(time.Time(node, format='iso'))
-        elif (isinstance(node, (np.ndarray, NDArrayType))):
-            base = get_array_base(node)
-            for hdu_index, hdu in enumerate(hdulist):
-                if hdu.data is not None and base is get_array_base(hdu.data):
-                    return _create_tagged_dict_for_fits_array(node, base, hdu, hdu_index)
 
         return node
 
-    tree = treeutil.walk_and_modify(tree, callback)
+    tree = treeutil.walk_and_modify(tree, datetime_callback)
 
     if _ASDF_GE_2_6:
         kwargs = {"_visit_repeat_nodes": True}
@@ -393,27 +388,26 @@ def _save_from_schema(hdulist, tree, schema):
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
 
+    def ndarray_callback(node, json_id):
+        if (isinstance(node, (np.ndarray, NDArrayType))):
+            for hdu_index, hdu in enumerate(hdulist):
+                if hdu.data is not None and node is hdu.data:
+                    return _create_tagged_dict_for_fits_array(hdu, hdu_index)
 
-def _create_tagged_dict_for_fits_array(node, base, hdu, hdu_index):
+        return node
+
+    tree = treeutil.walk_and_modify(tree, ndarray_callback)
+
+    return tree
+
+
+def _create_tagged_dict_for_fits_array(hdu, hdu_index):
      # Views over arrays stored in FITS files have some idiosyncrasies.
      # astropy.io.fits always writes arrays C-contiguous with big-endian
      # byte order, whereas asdf preserves the "contiguousity" and byte order
      # of the base array.
-    if (
-        base.shape != node.shape
-        or base.dtype != node.dtype
-        or base.ctypes.data != node.ctypes.data
-        or base.strides != node.strides
-    ):
-        raise ValueError(
-            "stdatamodels has only limited support for serializing views over arrays stored "
-            "in FITS HDUs.  This error likely means that a slice of such an array "
-            "was found in the ASDF tree.  The slice can be decoupled from the FITS "
-            "array by calling copy() before assigning it to the DataModel."
-        )
-
     dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(
-        node.dtype,
+        hdu.data.dtype,
         include_byteorder=True,
         override_byteorder="big"
     )
@@ -426,7 +420,7 @@ def _create_tagged_dict_for_fits_array(node, base, hdu, hdu_index):
     return tagged.TaggedDict(
         data={
             "source": source,
-            "shape": list(node.shape),
+            "shape": list(hdu.data.shape),
             "datatype": dtype,
             "byteorder": byteorder
         },
@@ -495,7 +489,7 @@ def to_fits(tree, schema):
     hdulist.append(fits.PrimaryHDU())
 
     tree = _normalize_arrays(tree)
-    _save_from_schema(hdulist, tree, schema)
+    tree = _save_from_schema(hdulist, tree, schema)
     _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
 
