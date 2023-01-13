@@ -18,7 +18,7 @@ from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from asdf.tags.core import ndarray, HistoryEntry
 from asdf import treeutil
-from asdf.util import HashableDict, get_array_base
+from asdf.util import HashableDict
 from asdf import tagged
 from asdf import generic_io
 from jsonschema import validators
