@@ -38,7 +38,7 @@ __all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_
 
 _ASDF_EXTENSION_NAME = "ASDF"
 _FITS_SOURCE_PREFIX = "fits:"
-_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.1.0"
+_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
 
 _ASDF_GE_2_6 = parse_version(asdf.__version__) >= parse_version('2.6')
 
@@ -388,6 +388,9 @@ def _save_from_schema(hdulist, tree, schema):
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
 
+    # Replace arrays in the tree that are identical to HDU arrays
+    # with ndarray-1.0.0 tagged objects with special source values
+    # that represent links to the surrounding FITS file.
     def ndarray_callback(node, json_id):
         if (isinstance(node, (np.ndarray, NDArrayType))):
             for hdu_index, hdu in enumerate(hdulist):
@@ -735,11 +738,17 @@ def from_fits_asdf(hdulist,
         ignore_version_mismatch=ignore_version_mismatch,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        tree_mapper=partial(_convert_fits_arrays, hdulist)
+        _tagged_tree_transform=partial(_convert_fits_arrays, hdulist)
     )
 
 
 def _convert_fits_arrays(hdulist, tree):
+    """
+    ASDF-in-FITS has ndarray-1.0.0 tags with special source values
+    that represent links to HDU arrays.  The asdf library won't know
+    what to do with those, so we need to supply code that will
+    replace them with the HDU data objects.
+    """
     def callback(node, json_id):
         if (hasattr(node, "_tag")
             and node._tag == _NDARRAY_TAG
