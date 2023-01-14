@@ -212,7 +212,7 @@ def test_fits_array_view(tmp_path):
         assert len(hdul) == 5
 
     with FitsModel(file_path) as dm:
-        assert_array_equal(model["view"], view)
+        assert_array_equal(dm["view"], view)
 
 
 def test_hdu_link_independence(tmp_path):
