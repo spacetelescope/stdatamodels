@@ -733,29 +733,26 @@ def from_fits_asdf(hdulist,
         )
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
-    return asdf.open(
+    af = asdf.open(
         generic_file,
         ignore_version_mismatch=ignore_version_mismatch,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        _tagged_tree_transform=partial(_convert_fits_arrays, hdulist)
     )
+    # map hdulist to blocks here
+    _map_hdulist_to_arrays(hdulist, af)
+    return af
 
 
-def _convert_fits_arrays(hdulist, tree):
-    """
-    ASDF-in-FITS has ndarray-1.0.0 tags with special source values
-    that represent links to HDU arrays.  The asdf library won't know
-    what to do with those, so we need to supply code that will
-    replace them with the HDU data objects.
-    """
+def _map_hdulist_to_arrays(hdulist, af):
     def callback(node, json_id):
-        if (hasattr(node, "_tag")
-            and node._tag == _NDARRAY_TAG
-            and isinstance(node.get("source"), str)
-            and node["source"].startswith(_FITS_SOURCE_PREFIX)):
-
-            source = node["source"]
+        if (
+                isinstance(node, NDArrayType) and
+                isinstance(node._source, str) and
+                node._source.startswith(_FITS_SOURCE_PREFIX)
+                ):
+            # read the array data from the hdulist
+            source = node._source
             parts = re.match(
                 # All printable ASCII characters are allowed in EXTNAME
                 "((?P<name>[ -~]+),)?(?P<ver>[0-9]+)",
@@ -767,13 +764,10 @@ def _convert_fits_arrays(hdulist, tree):
                     pair = (parts.group("name"), ver)
                 else:
                     pair = ver
-                return hdulist[pair].data
-            else:
-                raise ValueError(f"Can not parse FITS block source '{source}'")
-
+            data = hdulist[pair].data
+            return data
         return node
-
-    return treeutil.walk_and_modify(tree, callback)
+    af.tree = treeutil.walk_and_modify(af.tree, callback)
 
 
 def from_fits_hdu(hdu, schema, cast_arrays=True):
