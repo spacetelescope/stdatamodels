@@ -1,7 +1,7 @@
 import numpy as np
 
 from .model_base import JwstDataModel
-from ..lib.basic_utils import deprecate_class
+from stdatamodels.jwst.library.basic_utils import deprecate_class
 
 __all__ = ['RampModel']
 

@@ -20,7 +20,7 @@ from stdatamodels import filetype
 from stdatamodels import s3_utils
 from stdatamodels.model_base import _FileReference
 
-from ..lib.basic_utils import bytes2human
+from stdatamodels.jwst.library.basic_utils import bytes2human
 
 
 log = logging.getLogger(__name__)
