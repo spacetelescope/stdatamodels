@@ -13,7 +13,7 @@ from astropy.io import fits
 from stdatamodels import DataModel
 from stdatamodels.validate import ValidationError, ValidationWarning
 
-from jwst.datamodels import (JwstDataModel, ModelContainer, ImageModel,
+from jwst.datamodels import (JwstDataModel, ImageModel,
                              RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
                              ReferenceCubeModel, ReferenceQuadModel)
 from jwst import datamodels
@@ -150,26 +150,6 @@ def test_open_asdf_s3(s3_root_dir):
 
     with datamodels.open("s3://test-s3-data/test.asdf") as m:
         assert isinstance(m, JwstDataModel)
-
-
-def test_open_association():
-    """Test for opening an association"""
-
-    asn_file = t_path('association.json')
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(asn_file) as c:
-            assert isinstance(c, ModelContainer)
-            for model in c:
-                assert model.meta.asn.table_name == "association.json"
-                assert model.meta.asn.pool_name == "pool"
-
-
-def test_container_open_asn_with_sourcecat():
-    path = t_path("association_w_cat.json")
-    with datamodels.open(path, asn_exptypes="science") as c:
-        for model in c:
-            assert model.meta.asn.table_name == "association_w_cat.json"
 
 
 def test_open_none():

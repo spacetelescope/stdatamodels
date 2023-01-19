@@ -131,8 +131,12 @@ def open(init=None, guess=True, memmap=False, **kwargs):
 
         elif file_type == "asn":
             # Read the file as an association / model container
-            from . import container
-            return container.ModelContainer(init, **kwargs)
+            try:
+                from jwst.datamodels import ModelContainer
+            except ImportError as err:
+                raise ValueError("Cannot open an association file without the jwst package installed") from err
+
+            return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
             if s3_utils.is_s3_uri(init):
@@ -164,8 +168,12 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         hdulist = init
 
     elif is_association(init) or isinstance(init, list):
-        from . import container
-        return container.ModelContainer(init, **kwargs)
+        try:
+            from jwst.datamodels import ModelContainer
+        except ImportError as err:
+            raise ValueError("Cannot open an association without the jwst package installed") from err
+
+        return ModelContainer(init, **kwargs)
 
     # If we have it, determine the shape from the science hdu
     if hdulist:

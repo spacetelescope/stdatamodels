@@ -9,7 +9,6 @@ from .apcorr import NrsMosApcorrModel, NrsIfuApcorrModel, NrsFsApcorrModel
 from .asn import AsnModel
 from .barshadow import BarshadowModel
 from .combinedspec import CombinedSpecModel
-from .container import ModelContainer
 from .contrast import ContrastModel
 from .cube import CubeModel
 from .dark import DarkModel
@@ -67,7 +66,6 @@ from .segmap import SegmentationMapModel
 from .slit import SlitModel, SlitDataModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .source_container import SourceModelContainer
 from .spec import SpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
@@ -116,7 +114,7 @@ __all__ = [
     'MirMrsXArtCorrModel',
     'IFUFOREModel', 'IFUImageModel', 'IFUPostModel', 'IFUSlicerModel',
     'ImageModel', 'IPCModel', 'IRS2Model', 'LastFrameModel', 'Level1bModel',
-    'LinearityModel', 'MaskModel', 'ModelContainer', 'MSAModel',
+    'LinearityModel', 'MaskModel', 'MSAModel',
     'MultiCombinedSpecModel', 'MultiExposureModel',
     'MultiExtract1dImageModel', 'MultiSlitModel',
     'MultiProductModel',
@@ -139,7 +137,7 @@ __all__ = [
     'RegionsModel', 'ResetModel',
     'ResolutionModel', 'MiriResolutionModel',
     'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
-    'SegmentationMapModel', 'SourceModelContainer',
+    'SegmentationMapModel',
     'SossExtractModel',
     'SossWaveGridModel',
     'SpecKernelModel',
