@@ -8,6 +8,7 @@ Other
 -----
 
 - Reimplement support for ASDF-in-FITS in this package. [#110]
+- Move ``jwst.datamodels`` from the ``jwst`` package into this package. [#112]
 
 0.4.5 (2023-01-12)
 ==================
