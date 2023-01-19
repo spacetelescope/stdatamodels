@@ -3,7 +3,7 @@ from datetime import datetime
 import jsonschema
 import pytest
 
-from jwst.datamodels import JwstDataModel
+from stdatamodels.jwst.datamodels import JwstDataModel
 
 
 def test_strict_validation_enum():

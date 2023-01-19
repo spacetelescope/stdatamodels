@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
 
-from jwst.datamodels import MultiSlitModel, ImageModel
+from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel
 
 
 def test_multislit_model():

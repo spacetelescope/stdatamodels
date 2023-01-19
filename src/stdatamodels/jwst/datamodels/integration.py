@@ -11,7 +11,7 @@ else:
 
 
 from asdf.resource import DirectoryResourceMapping
-from jwst import datamodels
+from stdatamodels.jwst import datamodels
 
 
 def get_resource_mappings():

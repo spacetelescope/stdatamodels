@@ -1,7 +1,7 @@
 import os
 import logging
 from collections.abc import Iterable
-from jwst import datamodels as dm
+from stdatamodels.jwst import datamodels as dm
 import pytest
 import warnings
 from ..util import NoTypeWarning

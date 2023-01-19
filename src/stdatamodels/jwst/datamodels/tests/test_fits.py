@@ -4,8 +4,8 @@ from numpy.testing import assert_array_equal
 import numpy as np
 import pytest
 
-from jwst import datamodels
-from jwst.datamodels import ImageModel, JwstDataModel, RampModel
+from stdatamodels.jwst import datamodels
+from stdatamodels.jwst.datamodels import ImageModel, JwstDataModel, RampModel
 
 
 @pytest.fixture

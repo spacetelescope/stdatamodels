@@ -7,12 +7,12 @@ from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
 import pytest
 
-from jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
-                             MultiSlitModel, SlitModel,
-                             DrizProductModel, MultiProductModel, MIRIRampModel,
-                             SlitDataModel, IFUImageModel, ABVegaOffsetModel)
-from jwst import datamodels
-from jwst.datamodels import _defined_models as defined_models
+from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
+                                          MultiSlitModel, SlitModel,
+                                          DrizProductModel, MultiProductModel, MIRIRampModel,
+                                          SlitDataModel, IFUImageModel, ABVegaOffsetModel)
+from stdatamodels.jwst import datamodels
+from stdatamodels.jwst.datamodels import _defined_models as defined_models
 
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')

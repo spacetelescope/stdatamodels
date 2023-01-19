@@ -13,11 +13,11 @@ from astropy.io import fits
 from stdatamodels import DataModel
 from stdatamodels.validate import ValidationError, ValidationWarning
 
-from jwst.datamodels import (JwstDataModel, ImageModel,
-                             RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
-                             ReferenceCubeModel, ReferenceQuadModel)
-from jwst import datamodels
-from jwst.datamodels import util
+from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel,
+                                          RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
+                                          ReferenceCubeModel, ReferenceQuadModel)
+from stdatamodels.jwst import datamodels
+from stdatamodels.jwst.datamodels import util
 
 import asdf
 
