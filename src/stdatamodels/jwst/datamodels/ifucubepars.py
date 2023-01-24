@@ -6,6 +6,7 @@ __all__ = ['NirspecIFUCubeParsModel', 'MiriIFUCubeParsModel']
 class NirspecIFUCubeParsModel(ReferenceFileModel):
     """
     A data model for Nirspec ifucubepars reference files.
+
     Parameters
     __________
     ifucubepars_table : numpy table
