@@ -5,6 +5,16 @@ Welcome to stdatamodels's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+
+JWST
+====
+
+.. toctree::
+   :maxdepth: 2
+
+   jwst/datamodels/index.rst
+
+
 API
 ===
 
