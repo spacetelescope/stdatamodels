@@ -1,3 +1,14 @@
+0.5.0 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+Other
+-----
+
+- Reimplement support for ASDF-in-FITS in this package. [#110]
+
 0.4.5 (2023-01-12)
 ==================
 
