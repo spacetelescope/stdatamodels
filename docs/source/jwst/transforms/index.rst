@@ -16,7 +16,7 @@ and can also be used by other implementations that wish to interoperate with
 these transform definitions.
 
 .. asdf-autoschemas::
-   :schema_root: ../jwst/transforms/resources/schemas
+   :schema_root: ../../src/stdatamodels/jwst/transforms/resources/schemas
    :standard_prefix: stsci.edu/jwst_pipeline
 
    grating_equation-1.0.0
@@ -30,7 +30,3 @@ these transform definitions.
    rotation_sequence-1.0.0
    slit_to_msa-1.0.0
    snell-1.0.0
-
-
-.. automodapi:: jwst.transforms
-.. automodapi:: jwst.transforms.models

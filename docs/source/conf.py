@@ -38,6 +38,7 @@ release = package.__version__
 extensions = [
     "sphinx_automodapi.automodapi",
     "numpydoc",
+    'sphinx_asdf',
 ]
 
 autosummary_generate = True

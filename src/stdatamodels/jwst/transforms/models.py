@@ -243,7 +243,7 @@ class Gwa2Slit(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple of type `~jwst.transforms.models.Slit`
+        A slit is a namedtuple of type `~stdatamodels.jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -296,7 +296,7 @@ class Slit2Msa(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple, `~jwst.transforms.models.Slit`
+        A slit is a namedtuple, `~stdatamodels.jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -1166,6 +1166,7 @@ class Rotation3DToGWA(Model):
     """
     Perform a 3D rotation given an angle in degrees.
     Positive angles represent a counter-clockwise rotation and vice-versa.
+
     Parameters
     ----------
     angles : array-like
@@ -1249,6 +1250,7 @@ class Rotation3DToGWA(Model):
 class Snell(Model):
     """
     Apply transforms, including Snell law, through the NIRSpec prism.
+
     Parameters
     ----------
     angle : float
