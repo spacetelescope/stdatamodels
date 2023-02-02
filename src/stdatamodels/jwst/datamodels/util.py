@@ -23,6 +23,11 @@ from stdatamodels.model_base import _FileReference
 from stdatamodels.jwst.library.basic_utils import bytes2human
 
 
+__all__ = ['open', 'NoTypeWarning', 'can_broadcast', 'to_camelcase', 'is_association',
+           'check_memory_allocation', "get_available_memory",
+           'get_available_memory_linux', "get_available_memory_darwin"]
+
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 

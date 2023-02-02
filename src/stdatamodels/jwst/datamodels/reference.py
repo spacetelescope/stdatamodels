@@ -7,7 +7,8 @@ from .model_base import JwstDataModel
 from .dqflags import pixel
 
 
-__all__ = ['ReferenceFileModel']
+__all__ = ['ReferenceFileModel', "ReferenceImageModel", "ReferenceCubeModel",
+           "ReferenceQuadModel"]
 
 
 class ReferenceFileModel(JwstDataModel):

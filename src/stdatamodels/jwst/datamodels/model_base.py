@@ -4,6 +4,9 @@ from stdatamodels import DataModel as _DataModel
 # from ..lib.basic_utils import deprecate_class
 
 
+__all__ = ["DataModel", "JwstDataModel"]
+
+
 class JwstDataModel(_DataModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/core.schema"

@@ -4,6 +4,10 @@ import re
 from collections import OrderedDict
 
 
+__all__ = ["find_fits_keyword", "search_schema", "walk_schema",
+           "merge_property_trees", "build_docstring", "SearchSchemaResults"]
+
+
 # return_result included for backward compatibility
 def find_fits_keyword(schema, keyword, return_result=False):
     """

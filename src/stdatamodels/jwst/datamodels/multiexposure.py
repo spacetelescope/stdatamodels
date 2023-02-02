@@ -8,7 +8,7 @@ from .image import ImageModel
 from .slit import SlitModel, SlitDataModel
 
 
-__all__ = ['MultiExposureModel']
+__all__ = ['MultiExposureModel', 'set_hdu', 'remove_fits']
 
 
 class MultiExposureModel(JwstDataModel):

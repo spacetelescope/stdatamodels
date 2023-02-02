@@ -3,7 +3,7 @@ import numpy as np
 from .model_base import JwstDataModel
 from stdatamodels.jwst.library.basic_utils import deprecate_class
 
-__all__ = ['RampModel']
+__all__ = ['RampModel', 'MIRIRampModel']
 
 
 class RampModel(JwstDataModel):
