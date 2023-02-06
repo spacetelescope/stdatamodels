@@ -22,11 +22,7 @@ env:
 jobs:
   test:
     name: ${{ matrix.toxenv }} (Python ${{ matrix.python-version }}, ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    env:
-      CRDS_PATH: /home/runner/work/stdatamodels/crds_cache
-      CRDS_CLIENT_RETRY_COUNT: 3
-      CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
+    runs-on: ${{ matrix.os }}]
     strategy:
       fail-fast: false
       matrix:
