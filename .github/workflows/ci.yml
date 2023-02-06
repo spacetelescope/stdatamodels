@@ -15,7 +15,9 @@ on:
 
 env:
   CRDS_SERVER_URL: https://jwst-crds.stsci.edu
-
+  CRDS_PATH: /tmp/crds_cache
+  CRDS_CLIENT_RETRY_COUNT: 3
+  CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
 
 jobs:
   test:
@@ -56,7 +58,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: 'pyproject.toml'
-      - run: echo "CRDS_PATH=$HOME/crds_cache" >> $GITHUB_ENV
       - if: contains(matrix.toxenv, 'test')
         run: >
           echo "pmap=$(
