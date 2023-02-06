@@ -14,26 +14,6 @@ on:
     - cron: '0 9 * * 1'
 
 jobs:
-  check:
-    name: ${{ matrix.toxenv }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        toxenv: [ check-style, check-security, check-build ]
-        python-version: [ '3.11' ]
-        os: [ ubuntu-latest ]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'pyproject.toml'
-      - run: pip install "tox>=4.0"
-      - run: tox -e ${{ matrix.toxenv }}
   test:
     name: ${{ matrix.toxenv }} (Python ${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -48,6 +28,15 @@ jobs:
         python-version: [ '3.8', '3.9', '3.10', '3.11' ]
         os: [ ubuntu-latest, macos-latest ]
         include:
+          - toxenv: check-style
+            os: ubuntu-latest
+            python-version: '3.11'
+          - toxenv: check-security
+            os: ubuntu-latest
+            python-version: '3.11'
+          - toxenv: build-dist
+            os: ubuntu-latest
+            python-version: '3.11'
           - toxenv: test-xdist-cov
             os: ubuntu-latest
             python-version: '3.11'
@@ -55,8 +44,6 @@ jobs:
             os: ubuntu-latest
             python-version: '3.11'
     steps:
-      - if: ${{ contains(matrix.toxenv,'docs') }}
-        run: sudo apt-get install graphviz texlive-latex-extra dvipng
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -65,19 +52,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: 'pyproject.toml'
-      - run: echo "CRDS_PATH=$HOME/crds_cache" >> $GITHUB_ENV
-      - run: echo "CRDS_SERVER_URL=https://jwst-crds.stsci.edu" >> $GITHUB_ENV
-      - run: pip install crds
-      - run: echo "pmap=$(crds list --operational-context)" >> $GITHUB_OUTPUT
-        id: crds-context
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.CRDS_PATH }}
-          key: crds-${{ steps.crds-context.outputs.pmap }}
-      - run: crds sync --contexts ${{ steps.crds-context.outputs.pmap }}
-      - run: pip install "tox>=4.0"
+      - run: pip install tox
       - run: tox -e ${{ matrix.toxenv }}
-      - if: contains(matrix.toxenv,'-cov')
+      - if: contains(matrix.toxenv, '-cov')
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage.xml
