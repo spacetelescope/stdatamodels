@@ -6,6 +6,15 @@ import pytest
 import warnings
 from ..util import NoTypeWarning
 
+os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
+
+# the CRDS_SERVER_URL environment variable must be set before
+# crds is imported
+import crds  # noqa: E402
+from crds.client.api import cache_references, dump_files  # noqa: E402
+from crds.core.exceptions import IrrelevantReferenceTypeError  # noqa: E402
+
+
 log = logging.getLogger(__name__)
 
 
@@ -164,16 +173,11 @@ ref_to_datamodel_dict = {
 
 @pytest.mark.parametrize('instrument', ['fgs', 'miri', 'nircam', 'niriss', 'nirspec'])
 def test_crds_selectors_vs_datamodel(jail_environ, instrument):
-
-    os.environ["CRDS_SERVER_URL"] = 'https://jwst-crds.stsci.edu'
-
-    log.info(f"CRDS_PATH: {os.environ['CRDS_PATH']}")
-
-    import crds
-    from crds.client.api import cache_references
-    from crds.core.exceptions import IrrelevantReferenceTypeError
+    log.info(f"crds_path: {crds.config.get_crds_path()}")
+    log.info(f"crds_server: {crds.config.get_server_url('jwst')}")
 
     context = crds.get_context_name('jwst')
+    dump_files(context)
     pmap = crds.get_cached_mapping(context)
 
     imap = pmap.get_imap(instrument)
