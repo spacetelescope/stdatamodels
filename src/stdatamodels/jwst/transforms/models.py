@@ -562,7 +562,7 @@ def _toindex(value):
 
     Examples
     --------
-    >>> from jwst.transforms.models import _toindex
+    >>> from stdatamodels.jwst.transforms.models import _toindex
     >>> _toindex(np.array([-0.5, 0.49999]))
     array([0, 0])
     >>> _toindex(np.array([0.5, 1.49999]))

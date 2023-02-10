@@ -7,7 +7,7 @@ from astropy.modeling.models import Shift, Rotation2D, Const1D
 from asdf_astropy.converters.transform.tests.test_transform import (
     assert_model_roundtrip)
 
-from jwst.transforms.models import (
+from stdatamodels.jwst.transforms.models import (
     NirissSOSSModel, Rotation3DToGWA, Gwa2Slit, Logical, Slit,
     DirCos2Unitless, Unitless2DirCos, Snell, AngleFromGratingEquation,
     WavelengthFromGratingEquation)

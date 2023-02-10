@@ -5,7 +5,7 @@ Test jwst.transforms
 import pytest
 from numpy.testing import assert_allclose
 
-from jwst.transforms import models
+from stdatamodels.jwst.transforms import models
 
 
 # _RANDOM_SEED = 0x1337

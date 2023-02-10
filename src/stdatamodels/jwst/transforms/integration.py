@@ -11,7 +11,7 @@ else:
 
 
 from asdf.resource import DirectoryResourceMapping
-from jwst import transforms
+from stdatamodels.jwst import transforms
 
 
 def get_resource_mappings():
