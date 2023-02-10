@@ -4,7 +4,11 @@ from setuptools import setup
 package_data = {
     "": [
         "*.yaml",
-    ]
+    ],
+    # Include the transforms schemas
+    "stdatamodels.jwst.transforms": [
+        "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
+    ],
 }
 
 setup(

@@ -13,6 +13,7 @@ JWST
    :maxdepth: 2
 
    jwst/datamodels/index.rst
+   jwst/transforms/index.rst
 
 
 API
