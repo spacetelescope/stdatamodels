@@ -5,6 +5,7 @@ Welcome to stdatamodels's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   asdf_in_fits.rst
 
 JWST
 ====
@@ -14,14 +15,6 @@ JWST
 
    jwst/datamodels/index.rst
    jwst/transforms/index.rst
-
-AsdfInFits
-==========
-
-.. toctree::
-   :maxdepth: 1
-
-   asdf_in_fits.rst
 
 API
 ===

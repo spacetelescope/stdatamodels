@@ -1,9 +1,14 @@
+.. _asdf_in_fits
+
+==========
+AsdfInFits
+==========
+
 :py:mod:`stdatamodels.asdf_in_fits` contains functions to help migrate code that
 uses the AsdfInFits format (ASDF data stored in a FITS file)
 from `ASDF <https://asdf.readthedocs.io>`_ (which is dropping
 support for AsdfInFits) to stdatamodels.
 
-========================
 Opening AsdfInFits files
 ========================
 
@@ -29,7 +34,6 @@ If a ``with`` statement cannot be used,
     # access the contents of `af` as a normal `asdf.AsdfFile`
     af.close()
 
-========================
 Writing AsdfInFits files
 ========================
 
