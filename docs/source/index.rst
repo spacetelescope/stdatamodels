@@ -15,6 +15,13 @@ JWST
    jwst/datamodels/index.rst
    jwst/transforms/index.rst
 
+AsdfInFits
+==========
+
+.. toctree::
+   :maxdepth: 1
+
+   asdf_in_fits.rst
 
 API
 ===
