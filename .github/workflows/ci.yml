@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: setup.cfg
+          cache-dependency-path: 'pyproject.toml'
       - run: pip install "tox>=4.0"
       - run: tox -e ${{ matrix.toxenv }}
   test:
@@ -64,7 +64,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: setup.cfg
+          cache-dependency-path: 'pyproject.toml'
       - run: echo "CRDS_PATH=$HOME/crds_cache" >> $GITHUB_ENV
       - run: echo "CRDS_SERVER_URL=https://jwst-crds.stsci.edu" >> $GITHUB_ENV
       - run: pip install crds

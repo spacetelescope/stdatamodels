@@ -6,6 +6,7 @@ from datetime import datetime
 import importlib
 
 import stsci_rtd_theme
+import tomli
 
 
 def setup(app):
@@ -21,14 +22,11 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 # in the path:
 sys.path.insert(0, str(REPO_ROOT/"src"/"stdatamodels"))
 
-# Read the package's setup.cfg so that we can use relevant
-# values here:
-conf = ConfigParser()
-conf.read(REPO_ROOT/"setup.cfg")
-setup_metadata = dict(conf.items("metadata"))
+with open(REPO_ROOT / "pyproject.toml", 'rb') as configuration_file:
+    setup_metadata = tomli.load(configuration_file)['project']
 
 project = setup_metadata["name"]
-author = setup_metadata["author"]
+author = setup_metadata["authors"][0]["name"]
 copyright = f"{datetime.now().year}, {author}"
 
 package = importlib.import_module(setup_metadata["name"])

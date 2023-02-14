@@ -1,6 +1,149 @@
+[project]
+name = "stdatamodels"
+description = "Core support for DataModel classes used in calibration pipelines"
+requires-python = ">=3.6"
+authors = [
+    { name = "STScI" },
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "jsonschema>=3.0.2",
+    "asdf>=2.14.1",
+    "asdf-astropy>=0.3.0",
+    "psutil>=5.7.2",
+    "numpy>=1.16",
+    "astropy>=5.0.4",
+    "stcal>=1.3.2,<1.4",
+]
+dynamic = [
+    "version",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+file = "LICENSE"
+content-type = "text/plain"
+
+[project.urls]
+Homepage = "https://github.com/spacetelescope/stdatamodels"
+"Bug Tracker" = "https://github.com/spacetelescope/stdatamodels/issues"
+"Source Code" = "https://github.com/spacetelescope/stdatamodels"
+
+[project.entry-points."asdf.extensions"]
+jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_extensions"
+
+[project.entry-points."asdf.resource_mappings"]
+jwst_datamodel = "stdatamodels.jwst.datamodels.integration:get_resource_mappings"
+jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_resource_mappings"
+
+[project.optional-dependencies]
+test = [
+    "asdf>=2.8.0",
+    "psutil",
+    "pytest>=4.6.0",
+    "pytest-doctestplus",
+    "pytest-openfiles>=0.5.0",
+    "crds>=11.16.14",
+]
+docs = [
+    "sphinx",
+    "sphinx-automodapi",
+    "numpydoc",
+    "sphinx-rtd-theme",
+    "stsci-rtd-theme",
+    "sphinx-asdf>=0.1.1",
+]
+aws = [
+    "stsci-aws-utils>=0.1.2",
+]
+
 [build-system]
-requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4", "wheel"]
+requires = [
+    "setuptools>=61.2",
+    "setuptools_scm[toml]>=3.4",
+    "wheel",
+]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+zip-safe = true
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+namespaces = false
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.package-data]
+"*" = [
+    "*.yaml",
+]
+"stdatamodels.jwst.transforms" = [
+    "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
+]
+
+[tool.flake8]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs",
+    "build",
+    "dist",
+    ".tox",
+    ".eggs",
+]
+ignore = [
+    "E203",
+    "W503",
+    "W504",
+    "W605",
+]
+max-line-length = 130
+select = [
+    "F",
+    "W",
+    "E101",
+    "E111",
+    "E112",
+    "E113",
+    "E401",
+    "E402",
+    "E501",
+    "E711",
+    "E722",
+]
+
+[tool.pytest.ini_options]
+minversion = "4.6"
+doctest_plus = true
+doctest_rst = true
+text_file_format = "rst"
+addopts = "--open-files"
+testpaths = [
+    "tests",
+    "src/stdatamodels/jwst",
+]
+asdf_schema_tests_enabled = true
+asdf_schema_validate_default = false
+asdf_schema_root = "src/stdatamodels/jwst/datamodels/schemas\nsrc/stdatamodels/jwst/transforms/resources/schemas"
+norecursedirs = [
+    "build",
+    ".tox",
+    ".eggs",
+    "venv",
+]
 
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
