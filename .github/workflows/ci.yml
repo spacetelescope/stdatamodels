@@ -26,8 +26,7 @@ jobs:
     outputs:
       pmap: ${{ steps.crds-context.outputs.pmap }}
     steps:
-      - if: contains(matrix.toxenv, 'test')
-        run: >
+      - run: >
           echo "pmap=$(
           curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["jwst"], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
           python -c "import sys, json; print(json.load(sys.stdin)['result'])"
@@ -39,7 +38,7 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
     needs: [ crds_context ]
     with:
-      cache-path: $CRDS_PATH
+      cache-path: /tmp/crds_cache
       cache-key: crds-${{ needs.crds_context.outputs.pmap }}
       envs: |
         - linux: check-style
