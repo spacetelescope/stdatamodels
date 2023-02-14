@@ -58,5 +58,5 @@ jobs:
         - macos: test-xdist
           python-version: 3.11
         - linux: test-xdist-cov
+          coverage: codecov
         - linux: test-jwst-xdist-cov
-      coverage: 'codecov'
