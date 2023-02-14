@@ -39,7 +39,7 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
     needs: [ crds_context ]
     with:
-      cache-path: ${{ env.CRDS_PATH }}
+      cache-path: $CRDS_PATH
       cache-key: crds-${{ needs.crds_context.outputs.pmap }}
       envs: |
         - linux: check-style
