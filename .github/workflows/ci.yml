@@ -35,11 +35,13 @@ jobs:
         # See https://hst-crds.stsci.edu/static/users_guide/web_services.html#generic-request
         id: crds-context
   test:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
+    uses: ConorMacBride/github-actions-workflows/.github/workflows/tox.yml@set-env-tox
     needs: [ crds_context ]
     with:
       cache-path: /tmp/crds_cache
       cache-key: crds-${{ needs.crds_context.outputs.pmap }}
+      setenv: |
+        CRDS_PATH: /tmp/crds_cache
       envs: |
         - linux: check-style
         - linux: check-security
