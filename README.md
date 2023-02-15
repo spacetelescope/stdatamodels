@@ -10,10 +10,11 @@ Provides `DataModel`, which is the base class for data models implemented in the
 
 ## Unit Tests
 
-A few unit tests require downloading (~500MB) data from CRDS. CRDS must be configured for these tests to pass
+A few unit tests require downloading (~500MB) data from CRDS. CRDS must be 
+configured for these tests to pass
 (see the [CRDS User Guide](https://jwst-crds.stsci.edu/static/users_guide/index.html)
-for more information). Minimally (if not on the stsci vpn where the default path of
-`/grp/crds/cache` is available) you will need to set `CRDS_PATH`.
+for more information). Minimally (if not on the stsci vpn where the default
+path of `/grp/crds/cache` is available) you will need to set `CRDS_PATH`.
 
 ```bash
 export CRDS_PATH=/tmp/crds_cache/jwst_ops
