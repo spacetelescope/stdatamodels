@@ -1,6 +1,7 @@
 import datetime
 from functools import partial
 import hashlib
+import inspect
 import io
 import os
 from pkg_resources import parse_version
@@ -486,10 +487,11 @@ def _save_history(hdulist, tree):
         hdulist[0].header['HISTORY'] = history[i]['description']
 
 
-def to_fits(tree, schema):
+def to_fits(tree, schema, hdulist=None):
     """Create hdulist and modified ASDF tree"""
-    hdulist = fits.HDUList()
-    hdulist.append(fits.PrimaryHDU())
+    if hdulist is None:
+        hdulist = fits.HDUList()
+        hdulist.append(fits.PrimaryHDU())
 
     tree = _normalize_arrays(tree)
     tree = _save_from_schema(hdulist, tree, schema)
@@ -733,11 +735,17 @@ def from_fits_asdf(hdulist,
         )
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
+    # get kwargs supported by asdf, this will not pass along arbitrary kwargs
+    akwargs = {
+        k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args
+        if k[0] != '_' and k in kwargs
+    }
     af = asdf.open(
         generic_file,
         ignore_version_mismatch=ignore_version_mismatch,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
+        **akwargs
     )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)

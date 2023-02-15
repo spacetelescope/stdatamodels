@@ -69,6 +69,7 @@ jobs:
       - run: echo "CRDS_SERVER_URL=https://jwst-crds.stsci.edu" >> $GITHUB_ENV
       - run: pip install crds
       - run: echo "pmap=$(crds list --operational-context)" >> $GITHUB_OUTPUT
+        id: crds-context
       - uses: actions/cache@v3
         with:
           path: ${{ env.CRDS_PATH }}
