@@ -60,6 +60,7 @@ docs = [
     "sphinx-rtd-theme",
     "stsci-rtd-theme",
     "sphinx-asdf>=0.1.1",
+    'tomli; python_version <"3.11"',
 ]
 aws = [
     "stsci-aws-utils>=0.1.2",
