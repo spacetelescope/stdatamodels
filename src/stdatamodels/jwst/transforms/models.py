@@ -243,7 +243,7 @@ class Gwa2Slit(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple of type `~jwst.transforms.models.Slit`
+        A slit is a namedtuple of type `~stdatamodels.jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -296,7 +296,7 @@ class Slit2Msa(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple, `~jwst.transforms.models.Slit`
+        A slit is a namedtuple, `~stdatamodels.jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -562,7 +562,7 @@ def _toindex(value):
 
     Examples
     --------
-    >>> from jwst.transforms.models import _toindex
+    >>> from stdatamodels.jwst.transforms.models import _toindex
     >>> _toindex(np.array([-0.5, 0.49999]))
     array([0, 0])
     >>> _toindex(np.array([0.5, 1.49999]))
