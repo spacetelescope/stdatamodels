@@ -15,7 +15,7 @@ from collections import namedtuple
 import numpy as np
 from astropy.modeling.core import Model
 from astropy.modeling.parameters import Parameter, InputParameterError
-from astropy.modeling.models import (Rotation2D, Identity, Mapping, Tabular1D, Const1D)
+from astropy.modeling.models import (Rotation2D, Mapping, Tabular1D, Const1D)
 from astropy.modeling.models import math as astmath
 from astropy.utils import isiterable
 
@@ -243,7 +243,7 @@ class Gwa2Slit(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple of type `~stdatamodels.jwst.transforms.models.Slit`
+        A slit is a namedtuple of type `~jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -296,7 +296,7 @@ class Slit2Msa(Model):
     ----------
     slits : list
         A list of open slits.
-        A slit is a namedtuple, `~stdatamodels.jwst.transforms.models.Slit`
+        A slit is a namedtuple, `~jwst.transforms.models.Slit`
         Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
         "quadrant", "source_id", "shutter_state", "source_name",
         "source_alias", "stellarity", "source_xpos", "source_ypos",
@@ -562,7 +562,7 @@ def _toindex(value):
 
     Examples
     --------
-    >>> from stdatamodels.jwst.transforms.models import _toindex
+    >>> from jwst.transforms.models import _toindex
     >>> _toindex(np.array([-0.5, 0.49999]))
     array([0, 0])
     >>> _toindex(np.array([0.5, 1.49999]))
@@ -589,7 +589,11 @@ class NIRCAMForwardRowGrismDispersion(Model):
         List of models which govern the x solutions for each order
 
     ymodels : list [astropy.modeling.Model]
-        List of models which givern the y solutions for each order
+        List of models which govern the y solutions for each order
+
+    inv_xmodels : list [astropy.modeling.Model]
+        List of models which will be used if inverse ymodels
+        cannot be analytically derived
 
     Returns
     -------
@@ -611,11 +615,12 @@ class NIRCAMForwardRowGrismDispersion(Model):
     n_outputs = 4
 
     def __init__(self, orders, lmodels=None, xmodels=None,
-                 ymodels=None, name=None, meta=None):
+                 ymodels=None, inv_xmodels=None, name=None, meta=None):
         self.orders = orders
         self.lmodels = lmodels
         self.xmodels = xmodels
         self.ymodels = ymodels
+        self.inv_xmodels = inv_xmodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         meta = {"orders": orders}  # informational for users
         if name is None:
@@ -646,17 +651,51 @@ class NIRCAMForwardRowGrismDispersion(Model):
         except KeyError:
             raise ValueError("Specified order is not available")
 
-        xmodel = self.xmodels[iorder]
-        ymodel = self.ymodels[iorder]
+        if not len(self.xmodels):
+            t = self.invdisp_interp(iorder, x0, y0, (x - x0))
+        else:
+            t = self.xmodels[iorder](x - x0)
+
         lmodel = self.lmodels[iorder]
 
-        # inputs are x, y, x0, y0, order
+        def apply_poly(coeff_model, inputs, t):
+            # Determine order of polynomial in t
+            ord_t = len(coeff_model)
+            sumval = 0.
+            for i in range(ord_t):
+                sumval += t ** i * coeff_model[i](*inputs[:coeff_model[i].n_inputs])
+            return sumval
 
-        tmodel = astmath.SubtractUfunc() | xmodel
-        model = Mapping((0, 2, 0, 2, 2, 3, 4)) | (tmodel | ymodel) & (tmodel | lmodel) & Identity(3) | \
-            Mapping((2, 3, 0, 1, 4)) | Identity(1) & astmath.AddUfunc() & Identity(2) | Mapping((0, 1, 2, 3), n_inputs=4)
+        l_poly = apply_poly(lmodel, (x - x0, y - y0), t)
 
-        return model(x, y, x0, y0, order)
+        return x0, y0, l_poly, order
+
+    def invdisp_interp(self, order, x0, y0, dx):
+
+        if len(dx.shape) == 2:
+            dx = dx[0, :]
+
+        t_len = dx.shape[0]
+        t0 = np.linspace(0., 1., t_len)
+
+        if len(self.inv_xmodels[order]) == 2:
+            xr = self.inv_xmodels[order][0](x0, y0) + t0 * self.inv_xmodels[order][1](x0, y0)
+        elif len(self.inv_xmodels[order]) == 3:
+            xr = self.inv_xmodels[order][0](x0, y0) + t0 * self.inv_xmodels[order][1](x0, y0) + \
+                 t0**2 * self.inv_xmodels[order][2](x0, y0)
+        elif len(self.inv_xmodels[order].instance[0].inputs) == 1:
+            xr = self.inv_xmodels[order][0](x0)
+        else:
+            raise Exception
+
+        if len(xr.shape) > 1:
+            xr = xr[0, :]
+
+        so = np.argsort(xr)
+        f = np.interp(dx, xr[so], t0[so])
+
+        f = np.broadcast_to(f, dx.shape)
+        return f
 
 
 class NIRCAMForwardColumnGrismDispersion(Model):
@@ -674,7 +713,11 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         List of models which govern the x solutions
 
     ymodels : list [astropy.modeling.Model]
-        List of models which givern the y solutions
+        List of models which govern the y solutions
+
+    inv_ymodels : list [astropy.modeling.Model]
+        List of models which will be used if inverse ymodels
+        cannot be analytically derived
 
     Returns
     -------
@@ -696,11 +739,12 @@ class NIRCAMForwardColumnGrismDispersion(Model):
     n_outputs = 4
 
     def __init__(self, orders, lmodels=None, xmodels=None,
-                 ymodels=None, name=None, meta=None):
+                 ymodels=None, inv_ymodels=None, name=None, meta=None):
         self.orders = orders
         self.lmodels = lmodels
         self.xmodels = xmodels
         self.ymodels = ymodels
+        self.inv_ymodels = inv_ymodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         meta = {"orders": orders}  # informational for users
         if name is None:
@@ -731,19 +775,51 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         except KeyError:
             raise ValueError("Specified order is not available")
 
-        xmodel = self.xmodels[iorder]
-        ymodel = self.ymodels[iorder]
+        if not len(self.ymodels):
+            t = self.invdisp_interp(iorder, x0, y0, (y - y0))
+        else:
+            t = self.ymodels[iorder](y - y0)
+
         lmodel = self.lmodels[iorder]
 
-        # inputs are x, y, x0, y0, order
-        tmodel = astmath.SubtractUfunc() | ymodel
-        dx = tmodel | xmodel
-        wavelength = tmodel | lmodel
-        model = Mapping((1, 3, 1, 3, 2, 3, 4)) | \
-            dx & wavelength & Identity(3) |\
-            Mapping((0, 2, 3, 1, 4)) | astmath.AddUfunc() & Identity(3)
+        def apply_poly(coeff_model, inputs, t):
+            # Determine order of polynomial in t
+            ord_t = len(coeff_model)
+            sumval = 0.
+            for i in range(ord_t):
+                sumval += t ** i * coeff_model[i](*inputs[2-coeff_model[i].n_inputs:])
+            return sumval
 
-        return model(x, y, x0, y0, order)
+        l_poly = apply_poly(lmodel, (x - x0, y - y0), t)
+
+        return x0, y0, l_poly, order
+
+    def invdisp_interp(self, order, x0, y0, dy):
+
+        if len(dy.shape) == 2:
+            dy = dy[0, :]
+
+        t_len = dy.shape[0]
+        t0 = np.linspace(0., 1., t_len)
+
+        if len(self.inv_ymodels[order]) == 2:
+            xr = self.inv_ymodels[order][0](x0, y0) + t0 * self.inv_ymodels[order][1](x0, y0)
+        elif len(self.inv_ymodels[order]) == 3:
+            xr = self.inv_ymodels[order][0](x0, y0) + t0 * self.inv_ymodels[order][1](x0, y0) + \
+                 t0 ** 2 * self.inv_ymodels[order][2](x0, y0)
+        elif len(self.inv_ymodels[order].instance[0].inputs) == 1:
+            xr = self.inv_ymodels[order][0](y0)
+        else:
+            raise Exception
+
+        if len(xr.shape) > 1:
+            xr = xr[0, :]
+
+        so = np.argsort(xr)
+        f = np.interp(dy, xr[so], t0[so])
+
+        f = np.broadcast_to(f, dy.shape)
+        return f
 
 
 class NIRCAMBackwardGrismDispersion(Model):
@@ -761,7 +837,11 @@ class NIRCAMBackwardGrismDispersion(Model):
         List of models which govern the x solutions
 
     ymodels : list [astropy.modeling.Model]
-        List of models which givern the y solutions
+        List of models which govern the y solutions
+
+    inv_lmodels: list [astropy.modeling.Model]
+        List of models which will be used if inverse lmodels
+        cannot be analytically derived
 
     Returns
     -------
@@ -782,8 +862,9 @@ class NIRCAMBackwardGrismDispersion(Model):
     n_outputs = 5
 
     def __init__(self, orders, lmodels=None, xmodels=None,
-                 ymodels=None, name=None, meta=None):
+                 ymodels=None, inv_lmodels=None, name=None, meta=None):
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.inv_lmodels = inv_lmodels
         self.lmodels = lmodels
         self.xmodels = xmodels
         self.ymodels = ymodels
@@ -818,17 +899,56 @@ class NIRCAMBackwardGrismDispersion(Model):
         if (wavelength < 0).any():
             raise ValueError("wavelength should be greater than zero")
 
-        xmodel = self.xmodels[iorder]
-        ymodel = self.ymodels[iorder]
-        lmodel = self.lmodels[iorder]
+        if not len(self.lmodels):
+            t = self.invdisp_interp(iorder, x, y, wavelength)
+        else:
+            t = self.lmodels[iorder](wavelength)
+        xmodel = self.xmodels[iorder].instance
+        ymodel = self.ymodels[iorder].instance
 
-        dx = lmodel | xmodel
-        dy = lmodel | ymodel
-        model = Mapping((0, 2, 1, 2, 0, 1, 3)) | \
-            ((Identity(1) & dx) | astmath.AddUfunc()) & \
-            ((Identity(1) & dy) | astmath.AddUfunc()) & Identity(3)
+        if len(xmodel[0].inputs) == 2:
+            dx = xmodel[0](x, y) + t * xmodel[1](x, y) + t**2 * xmodel[2](x, y)
+        elif len(xmodel[0].inputs) == 1:
+            if len(xmodel) == 1:
+                dx = xmodel[0](x)
+            elif len(xmodel) == 2:
+                dx = xmodel[0](x) + t * xmodel[1](x)
+        else:
+            raise ValueError("xmodel has incorrect number of inputs required.")
 
-        return model(x, y, wavelength, order)
+        if len(ymodel[0].inputs) ==2:
+            dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t ** 2 * ymodel[2](x, y)
+        elif len(ymodel[0].inputs) == 1:
+            if len(ymodel) == 1:
+                dy = ymodel[0](x)
+            elif len(ymodel) == 2:
+                dy = ymodel[0](x) + t * ymodel[1](x)
+        else:
+            raise ValueError("ymodel has incorrect number of inputs required.")
+
+        return (x + dx, y + dy, x, y, order)
+
+    def invdisp_interp(self, order, x0, y0, wavelength, t0=None):
+
+        if t0 is None:
+            if hasattr(x0, '__iter__'):
+                length = len(x0)
+            else:
+                length = 40
+            t0 = np.linspace(0., 1., length)
+
+        if len(self.inv_lmodels[order]) == 2:
+            xr = self.inv_lmodels[order][0](x0, y0) + t0 * self.inv_lmodels[order][1](x0, y0)
+        elif len(self.inv_lmodels[order]) == 3:
+            xr = self.inv_lmodels[order][0](x0, y0) + t0 * self.inv_lmodels[order][1](x0, y0) + \
+                 t0**2 * self.inv_lmodels[order][2](x0, y0)
+        elif len(self.inv_lmodels[order].instance[0].inputs) == 1:
+            xr = self.inv_lmodels[order][0](x0)
+        else:
+            raise Exception
+        so = np.argsort(xr)
+        f = np.interp(wavelength, xr[so], t0[so])
+        return f
 
 
 class NIRISSBackwardGrismDispersion(Model):
@@ -1166,7 +1286,6 @@ class Rotation3DToGWA(Model):
     """
     Perform a 3D rotation given an angle in degrees.
     Positive angles represent a counter-clockwise rotation and vice-versa.
-
     Parameters
     ----------
     angles : array-like
@@ -1250,7 +1369,6 @@ class Rotation3DToGWA(Model):
 class Snell(Model):
     """
     Apply transforms, including Snell law, through the NIRSpec prism.
-
     Parameters
     ----------
     angle : float
