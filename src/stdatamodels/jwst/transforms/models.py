@@ -916,13 +916,13 @@ class NIRCAMBackwardGrismDispersion(Model):
         else:
             raise ValueError("xmodel has incorrect number of inputs required.")
 
-        if len(ymodel[0].inputs) ==2:
-            dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t ** 2 * ymodel[2](x, y)
+        if len(ymodel[0].inputs) == 2:
+            dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t**2 * ymodel[2](x, y)
         elif len(ymodel[0].inputs) == 1:
             if len(ymodel) == 1:
-                dy = ymodel[0](x)
+                dy = ymodel[0](y)
             elif len(ymodel) == 2:
-                dy = ymodel[0](x) + t * ymodel[1](x)
+                dy = ymodel[0](y) + t * ymodel[1](y)
         else:
             raise ValueError("ymodel has incorrect number of inputs required.")
 
