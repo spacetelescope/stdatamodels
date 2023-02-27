@@ -6,8 +6,8 @@ Other
 
 - Add helper functions to aid in migration of ASDF-in-FITS
   uses from asdf to this package [#114]
-- Move JP-3015 ``jwst.datamodels`` updates from the ``jwst`` package into this
-  package. [#127]
+- Add UNDERSAMP flag to dqflags and undersample correction metadata to core schema
+  in stdatamodels.jwst.datamodels [#127]
   
 1.0.0 (2023-02-14)
 ==================
