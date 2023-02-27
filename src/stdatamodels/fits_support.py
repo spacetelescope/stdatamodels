@@ -3,7 +3,6 @@ from functools import partial
 import hashlib
 import inspect
 import io
-import os
 from pkg_resources import parse_version
 import re
 import warnings

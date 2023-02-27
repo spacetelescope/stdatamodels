@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from asdf import schema as asdf_schema
-from asdf import treeutil, AsdfFile
+from asdf import treeutil
 
 from .model_base import JwstDataModel
 from .image import ImageModel
