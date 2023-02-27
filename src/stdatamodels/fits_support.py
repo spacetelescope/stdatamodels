@@ -14,7 +14,6 @@ from astropy.io import fits
 from astropy import time
 from astropy.utils.exceptions import AstropyWarning
 import asdf
-from asdf import resolver
 from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from asdf.tags.core import ndarray, HistoryEntry
@@ -355,17 +354,6 @@ def _get_validators(hdulist):
     return validators
 
 
-META_SCHEMA_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'metaschema'))
-
-
-FITS_SCHEMA_URL_MAPPING = resolver.Resolver(
-    [
-        ('http://stsci.edu/schemas/fits-schema/',
-         'file://' + META_SCHEMA_PATH + '/{url_suffix}.yaml')
-    ] + resolver.DEFAULT_URL_MAPPING, 'url')
-
-
 def _save_from_schema(hdulist, tree, schema):
     def datetime_callback(node, json_id):
         if isinstance(node, datetime.datetime):
@@ -384,7 +372,7 @@ def _save_from_schema(hdulist, tree, schema):
         kwargs = {}
 
     validator = asdf_schema.get_validator(
-        schema, None, _get_validators(hdulist), FITS_SCHEMA_URL_MAPPING, **kwargs)
+        schema, None, _get_validators(hdulist), **kwargs)
 
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)

@@ -57,7 +57,6 @@ from asdf import schema as aschema
 from asdf import generic_io
 from asdf import reference
 from asdf import treeutil
-from asdf.extension import get_default_resolver
 
 from . import JwstDataModel
 
@@ -394,8 +393,6 @@ class Keyword_db:
         """
         Resolve urls in the schema
         """
-        resolver = get_default_resolver()
-
         def resolve_refs(node, json_id):
             if json_id is None:
                 json_id = url
@@ -407,11 +404,10 @@ class Keyword_db:
                     suburl_path = suburl[:-(len(fragment) + 1)]
                 else:
                     suburl_path = suburl
-                suburl_path = resolver(suburl_path)
 
                 try:
                     subschema = aschema.load_schema(suburl_path,
-                                                    resolver,
+                                                    None,
                                                     True)
                 except IOError:
                     print("Could not read " + suburl_path)

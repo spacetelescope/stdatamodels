@@ -88,12 +88,10 @@ class MultiExposureModel(JwstDataModel):
         # Get the schemas
         schema = asdf_schema.load_schema(
             self.schema_url,
-            resolver=AsdfFile().resolver,
             resolve_references=True
         )
         core_schema = asdf_schema.load_schema(
             self.core_schema_url,
-            resolver=AsdfFile().resolver,
             resolve_references=True
         )
 
