@@ -4,8 +4,13 @@ import numpy as np
 import os
 import warnings
 from astropy.modeling.models import Shift, Rotation2D, Const1D
-from asdf_astropy.converters.transform.tests.test_transform import (
-    assert_model_roundtrip)
+
+from astropy.utils import minversion
+
+if minversion("asdf_astropy", "0.3.0", False):
+    from asdf_astropy.testing.helpers import assert_model_roundtrip
+else:
+    from asdf_astropy.converters.transform.tests.test_transform import assert_model_roundtrip
 
 from stdatamodels.jwst.transforms.models import (
     NirissSOSSModel, Rotation3DToGWA, Gwa2Slit, Logical, Slit,
