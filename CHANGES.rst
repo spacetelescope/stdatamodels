@@ -5,6 +5,9 @@
 Other
 -----
 
+- Added inverse functionality to ``dynamic_mask``, which allows for
+  properly saving of datamodels with ``dq_def`` defined. [#132]
+
 - Move the ``dqflags`` and related code from ``stcal`` to this package
   so that the ``stcal`` dependency can be dropped. [#134]
 

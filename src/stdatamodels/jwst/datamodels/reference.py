@@ -41,6 +41,23 @@ class ReferenceFileModel(JwstDataModel):
             self.print_err(f'Model.meta is missing values for {to_fix}')
         super().validate()
 
+    def save(self, path, dir_path=None, *args, **kwargs):
+        """
+        Save data model.  If the 'dq' and 'dq_def' exist they need special
+        handling.
+        """
+        if (self.hasattr('dq_def') and self.hasattr("dq")
+           and self.dq is not None and self.dq_def is not None):
+            # Save off uncompressed DQ array.  Compress DQ array
+            # according to 'dq_def' for save.  Then restore
+            # uncompressed DQ array.
+            dq_orig = self.dq.copy()
+            self.dq = dynamic_mask(self, pixel, inv=True)
+            super().save(path, dir_path, *args, **kwargs)
+            self.dq = dq_orig
+        else:
+            super().save(path, dir_path, *args, **kwargs)
+
     def print_err(self, message):
         if self._strict_validation:
             raise ValueError(message)

@@ -6,6 +6,7 @@ from astropy.time import Time
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
 import pytest
+import warnings
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
                                           MultiSlitModel, SlitModel,
@@ -373,3 +374,39 @@ def test_ramp_model_zero_frame_by_dimensions():
 
     with datamodels.RampModel(dims) as ramp:
         assert ramp.zeroframe.shape == zdims
+
+
+def test_dq_def_roundtrip(tmp_path):
+    """
+    Open a MaskModel with a defined DQ array and dq_def that modifies the
+    DQ array on open.  Save the model to a new name.  Open the new model
+    to verify the DQ array is equal to the original DQ array.  This validates
+    that the dynamic_mask is invertible and computes the same values.
+    """
+    bname = "jwst_nircam_mask_ref.fits"
+    nbname = bname.replace("ref", "ref_dummy")
+
+    fname = os.path.join(ROOT_DIR, bname)
+    new_fname = os.path.join(tmp_path, nbname)
+
+    diff = None
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+
+        # Open the MaskModel and save it to another file.  It should not save
+        # the "uncompressed" DQ array that is in memory, but "recompress" the
+        # "uncompressed" DQ array to saved.
+        with MaskModel(fname) as mask:
+            mask.save(new_fname)
+
+        # Open the original and new mask model to ensure the roundtrip
+        # results in the same values.  The ensures the dynamic_mask function
+        # that uncompresses and compresses the DQ array based on the dq_def
+        # table roundtrips to the same values.
+        with MaskModel(fname) as mask, MaskModel(new_fname) as new_mask:
+            diff = np.zeros(mask.dq.shape, dtype=int)
+            diff[mask.dq != new_mask.dq] = 1
+
+    assert diff is not None
+    total_diff = sum(sum(diff))
+    assert total_diff == 0
