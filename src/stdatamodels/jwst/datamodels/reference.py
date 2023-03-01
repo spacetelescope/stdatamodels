@@ -1,7 +1,7 @@
 import warnings
 
 from stdatamodels.validate import ValidationWarning
-from stcal.dynamicdq import dynamic_mask
+from stdatamodels.dynamicdq import dynamic_mask
 
 from .model_base import JwstDataModel
 from .dqflags import pixel
