@@ -36,8 +36,9 @@ def open(filename_or_hdu, **kwargs):
     Parameters
     ----------
     filename_or_hdu : str, path, `astropy.io.fits.HDUList`
-        Filename of the fits file containing the ASDF data. This will
-        be opened with :func:`astropy.io.fits.open`
+        Filename of the fits file or an open `astropy.io.fits.HDUList`
+        containing the ASDF data. If a filename is provided it
+        will be opened with :func:`astropy.io.fits.open`.
 
     kwargs : variable keyword arguments
         Passed on to :func:`asdf.open`
