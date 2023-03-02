@@ -1,7 +1,10 @@
 1.2.0 (2023-03-02)
 ==================
 
-- `minor bugfixes and performance improvements <https://github.com/spacetelescope/stdatamodels/compare/1.1.0...1.2.0`_
+Other
+-----
+- Add UNDERSAMP flag to dqflags and undersample correction metadata to core schema
+  in stdatamodels.jwst.datamodels [#127]
 
 
 1.1.0 (2023-02-16)
@@ -12,8 +15,6 @@ Other
 
 - Add helper functions to aid in migration of ASDF-in-FITS
   uses from asdf to this package [#114]
-- Add UNDERSAMP flag to dqflags and undersample correction metadata to core schema
-  in stdatamodels.jwst.datamodels [#127]
   
 1.0.0 (2023-02-14)
 ==================
