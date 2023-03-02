@@ -1,7 +1,7 @@
-1.1.1 (2023-03-02)
+1.2.0 (2023-03-02)
 ==================
 
-- `minor bugfixes and performance improvements <https://github.com/spacetelescope/stdatamodels/compare/1.1.0...1.1.1>`_
+- `minor bugfixes and performance improvements <https://github.com/spacetelescope/stdatamodels/compare/1.1.0...1.2.0`_
 
 
 1.1.0 (2023-02-16)
