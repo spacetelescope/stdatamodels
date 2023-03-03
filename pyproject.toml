@@ -148,3 +148,8 @@ norecursedirs = [
 
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
+
+[tool.coverage.run]
+omit = [
+    '*/tests/*',
+]
