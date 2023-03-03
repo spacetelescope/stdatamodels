@@ -131,7 +131,7 @@ minversion = "4.6"
 doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
-addopts = "--open-files"
+addopts = "--open-files --color=yes"
 testpaths = [
     "tests",
     "src/stdatamodels/jwst",
