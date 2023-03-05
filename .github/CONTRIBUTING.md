@@ -4,4 +4,4 @@ The main development work is done on the "master" branch. The "stable" branch is
 
 New to GitHub or open source projects? If you are unsure about where to start or haven't used GitHub before, please feel free to contact the package maintainers.
 
-Feedback and feature requests? Is there something missing you would like to see? Please open an issue or send an email to the maintainers. This package follows the Spacetelescope [Code of Conduct](CODE_OF_CONDUCT.md) strives to provide a welcoming community to all of our users and contributors.
+Feedback and feature requests? Is there something missing you would like to see? Please open an issue or send an email to the maintainers. This package follows the Spacetelescope [Code of Conduct](.github/CODE_OF_CONDUCT.md) strives to provide a welcoming community to all of our users and contributors.
