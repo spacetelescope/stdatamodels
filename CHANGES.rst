@@ -1,7 +1,12 @@
 1.3.0 (unreleased)
 ==================
 
-- 
+Other
+-----
+
+- Move the ``dqflags`` and related code from ``stcal`` to this package
+  so that the ``stcal`` dependency can be dropped. [#134]
+
 
 1.2.0 (2023-03-02)
 ==================
