@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from asdf import schema as asdf_schema
-from asdf import treeutil, AsdfFile
+from asdf import treeutil
 
 from .model_base import JwstDataModel
 from .image import ImageModel
@@ -88,12 +88,10 @@ class MultiExposureModel(JwstDataModel):
         # Get the schemas
         schema = asdf_schema.load_schema(
             self.schema_url,
-            resolver=AsdfFile().resolver,
             resolve_references=True
         )
         core_schema = asdf_schema.load_schema(
             self.core_schema_url,
-            resolver=AsdfFile().resolver,
             resolve_references=True
         )
 
