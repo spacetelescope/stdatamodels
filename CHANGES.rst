@@ -7,6 +7,11 @@ Other
 - Move the ``dqflags`` and related code from ``stcal`` to this package
   so that the ``stcal`` dependency can be dropped. [#134]
 
+=======
+Bug Fixes
+---------
+
+- Add support for reading from already open HDUList to asdf_in_fits.open [#136]
 
 1.2.0 (2023-03-02)
 ==================
@@ -15,7 +20,6 @@ Other
 -----
 - Add UNDERSAMP flag to dqflags and undersample correction metadata to core schema
   in stdatamodels.jwst.datamodels [#127]
-
 
 1.1.0 (2023-02-16)
 ==================

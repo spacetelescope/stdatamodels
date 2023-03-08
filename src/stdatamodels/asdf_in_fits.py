@@ -30,14 +30,15 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist.writeto(filename, **kwargs)
 
 
-def open(filename, **kwargs):
+def open(filename_or_hdu, **kwargs):
     """Read ASDF data embedded in a fits file
 
     Parameters
     ----------
-    filename : str, path
-        Filename of the fits file containing the ASDF data. This will
-        be opened with :func:`astropy.io.fits.open`
+    filename_or_hdu : str, path, `astropy.io.fits.HDUList`
+        Filename of the fits file or an open `astropy.io.fits.HDUList`
+        containing the ASDF data. If a filename is provided it
+        will be opened with :func:`astropy.io.fits.open`.
 
     kwargs : variable keyword arguments
         Passed on to :func:`asdf.open`
@@ -49,10 +50,15 @@ def open(filename, **kwargs):
         fits file.
     """
 
-    hdulist = fits.open(filename)
+    is_hdu = isinstance(filename_or_hdu, fits.HDUList)
+    hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
     if 'ignore_missing_extensions' not in kwargs:
         kwargs['ignore_missing_extensions'] = False
     af = fits_support.from_fits_asdf(hdulist, **kwargs)
+
+    if is_hdu:
+        # no need to wrap close if input was an HDUList
+        return af
 
     # on close, close hdulist
     def wrap_close(af, hdulist):

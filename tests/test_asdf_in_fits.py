@@ -152,3 +152,16 @@ def test_open_asdf_in_fits_context(saved_array_model, test_array):
     with asdf_in_fits.open(saved_array_model) as af:
         # confirm it matches
         assert_array_almost_equal(af['data'], test_array)
+
+
+def test_open_asdf_in_fits_hdu(saved_array_model, test_array):
+    """
+    Test that asdf_in_fits.open can read from an already
+    opened HDUList and that it does not close the HDUList
+    when the AsdfFile is closed
+    """
+    with fits.open(saved_array_model) as hdu:
+        with asdf_in_fits.open(hdu) as af:
+            assert_array_almost_equal(af['data'], test_array)
+        # make sure file was not closed with context
+        assert not hdu.fileinfo(0)['file'].closed

@@ -1,4 +1,4 @@
-.. _asdf_in_fits
+.. _asdf_in_fits:
 
 ==========
 AsdfInFits
