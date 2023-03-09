@@ -15,6 +15,7 @@ Other
   so that the ``stcal`` dependency can be dropped. [#134]
 
 - increase ``requires-python`` to ``3.8`` [#144]
+- drop support for Python 3.8 [#143]
 
 - Add R_MRSXAR as the keyword for the jwst straylight mrsxartcorr reference filename in core schema in stdatamodels.jwst.datamodels [#145]
 
