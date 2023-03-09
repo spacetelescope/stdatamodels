@@ -1,7 +1,7 @@
 [project]
 name = "stdatamodels"
 description = "Core support for DataModel classes used in calibration pipelines"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     { name = "STScI" },
 ]
