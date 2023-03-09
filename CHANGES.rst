@@ -7,6 +7,8 @@ Other
 - Move the ``dqflags`` and related code from ``stcal`` to this package
   so that the ``stcal`` dependency can be dropped. [#134]
 
+- increase ``requires-python`` to ``3.8`` [#144]
+
 =======
 Bug Fixes
 ---------
