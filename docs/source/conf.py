@@ -6,8 +6,10 @@ from datetime import datetime
 import importlib
 
 import stsci_rtd_theme
-import tomli
-
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
 
 def setup(app):
     try:
@@ -23,7 +25,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT/"src"/"stdatamodels"))
 
 with open(REPO_ROOT / "pyproject.toml", 'rb') as configuration_file:
-    setup_metadata = tomli.load(configuration_file)['project']
+    setup_metadata = tomllib.load(configuration_file)['project']
 
 project = setup_metadata["name"]
 author = setup_metadata["authors"][0]["name"]
