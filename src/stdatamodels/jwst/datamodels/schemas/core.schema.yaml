@@ -1973,7 +1973,7 @@ properties:
               name:
                 title: MIRI MRS mrsxartcorr Model reference file name
                 type: string
-                fits_keyword: R_MRSXA
+                fits_keyword: R_MRSXAR
                 blend_table: True
           ote:
             title: Nirspec OTE Model reference file information
