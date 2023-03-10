@@ -1966,6 +1966,15 @@ properties:
                 type: string
                 fits_keyword: R_MSA
                 blend_table: True
+          mrsxartcorr:
+            title: MIRI MRS mrsxartcorr Model reference file information
+            type: object
+            properties:
+              name:
+                title: MIRI MRS mrsxartcorr Model reference file name
+                type: string
+                fits_keyword: R_MRSXA
+                blend_table: True
           ote:
             title: Nirspec OTE Model reference file information
             type: object
