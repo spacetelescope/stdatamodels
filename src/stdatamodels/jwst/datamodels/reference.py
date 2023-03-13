@@ -53,10 +53,11 @@ class ReferenceFileModel(JwstDataModel):
             # uncompressed DQ array.
             dq_orig = self.dq.copy()
             self.dq = dynamic_mask(self, pixel, inv=True)
-            super().save(path, dir_path, *args, **kwargs)
+            output_path = super().save(path, dir_path, *args, **kwargs)
             self.dq = dq_orig
         else:
-            super().save(path, dir_path, *args, **kwargs)
+            output_path = super().save(path, dir_path, *args, **kwargs)
+        return output_path
 
     def print_err(self, message):
         if self._strict_validation:
