@@ -14,72 +14,64 @@ on:
     - cron: '0 9 * * 1'
 
 jobs:
-  check:
-    name: ${{ matrix.toxenv }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        toxenv: [ check-style, check-security, check-build ]
-        python-version: [ '3.11' ]
-        os: [ ubuntu-latest ]
+  crds_context:
+    name: retrieve current CRDS context
+    runs-on: ubuntu-latest
+    outputs:
+      pmap: ${{ steps.crds-context.outputs.pmap }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'pyproject.toml'
-      - run: pip install "tox>=4.0"
-      - run: tox -e ${{ matrix.toxenv }}
-  test:
-    name: ${{ matrix.toxenv }} (Python ${{ matrix.python-version }}, ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    env:
-      CRDS_PATH: /home/runner/work/stdatamodels/crds_cache
-      CRDS_CLIENT_RETRY_COUNT: 3
-      CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        toxenv: [ test-xdist ]
-        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
-        os: [ ubuntu-latest, macos-latest ]
-        include:
-          - toxenv: test-xdist-cov
-            os: ubuntu-latest
-            python-version: '3.11'
-          - toxenv: test-jwst-xdist-cov
-            os: ubuntu-latest
-            python-version: '3.11'
-    steps:
-      - if: ${{ contains(matrix.toxenv,'docs') }}
-        run: sudo apt-get install graphviz texlive-latex-extra dvipng
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'pyproject.toml'
-      - run: echo "CRDS_PATH=$HOME/crds_cache" >> $GITHUB_ENV
-      - run: echo "CRDS_SERVER_URL=https://jwst-crds.stsci.edu" >> $GITHUB_ENV
-      - run: pip install crds
-      - run: echo "pmap=$(crds list --operational-context)" >> $GITHUB_OUTPUT
+      - run: >
+          echo "pmap=$(
+          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["jwst"], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
+          python -c "import sys, json; print(json.load(sys.stdin)['result'])"
+          )" >> $GITHUB_OUTPUT
+        # Get default CRDS_CONTEXT without installing crds client
+        # See https://hst-crds.stsci.edu/static/users_guide/web_services.html#generic-request
         id: crds-context
-      - uses: actions/cache@v3
-        with:
-          path: ${{ env.CRDS_PATH }}
-          key: crds-${{ steps.crds-context.outputs.pmap }}
-      - run: crds sync --contexts ${{ steps.crds-context.outputs.pmap }}
-      - run: pip install "tox>=4.0"
-      - run: tox -e ${{ matrix.toxenv }}
-      - if: contains(matrix.toxenv,'-cov')
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unit
-          fail_ci_if_error: true
+        env:
+          CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+          CRDS_PATH: /tmp/crds_cache
+          CRDS_CLIENT_RETRY_COUNT: 3
+          CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
+  check:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
+    with:
+      envs: |
+        - linux: check-style
+        - linux: check-security
+        - linux: build-dist
+  test:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
+    needs: [ crds_context ]
+    with:
+      cache-path: /tmp/crds_cache
+      cache-key: crds-${{ needs.crds_context.outputs.pmap }}
+      setenv: |
+        CRDS_PATH: /tmp/crds_cache
+        CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      envs: |
+        - linux: test-xdist
+          python-version: 3.9
+        - macos: test-xdist
+          python-version: 3.9
+        - linux: test-xdist
+          python-version: 3.10
+        - macos: test-xdist
+          python-version: 3.10
+        - linux: test-xdist
+          python-version: 3.11
+        - macos: test-xdist
+          python-version: 3.11
+        - linux: test-xdist-cov
+          coverage: codecov
+  test_downstream:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
+    needs: [ crds_context ]
+    with:
+      cache-path: /tmp/crds_cache
+      cache-key: crds-${{ needs.crds_context.outputs.pmap }}
+      setenv: |
+        CRDS_PATH: /tmp/crds_cache
+        CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      envs: |
+        - linux: test-jwst-xdist-cov
