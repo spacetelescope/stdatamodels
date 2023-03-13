@@ -1,6 +1,5 @@
-1.3.0 (unreleased)
+1.3.0 (2023-03-13)
 ==================
-
 
 Other
 -----
@@ -15,7 +14,6 @@ Other
 
 - Add R_MRSXAR as the keyword for the jwst straylight mrsxartcorr reference filename in core schema in stdatamodels.jwst.datamodels [#145]
 
-=======
 Bug Fixes
 ---------
 
