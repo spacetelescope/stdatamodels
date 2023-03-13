@@ -13,12 +13,6 @@ on:
     # * is a special character in YAML so you have to quote this string
     - cron: '0 9 * * 1'
 
-env:
-  CRDS_SERVER_URL: https://jwst-crds.stsci.edu
-  CRDS_PATH: /tmp/crds_cache
-  CRDS_CLIENT_RETRY_COUNT: 3
-  CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-
 jobs:
   crds_context:
     name: retrieve current CRDS context
@@ -34,6 +28,11 @@ jobs:
         # Get default CRDS_CONTEXT without installing crds client
         # See https://hst-crds.stsci.edu/static/users_guide/web_services.html#generic-request
         id: crds-context
+        env:
+          CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+          CRDS_PATH: /tmp/crds_cache
+          CRDS_CLIENT_RETRY_COUNT: 3
+          CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
   test:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     needs: [ crds_context ]
