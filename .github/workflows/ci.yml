@@ -33,6 +33,13 @@ jobs:
           CRDS_PATH: /tmp/crds_cache
           CRDS_CLIENT_RETRY_COUNT: 3
           CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
+  check:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
+    with:
+      envs: |
+        - linux: check-style
+        - linux: check-security
+        - linux: build-dist
   test:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     needs: [ crds_context ]
@@ -43,9 +50,6 @@ jobs:
         CRDS_PATH: /tmp/crds_cache
         CRDS_SERVER_URL: https://jwst-crds.stsci.edu
       envs: |
-        - linux: check-style
-        - linux: check-security
-        - linux: build-dist
         - linux: test-xdist
           python-version: 3.9
         - macos: test-xdist
@@ -60,4 +64,14 @@ jobs:
           python-version: 3.11
         - linux: test-xdist-cov
           coverage: codecov
+  test_downstream:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
+    needs: [ crds_context ]
+    with:
+      cache-path: /tmp/crds_cache
+      cache-key: crds-${{ needs.crds_context.outputs.pmap }}
+      setenv: |
+        CRDS_PATH: /tmp/crds_cache
+        CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      envs: |
         - linux: test-jwst-xdist-cov
