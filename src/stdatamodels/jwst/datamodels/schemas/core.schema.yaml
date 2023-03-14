@@ -1434,7 +1434,7 @@ properties:
         type: object
         properties:
           barycentric_correction:
-            title: Barycentric time correction
+            title: "[s] Barycentric correction at exposure start"
             type: number
             fits_keyword: BARTDELT
             blend_table: True
@@ -1454,7 +1454,7 @@ properties:
             fits_keyword: BMIDTIME
             blend_table: True
           heliocentric_correction:
-            title: Heliocentric time correction
+            title: "[s] Heleoentric correction at exposure start"
             type: number
             fits_keyword: HELIDELT
             blend_table: True
