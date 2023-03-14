@@ -1454,7 +1454,7 @@ properties:
             fits_keyword: BMIDTIME
             blend_table: True
           heliocentric_correction:
-            title: "[s] Helioentric correction at exposure start"
+            title: "[s] Heliocentric correction at exposure start"
             type: number
             fits_keyword: HELIDELT
             blend_table: True
