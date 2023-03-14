@@ -1,6 +1,10 @@
 1.3.1 (unreleased)
 ==================
 
+Other
+-----
+
+- Add units to BARTDELT and HELIDELT keywords in datamodels schmea. [#147]
 
 1.3.0 (2023-03-13)
 ==================
