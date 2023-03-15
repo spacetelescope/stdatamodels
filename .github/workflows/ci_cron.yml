@@ -1,17 +1,11 @@
-name: CI
+
+name: Weekly cron
 
 on:
-  push:
-    branches:
-      - master
-      - '*.x'
-    tags:
-      - '*'
-  pull_request:
   schedule:
-    # Weekly Monday 9AM build
-    # * is a special character in YAML so you have to quote this string
-    - cron: '0 9 * * 1'
+    # Weekly Monday 6AM build
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
 
 jobs:
   crds:
@@ -38,13 +32,6 @@ jobs:
       context: ${{ steps.context.outputs.pmap }}
       path: ${{ steps.path.outputs.path }}
       server: ${{ steps.server.outputs.url }}
-  check:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
-    with:
-      envs: |
-        - linux: check-style
-        - linux: check-security
-        - linux: build-dist
   test:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     needs: [ crds ]
@@ -57,26 +44,7 @@ jobs:
       cache-path: ${{ needs.crds.outputs.path }}
       cache-key: crds-${{ needs.crds.outputs.context }}
       envs: |
-        - linux: test-xdist
-          python-version: 3.9
-        - linux: test-xdist
-          python-version: 3.10
-        - linux: test-xdist
-          python-version: 3.11
         - macos: test-xdist
-          python-version: 3.11
-        - linux: test-xdist-cov
-          coverage: codecov
-  test_downstream:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
-    needs: [ crds ]
-    with:
-      setenv: |
-        CRDS_PATH: ${{ needs.crds.outputs.path }}
-        CRDS_SERVER_URL: ${{ needs.crds.outputs.server }}
-        CRDS_CLIENT_RETRY_COUNT: 3
-        CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-      cache-path: ${{ needs.crds.outputs.path }}
-      cache-key: crds-${{ needs.crds.outputs.context }}
-      envs: |
-        - linux: test-jwst-xdist-cov
+          python-version: 3.9
+        - macos: test-xdist
+          python-version: 3.10
