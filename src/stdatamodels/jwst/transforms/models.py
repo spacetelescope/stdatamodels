@@ -911,7 +911,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             raise ValueError("wavelength should be greater than zero")
 
         if not len(self.lmodels):
-            t = self.invdisp_interp(iorder, x, y, wavelength)
+            t = self.invdisp_interp(self.inv_lmodels[iorder], x, y, wavelength)
         else:
             t = self.lmodels[iorder](wavelength)
         xmodel = self.inv_xmodels[iorder].instance
@@ -939,26 +939,29 @@ class NIRCAMBackwardGrismDispersion(Model):
 
         return x + dx, y + dy, x, y, order
 
-    def invdisp_interp(self, order, x0, y0, wavelength, t0=None):
+    def invdisp_interp(self, model, x0, y0, wavelength):
 
-        if t0 is None:
-            if hasattr(x0, '__iter__'):
-                length = len(x0)
-            else:
-                length = 40
-            t0 = np.linspace(0., 1., length)
+        t0 = np.linspace(0., 1., 1000)
+        t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
 
-        if len(self.inv_lmodels[order]) == 2:
-            xr = self.inv_lmodels[order][0](x0, y0) + t0 * self.inv_lmodels[order][1](x0, y0)
-        elif len(self.inv_lmodels[order]) == 3:
-            xr = self.inv_lmodels[order][0](x0, y0) + t0 * self.inv_lmodels[order][1](x0, y0) + \
-                 t0**2 * self.inv_lmodels[order][2](x0, y0)
-        elif len(self.inv_lmodels[order].instance[0].inputs) == 1:
-            xr = self.inv_lmodels[order][0](x0)
+        if len(model) == 2:
+            xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
+        elif len(model) == 3:
+            xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0)) + \
+                 (t_re ** 2 * model[2](x0, y0))
+        elif len(model.instance[0].inputs) == 1:
+            xr = model[0](t_re)
+            f = np.zeros_like(wavelength)
+            for i, w in enumerate(wavelength):
+                f[i] = np.interp(w, xr[:,0], t0)
+            return f
         else:
             raise Exception
-        so = np.argsort(xr)
-        f = np.interp(wavelength, xr[so], t0[so])
+
+        so = np.argsort(xr, axis=1)
+        f = np.zeros_like(wavelength)
+        for i, w in enumerate(wavelength):
+            f[i] = np.interp(w, np.take_along_axis(xr, so, axis=1)[:,i], t0)
         return f
 
 
