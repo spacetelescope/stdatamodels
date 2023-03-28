@@ -814,8 +814,8 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         elif len(model[order]) == 3:
             xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0) + \
                  t0 ** 2 * model[order][2](x0, y0)
-        elif len(model[order].instance[0].inputs) == 1:
-            xr = (dy - model[order].instance[0].c0.value) / model[order].instance[0].c1.value
+        elif len(model[order][0].inputs) == 1:
+            xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
             return xr
         else:
             raise Exception
@@ -914,8 +914,8 @@ class NIRCAMBackwardGrismDispersion(Model):
             t = self.invdisp_interp(self.inv_lmodels[iorder], x, y, wavelength)
         else:
             t = self.lmodels[iorder](wavelength)
-        xmodel = self.inv_xmodels[iorder].instance
-        ymodel = self.inv_ymodels[iorder].instance
+        xmodel = self.inv_xmodels[iorder]
+        ymodel = self.inv_ymodels[iorder]
 
         if len(xmodel[0].inputs) == 2:
             dx = xmodel[0](x, y) + t * xmodel[1](x, y) + t**2 * xmodel[2](x, y)
