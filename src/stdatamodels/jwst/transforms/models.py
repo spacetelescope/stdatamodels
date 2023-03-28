@@ -664,9 +664,12 @@ class NIRCAMForwardRowGrismDispersion(Model):
         def apply_poly(coeff_model, inputs, t):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
-            sumval = 0.
-            for i in range(ord_t):
-                sumval += t ** i * coeff_model[i](*inputs[:coeff_model[i].n_inputs])
+            if ord_t == 1:
+                sumval = coeff_model[0](t)
+            else:
+                sumval = 0.
+                for i in range(ord_t):
+                    sumval += t ** i * coeff_model[i](*inputs[:coeff_model[i].n_inputs])
             return sumval
 
         l_poly = apply_poly(lmodel, (x0, y0), t)
@@ -780,9 +783,12 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         def apply_poly(coeff_model, inputs, t):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
-            sumval = 0.
-            for i in range(ord_t):
-                sumval += t ** i * coeff_model[i](*inputs[2-coeff_model[i].n_inputs:])
+            if ord_t == 1:
+                sumval = coeff_model[0](t)
+            else:
+                sumval = 0.
+                for i in range(ord_t):
+                    sumval += t ** i * coeff_model[i](*inputs[2-coeff_model[i].n_inputs:])
             return sumval
 
         try:
@@ -950,10 +956,10 @@ class NIRCAMBackwardGrismDispersion(Model):
             xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0)) + \
                  (t_re ** 2 * model[2](x0, y0))
         elif len(model.instance[0].inputs) == 1:
-            xr = model[0](t_re)
+            xr = model[0](t0)
             f = np.zeros_like(wavelength)
             for i, w in enumerate(wavelength):
-                f[i] = np.interp(w, xr[:,0], t0)
+                f[i] = np.interp(w, xr, t0)
             return f
         else:
             raise Exception
