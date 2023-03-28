@@ -39,6 +39,33 @@ allOf:
           items:
             type: object
             $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
+      inv_xmodels:
+        description: |
+         NIRCAM inverse row dispersion models
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
+      inv_ymodels:
+        description: |
+          NIRCAM inverse column dispersion models
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
+      inv_lmodels:
+        description: |
+          NIRCAM inverse wavelength dispersion models
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
       orders:
         description: |
           NIRCAM available grism orders, in-sync with the model arrays
@@ -52,4 +79,4 @@ allOf:
         items:
           minItems: 1
           maxItems: 1
-    required: [lmodels, xmodels, ymodels, orders]
+    required: [lmodels, xmodels, ymodels, inv_lmodels, inv_xmodels, inv_ymodels, orders]
