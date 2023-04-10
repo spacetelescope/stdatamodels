@@ -6,6 +6,9 @@ Other
 
 - Add units to BARTDELT and HELIDELT jwst keywords in datamodels schema. [#147]
 
+- Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
+  catching ``ResourceWarning``s. [#152]
+
 1.3.0 (2023-03-13)
 ==================
 
