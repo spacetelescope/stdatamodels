@@ -683,6 +683,13 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         Otherwise, the default is `False`
     """
     try:
+        return _from_fits(hdulist, schema, context, skip_fits_update=skip_fits_update, **kwargs)
+    except Exception as exc:
+        hdulist.close()
+        raise exc
+
+def _from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
+    try:
         ff = from_fits_asdf(hdulist, **kwargs)
     except Exception as exc:
         raise exc.__class__("ERROR loading embedded ASDF: " + str(exc)) from exc

@@ -195,6 +195,8 @@ def open(init=None, guess=True, memmap=False, **kwargs):
     new_class = _class_from_model_type(hdulist)
     has_model_type = new_class is not None
     if not guess and not has_model_type:
+        if file_to_close is not None:
+            file_to_close.close()
         raise TypeError('Model type is not specifically defined and guessing has been disabled.')
 
     # Special handling for ramp files for backwards compatibility
