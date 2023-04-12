@@ -1,3 +1,10 @@
+1.3.2 (unreleased)
+==================
+
+- Add pixel replacement step keyword to jwst.datamodels core schema, and change
+  DQ bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
+
+
 1.3.1 (2023-03-31)
 ==================
 
@@ -6,8 +13,9 @@ Other
 
 - Add units to BARTDELT and HELIDELT jwst keywords in datamodels schema. [#147]
 
-- Add pixel replacement step keyword to jwst core schema, and edit DQ
-  bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
+- Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
+  catching ``ResourceWarning``s. [#152]
+
 
 1.3.0 (2023-03-13)
 ==================
