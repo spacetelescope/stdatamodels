@@ -3,6 +3,7 @@
 
 - Add pixel replacement step keyword to jwst.datamodels core schema, and change
   DQ bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
+- drop support for Python 3.8 [#143]
 
 
 1.3.1 (2023-03-31)
@@ -30,7 +31,6 @@ Other
   so that the ``stcal`` dependency can be dropped. [#134]
 
 - increase ``requires-python`` to ``3.8`` [#144]
-- drop support for Python 3.8 [#143]
 
 - Add R_MRSXAR as the keyword for the jwst straylight mrsxartcorr reference filename in core schema in stdatamodels.jwst.datamodels [#145]
 
