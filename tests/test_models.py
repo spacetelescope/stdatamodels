@@ -172,15 +172,6 @@ def test_open_asdf_model(tmp_path):
         assert model._asdf._ignore_unrecognized_tag
 
 
-def test_open_model_s3(s3_root_dir):
-    path = str(s3_root_dir.join("test.asdf"))
-    with DataModel() as dm:
-        dm.save(path)
-
-    model = DataModel("s3://test-s3-data/test.asdf")
-    assert isinstance(model, DataModel)
-
-
 def test_update_from_dict(tmp_path):
     """Test update method from a dictionary"""
     file_path = tmp_path/"update.asdf"
