@@ -1434,7 +1434,7 @@ properties:
         type: object
         properties:
           barycentric_correction:
-            title: Barycentric time correction
+            title: "[s] Barycentric correction at exposure start"
             type: number
             fits_keyword: BARTDELT
             blend_table: True
@@ -1454,7 +1454,7 @@ properties:
             fits_keyword: BMIDTIME
             blend_table: True
           heliocentric_correction:
-            title: Heliocentric time correction
+            title: "[s] Heliocentric correction at exposure start"
             type: number
             fits_keyword: HELIDELT
             blend_table: True
@@ -2401,6 +2401,11 @@ properties:
             title: Photometric Calibration
             type: string
             fits_keyword: S_PHOTOM
+            blend_table: True
+          pixel_replace:
+            title: Pixel Replacment
+            type: string
+            fits_keyword: S_PXREPL
             blend_table: True
           ramp_fit:
             title: Ramp Fitting

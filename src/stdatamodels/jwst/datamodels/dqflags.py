@@ -52,7 +52,7 @@ pixel = {'GOOD':             0,      # No bits set, all is good
          'UNRELIABLE_FLAT':  2**25,  # Flat variance large
          'OPEN':             2**26,  # Open pixel (counts move to adjacent pixels)
          'ADJ_OPEN':         2**27,  # Adjacent to open pixel
-         'UNRELIABLE_RESET': 2**28,  # Sensitive to reset anomaly
+         'FLUX_ESTIMATED':   2**28,  # Pixel flux estimated due to missing/bad data
          'MSA_FAILED_OPEN':  2**29,  # Pixel sees light from failed-open shutter
          'OTHER_BAD_PIXEL':  2**30,  # A catch-all flag
          'REFERENCE_PIXEL':  2**31,  # Pixel is a reference pixel

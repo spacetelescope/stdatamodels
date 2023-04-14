@@ -49,7 +49,6 @@ test = [
     "psutil",
     "pytest>=4.6.0",
     "pytest-doctestplus",
-    "pytest-openfiles>=0.5.0",
     "crds>=11.16.14",
     "scipy>=1.5",
 ]
@@ -131,10 +130,13 @@ minversion = "4.6"
 doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
-addopts = "--open-files --color=yes"
+addopts = "--color=yes"
 testpaths = [
     "tests",
     "src/stdatamodels/jwst",
+]
+filterwarnings = [
+    "error::ResourceWarning",
 ]
 asdf_schema_tests_enabled = true
 asdf_schema_validate_default = false
