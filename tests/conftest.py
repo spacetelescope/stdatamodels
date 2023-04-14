@@ -9,6 +9,15 @@ import helpers
 from stdatamodels import s3_utils
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--no-crds",
+        action="store_true",
+        default=False,
+        help="Skip tests against crds",
+    )
+
+
 @pytest.fixture(autouse=True)
 def monkey_patch_s3_client(monkeypatch, request):
     # If tmpdir is used in the test, then it is providing the file.  Map to it.
