@@ -171,6 +171,10 @@ ref_to_datamodel_dict = {
 }
 
 
+@pytest.mark.skipif(
+    "config.getoption('--no-crds')",
+    reason="no_crds option was enabled",
+)
 @pytest.mark.parametrize('instrument', ['fgs', 'miri', 'nircam', 'niriss', 'nirspec'])
 def test_crds_selectors_vs_datamodel(jail_environ, instrument):
     log.info(f"crds_path: {crds.config.get_crds_path()}")

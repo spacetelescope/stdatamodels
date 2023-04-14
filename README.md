@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/spacetelescope/stdatamodels/branch/master/graph/badge.svg?token=TrmUKaTP2t)](https://codecov.io/gh/spacetelescope/stdatamodels)
 
 
-Provides `DataModel`, which is the base class for data models implemented in the JWST calibration software.
+Provides `DataModel`, which is the base class for data models implemented in the JWST and Roman calibration software.
 
 
 ## Unit Tests
@@ -17,4 +17,10 @@ for more information). Minimally (if not on the stsci vpn where the default path
 
 ```bash
 export CRDS_PATH=/tmp/crds_cache/jwst_ops
+```
+
+These tests can also be skipped with the `no-crds` pytest option
+
+```bash
+pytest --no-crds
 ```
