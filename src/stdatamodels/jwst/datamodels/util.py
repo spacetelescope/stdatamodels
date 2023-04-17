@@ -17,7 +17,6 @@ import asdf
 import numpy as np
 from astropy.io import fits
 from stdatamodels import filetype
-from stdatamodels import s3_utils
 from stdatamodels.model_base import _FileReference
 
 from stdatamodels.jwst.library.basic_utils import bytes2human
@@ -128,10 +127,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         file_type = filetype.check(init)
 
         if file_type == "fits":
-            if s3_utils.is_s3_uri(init):
-                hdulist = fits.open(s3_utils.get_object(init))
-            else:
-                hdulist = fits.open(init, memmap=memmap)
+            hdulist = fits.open(init, memmap=memmap)
             file_to_close = hdulist
 
         elif file_type == "asn":
@@ -144,10 +140,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):
             return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
-            if s3_utils.is_s3_uri(init):
-                asdffile = asdf.open(s3_utils.get_object(init), copy_arrays=not memmap)
-            else:
-                asdffile = asdf.open(init, copy_arrays=not memmap)
+            asdffile = asdf.open(init, copy_arrays=not memmap)
 
             # Detect model type, then get defined model, and call it.
             new_class = _class_from_model_type(asdffile)

@@ -439,15 +439,6 @@ def test_from_hdulist(tmp_path):
         assert not hdulist.fileinfo(0)['file'].closed
 
 
-def test_open_fits_model_s3(s3_root_dir):
-    path = str(s3_root_dir.join("test.fits"))
-    with DataModel() as dm:
-        dm.save(path)
-
-    model = DataModel("s3://test-s3-data/test.fits")
-    assert isinstance(model, DataModel)
-
-
 def test_data_array(tmp_path):
     file_path = tmp_path/"test.fits"
     file_path2 = tmp_path/"test2.fits"
