@@ -3,8 +3,11 @@
 
 - Add pixel replacement step keyword to jwst.datamodels core schema, and change
   DQ bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
+  
 - drop support for Python 3.8 [#143]
 
+- Remove the defunct ``s3_utils`` module, so that ``stpipe`` no longer needs to depend 
+  on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
 
 1.3.1 (2023-03-31)
 ==================
