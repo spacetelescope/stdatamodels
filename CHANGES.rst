@@ -6,6 +6,8 @@
   
 - drop support for Python 3.8 [#143]
 
+- use Mamba to build docs [#155]
+
 - Remove the defunct ``s3_utils`` module, so that ``stpipe`` no longer needs to depend 
   on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
 
