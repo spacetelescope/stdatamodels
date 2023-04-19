@@ -77,23 +77,23 @@ def test_skip_fits_update(jail_environ,
     """Test skip_fits_update setting"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
-    hduls = fits.open(path)
-    hduls[0].header['exp_type'] = 'FGS_DARK'
+    with fits.open(path) as hduls:
+        hduls[0].header['exp_type'] = 'FGS_DARK'
 
-    # Decide how to skip. If using the environmental,
-    # set that and pass None to the open function.
-    try:
-        del os.environ['SKIP_FITS_UPDATE']
-    except KeyError:
-        # No need to worry, environmental doesn't exist anyways
-        pass
-    if use_env:
-        if skip_fits_update is not None:
-            os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
-            skip_fits_update = None
+        # Decide how to skip. If using the environmental,
+        # set that and pass None to the open function.
+        try:
+            del os.environ['SKIP_FITS_UPDATE']
+        except KeyError:
+            # No need to worry, environmental doesn't exist anyways
+            pass
+        if use_env:
+            if skip_fits_update is not None:
+                os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
+                skip_fits_update = None
 
-    with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-        assert model.meta.exposure.type == expected_exp_type
+        with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
+            assert model.meta.exposure.type == expected_exp_type
 
 
 def test_asnmodel_table_size_zero():
