@@ -4,7 +4,7 @@
 Other
 -----
 
--
+- Provide second-order polynomial transforms for NIRCam WFSS grisms. [#124]
 
 1.4.0 (2023-04-19)
 ==================
