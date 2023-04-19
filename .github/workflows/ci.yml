@@ -21,27 +21,30 @@ jobs:
   crds:
     name: retrieve current CRDS context
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - observatory: jwst
+            server_url: https://jwst-crds.stsci.edu
     env:
-      OBSERVATORY: jwst
       CRDS_PATH: /tmp/crds_cache
-      CRDS_SERVER_URL: https://jwst-crds.stsci.edu
     steps:
       - id: context
         run: >
           echo "pmap=$(
-          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["${{ env.OBSERVATORY }}"], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
+          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["${{ matrix.observatory }}"], "id": 1}' ${{ matrix.server_url }}/json/ |
           python -c "import sys, json; print(json.load(sys.stdin)['result'])"
           )" >> $GITHUB_OUTPUT
         # Get default CRDS_CONTEXT without installing crds client
         # See https://hst-crds.stsci.edu/static/users_guide/web_services.html#generic-request
       - id: path
-        run: echo "path=${{ env.CRDS_PATH }}" >> $GITHUB_OUTPUT
+        run: echo "path=${{ matrix.path }}" >> $GITHUB_OUTPUT
       - id: server
-        run: echo "url=${{ env.CRDS_SERVER_URL }}" >> $GITHUB_OUTPUT
+        run: echo "url=${{ matrix.server_url }}" >> $GITHUB_OUTPUT
     outputs:
-      context: ${{ steps.context.outputs.pmap }}
-      path: ${{ steps.path.outputs.path }}
-      server: ${{ steps.server.outputs.url }}
+      ${{ matrix.observatory }}_context: ${{ steps.context.outputs.pmap }}
+      ${{ matrix.observatory }}_path: ${{ steps.path.outputs.path }}
+      ${{ matrix.observatory }}_server: ${{ steps.server.outputs.url }}
   check:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     with:
