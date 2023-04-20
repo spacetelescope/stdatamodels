@@ -42,9 +42,9 @@ jobs:
       - id: server
         run: echo "url=${{ matrix.server_url }}" >> $GITHUB_OUTPUT
     outputs:
-      ${{ matrix.observatory }}_context: ${{ steps.context.outputs.pmap }}
-      ${{ matrix.observatory }}_path: ${{ steps.path.outputs.path }}
-      ${{ matrix.observatory }}_server: ${{ steps.server.outputs.url }}
+      context: ${{ steps.context.outputs.pmap }}
+      path: ${{ steps.path.outputs.path }}
+      server: ${{ steps.server.outputs.url }}
   check:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     with:
