@@ -6,6 +6,8 @@ Other
 
 - Provide second-order polynomial transforms for NIRCam WFSS grisms. [#124]
 
+- Add wavelength tables for NIRSpec Drizzle cubepars reference file [#157]
+
 1.4.0 (2023-04-19)
 ==================
 
