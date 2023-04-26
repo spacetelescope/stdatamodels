@@ -6,6 +6,9 @@ Other
 
 - Provide second-order polynomial transforms for NIRCam WFSS grisms. [#124]
 
+- Deprecate ``stdatamodels.jwst.datamodels.DataModel`` in favor of
+  ``stdatamodels.jwst.datamodels.JwstDataModel``. [#160]
+
 1.4.0 (2023-04-19)
 ==================
 
@@ -14,14 +17,14 @@ Other
 
 - Add pixel replacement step keyword to jwst.datamodels core schema, and change
   DQ bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
-  
+
 - drop support for Python 3.8 [#143]
 
 - use Mamba to build docs [#155]
 
-- Remove the defunct ``s3_utils`` module, so that ``stpipe`` no longer needs to depend 
+- Remove the defunct ``s3_utils`` module, so that ``stpipe`` no longer needs to depend
   on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
-  
+
 - Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
   catching ``ResourceWarning``s. [#152]
 
@@ -73,7 +76,7 @@ Other
 
 - Add helper functions to aid in migration of ASDF-in-FITS
   uses from asdf to this package [#114]
-  
+
 1.0.0 (2023-02-14)
 ==================
 
