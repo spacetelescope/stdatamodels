@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from astropy.io import fits
 from astropy.table import Table
@@ -6,15 +7,13 @@ from astropy.time import Time
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
 import pytest
-import warnings
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
-                                          MultiSlitModel, SlitModel,
+                                          MultiSlitModel, SlitModel, DataModel,
                                           DrizProductModel, MultiProductModel, MIRIRampModel,
                                           SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
-
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
 FITS_FILE = os.path.join(ROOT_DIR, 'test.fits')
@@ -410,3 +409,12 @@ def test_dq_def_roundtrip(tmp_path):
     assert diff is not None
     total_diff = sum(sum(diff))
     assert total_diff == 0
+
+
+def test_deprecation_data_model():
+    """ Tests that inheriting from stdatamodels.jwst.datamodels.DataModel
+    raises a DeprecationWarning."""
+
+    with pytest.deprecated_call():
+        class Dummy(DataModel):
+            pass
