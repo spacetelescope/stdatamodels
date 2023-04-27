@@ -56,5 +56,9 @@ class JwstDataModel(_DataModel):
 
 
 class DataModel(JwstDataModel):
-    def __init_subclass__(self):
+
+    def __init__(self):
+        super(JwstDataModel, self).__init__()
+
+    def __init_subclass__(cls):
         warnings.warn("Class DataModel has been renamed JwstDataModel. It will be removed in v 1.5.", DeprecationWarning, 2)
