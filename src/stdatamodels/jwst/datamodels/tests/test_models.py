@@ -417,5 +417,4 @@ def test_deprecation_data_model():
 
     with pytest.deprecated_call():
         class Dummy(DataModel):
-            def __init__(self):
-                super(DataModel, self).__init__()
+            pass
