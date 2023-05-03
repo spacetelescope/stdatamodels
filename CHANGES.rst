@@ -9,6 +9,9 @@ Other
 - Deprecate ``stdatamodels.jwst.datamodels.DataModel`` in favor of
   ``stdatamodels.jwst.datamodels.JwstDataModel``. [#160]
 
+- Provide backwards compatibility for grism transform schemas; remove inverse
+  models from required properties of transform schemas. [#161]
+
 1.4.0 (2023-04-19)
 ==================
 
