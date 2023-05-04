@@ -134,19 +134,19 @@ allOf:
         datatype: float32
     ifucubepars_prism_driz_wavetable:
       title: default IFU cube drizzle prism wavetable
-      fits_hdu: MULTICHAN_PRISM_DRIZ
+      fits_hdu: MULTICHAN_PRISM_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
     ifucubepars_med_driz_wavetable:
       title: default IFU cube drizzle med resolution wavetable
-      fits_hdu: MULTICHAN_MED_DRIZ
+      fits_hdu: MULTICHAN_MED_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
     ifucubepars_high_driz_wavetable:
       title: default IFU cube drizzle high resolution wavetable
-      fits_hdu: MULTICHAN_HIGH_DRIZ
+      fits_hdu: MULTICHAN_HIGH_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
