@@ -2,6 +2,7 @@
 
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
+from ....properties import ListNode
 
 __all__ = ['Gwa2SlitConverter', 'Slit2MsaConverter', 'LogicalConverter', 'NirissSOSSConverter',
            'RefractionIndexConverter', 'MIRI_AB2SliceConverter', 'NIRCAMGrismDispersionConverter',
@@ -44,16 +45,18 @@ class NIRCAMGrismDispersionConverter(TransformConverterBase):
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         # Second order modeling has list of lists of models
-        if isinstance(model.xmodels[0], list):
-            xll = [list(m) for m in model.xmodels]
-            yll = [list(m) for m in model.ymodels]
-            lll = [list(m) for m in model.lmodels]
-
-        # First order modeling has list of models
-        elif isinstance(model.xmodels[0], Model):
+        if isinstance(model.xmodels[0], Model):
             xll = list(model.xmodels)
             yll = list(model.ymodels)
             lll = list(model.lmodels)
+
+        # First order modeling has list of models
+        elif isinstance(model.xmodels[0], (ListNode, list)):
+            xll = [list(m) for m in model.xmodels]
+            yll = [list(m) for m in model.ymodels]
+            lll = [list(m) for m in model.lmodels]
+        else:
+            raise KeyError(f"xmodels entry is not a Model or an iterable. Type: {type(model.xmodels[0])}")
 
         node = {'orders': list(model.orders),
                 'xmodels': xll,

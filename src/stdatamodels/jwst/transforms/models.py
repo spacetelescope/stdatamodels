@@ -18,6 +18,7 @@ from astropy.modeling.parameters import Parameter, InputParameterError
 from astropy.modeling.models import (Rotation2D, Mapping, Tabular1D, Const1D)
 from astropy.modeling.models import math as astmath
 from astropy.utils import isiterable
+from ...properties import ListNode
 
 
 __all__ = ['Gwa2Slit', 'Slit2Msa', 'Logical', 'NirissSOSSModel', 'Slit',
@@ -654,7 +655,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         except KeyError:
             raise ValueError("Specified order is not available")
 
-        if not len(self.inv_xmodels):
+        if not self.inv_xmodels:
             t = self.invdisp_interp(iorder, x0, y0, (x - x0))
         else:
             t = self.inv_xmodels[iorder](x - x0)
@@ -665,7 +666,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
             if ord_t == 1:
-                if isinstance(coeff_model, list):
+                if isinstance(coeff_model, ListNode):
                     sumval = coeff_model[0](t)
                 else:
                     sumval = coeff_model(t)
@@ -787,7 +788,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
             if ord_t == 1:
-                if isinstance(coeff_model, list):
+                if isinstance(coeff_model, ListNode):
                     sumval = coeff_model[0](t)
                 else:
                     sumval = coeff_model(t)
@@ -804,7 +805,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
 
         lmodel = self.lmodels[iorder]
 
-        if not len(self.inv_ymodels):
+        if not self.inv_ymodels:
             t = self.invdisp_interp(self.ymodels, iorder, x0, y0, (y - y0))
         else:
             t = self.inv_ymodels[iorder](y - y0)
@@ -922,14 +923,14 @@ class NIRCAMBackwardGrismDispersion(Model):
         if (wavelength < 0).any():
             raise ValueError("wavelength should be greater than zero")
 
-        if not len(self.inv_lmodels):
+        if not self.inv_lmodels:
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
         else:
             t = self.inv_lmodels[iorder](wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        if isinstance(xmodel, list):
+        if isinstance(xmodel, ListNode):
             nxinputs = len(xmodel[0].inputs)
             if nxinputs == 2:
                 dx = xmodel[0](x, y) + t * xmodel[1](x, y) + t ** 2 * xmodel[2](x, y)
@@ -949,7 +950,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             else:
                 raise ValueError("xmodel has incorrect number of inputs required.")
 
-        if isinstance(ymodel, list):
+        if isinstance(ymodel, ListNode):
             nyinputs = len(ymodel[0].inputs)
             if nyinputs == 2:
                 dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t ** 2 * ymodel[2](x, y)
@@ -981,14 +982,15 @@ class NIRCAMBackwardGrismDispersion(Model):
         elif len(model) == 3:
             xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0)) + \
                  (t_re ** 2 * model[2](x0, y0))
-        elif len(model.instance[0].inputs) == 1:
-            xr = model[0](t0)
+        else:
+            if isinstance(model, ListNode):
+                xr = model[0](t0)
+            else:
+                xr = model(t0)
             f = np.zeros_like(wavelength)
             for i, w in enumerate(wavelength):
                 f[i] = np.interp(w, xr, t0)
             return f
-        else:
-            raise Exception
 
         so = np.argsort(xr, axis=1)
         f = np.zeros_like(wavelength)
