@@ -10,7 +10,7 @@ Other
 - Deprecate ``stdatamodels.jwst.datamodels.DataModel`` in favor of
   ``stdatamodels.jwst.datamodels.JwstDataModel``. [#160]
 
-- Add wavelength tables for NIRSpec Drizzle cubepars reference file [#157]
+- Add wavelength tables for NIRSpec Drizzle cubepars reference file [#162]
 
 
 1.4.0 (2023-04-19)
