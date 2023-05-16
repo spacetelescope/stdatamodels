@@ -35,6 +35,15 @@ class NirspecIFUCubeParsModel(ReferenceFileModel):
 
     ifucubepars_high_emsm_wavetable : numpy table
          default IFU cube high resolution emsm  wavetable
+
+    ifucubepars_prism_driz_wavetable : numpy float32 array
+         default IFU cube prism drizzle wavetable
+
+    ifucubepars_med_driz_wavetable : numpy float32 array
+         default IFU cube med resolution drizzle wavetable
+
+    ifucubepars_high_driz_wavetable : numpy float32 array
+         default IFU cube high resolution drizzle wavetable
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nirspec_ifucubepars.schema"
 
@@ -60,7 +69,7 @@ class MiriIFUCubeParsModel(ReferenceFileModel):
     ifucubepars_multichannel_emsm_wavetable : numpy table
          default IFU cube emsm wavetable
 
-    ifucubepars_multichannel_driz_wavetable : numpy table
+    ifucubepars_multichannel_driz_wavetable : numpy float32 array
          default IFU cube driz wavetable
 
     """

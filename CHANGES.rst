@@ -6,11 +6,15 @@ Other
 
 - Provide second-order polynomial transforms for NIRCam WFSS grisms. [#124]
 
+
 - Deprecate ``stdatamodels.jwst.datamodels.DataModel`` in favor of
   ``stdatamodels.jwst.datamodels.JwstDataModel``. [#160]
 
 - Provide backwards compatibility for grism transform schemas; remove inverse
   models from required properties of transform schemas. [#161]
+
+- Add wavelength tables for NIRSpec Drizzle cubepars reference file model. [#162]
+
 
 1.4.0 (2023-04-19)
 ==================
