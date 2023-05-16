@@ -1,7 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from asdf_astropy.converters.transform.core import TransformConverterBase
-
+from astropy.modeling import Model
+from ....properties import ListNode
 
 __all__ = ['Gwa2SlitConverter', 'Slit2MsaConverter', 'LogicalConverter', 'NirissSOSSConverter',
            'RefractionIndexConverter', 'MIRI_AB2SliceConverter', 'NIRCAMGrismDispersionConverter',
@@ -20,30 +21,47 @@ class NIRCAMGrismDispersionConverter(TransformConverterBase):
     def from_yaml_tree_transform(self, node, tag, ctx):
         from stdatamodels.jwst.transforms import models
 
-        _fname = getattr(models, node["model_type"])
-        return _fname(list(node['orders']),
-                      list(node['lmodels']),
-                      list(node['xmodels']),
-                      list(node['ymodels']),
-                      list(node['inv_lmodels']),
-                      list(node['inv_xmodels']),
-                      list(node['inv_ymodels']),
-                      )
+        # Current version uses model_type
+        if 'model_type' in node.keys():
+            _fname = getattr(models, node["model_type"])
+
+            return _fname(node.get('orders'),
+                          node.get('lmodels'),
+                          node.get('xmodels'),
+                          node.get('ymodels'),
+                          )
+
+        # Backwards-compatible class_name, with no saved inverse models
+        elif 'class_name'in node.keys():
+            _fname = getattr(models, node["class_name"])
+
+            return _fname(list(node['orders']),
+                          list(node['lmodels']),
+                          list(node['xmodels']),
+                          list(node['ymodels']),
+                          )
+        else:
+            raise KeyError("YAML tree did not have expected node key of 'model_type' or 'class_name'.")
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        xll = [list(m) for m in model.xmodels]
-        yll = [list(m) for m in model.ymodels]
-        lll = [list(m) for m in model.lmodels]
-        inv_xll = [list(m) for m in model.inv_xmodels]
-        inv_yll = [list(m) for m in model.inv_ymodels]
-        inv_lll = [list(m) for m in model.inv_lmodels]
+        # Second order modeling has list of lists of models
+        if isinstance(model.xmodels[0], Model):
+            xll = list(model.xmodels)
+            yll = list(model.ymodels)
+            lll = list(model.lmodels)
+
+        # First order modeling has list of models
+        elif isinstance(model.xmodels[0], (ListNode, list)):
+            xll = [list(m) for m in model.xmodels]
+            yll = [list(m) for m in model.ymodels]
+            lll = [list(m) for m in model.lmodels]
+        else:
+            raise KeyError(f"xmodels entry is not a Model or an iterable. Type: {type(model.xmodels[0])}")
+
         node = {'orders': list(model.orders),
                 'xmodels': xll,
                 'ymodels': yll,
                 'lmodels': lll,
-                'inv_xmodels': inv_xll,
-                'inv_ymodels': inv_yll,
-                'inv_lmodels': inv_lll,
                 'model_type': type(model).name
                 }
         return node

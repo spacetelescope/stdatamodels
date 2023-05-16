@@ -18,6 +18,7 @@ from astropy.modeling.parameters import Parameter, InputParameterError
 from astropy.modeling.models import (Rotation2D, Mapping, Tabular1D, Const1D)
 from astropy.modeling.models import math as astmath
 from astropy.utils import isiterable
+from ...properties import ListNode
 
 
 __all__ = ['Gwa2Slit', 'Slit2Msa', 'Logical', 'NirissSOSSModel', 'Slit',
@@ -654,18 +655,21 @@ class NIRCAMForwardRowGrismDispersion(Model):
         except KeyError:
             raise ValueError("Specified order is not available")
 
-        if not len(self.xmodels):
+        if not self.inv_xmodels:
             t = self.invdisp_interp(iorder, x0, y0, (x - x0))
         else:
-            t = self.xmodels[iorder](x - x0)
+            t = self.inv_xmodels[iorder](x - x0)
 
-        lmodel = self.inv_lmodels[iorder]
+        lmodel = self.lmodels[iorder]
 
         def apply_poly(coeff_model, inputs, t):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
             if ord_t == 1:
-                sumval = coeff_model[0](t)
+                if isinstance(coeff_model, (ListNode, list)):
+                    sumval = coeff_model[0](t)
+                else:
+                    sumval = coeff_model(t)
             else:
                 sumval = 0.
                 for i in range(ord_t):
@@ -684,16 +688,20 @@ class NIRCAMForwardRowGrismDispersion(Model):
         t_len = dx.shape[0]
         t0 = np.linspace(0., 1., t_len)
 
-        if len(self.inv_xmodels[order]) == 2:
-            xr = self.inv_xmodels[order][0](x0, y0) + t0 * self.inv_xmodels[order][1](x0, y0)
-        elif len(self.inv_xmodels[order]) == 3:
-            xr = self.inv_xmodels[order][0](x0, y0) + t0 * self.inv_xmodels[order][1](x0, y0) + \
-                 t0**2 * self.inv_xmodels[order][2](x0, y0)
-        elif len(self.inv_xmodels[order].instance[0].inputs) == 1:
-            xr = (dx - self.inv_xmodels[order].instance[0].c0.value)/self.inv_xmodels[order].instance[0].c1.value
-            return xr
+        if isinstance(self.xmodels[order], (ListNode, list)):
+            if len(self.xmodels[order]) == 2:
+                xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
+            elif len(self.xmodels[order]) == 3:
+                xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0) + \
+                     t0**2 * self.xmodels[order][2](x0, y0)
+            elif len(self.xmodels[order][0].inputs) == 1:
+                xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
+                return xr
+            else:
+                raise Exception
         else:
-            raise Exception
+            xr = (dx - self.xmodels[order].c0.value) / self.xmodels[order].c1.value
+            return xr
 
         if len(xr.shape) > 1:
             xr = xr[0, :]
@@ -784,7 +792,10 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             # Determine order of polynomial in t
             ord_t = len(coeff_model)
             if ord_t == 1:
-                sumval = coeff_model[0](t)
+                if isinstance(coeff_model, (ListNode, list)):
+                    sumval = coeff_model[0](t)
+                else:
+                    sumval = coeff_model(t)
             else:
                 sumval = 0.
                 for i in range(ord_t):
@@ -796,12 +807,12 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         except KeyError:
             raise ValueError("Specified order is not available")
 
-        lmodel = self.inv_lmodels[iorder]
+        lmodel = self.lmodels[iorder]
 
-        if not len(self.ymodels):
-            t = self.invdisp_interp(self.inv_ymodels, iorder, x0, y0, (y - y0))
+        if not self.inv_ymodels:
+            t = self.invdisp_interp(self.ymodels, iorder, x0, y0, (y - y0))
         else:
-            t = self.ymodels[iorder](y - y0)
+            t = self.inv_ymodels[iorder](y - y0)
 
         l_poly = apply_poly(lmodel, (x0, y0), t)
 
@@ -815,16 +826,20 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         t_len = dy.shape[0]
         t0 = np.linspace(0., 1., t_len)
 
-        if len(model[order]) == 2:
-            xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
-        elif len(model[order]) == 3:
-            xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0) + \
-                 t0 ** 2 * model[order][2](x0, y0)
-        elif len(model[order][0].inputs) == 1:
-            xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
-            return xr
+        if isinstance(model, (ListNode, list)):
+            if len(model[order]) == 2:
+                xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
+            elif len(model[order]) == 3:
+                xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0) + \
+                     t0 ** 2 * model[order][2](x0, y0)
+            elif len(model[order][0].inputs) == 1:
+                xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
+                return xr
+            else:
+                raise Exception
         else:
-            raise Exception
+            xr = (dy - model[order].c0.value) / model[order].c1.value
+            return xr
 
         if len(xr.shape) > 1:
             xr = xr[0, :]
@@ -916,33 +931,16 @@ class NIRCAMBackwardGrismDispersion(Model):
         if (wavelength < 0).any():
             raise ValueError("wavelength should be greater than zero")
 
-        if not len(self.lmodels):
-            t = self.invdisp_interp(self.inv_lmodels[iorder], x, y, wavelength)
+        if not self.inv_lmodels:
+            t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
         else:
-            t = self.lmodels[iorder](wavelength)
-        xmodel = self.inv_xmodels[iorder]
-        ymodel = self.inv_ymodels[iorder]
+            lmodel = self.inv_lmodels[iorder]
+            t = assess_model(lmodel, x=x, y=y, t=wavelength)
+        xmodel = self.xmodels[iorder]
+        ymodel = self.ymodels[iorder]
 
-        if len(xmodel[0].inputs) == 2:
-            dx = xmodel[0](x, y) + t * xmodel[1](x, y) + t**2 * xmodel[2](x, y)
-        elif len(xmodel[0].inputs) == 1:
-            if len(xmodel) == 1:
-                dx = xmodel[0](t)
-            elif len(xmodel) == 2:
-                dx = xmodel[0](x) + t * xmodel[1](x)
-        else:
-            raise ValueError("xmodel has incorrect number of inputs required.")
-
-        if len(ymodel[0].inputs) == 2:
-            dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t**2 * ymodel[2](x, y)
-        elif len(ymodel[0].inputs) == 1:
-            if len(ymodel) == 1:
-                dy = ymodel[0](t)
-            elif len(ymodel) == 2:
-                dy = ymodel[0](y) + t * ymodel[1](y)
-        else:
-            raise ValueError("ymodel has incorrect number of inputs required.")
-
+        dx = assess_model(xmodel, x, y, t)
+        dy = assess_model(ymodel, x, y, t)
         return x + dx, y + dy, x, y, order
 
     def invdisp_interp(self, model, x0, y0, wavelength):
@@ -955,14 +953,15 @@ class NIRCAMBackwardGrismDispersion(Model):
         elif len(model) == 3:
             xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0)) + \
                  (t_re ** 2 * model[2](x0, y0))
-        elif len(model.instance[0].inputs) == 1:
-            xr = model[0](t0)
+        else:
+            if isinstance(model, (ListNode, list)):
+                xr = model[0](t0)
+            else:
+                xr = model(t0)
             f = np.zeros_like(wavelength)
             for i, w in enumerate(wavelength):
                 f[i] = np.interp(w, xr, t0)
             return f
-        else:
-            raise Exception
 
         so = np.argsort(xr, axis=1)
         f = np.zeros_like(wavelength)
@@ -1819,3 +1818,25 @@ class DirCos2Unitless(Model):
 
     def inverse(self):
         return Unitless2DirCos()
+
+def assess_model(model, x=0, y=0, t=0):
+    if isinstance(model, (ListNode, list)):
+        ninputs = len(model[0].inputs)
+        if ninputs == 2:
+            output = model[0](x, y) + t * model[1](x, y) + t ** 2 * model[2](x, y)
+        elif ninputs == 1:
+            if len(model) == 1:
+                output = model[0](t)
+            elif len(model) == 2:
+                output = model[0](x) + t * model[1](x)
+        else:
+            raise ValueError(f"{model} has incorrect number of inputs required.")
+    else:
+        ninputs = len(model.inputs)
+        if ninputs == 2:
+            output = model(x, y)
+        elif ninputs == 1:
+            output = model(t)
+        else:
+            raise ValueError(f"{model} has incorrect number of inputs required.")
+    return output
