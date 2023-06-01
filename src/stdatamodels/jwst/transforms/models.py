@@ -945,7 +945,7 @@ class NIRCAMBackwardGrismDispersion(Model):
 
     def invdisp_interp(self, model, x0, y0, wavelength):
 
-        t0 = np.linspace(0., 1., 1000)
+        t0 = np.linspace(0., 1., 40)
         t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
 
         if len(model) == 2:
