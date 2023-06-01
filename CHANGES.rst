@@ -1,3 +1,12 @@
+1.5.1 (unreleased)
+==================
+
+Other
+-----
+
+- Reduce interpolation vector length in NIRCam backwards transform
+  to improve computation times [#165]
+
 1.5.0 (2023-05-16)
 ==================
 
@@ -13,9 +22,6 @@ Other
   models from required properties of transform schemas. [#161]
 
 - Add wavelength tables for NIRSpec Drizzle cubepars reference file model. [#162]
-
-- Reduce interpolation vector length in NIRCam backwards transform
-  to improve computation times [#165]
 
 1.4.0 (2023-04-19)
 ==================
