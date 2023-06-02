@@ -15,7 +15,7 @@ Other
 
 - Add wavelength tables for NIRSpec Drizzle cubepars reference file model. [#162]
 
-- Update outlierpars schema to support IFU outlier detection. [#164]
+- Update jwst outlierpars schema to support new IFU outlier detection algorithm. [#164]
 
 
 1.4.0 (2023-04-19)

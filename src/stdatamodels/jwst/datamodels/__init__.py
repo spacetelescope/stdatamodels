@@ -122,7 +122,7 @@ __all__ = [
     'MultiSpecModel',
     'NIRCAMGrismModel', 'NIRISSGrismModel',
     'OTEModel',
-    'OutlierParsModel',
+    'OutlierParsModel','OutlierIFUOutputModel',
     'PathlossModel', 'MirLrsPathlossModel',
     'PersistenceSatModel',
     'PixelAreaModel', 'NirspecSlitAreaModel', 'NirspecMosAreaModel', 'NirspecIfuAreaModel',
