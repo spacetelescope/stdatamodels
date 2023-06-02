@@ -57,4 +57,7 @@ allOf:
         datatype: [ascii, 10]
       - name: backg
         datatype: float32
-
+      - name: threshold_percent
+        datatype: float32
+      - name: kernel_size
+        datatype: [ascii, 10]

@@ -44,6 +44,7 @@ from .multislit import MultiSlitModel
 from .multispec import MultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .outlierpars import OutlierParsModel
+from .outlierifuoutput import OutlierIFUOutputModel
 from .pathloss import PathlossModel, MirLrsPathlossModel
 from .persat import PersistenceSatModel
 from .photom import FgsImgPhotomModel
@@ -121,7 +122,7 @@ __all__ = [
     'MultiSpecModel',
     'NIRCAMGrismModel', 'NIRISSGrismModel',
     'OTEModel',
-    'OutlierParsModel',
+    'OutlierParsModel','OutlierIFUOutputModel',
     'PathlossModel', 'MirLrsPathlossModel',
     'PersistenceSatModel',
     'PixelAreaModel', 'NirspecSlitAreaModel', 'NirspecMosAreaModel', 'NirspecIfuAreaModel',

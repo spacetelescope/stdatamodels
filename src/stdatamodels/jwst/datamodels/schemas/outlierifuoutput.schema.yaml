@@ -1,0 +1,51 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/outlierifuoutput.schema"
+title: IFU Outlier detection optional arrays
+allOf:
+- $ref: core.schema
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        kernel_xsize:
+          title: outlier detection kernel x size
+          type: integer
+          fits_keyword: KERNXSZ
+        kernel_ysize:
+          title: outlier detection kernel y size
+          type: integer
+          fits_keyword: KERNXSY
+        threshold_percent:
+          title: outlier detection threshold percent
+          type: number
+          fits_keyword: THRSPRC
+- type: object
+  properties:
+    diffarr:
+      title: DIFFARR
+      fits_hdu: DIFFARR
+      default: 0.0
+      ndim: 3
+      datatype: float32
+    minarr:
+      title: MINARR
+      fits_hdu: MINARR
+      default: 0
+      ndim: 2
+      datatype: float32
+    normarr:
+      title: NORMARR
+      fits_hdu: NORMARR
+      default: 0
+      ndim: 2
+      datatype: float32
+    minnorm:
+      title: MINNORM
+      fits_hdu: MINNORM
+      default: 0
+      ndim: 2
+      datatype: float32
+
