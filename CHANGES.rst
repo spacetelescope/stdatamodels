@@ -1,3 +1,12 @@
+1.5.1 (unreleased)
+==================
+
+Other
+-----
+
+- Reduce interpolation vector length in NIRCam backwards transform
+  to improve computation times [#165]
+
 1.5.0 (2023-05-16)
 ==================
 
@@ -5,7 +14,6 @@ Other
 -----
 
 - Provide second-order polynomial transforms for NIRCam WFSS grisms. [#124]
-
 
 - Deprecate ``stdatamodels.jwst.datamodels.DataModel`` in favor of
   ``stdatamodels.jwst.datamodels.JwstDataModel``. [#160]
