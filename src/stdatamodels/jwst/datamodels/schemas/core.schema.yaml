@@ -930,11 +930,11 @@ properties:
           primary_cosmic_rays:
             title: Total pixels affect by Cosmic Rays
             type: number
-            fit_keyword: PRIMECRS
+            fits_keyword: PRIMECRS
           extended_emission_events:
             title: Total detected snowballs/showers
             type: number
-            fit_keyword: PRIMEXTN
+            fits_keyword: PRIMEXTN
       subarray:
         title: Subarray parameters
         type: object
