@@ -7,7 +7,7 @@ Other
 - Reduce interpolation vector length in NIRCam backwards transform
   to improve computation times [#165]
 
-- Update of JWST/MIRI MRS photom datamodel to include time dependent correction. [#166]
+- Update of JWST/MIRI MRS photom datamodel to include the time dependent correction. [#166]
 
 1.5.0 (2023-05-16)
 ==================
