@@ -62,4 +62,4 @@ allOf:
       - name: kernel_size
         datatype: [ascii, 10]
       - name: ifu_second_check
-        datatype: boolean
+        type: boolean
