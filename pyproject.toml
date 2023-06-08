@@ -133,12 +133,7 @@ testpaths = [
     "src/stdatamodels/jwst",
 ]
 filterwarnings = [
-    # This error replaces pytest-openfiles
     "error::ResourceWarning",
-    # Sometimes turning ResourceWarnings into errors creates an unraisable exception
-    #   e.g. when pyest catches another exception, this will block the turning of
-    #        ResourceWarnings into errors
-    "error::pytest.PytestUnraisableExceptionWarning",
 ]
 asdf_schema_tests_enabled = true
 asdf_schema_validate_default = false

@@ -29,9 +29,6 @@ Other
 1.4.0 (2023-04-19)
 ==================
 
-Other
------
-
 - Add pixel replacement step keyword to jwst.datamodels core schema, and change
   DQ bit 28 from ``UNRELIABLE_RESET`` to ``FLUX_ESTIMATED``. [#149]
 
@@ -45,8 +42,6 @@ Other
 - Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
   catching ``ResourceWarning``s. [#152]
 
-- Fix open file handles, which were previously ignored by ``pytest-openfiles``, but which raise
-  blocked ``ResourceWarning`` errors. [#153]
 
 1.3.1 (2023-03-31)
 ==================
@@ -55,6 +50,10 @@ Other
 -----
 
 - Add units to BARTDELT and HELIDELT jwst keywords in datamodels schema. [#147]
+
+- Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
+  catching ``ResourceWarning``s. [#152]
+
 
 1.3.0 (2023-03-13)
 ==================
