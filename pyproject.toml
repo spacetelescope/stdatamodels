@@ -134,6 +134,7 @@ testpaths = [
 ]
 filterwarnings = [
     "error::ResourceWarning",
+    "error::pytest.PytestUnraisableExceptionWarning",
 ]
 asdf_schema_tests_enabled = true
 asdf_schema_validate_default = false

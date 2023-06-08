@@ -231,11 +231,12 @@ class DataModel(properties.ObjectNode):
             file_type = filetype.check(init)
 
             if file_type == "fits":
+
                 hdulist = fits.open(init, memmap=memmap)
+                self._file_references.append(_FileReference(hdulist))
                 asdffile = fits_support.from_fits(
                     hdulist, self._schema, self._ctx, **kwargs
                 )
-                self._file_references.append(_FileReference(hdulist))
 
             elif file_type == "asdf":
                 asdffile = self.open_asdf(init=init, **kwargs)
