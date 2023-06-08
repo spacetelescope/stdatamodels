@@ -7,6 +7,9 @@ Other
 - Reduce interpolation vector length in NIRCam backwards transform
   to improve computation times [#165]
 
+- Add an parameter to jwst outlierpars schema to support a second level of
+  flagging outliers for JWST MIRI/MRS and NIRSpec IFU data. [#167]
+
 1.5.0 (2023-05-16)
 ==================
 
