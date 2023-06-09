@@ -7,6 +7,8 @@ Other
 - Reduce interpolation vector length in NIRCam backwards transform
   to improve computation times [#165]
 
+- Close for opened files [#169]
+
 1.5.0 (2023-05-16)
 ==================
 
