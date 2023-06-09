@@ -222,7 +222,12 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         log.debug(f'Opening as {new_class}')
 
     # Actually open the model
-    model = new_class(init, **kwargs)
+    try:
+        model = new_class(init, **kwargs)
+    except Exception:
+        if file_to_close is not None:
+            file_to_close.close()
+        raise
 
     # Close the hdulist if we opened it
     if file_to_close is not None:
