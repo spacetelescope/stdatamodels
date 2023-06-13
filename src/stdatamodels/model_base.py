@@ -232,10 +232,10 @@ class DataModel(properties.ObjectNode):
 
             if file_type == "fits":
                 hdulist = fits.open(init, memmap=memmap)
+                self._file_references.append(_FileReference(hdulist))
                 asdffile = fits_support.from_fits(
                     hdulist, self._schema, self._ctx, **kwargs
                 )
-                self._file_references.append(_FileReference(hdulist))
 
             elif file_type == "asdf":
                 asdffile = self.open_asdf(init=init, **kwargs)
@@ -386,7 +386,6 @@ class DataModel(properties.ObjectNode):
                 target._file_references.append(file_reference)
 
         target._shape = source._shape
-        target._ctx = target
         target._no_asdf_extension = source._no_asdf_extension
 
     def copy(self, memo=None):

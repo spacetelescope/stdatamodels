@@ -4,10 +4,19 @@
 Other
 -----
 
+- Update jwst outlierpars schema to support new IFU outlier detection algorithm
+  and add new ``OutlierIFUOutputModel`` data model. [#164]
+
 - Reduce interpolation vector length in NIRCam backwards transform
   to improve computation times [#165]
 
 - Update of JWST/MIRI MRS photom datamodel to include the time dependent correction. [#166]
+
+- Add a parameter to jwst outlierpars schema to support a second level of
+  flagging outliers for JWST MIRI/MRS and NIRSpec IFU data. [#167]
+
+- Close for opened files [#169]
+
 
 1.5.0 (2023-05-16)
 ==================
@@ -24,9 +33,6 @@ Other
   models from required properties of transform schemas. [#161]
 
 - Add wavelength tables for NIRSpec Drizzle cubepars reference file model. [#162]
-
-- Update jwst outlierpars schema to support new IFU outlier detection algorithm. [#164]
-
 
 1.4.0 (2023-04-19)
 ==================
