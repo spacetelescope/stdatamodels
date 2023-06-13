@@ -928,11 +928,11 @@ properties:
             fits_keyword: SELFREF
             blend_table: True
           primary_cosmic_rays:
-            title: Rate of Cosmic Rays per pixel per second
+            title: Rate of Cosmic Rays per thousand pixels per second
             type: number
             fits_keyword: PRIMECRS
           extended_emission_events:
-            title: Snowballs/showers per pixel per second
+            title: Snowballs/showers per million pixels per second
             type: number
             fits_keyword: EXTNCRS
       subarray:
