@@ -10,6 +10,8 @@ Other
 - Reduce interpolation vector length in NIRCam backwards transform
   to improve computation times [#165]
 
+- Update of JWST/MIRI MRS photom datamodel to include the time dependent correction. [#166]
+
 - Add a parameter to jwst outlierpars schema to support a second level of
   flagging outliers for JWST MIRI/MRS and NIRSpec IFU data. [#167]
 
