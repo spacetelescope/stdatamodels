@@ -102,19 +102,19 @@ class MirMrsPhotomModel(ReferenceFileModel):
         An array-like object containing pixel-by-pixel size values, in units of
         square arcseconds (arcsec^2).
 
-   timecoeff_ch1: numpy table
+    timecoeff_ch1: numpy table
         A table of time and wavelength dependent throughput corrections
         for channel 1
 
-   timecoeff_ch2: numpy table
+    timecoeff_ch2: numpy table
         A table of time and wavelength dependent throughput corrections
         for channel 2
 
-   timecoeff_ch3: numpy table
+    timecoeff_ch3: numpy table
         A table of time and wavelength dependent throughput corrections
         for channel 3
 
-   timecoeff_ch4: numpy table
+    timecoeff_ch4: numpy table
         A table of time and wavelength dependent throughput corrections
         for channel 4
 
