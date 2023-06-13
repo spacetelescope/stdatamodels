@@ -2,6 +2,7 @@
 Test datamodel.open
 """
 
+import contextlib
 import os
 import os.path
 from pathlib import Path, PurePath
@@ -254,8 +255,10 @@ def test_open_asdf_no_datamodel_class(tmp_path, suffix):
 
     # Note: only the fits open emits a "model_type not found" warning.  Both
     # fits and asdf should behave the same
-    with datamodels.open(path) as m:
-        assert isinstance(m, DataModel)
+    ctx = pytest.warns(util.NoTypeWarning) if suffix == 'fits' else contextlib.nullcontext()
+    with ctx:
+        with datamodels.open(path) as m:
+            assert isinstance(m, DataModel)
 
 
 def test_open_asdf(tmp_path):
@@ -264,8 +267,9 @@ def test_open_asdf(tmp_path):
     with asdf.AsdfFile(tree) as af:
         af.write_to(path)
 
-    with datamodels.open(path) as m:
-        assert isinstance(m, DataModel)
+    with pytest.warns(util.NoTypeWarning):
+        with datamodels.open(path) as m:
+            assert isinstance(m, DataModel)
 
 
 def test_open_kwargs_asdf(tmp_path):
