@@ -3,7 +3,7 @@ import warnings
 from .model_base import JwstDataModel
 
 
-__all__ = ['RampModel', 'MIRIRampModel']
+__all__ = ['RampModel']
 
 
 class RampModel(JwstDataModel):
@@ -43,16 +43,3 @@ class RampModel(JwstDataModel):
         self.pixeldq = self.pixeldq
         self.groupdq = self.groupdq
         self.err = self.err
-
-
-class MIRIRampModel(RampModel):
-    """A data model for 4D MIRI ramps.
-
-    This model has been deprecated. Please use `RampModel` instead.
-    """
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            '"MIRIRampModel" is deprecated and will be removed. Use RampModel',
-            category=DeprecationWarning,
-        )
-        return super(MIRIRampModel, self).__init__(*args, **kwargs)
