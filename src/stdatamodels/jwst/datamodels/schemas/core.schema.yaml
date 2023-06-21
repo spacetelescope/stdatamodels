@@ -928,7 +928,7 @@ properties:
             fits_keyword: SELFREF
             blend_table: True
           primary_cosmic_rays:
-            title: Rate of Cosmic Rays per thousand pixels per second
+            title: Cosmic Ray rate per thousand pixels per second
             type: number
             fits_keyword: PRIMECRS
           extended_emission_events:
