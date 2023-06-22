@@ -23,7 +23,10 @@ allOf:
         program:
           type: object
           required: [pi_name]
-      required: [instrument, observation, program]
+        target:
+          type: object
+          required: [proposer_name]
+      required: [instrument, observation, origin, program, target, telescope]
   required: [meta]
 - type: object
   properties:
