@@ -1,0 +1,35 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/oi_fits.schema"
+title: OIFITS required meta data (not otherwise defined in core.schema)
+description: |
+  OIFITS requires several keywords, many of which are already defined
+  and compatible with the existing core.schema. This schema extends
+  core.schema to include the missing required keywords.
+allOf:
+- $ref: core.schema
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        oi_fits:
+          type: object
+          properties:
+            content:
+              title: Identifier for oifits content
+              type: string
+              fits_keyword: CONTENT
+            observer:
+              title: Who acquired the data
+              type: string
+              fits_keyword: OBSERVER
+            object:
+              title: Object identifier
+              type: string
+              fits_keyword: OBJECT
+            instrument_mode:
+              title: Instrument mode
+              type: string
+              fits_keyword: INSMODE

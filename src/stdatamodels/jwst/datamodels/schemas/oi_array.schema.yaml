@@ -1,0 +1,24 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/oi_array.schema"
+title: OIFITS OI_ARRAY table
+fits_hdu: OI_ARRAY
+datatype:
+- name: TEL_NAME
+  datatype: [ascii, 16]
+- name: STA_NAME
+  datatype: [ascii, 16]
+- name: STA_INDEX
+  datatype: int16
+- name: DIAMETER
+  datatype: float32
+- name: STAXYZ
+  datatype: float64
+- name: FOV
+  datatype: float64
+- name: FOVTYPE
+  datatype: [ascii, 6]
+- name: CTRS_EQT
+  datatype: float64
+  shape: [2]

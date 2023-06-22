@@ -1,6 +1,7 @@
 from .model_base import JwstDataModel, DataModel
 from .abvega_offset import ABVegaOffsetModel
 from .amilg import AmiLgModel
+from .amioi import AmiOIModel
 from .apcorr import FgsImgApcorrModel, MirImgApcorrModel
 from .apcorr import NrcImgApcorrModel, NisImgApcorrModel
 from .apcorr import MirLrsApcorrModel, MirMrsApcorrModel
@@ -93,6 +94,7 @@ __all__ = [
     'DataModel', 'JwstDataModel',
     'ABVegaOffsetModel',
     'AmiLgModel',
+    'AmiOIModel',
     'FgsImgApcorrModel', 'MirImgApcorrModel', 'NrcImgApcorrModel', 'NisImgApcorrModel',
     'MirLrsApcorrModel', 'MirMrsApcorrModel', 'NrcWfssApcorrModel', 'NisWfssApcorrModel',
     'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
