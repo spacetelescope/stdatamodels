@@ -24,43 +24,23 @@ class AmiOIModel(JwstDataModel):
         # (and defined) metadata, copy the data to the OIFITS compatible
         # locations
 
-        if self.meta.oi_fits.observer is None:
-            if self.meta.program.pi_name is not None:
-                self.meta.oi_fits.observer = self.meta.program.pi_name
-            else:
-                msg = "OIFITS requires meta.oi_fits.observer or meta.program.pi_name"
-                raise ValueError(msg)
-        if self.meta.oi_fits.object is None:
-            if self.meta.target.proposer_name is not None:
-                self.meta.oi_fits.object = self.meta.target.proposer_name
-            elif self.meta.target.catalog_name is not None:
-                self.meta.oi_fits.object = self.meta.target.catalog_name
-            else:
-                msg = "OIFITS requires meta.oi_fits.object or meta.target.proposer_name or meta.target.catalog_name"
-                raise ValueError(msg)
-
-        # TODO what to set for mode?
-        if self.meta.oi_fits.instrument_mode is None:
-            self.meta.oi_fits.instrument_mode = 'NRM'
+        self.meta.oi_fits.derived.observer = self.meta.program.pi_name
+        self.meta.oi_fits.derived.object = self.meta.target.proposer_name or self.meta.target.catalog_name
 
         # This file contains OIFITS2 content
-        self.meta.oi_fits.content = 'OIFITS2'
+        self.meta.oi_fits.derived.content = 'OIFITS2'
 
         # each OIFITS data table needs specific cross-referencing keywords
-        array_name = self.oi_array_meta.arrname
-        if array_name is None:
-            raise ValueError("oi_array_meta.arrname must be defined")
-        self.oi_vis_meta.array_name = array_name
-        self.oi_vis2_meta.array_name = array_name
-        self.oi_t3_meta.array_name = array_name
+        array_name = self.meta.oi_fits.array_name
+        self.meta.oi_fits.derived.t3.array_name = array_name
+        self.meta.oi_fits.derived.vis.array_name = array_name
+        self.meta.oi_fits.derived.vis2.array_name = array_name
 
         insname = self.meta.instrument.name
-        if insname is None:
-            raise ValueError("meta.instrument.name must be defined")
-        self.oi_wavelength_meta.instrument_name = insname
-        self.oi_vis_meta.instrument = insname
-        self.oi_vis2_meta.instrument = insname
-        self.oi_t3_meta.instrument = insname
+        self.meta.oi_fits.derived.wavelength.instrument_name = insname
+        self.meta.oi_fits.derived.t3.instrument_name = insname
+        self.meta.oi_fits.derived.vis.instrument_name = insname
+        self.meta.oi_fits.derived.vis2.instrument_name = insname
 
         # TODO observation date
         # JWST saves meta.observation.date to DATE-OBS
@@ -73,25 +53,23 @@ class AmiOIModel(JwstDataModel):
         # as a date only) to avoid complications for other JWST
         # code.
         date_obs = self.meta.observation.date
-        if date_obs is None:
-            raise ValueError("meta.observation.date must be defined")
-        self.oi_vis_meta.date_obs = date_obs
-        self.oi_vis2_meta.date_obs = date_obs
-        self.oi_t3_meta.date_obs = date_obs
+        self.meta.oi_fits.derived.t3.date_obs = date_obs
+        self.meta.oi_fits.derived.vis.date_obs = date_obs
+        self.meta.oi_fits.derived.vis2.date_obs = date_obs
 
-        self.oi_wavelength_meta.revn = 2
-        self.oi_array_meta.revn = 2
-        self.oi_target_meta.revn = 2
-        self.oi_vis_meta.revn = 2
-        self.oi_vis2_meta.revn = 2
-        self.oi_t3_meta.revn = 2
+        self.meta.oi_fits.derived.array.revn = 2
+        self.meta.oi_fits.derived.target.revn = 2
+        self.meta.oi_fits.derived.t3.revn = 2
+        self.meta.oi_fits.derived.vis.revn = 2
+        self.meta.oi_fits.derived.vis2.revn = 2
+        self.meta.oi_fits.derived.wavelength.revn = 2
 
         # fill in possibly missing OI_ARRAY meta data
-        if self.oi_array_meta.frame is None:
-            self.oi_array_meta.frame = 'SKY'
-        if self.oi_array_meta.x is None:
-            self.oi_array_meta.x = 0.0
-        if self.oi_array_meta.y is None:
-            self.oi_array_meta.y = 0.0
-        if self.oi_array_meta.z is None:
-            self.oi_array_meta.z = 0.0
+        if self.meta.oi_fits.derived.array.frame is None:
+            self.meta.oi_fits.derived.array.frame = 'SKY'
+        if self.meta.oi_fits.derived.array.x is None:
+            self.meta.oi_fits.derived.array.x = 0.0
+        if self.meta.oi_fits.derived.array.y is None:
+            self.meta.oi_fits.derived.array.y = 0.0
+        if self.meta.oi_fits.derived.array.z is None:
+            self.meta.oi_fits.derived.array.z = 0.0
