@@ -1,6 +1,12 @@
 1.5.1 (unreleased)
 ==================
 
+Core.schema.yaml
+----------------
+- Added two new header keywords to the Exposure section: PRIMECRS and
+  EXTNCRS [#173]. The track the rate of primary cosmic rays and extended cosmic
+  rays (Snowballs and Showers)
+
 Other
 -----
 
