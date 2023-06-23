@@ -4,7 +4,6 @@ from collections.abc import Iterable
 from stdatamodels.jwst import datamodels as dm
 import pytest
 import warnings
-from ..util import NoTypeWarning
 
 os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 
@@ -206,7 +205,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     if reftype in ref_to_multiples_dict.keys():
                         model_map = ref_to_multiples_dict[reftype]
                         with warnings.catch_warnings():
-                            warnings.simplefilter('ignore', NoTypeWarning)
+                            warnings.simplefilter('ignore', dm.util.NoTypeWarning)
                             refs = cache_references(context, {reftype: f})
                             with dm.open(refs[reftype]) as model:
                                 try:

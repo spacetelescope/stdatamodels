@@ -50,10 +50,9 @@ def test_init_from_pathlib(tmp_path):
     path = tmp_path / "pathlib.fits"
     model1 = datamodels.ImageModel((50, 50))
     model1.save(path)
-    model = datamodels.open(path)
-
-    # Test is basically, did we open the model?
-    assert isinstance(model, ImageModel)
+    with datamodels.open(path) as model:
+        # Test is basically, did we open the model?
+        assert isinstance(model, ImageModel)
 
 
 @pytest.mark.parametrize('which_file, skip_fits_update, expected_exp_type',

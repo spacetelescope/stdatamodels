@@ -39,3 +39,62 @@ allOf:
       default: 1.0
       ndim: 2
       datatype: float32
+- type: object
+  properties:
+    timecoeff_ch1:
+      title: Time dependent coefficents for channel 1
+      fits_hdu: TIMECOEFF_CH1
+      datatype:
+      - name: binwave
+        datatype: float32
+      - name: acoeff
+        datatype: float32
+      - name: bcoeff
+        datatype: float32
+      - name: ccoeff
+        datatype: float32
+      - name: X0
+        datatype: float32
+    timecoeff_ch2:
+      title: Time dependent coefficents for channel 2
+      fits_hdu: TIMECOEFF_CH2
+      datatype:
+      - name: binwave
+        datatype: float32
+      - name: acoeff
+        datatype: float32
+      - name: bcoeff
+        datatype: float32
+      - name: ccoeff
+        datatype: float32
+      - name: X0
+        datatype: float32
+    timecoeff_ch3:
+      title: Time dependent coefficents for channel 3
+      fits_hdu: TIMECOEFF_CH3
+      datatype:
+      - name: binwave
+        datatype: float32
+      - name: acoeff
+        datatype: float32
+      - name: bcoeff
+        datatype: float32
+      - name: ccoeff
+        datatype: float32
+      - name: X0
+        datatype: float32
+    timecoeff_ch4:
+      title: Time dependent coefficents for channel 4
+      fits_hdu: TIMECOEFF_CH4
+      datatype:
+      - name: binwave
+        datatype: float32
+      - name: acoeff
+        datatype: float32
+      - name: bcoeff
+        datatype: float32
+      - name: ccoeff
+        datatype: float32
+      - name: X0
+        datatype: float32
+
