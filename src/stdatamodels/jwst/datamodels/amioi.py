@@ -13,8 +13,9 @@ class AmiOIModel(JwstDataModel):
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 
-    # TODO
-    # def get_primary_array_name(self):
+    def get_primary_array_name(self):
+        # for the example file OI_T3 is the largest array
+        return 't3'
 
     def on_save(self, path=None):
         super().on_save(path)

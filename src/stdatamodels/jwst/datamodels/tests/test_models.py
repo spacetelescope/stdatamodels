@@ -388,7 +388,7 @@ def oifits_ami_model():
     m.meta.oi_fits.array_name = 'g7s6'
     m.meta.oi_fits.instrument_mode = 'NRM'
 
-    m.oi_fits.array = [
+    m.array = [
         (
             'A1', 'A1', 1, 0.,
             [ 2.64000000e+00, -1.61653377e-16,  0.00000000e+00], 5.04539835,
@@ -405,20 +405,16 @@ def oifits_ami_model():
             'RADIUS', [ 1.65004153,  2.06081941]
         )
     ]
-    m.oi_fits.target = [(
+    m.target = [(
         1, 'AB DOR', 82.18704833, -65.44869139, 2000., 0., 0., 0., 'UNKNOWN',
         'OPTICAL', 29.15, 164.421, 0., 0., 65.3199, 0., 'K0V')]
-    m.oi_fits.t3 = [
+    m.t3 = [
         (
             1, 0., 59735., 0.3772, 0.71125417, 0.73752607, -1.81575411, 0.73752607,
             1.86153485, 2.9549114, -4.32092341, -1.99521297, [1, 2, 3],  0
         ),
-        #(
-        #    1, 0., 59735., 0.3772, 0.77794726, 0.63668918, -1.74213932, 0.63668918,
-        #    1.86153485, 2.9549114, -0.19928459,  1.30487008, [1, 2, 4],  0
-        #)
     ]
-    m.oi_fits.vis = [
+    m.vis = [
         (
             1, 0., 59735., 0.3772, 0.84231787, 0.00669874, -10.57082496, 1.89098664,
             1.86153485,  2.9549114 , [1, 2],  0
@@ -428,25 +424,25 @@ def oifits_ami_model():
             -2.45938856,  0.95969843, [1, 3],  0
         )
     ]
-    m.oi_fits.vis2 = [
+    m.vis2 = [
         (1, 0., 59735., 0.3772, 0.70949939, 0.01131277,  1.86153485, 2.9549114 , [1, 2],  0),
         (1, 0., 59735., 0.3772, 0.8362822 , 0.0113618 , -2.45938856, 0.95969843, [1, 3],  0)
     ]
-    m.oi_fits.wavelength = [(4.817e-06, 2.98e-07)]
+    m.wavelength = [(4.817e-06, 2.98e-07)]
     return m
 
 
 def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
     """
-    This test cannot fully test oifits compliance but at least does some sanity
-    checks that a file produced using AmiOiModel produces a file
-    containing items that should make it oifits compliant
+    This test cannot fully test oifits compliance but the schema for the model
+    provides some checks. This test checks that the model in the oifits_ami_model
+    fixture provides a 'passable' OIFITS file.
     """
     fn = tmp_path / "test.fits"
     oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize('keyword',
+@pytest.mark.parametrize('attr',
                          [
                              'meta.telescope',
                              'meta.origin',
@@ -456,24 +452,27 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
                              'meta.observation.date',
                              'meta.oi_fits.array_name',
                              'meta.oi_fits.instrument_mode',
+                             'wavelength',
+                             'array',
                          ])
-def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, keyword):
+def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr):
     """
-    Remove some critical keywords and make sure the model fails to save/validate
-    This test cannot fully test oifits compliance but at least does some sanity
-    checks that a file produced using AmiOiModel produces a file
-    containing items that should make it oifits compliant
+    Remove some critical keywords or tables and make sure the model fails to
+    save/validate This test cannot fully test oifits compliance but at least
+    does some sanity checks that a file produced using AmiOiModel produces a
+    file containing items that should make it oifits compliant
     """
     fn = tmp_path / "test.fits"
 
     node = oifits_ami_model
-    *branches, leaf = keyword.split('.')
+    *branches, leaf = attr.split('.')
     for branch in branches:
         node = getattr(node, branch)
     delattr(node, leaf)
 
     with pytest.raises(ValidationError):
         oifits_ami_model.save(fn)
+
 
 
 def test_dq_def_roundtrip(tmp_path):
