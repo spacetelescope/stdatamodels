@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/jwst_datamodel/oi_fits.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/oifits.schema"
 title: OIFITS required meta data (not otherwise defined in core.schema)
 description: |
   OIFITS requires several keywords, many of which are already defined
@@ -33,7 +33,7 @@ allOf:
     meta:
       type: object
       properties:
-        oi_fits:
+        oifits:
           type: object
           required: [array_name, instrument_mode, derived]
           properties:

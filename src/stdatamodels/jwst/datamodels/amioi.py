@@ -25,23 +25,23 @@ class AmiOIModel(JwstDataModel):
         # (and defined) metadata, copy the data to the OIFITS compatible
         # locations
 
-        self.meta.oi_fits.derived.observer = self.meta.program.pi_name
-        self.meta.oi_fits.derived.object = self.meta.target.proposer_name or self.meta.target.catalog_name
+        self.meta.oifits.derived.observer = self.meta.program.pi_name
+        self.meta.oifits.derived.object = self.meta.target.proposer_name or self.meta.target.catalog_name
 
         # This file contains OIFITS2 content
-        self.meta.oi_fits.derived.content = 'OIFITS2'
+        self.meta.oifits.derived.content = 'OIFITS2'
 
         # each OIFITS data table needs specific cross-referencing keywords
-        array_name = self.meta.oi_fits.array_name
-        self.meta.oi_fits.derived.t3.array_name = array_name
-        self.meta.oi_fits.derived.vis.array_name = array_name
-        self.meta.oi_fits.derived.vis2.array_name = array_name
+        array_name = self.meta.oifits.array_name
+        self.meta.oifits.derived.t3.array_name = array_name
+        self.meta.oifits.derived.vis.array_name = array_name
+        self.meta.oifits.derived.vis2.array_name = array_name
 
         insname = self.meta.instrument.name
-        self.meta.oi_fits.derived.wavelength.instrument_name = insname
-        self.meta.oi_fits.derived.t3.instrument_name = insname
-        self.meta.oi_fits.derived.vis.instrument_name = insname
-        self.meta.oi_fits.derived.vis2.instrument_name = insname
+        self.meta.oifits.derived.wavelength.instrument_name = insname
+        self.meta.oifits.derived.t3.instrument_name = insname
+        self.meta.oifits.derived.vis.instrument_name = insname
+        self.meta.oifits.derived.vis2.instrument_name = insname
 
         # TODO observation date
         # JWST saves meta.observation.date to DATE-OBS
@@ -54,23 +54,23 @@ class AmiOIModel(JwstDataModel):
         # as a date only) to avoid complications for other JWST
         # code.
         date_obs = self.meta.observation.date
-        self.meta.oi_fits.derived.t3.date_obs = date_obs
-        self.meta.oi_fits.derived.vis.date_obs = date_obs
-        self.meta.oi_fits.derived.vis2.date_obs = date_obs
+        self.meta.oifits.derived.t3.date_obs = date_obs
+        self.meta.oifits.derived.vis.date_obs = date_obs
+        self.meta.oifits.derived.vis2.date_obs = date_obs
 
-        self.meta.oi_fits.derived.array.revn = 2
-        self.meta.oi_fits.derived.target.revn = 2
-        self.meta.oi_fits.derived.t3.revn = 2
-        self.meta.oi_fits.derived.vis.revn = 2
-        self.meta.oi_fits.derived.vis2.revn = 2
-        self.meta.oi_fits.derived.wavelength.revn = 2
+        self.meta.oifits.derived.array.revn = 2
+        self.meta.oifits.derived.target.revn = 2
+        self.meta.oifits.derived.t3.revn = 2
+        self.meta.oifits.derived.vis.revn = 2
+        self.meta.oifits.derived.vis2.revn = 2
+        self.meta.oifits.derived.wavelength.revn = 2
 
         # fill in possibly missing OI_ARRAY meta data
-        if self.meta.oi_fits.derived.array.frame is None:
-            self.meta.oi_fits.derived.array.frame = 'SKY'
-        if self.meta.oi_fits.derived.array.x is None:
-            self.meta.oi_fits.derived.array.x = 0.0
-        if self.meta.oi_fits.derived.array.y is None:
-            self.meta.oi_fits.derived.array.y = 0.0
-        if self.meta.oi_fits.derived.array.z is None:
-            self.meta.oi_fits.derived.array.z = 0.0
+        if self.meta.oifits.derived.array.frame is None:
+            self.meta.oifits.derived.array.frame = 'SKY'
+        if self.meta.oifits.derived.array.x is None:
+            self.meta.oifits.derived.array.x = 0.0
+        if self.meta.oifits.derived.array.y is None:
+            self.meta.oifits.derived.array.y = 0.0
+        if self.meta.oifits.derived.array.z is None:
+            self.meta.oifits.derived.array.z = 0.0

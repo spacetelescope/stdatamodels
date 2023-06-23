@@ -385,8 +385,8 @@ def oifits_ami_model():
     m.meta.target.proposer_name = 'AB DOR'
     # TODO date or datetime?
     m.meta.observation.date = '2022-06-05T00:00:00.000'
-    m.meta.oi_fits.array_name = 'g7s6'
-    m.meta.oi_fits.instrument_mode = 'NRM'
+    m.meta.oifits.array_name = 'g7s6'
+    m.meta.oifits.instrument_mode = 'NRM'
 
     m.array = [
         (
@@ -450,8 +450,8 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
                              'meta.program.pi_name',
                              'meta.target.proposer_name',
                              'meta.observation.date',
-                             'meta.oi_fits.array_name',
-                             'meta.oi_fits.instrument_mode',
+                             'meta.oifits.array_name',
+                             'meta.oifits.instrument_mode',
                              'wavelength',
                              'array',
                          ])
