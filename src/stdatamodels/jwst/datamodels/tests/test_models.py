@@ -452,8 +452,9 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
                              'meta.observation.date',
                              'meta.oifits.array_name',
                              'meta.oifits.instrument_mode',
-                             'wavelength',
                              'array',
+                             'target',
+                             'wavelength',
                          ])
 def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr):
     """
@@ -473,6 +474,22 @@ def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr)
     with pytest.raises(ValidationError):
         oifits_ami_model.save(fn)
 
+
+@pytest.mark.parametrize('keep', ['vis', 'vis2', 't3'])
+def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
+    fn = tmp_path / "test.fits"
+    for table in ('vis', 'vis2', 't3'):
+        if table == keep:
+            continue
+        delattr(oifits_ami_model, table)
+
+    # since we have 1 data table, this should pass
+    oifits_ami_model.save(fn)
+
+    # removing the data table should cause saving to fail
+    delattr(oifits_ami_model, keep)
+    with pytest.raises(ValidationError):
+        oifits_ami_model.save(fn)
 
 
 def test_dq_def_roundtrip(tmp_path):

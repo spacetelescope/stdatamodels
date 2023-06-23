@@ -187,7 +187,7 @@ allOf:
                       fits_keyword: OI_REVN
                       fits_hdu: OI_WAVELENGTH
 - type: object
-  required: [array, target, t3, vis, vis2, wavelength]
+  required: [array, target, wavelength]
   properties:
     array:
       title: OIFITS OI_ARRAY table
@@ -343,3 +343,10 @@ allOf:
         datatype: float32
       - name: EFF_BAND
         datatype: float32
+- anyOf:
+  - type: object
+    required: [vis]
+  - type: object
+    required: [vis2]
+  - type: object
+    required: [t3]
