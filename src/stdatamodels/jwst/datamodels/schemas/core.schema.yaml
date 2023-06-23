@@ -927,6 +927,14 @@ properties:
             type: boolean
             fits_keyword: SELFREF
             blend_table: True
+          primary_cosmic_rays:
+            title: Cosmic Ray rate per thousand pixels per second
+            type: number
+            fits_keyword: PRIMECRS
+          extended_emission_events:
+            title: Snowballs/showers per million pixels per second
+            type: number
+            fits_keyword: EXTNCRS
       subarray:
         title: Subarray parameters
         type: object

@@ -1,7 +1,12 @@
 1.6.1 (unreleased)
 ==================
 
-- 
+Other
+-----
+
+- Added two new header keywords to the JWST core schema exposure section: PRIMECRS and
+  EXTNCRS, which are used to record the rate of primary cosmic rays and extended cosmic
+  rays (Snowballs and Showers). [#173]
 
 1.6.0 (2023-06-15)
 ==================
