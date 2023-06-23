@@ -43,7 +43,6 @@ class AmiOIModel(JwstDataModel):
         self.meta.oifits.derived.vis.instrument_name = insname
         self.meta.oifits.derived.vis2.instrument_name = insname
 
-        # TODO observation date
         # JWST saves meta.observation.date to DATE-OBS
         # which is the UTC date for the observation start
         # In Table 2 of the OIFITS 2 paper:

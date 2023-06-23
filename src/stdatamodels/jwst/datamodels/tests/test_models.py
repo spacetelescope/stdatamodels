@@ -383,8 +383,7 @@ def oifits_ami_model():
     m.meta.instrument.name = 'NIRISS'
     m.meta.program.pi_name = 'UNKNOWN'
     m.meta.target.proposer_name = 'AB DOR'
-    # TODO date or datetime?
-    m.meta.observation.date = '2022-06-05T00:00:00.000'
+    m.meta.observation.date = '2022-06-05'
     m.meta.oifits.array_name = 'g7s6'
     m.meta.oifits.instrument_mode = 'NRM'
 
