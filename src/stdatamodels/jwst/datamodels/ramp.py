@@ -1,5 +1,3 @@
-import numpy as np
-
 from .model_base import JwstDataModel
 from stdatamodels.jwst.library.basic_utils import deprecate_class
 
