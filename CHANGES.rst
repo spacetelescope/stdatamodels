@@ -4,6 +4,8 @@
 Other
 -----
 
+- Update the allocation of the ZEROFRAME array for the RampModel. [#176]
+
 - Added two new header keywords to the JWST core schema exposure section: PRIMECRS and
   EXTNCRS, which are used to record the rate of primary cosmic rays and extended cosmic
   rays (Snowballs and Showers). [#173]
