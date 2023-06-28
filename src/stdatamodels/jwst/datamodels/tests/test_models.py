@@ -1,6 +1,7 @@
 import os
 import warnings
 
+from asdf.exceptions import ValidationError
 from astropy.io import fits
 from astropy.table import Table
 from astropy.time import Time
@@ -372,6 +373,122 @@ def test_ramp_model_zero_frame_by_dimensions():
 
     with datamodels.RampModel(dims) as ramp:
         assert ramp.zeroframe.shape == zdims
+
+
+@pytest.fixture
+def oifits_ami_model():
+    m = datamodels.AmiOIModel()
+    m.meta.telescope = 'JWST'
+    m.meta.origin = 'STScI'
+    m.meta.instrument.name = 'NIRISS'
+    m.meta.program.pi_name = 'UNKNOWN'
+    m.meta.target.proposer_name = 'AB DOR'
+    m.meta.observation.date = '2022-06-05'
+    m.meta.oifits.array_name = 'g7s6'
+    m.meta.oifits.instrument_mode = 'NRM'
+
+    m.array = [
+        (
+            'A1', 'A1', 1, 0.,
+            [ 2.64000000e+00, -1.61653377e-16,  0.00000000e+00], 5.04539835,
+            'RADIUS', [ 2.60973996, -0.39856915]
+        ),
+        (
+            'A2', 'A2', 2, 0.,
+            [ 1.39996111e-16,  2.28631000e+00,  0.00000000e+00], 5.04539835,
+            'RADIUS', [-0.34517145, -2.260104  ]
+        ),
+        (
+            'A3', 'A3', 3, 0.,
+            [ 1.32000010e+00, -2.28631000e+00,  0.00000000e+00], 5.04539835,
+            'RADIUS', [ 1.65004153,  2.06081941]
+        )
+    ]
+    m.target = [(
+        1, 'AB DOR', 82.18704833, -65.44869139, 2000., 0., 0., 0., 'UNKNOWN',
+        'OPTICAL', 29.15, 164.421, 0., 0., 65.3199, 0., 'K0V')]
+    m.t3 = [
+        (
+            1, 0., 59735., 0.3772, 0.71125417, 0.73752607, -1.81575411, 0.73752607,
+            1.86153485, 2.9549114, -4.32092341, -1.99521297, [1, 2, 3],  0
+        ),
+    ]
+    m.vis = [
+        (
+            1, 0., 59735., 0.3772, 0.84231787, 0.00669874, -10.57082496, 1.89098664,
+            1.86153485,  2.9549114 , [1, 2],  0
+        ),
+        (
+            1, 0., 59735., 0.3772, 0.91448467, 0.00621287, -22.26334374, 1.27637574,
+            -2.45938856,  0.95969843, [1, 3],  0
+        )
+    ]
+    m.vis2 = [
+        (1, 0., 59735., 0.3772, 0.70949939, 0.01131277,  1.86153485, 2.9549114 , [1, 2],  0),
+        (1, 0., 59735., 0.3772, 0.8362822 , 0.0113618 , -2.45938856, 0.95969843, [1, 3],  0)
+    ]
+    m.wavelength = [(4.817e-06, 2.98e-07)]
+    return m
+
+
+def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
+    """
+    This test cannot fully test oifits compliance but the schema for the model
+    provides some checks. This test checks that the model in the oifits_ami_model
+    fixture provides a 'passable' OIFITS file.
+    """
+    fn = tmp_path / "test.fits"
+    oifits_ami_model.save(fn)
+
+
+@pytest.mark.parametrize('attr',
+                         [
+                             'meta.telescope',
+                             'meta.origin',
+                             'meta.instrument.name',
+                             'meta.program.pi_name',
+                             'meta.target.proposer_name',
+                             'meta.observation.date',
+                             'meta.oifits.array_name',
+                             'meta.oifits.instrument_mode',
+                             'array',
+                             'target',
+                             'wavelength',
+                         ])
+def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr):
+    """
+    Remove some critical keywords or tables and make sure the model fails to
+    save/validate This test cannot fully test oifits compliance but at least
+    does some sanity checks that a file produced using AmiOiModel produces a
+    file containing items that should make it oifits compliant
+    """
+    fn = tmp_path / "test.fits"
+
+    node = oifits_ami_model
+    *branches, leaf = attr.split('.')
+    for branch in branches:
+        node = getattr(node, branch)
+    delattr(node, leaf)
+
+    with pytest.raises(ValidationError):
+        oifits_ami_model.save(fn)
+
+
+@pytest.mark.parametrize('keep', ['vis', 'vis2', 't3'])
+def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
+    fn = tmp_path / "test.fits"
+    for table in ('vis', 'vis2', 't3'):
+        if table == keep:
+            continue
+        delattr(oifits_ami_model, table)
+
+    # since we have 1 data table, this should pass
+    oifits_ami_model.save(fn)
+
+    # removing the data table should cause saving to fail
+    delattr(oifits_ami_model, keep)
+    with pytest.raises(ValidationError):
+        oifits_ami_model.save(fn)
 
 
 def test_dq_def_roundtrip(tmp_path):

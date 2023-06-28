@@ -8,6 +8,8 @@ Other
   EXTNCRS, which are used to record the rate of primary cosmic rays and extended cosmic
   rays (Snowballs and Showers). [#173]
 
+- Add OIFITS compatible schema and ``AmiOIModel`` [#174] 
+
 1.6.0 (2023-06-15)
 ==================
 

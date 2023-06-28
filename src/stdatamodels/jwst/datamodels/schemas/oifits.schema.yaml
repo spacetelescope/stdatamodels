@@ -1,0 +1,352 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/oifits.schema"
+title: OIFITS required meta data (not otherwise defined in core.schema)
+description: |
+  OIFITS requires several keywords, many of which are already defined
+  and compatible with the existing core.schema. This schema extends
+  core.schema to include the missing required keywords.
+allOf:
+- $ref: core.schema
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        instrument:
+          type: object
+          required: [name]
+        observation:
+          type: object
+          required: [date]
+        program:
+          type: object
+          required: [pi_name]
+        target:
+          type: object
+          required: [proposer_name]
+      required: [instrument, observation, origin, program, target, telescope]
+  required: [meta]
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        oifits:
+          type: object
+          required: [array_name, instrument_mode, derived]
+          properties:
+            array_name:
+              title: Array name
+              type: string
+              fits_keyword: ARRNAME
+              fits_hdu: OI_ARRAY
+            instrument_mode:
+              title: Instrument mode
+              type: string
+              fits_keyword: INSMODE
+            derived:
+              type: object
+              required: [array, content, object, observer, t3, target, vis, vis2, wavelength]
+              properties:
+                array:
+                  type: object
+                  required: [frame, revn, x, y, z]
+                  properties:
+                    frame:
+                      title: Coordinate Frame
+                      type: string
+                      fits_keyword: FRAME
+                      fits_hdu: OI_ARRAY
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_ARRAY
+                    x:
+                      title: Array center x (m)
+                      type: number
+                      fits_keyword: ARRAYX
+                      fits_hdu: OI_ARRAY
+                    y:
+                      title: Array center y (m)
+                      type: number
+                      fits_keyword: ARRAYY
+                      fits_hdu: OI_ARRAY
+                    z:
+                      title: Array center z (m)
+                      type: number
+                      fits_keyword: ARRAYZ
+                      fits_hdu: OI_ARRAY
+                content:
+                  title: Identifier for oifits content
+                  type: string
+                  fits_keyword: CONTENT
+                object:
+                  title: Object identifier
+                  type: string
+                  fits_keyword: OBJECT
+                observer:
+                  title: Who acquired the data
+                  type: string
+                  fits_keyword: OBSERVER
+                t3:
+                  type: object
+                  required: [array_name, date_obs, instrument_name, revn]
+                  properties:
+                    array_name:
+                      title: Array name
+                      type: string
+                      fits_keyword: ARRNAME
+                      fits_hdu: OI_T3
+                    date_obs:
+                      title: Datetime of observation
+                      type: string
+                      fits_keyword: DATE-OBS
+                      fits_hdu: OI_T3
+                    instrument_name:
+                      title: Instrument name
+                      type: string
+                      fits_keyword: INSNAME
+                      fits_hdu: OI_T3
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_T3
+                target:
+                  type: object
+                  required: [revn]
+                  properties:
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_TARGET
+                vis:
+                  type: object
+                  required: [array_name, date_obs, instrument_name, revn]
+                  properties:
+                    array_name:
+                      title: Array name
+                      type: string
+                      fits_keyword: ARRNAME
+                      fits_hdu: OI_VIS
+                    date_obs:
+                      title: Datetime of observation
+                      type: string
+                      fits_keyword: DATE-OBS
+                      fits_hdu: OI_VIS
+                    instrument_name:
+                      title: Instrument name
+                      type: string
+                      fits_keyword: INSNAME
+                      fits_hdu: OI_VIS
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_VIS
+                vis2:
+                  type: object
+                  required: [array_name, date_obs, instrument_name, revn]
+                  properties:
+                    array_name:
+                      title: Array name
+                      type: string
+                      fits_keyword: ARRNAME
+                      fits_hdu: OI_VIS2
+                    date_obs:
+                      title: Datetime of observation
+                      type: string
+                      fits_keyword: DATE-OBS
+                      fits_hdu: OI_VIS2
+                    instrument_name:
+                      title: Instrument name
+                      type: string
+                      fits_keyword: INSNAME
+                      fits_hdu: OI_VIS2
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_VIS2
+                wavelength:
+                  type: object
+                  required: [instrument_name, revn]
+                  properties:
+                    instrument_name:
+                      title: Instrument name
+                      type: string
+                      fits_keyword: INSNAME
+                      fits_hdu: OI_WAVELENGTH
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_WAVELENGTH
+- type: object
+  required: [array, target, wavelength]
+  properties:
+    array:
+      title: OIFITS OI_ARRAY table
+      fits_hdu: OI_ARRAY
+      datatype:
+      - name: TEL_NAME
+        datatype: [ascii, 16]
+      - name: STA_NAME
+        datatype: [ascii, 16]
+      - name: STA_INDEX
+        datatype: int16
+      - name: DIAMETER
+        datatype: float32
+      - name: STAXYZ
+        datatype: float64
+      - name: FOV
+        datatype: float64
+      - name: FOVTYPE
+        datatype: [ascii, 6]
+      - name: CTRS_EQT
+        datatype: float64
+        shape: [2]
+    target:
+      title: OIFITS OI_TARGET table
+      fits_hdu: OI_TARGET
+      datatype:
+      - name: TARGET_ID
+        datatype: int16
+      - name: TARGET
+        datatype: [ascii, 32]
+      - name: RAEP0
+        datatype: float64
+      - name: DECEP0
+        datatype: float64
+      - name: EQUINOX
+        datatype: float32
+      - name: RA_ERR
+        datatype: float64
+      - name: DEC_ERR
+        datatype: float64
+      - name: SYSVEL
+        datatype: float64
+      - name: VELTYP
+        datatype: [ascii, 8]
+      - name: VELDEF
+        datatype: [ascii, 8]
+      - name: PMRA
+        datatype: float64
+      - name: PMDEC
+        datatype: float64
+      - name: PMRA_ERR
+        datatype: float64
+      - name: PMDEC_ERR
+        datatype: float64
+      - name: PARALLAX
+        datatype: float32
+      - name: PARA_ERR
+        datatype: float32
+      - name: SPECTYP
+        datatype: [ascii, 32]
+    t3:
+      title: OIFITS OI_T3 table
+      fits_hdu: OI_T3
+      datatype:
+      - name: TARGET_ID
+        datatype: int16
+      - name: TIME
+        datatype: float64
+      - name: MJD
+        datatype: float64
+      - name: INT_TIME
+        datatype: float64
+      - name: T3AMP
+        datatype: float64
+      - name: T3AMPERR
+        datatype: float64
+      - name: T3PHI
+        datatype: float64
+      - name: T3PHIERR
+        datatype: float64
+      - name: U1COORD
+        datatype: float64
+      - name: V1COORD
+        datatype: float64
+      - name: U2COORD
+        datatype: float64
+      - name: V2COORD
+        datatype: float64
+      - name: STA_INDEX
+        datatype: int16
+        shape: [3]
+      - name: FLAG
+        datatype: int8
+    vis:
+      title: OIFITS OI_VIS table
+      fits_hdu: OI_VIS
+      datatype:
+      - name: TARGET_ID
+        datatype: int16
+      - name: TIME
+        datatype: float64
+      - name: MJD
+        datatype: float64
+      - name: INT_TIME
+        datatype: float64
+      - name: VISAMP
+        datatype: float64
+      - name: VISAMPERR
+        datatype: float64
+      - name: VISPHI
+        datatype: float64
+      - name: VISPHIERR
+        datatype: float64
+      - name: UCOORD
+        datatype: float64
+      - name: VCOORD
+        datatype: float64
+      - name: STA_INDEX
+        datatype: int16
+        shape: [2]
+      - name: FLAG
+        datatype: int8
+    vis2:
+      title: OIFITS OI_VIS2 table
+      fits_hdu: OI_VIS2
+      datatype:
+      - name: TARGET_ID
+        datatype: int16
+      - name: TIME
+        datatype: float64
+      - name: MJD
+        datatype: float64
+      - name: INT_TIME
+        datatype: float64
+      - name: VIS2DATA
+        datatype: float64
+      - name: VIS2ERR
+        datatype: float64
+      - name: UCOORD
+        datatype: float64
+      - name: VCOORD
+        datatype: float64
+      - name: STA_INDEX
+        datatype: int16
+        shape: [2]
+      - name: FLAG
+        datatype: int8
+    wavelength:
+      title: OIFITS OI_WAVELENGTH table
+      fits_hdu: OI_WAVELENGTH
+      datatype:
+      - name: EFF_WAVE
+        datatype: float32
+      - name: EFF_BAND
+        datatype: float32
+- anyOf:
+  - type: object
+    required: [vis]
+  - type: object
+    required: [vis2]
+  - type: object
+    required: [t3]
