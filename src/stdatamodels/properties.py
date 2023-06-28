@@ -177,7 +177,13 @@ def _make_default_array(attr, schema, ctx):
                 if ndim is None:
                     shape = primary_array.shape
                 else:
-                    shape = primary_array.shape[-ndim:]
+                    if attr == "zeroframe":
+                        dims = primary_array.shape
+                        if len(dims) != 4:
+                            raise IndexError(f"To allocate ZEROFRAME, the primary array must have 4 dimensions, but has only {len(dims)}")
+                        shape = (dims[0], dims[2], dims[3])
+                    else:
+                        shape = primary_array.shape[-ndim:]
             elif ndim is None:
                 shape = (0,)
             else:
@@ -314,6 +320,7 @@ class ObjectNode(Node):
         return node, parts[-1]
 
     def __getattr__(self, attr):
+
         if attr.startswith('_'):
             raise AttributeError('No attribute {0}'.format(attr))
 
