@@ -12,7 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "asdf>=2.14.1",
+    "asdf>=2.15.0",
     "asdf-astropy>=0.3.0",
     "psutil>=5.7.2",
     "numpy>=1.18",
