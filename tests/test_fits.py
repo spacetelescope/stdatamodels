@@ -4,8 +4,8 @@ import pytest
 from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
+from asdf.exceptions import ValidationError
 import asdf.schema
-from jsonschema import ValidationError
 
 from stdatamodels import DataModel
 from stdatamodels import fits_support

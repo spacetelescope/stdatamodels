@@ -20,7 +20,6 @@ from asdf import treeutil
 from asdf.util import HashableDict
 from asdf import tagged
 from asdf import generic_io
-from jsonschema import validators
 
 from . import properties
 from . import schema as mschema
@@ -329,7 +328,8 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
 def _fits_type(fits_context, validator, items, instance, schema):
     if instance in ('N/A', '#TODO', '', None):
         return
-    return validators.Draft4Validator.VALIDATORS["type"](validator, items, instance, schema)
+
+    return asdf_schema.YAML_VALIDATORS["type"](validator, items, instance, schema)
 
 
 class FitsContext:

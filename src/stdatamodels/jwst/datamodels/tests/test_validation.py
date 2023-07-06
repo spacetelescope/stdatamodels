@@ -1,6 +1,6 @@
 from astropy import time
 from datetime import datetime
-import jsonschema
+from asdf.exceptions import ValidationError
 import pytest
 
 from stdatamodels.jwst.datamodels import JwstDataModel
@@ -9,14 +9,14 @@ from stdatamodels.jwst.datamodels import JwstDataModel
 def test_strict_validation_enum():
     with JwstDataModel(strict_validation=True) as dm:
         assert dm.meta.instrument.name is None
-        with pytest.raises(jsonschema.ValidationError):
+        with pytest.raises(ValidationError):
             # FOO is not in the allowed enumerated values
             dm.meta.instrument.name = 'FOO'
 
 
 def test_strict_validation_type():
     with JwstDataModel(strict_validation=True) as dm:
-        with pytest.raises(jsonschema.ValidationError):
+        with pytest.raises(ValidationError):
             # Schema requires a float
             dm.meta.target.ra = "FOO"
 

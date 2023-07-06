@@ -3,8 +3,8 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 import asdf
+from asdf.exceptions import ValidationError
 from asdf.tags.core import NDArrayType
-import jsonschema
 from astropy.modeling import models
 
 from stdatamodels.schema import merge_property_trees, build_docstring
@@ -46,7 +46,7 @@ def test_dictionary_like():
         x.meta.string_attribute = 'FOO'
         assert x['meta.string_attribute'] == 'FOO'
 
-        with pytest.raises(jsonschema.ValidationError):
+        with pytest.raises(ValidationError):
             x['meta.string_attribute'] = 12
 
         with pytest.raises(KeyError):
@@ -153,7 +153,7 @@ def test_add_schema_entry():
         dm.meta.foo.bar = 'bar'
         try:
             dm.meta.foo.bar = 'what?'
-        except jsonschema.ValidationError:
+        except ValidationError:
             pass
         else:
             assert False

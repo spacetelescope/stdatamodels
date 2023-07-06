@@ -2,7 +2,7 @@ import warnings
 
 import pytest
 import asdf
-from jsonschema import ValidationError
+from asdf.exceptions import ValidationError
 import numpy as np
 
 from stdatamodels.validate import ValidationWarning
