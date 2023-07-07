@@ -1,3 +1,11 @@
+1.7.0 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+- Link FITS_rec instances to created HDU on save to avoid data duplication. [#178]
+
 1.7.0 (2023-06-29)
 ==================
 

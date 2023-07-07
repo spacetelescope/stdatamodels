@@ -274,6 +274,8 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     if instance is None:
         return
 
+    instance_id = id(instance)
+
     instance = np.asanyarray(instance)
 
     if not len(instance.shape):
@@ -297,6 +299,10 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
                            index=index, hdu_type=hdu_type)
 
     hdu.data = instance
+    if instance_id in fits_context.extension_array_links:
+        if fits_context.extension_array_links[instance_id]() is not hdu:
+            raise ValueError("Linking one array to multiple hdus is not supported")
+    fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
     hdu.ver = index + 1
 
 
@@ -331,6 +337,7 @@ class FitsContext:
         self.hdulist = weakref.ref(hdulist)
         self.comment_stack = []
         self.sequence_index = None
+        self.extension_array_links = {}
 
 
 def _get_validators(hdulist):
@@ -350,7 +357,7 @@ def _get_validators(hdulist):
         'type': partial(_fits_type, fits_context),
     })
 
-    return validators
+    return validators, fits_context
 
 
 def _save_from_schema(hdulist, tree, schema):
@@ -370,24 +377,30 @@ def _save_from_schema(hdulist, tree, schema):
     else:
         kwargs = {}
 
-    validator = asdf_schema.get_validator(
-        schema, None, _get_validators(hdulist), **kwargs)
+    validators, context = _get_validators(hdulist)
+    validator = asdf_schema.get_validator(schema, None, validators, **kwargs)
 
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
 
-    # Replace arrays in the tree that are identical to HDU arrays
-    # with ndarray-1.0.0 tagged objects with special source values
-    # that represent links to the surrounding FITS file.
-    def ndarray_callback(node, json_id):
-        if (isinstance(node, (np.ndarray, NDArrayType))):
+    # Now link extensions to items in the tree
+
+    def callback(node, json_id):
+        if id(node) in context.extension_array_links:
+            hdu = context.extension_array_links[id(node)]()
+            return _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+        elif isinstance(node, (np.ndarray, NDArrayType)):
+            # in addition to links generated during validation
+            # replace arrays in the tree that are identical to HDU arrays
+            # with ndarray-1.0.0 tagged objects with special source values
+            # that represent links to the surrounding FITS file.
+            # This is important for general ASDF-in-FITS support
             for hdu_index, hdu in enumerate(hdulist):
                 if hdu.data is not None and node is hdu.data:
                     return _create_tagged_dict_for_fits_array(hdu, hdu_index)
-
         return node
 
-    tree = treeutil.walk_and_modify(tree, ndarray_callback)
+    tree = treeutil.walk_and_modify(tree, callback)
 
     return tree
 
