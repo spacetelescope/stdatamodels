@@ -8,6 +8,11 @@ Other
   TARGCAT and TARGDESC, which record the target category and description
   as given by the user in the APT. [#179]
 
+Bug Fixes
+---------
+
+- Link FITS_rec instances to created HDU on save to avoid data duplication. [#178]
+
 
 1.7.0 (2023-06-29)
 ==================
