@@ -333,6 +333,14 @@ properties:
             type: string
             fits_keyword: TARGTYPE
             blend_table: True
+          category:
+            title: Target category from APT
+            type: string
+            fits_keyword: TARGCAT
+          description:
+            title: Target description from APT
+            type: string
+            fits_keyword: TARGDESC
           ra:
             title: Target RA at mid time of exposure
             type: number

@@ -1,3 +1,14 @@
+1.7.1 (unreleased)
+==================
+
+Other
+-----
+
+- Added two new header keywords to the JWST core schema target section:
+  TARGCAT and TARGDESC, which record the target category and description
+  as given by the user in the APT. [#179]
+
+
 1.7.0 (2023-06-29)
 ==================
 
@@ -11,6 +22,7 @@ Other
   rays (Snowballs and Showers). [#173]
 
 - Add OIFITS compatible schema and ``AmiOIModel`` [#174] 
+
 
 1.6.0 (2023-06-15)
 ==================
