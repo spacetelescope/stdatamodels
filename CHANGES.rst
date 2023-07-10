@@ -66,6 +66,9 @@ Other
 
 - Enable searching docs directory for doctests and fix failing doctest. [#182]
 
+- Add error column to NIRSpec flat schema's ``flat_table`` definition,
+  and remove fixed shape definition for other table columns. [#183]
+
 Bug Fixes
 ---------
 
