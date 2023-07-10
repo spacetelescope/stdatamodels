@@ -46,9 +46,9 @@ allOf:
       - name: nelem
         datatype: int32
       - name: wavelength
-        shape: [130000]
         datatype: float32
       - name: data
-        shape: [130000]
+        datatype: float32
+      - name: error
         datatype: float32
 - $ref: dq_def.schema
