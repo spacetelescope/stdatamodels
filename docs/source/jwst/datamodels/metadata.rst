@@ -44,9 +44,13 @@ search is case-insensitive::
     <BLANKLINE>
     meta.target.catalog_name
     <BLANKLINE>
+    meta.target.category
+    <BLANKLINE>
     meta.target.dec
     <BLANKLINE>
     meta.target.dec_uncertainty
+    <BLANKLINE>
+    meta.target.description
     <BLANKLINE>
     meta.target.proper_motion_dec
     <BLANKLINE>

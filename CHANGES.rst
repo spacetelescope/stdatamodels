@@ -8,6 +8,8 @@ Other
   TARGCAT and TARGDESC, which record the target category and description
   as given by the user in the APT. [#179]
 
+- Enable searching docs directory for doctests and fix failing doctest. [#182]
+
 Bug Fixes
 ---------
 
