@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from astropy.io import fits
 import numpy as np
@@ -627,3 +629,49 @@ def test_resave_duplication_bug(tmp_path):
 
     with fits.open(fn1) as ff1, fits.open(fn2) as ff2:
         assert ff1['ASDF'].size == ff2['ASDF'].size
+
+
+def test_table_linking(tmp_path):
+    file_path = tmp_path / "test.fits"
+
+    schema = {
+        'title': 'Test data model',
+        '$schema': 'http://stsci.edu/schemas/fits-schema/fits-schema',
+        'type': 'object',
+        'properties': {
+            'meta': {
+                'type': 'object',
+                'properties': {}
+            },
+            'test_table': {
+                'title': 'Test table',
+                'fits_hdu': 'TESTTABL',
+                'datatype': [
+                    {'name': 'A_COL', 'datatype': 'int8'},
+                    {'name': 'B_COL', 'datatype': 'int8'}
+                ]
+            }
+        }
+    }
+
+    with DataModel(schema=schema) as dm:
+        test_array = np.array([(1, 2), (3, 4)], dtype=[('A_COL', 'i1'), ('B_COL', 'i1')])
+
+        # assigning to the model will convert the array to a FITS_rec
+        dm.test_table = test_array
+        assert isinstance(dm.test_table, fits.FITS_rec)
+
+        # save the model (with the table)
+        dm.save(file_path)
+
+    # open the model and confirm that the table was linked to an hdu
+    with fits.open(file_path) as ff:
+        # read the bytes for the embedded ASDF content
+        asdf_bytes = ff['ASDF'].data.tobytes()
+
+        # get only the bytes for the tree (not blocks) by splitting
+        # on the yaml end document marker '...'
+        # on the first block magic sequence
+        tree_string = asdf_bytes.split(b'...')[0].decode('ascii')
+        unlinked_arrays = re.findall(r'source:\s+[^f]', tree_string)
+        assert not len(unlinked_arrays), unlinked_arrays
