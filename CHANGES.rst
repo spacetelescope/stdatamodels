@@ -4,7 +4,8 @@
 Other
 -----
 
--
+- Remove ignored V23ToSkyConverter from jwst.transforms version 1.0.0
+  asdf extension [#184]
 
 1.7.1 (2023-07-11)
 ==================
