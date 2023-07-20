@@ -1,6 +1,6 @@
 from astropy.io import fits
 from astropy.time import Time
-import jsonschema
+from asdf.exceptions import ValidationError
 import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
@@ -50,7 +50,7 @@ def test_multislit_move_from_fits(tmp_path):
 
 
 def test_multislit_append_string():
-    with pytest.raises(jsonschema.ValidationError):
+    with pytest.raises(ValidationError):
         m = MultiSlitModel(strict_validation=True)
         m.slits.append('junk')
 

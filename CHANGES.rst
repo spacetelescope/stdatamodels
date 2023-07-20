@@ -7,6 +7,11 @@ Other
 - Remove ignored V23ToSkyConverter from jwst.transforms version 1.0.0
   asdf extension [#184]
 
+- Use ValidationError and type validator from asdf instead of from jsonschema
+  directly, remove jsonschema as a direct dependency, increase asdf minimum
+  version to 2.15.0.  [#177]
+
+
 1.7.1 (2023-07-11)
 ==================
 

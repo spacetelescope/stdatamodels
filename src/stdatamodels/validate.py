@@ -3,11 +3,11 @@ Functions that support validation of model changes
 """
 
 import warnings
-import jsonschema
 from asdf import schema as asdf_schema
 from asdf import yamlutil
+from asdf.exceptions import ValidationError
 from asdf.tags.core import ndarray
-from asdf.schema import ValidationError, YAML_VALIDATORS
+from asdf.schema import YAML_VALIDATORS
 from asdf.util import HashableDict
 import numpy as np
 
@@ -27,13 +27,13 @@ def value_change(path, value, schema, ctx):
         _check_value(value, schema, ctx)
         update = True
 
-    except jsonschema.ValidationError as error:
+    except ValidationError as error:
         update = False
         errmsg = _error_message(path, error)
         if ctx._pass_invalid_values:
             update = True
         if ctx._strict_validation:
-            raise jsonschema.ValidationError(errmsg)
+            raise ValidationError(errmsg)
         else:
             warnings.warn(errmsg, ValidationWarning)
     return update
