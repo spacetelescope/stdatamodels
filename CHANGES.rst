@@ -11,6 +11,8 @@ Other
   directly, remove jsonschema as a direct dependency, increase asdf minimum
   version to 2.15.0.  [#177]
 
+- Use binary masks for dq calculations in dynamicdq [#185]
+
 
 1.7.1 (2023-07-11)
 ==================
