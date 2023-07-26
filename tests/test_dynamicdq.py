@@ -14,13 +14,7 @@ def _dq_def(init):
 
 class FakeModel:
     def __init__(self, dq, dq_def):
-        # len == 0 -> copy dq
         self.dq = dq
-
-        # recarray with dtype [('VALUE', 'u32'), ('NAME', [ascii, 40])]
-        # None -> copy dq
-        # scalar -> copy dq
-        # len == 0 -> copy dq
         self.dq_def = dq_def
 
 
