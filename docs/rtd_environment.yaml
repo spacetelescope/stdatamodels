@@ -6,3 +6,4 @@ dependencies:
  - python=3.10
  - pip
  - graphviz
+ - sphinx_rtd_theme>1.2.0
