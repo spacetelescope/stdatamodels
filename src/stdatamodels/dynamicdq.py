@@ -53,14 +53,10 @@ def dynamic_mask(input_model, mnemonic_map, inv=False):
 
             if not inv:
                 # Decompress the DQ array using 'dq_def'.
-                just_this_bit = np.bitwise_and(input_model.dq, bitplane)
-                pixels = np.where(just_this_bit != 0)
-                dqmask[pixels] = np.bitwise_or(dqmask[pixels], standard_bitvalue)
+                dqmask[np.bitwise_and(input_model.dq, bitplane) != 0] |= standard_bitvalue
             else:
                 # Compress the DQ array using 'dq_def'.
-                just_this_bit = np.bitwise_and(input_model.dq, standard_bitvalue)
-                pixels = np.where(just_this_bit != 0)
-                dqmask[pixels] = np.bitwise_or(dqmask[pixels], bitplane)
+                dqmask[np.bitwise_and(input_model.dq, standard_bitvalue) != 0] |= bitplane
 
     else:
         dqmask = input_model.dq
