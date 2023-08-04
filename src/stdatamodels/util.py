@@ -73,8 +73,9 @@ def gentle_asarray(a, dtype):
     in_names = [n.lower() for n in in_dtype.names]
     out_names = [n.lower() for n in out_dtype.names]
     if in_names == out_names:
-        # if we can safely cast, take a view
-        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+        in_subdtypes = [in_dtype[n] for n in in_dtype.names]
+        out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+        if in_subdtypes == out_subdtypes:
             return a.view(dtype=out_dtype)
         else:
             # else, use asanyarray and copy
