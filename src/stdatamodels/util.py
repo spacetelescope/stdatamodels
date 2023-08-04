@@ -24,9 +24,26 @@ log.addHandler(logging.NullHandler())
 
 def gentle_asarray(a, dtype):
     """
-    Performs an asarray that doesn't cause a copy if the byteorder is
-    different.  It also ignores column name differences -- the
-    resulting array will have the column names from the given dtype.
+    Convert ``a`` to dtype ``dtype`` ignoring case differences in
+    dtype field (column) names for structured arrays (tables).
+
+    When name conflicts occur (the cases differ) the name from
+    ``dtype`` will be used.
+
+    Parameters
+    ----------
+
+    a : np.ndarray
+        Array which will be converted to the new dtype.
+
+    dtype : np.dtype
+        The dtype of the new array.
+
+    Returns
+    -------
+
+    new_array : np.ndarray
+        Array converted to the new dtype.
     """
     if isinstance(dtype, np.dtype):
         out_dtype = copy.copy(dtype)
@@ -64,10 +81,6 @@ def gentle_asarray(a, dtype):
 
     if in_dtype == out_dtype:
         return a
-
-    #if len(in_dtype) != len(out_dtype):
-    #    msg = f"Expected {len(out_dtype)} subdtypes, {len(in_dtype)} provided")
-    #    raise ValueError(msg)
 
     # check if names match (ignoring case)
     in_names = [n.lower() for n in in_dtype.names]
