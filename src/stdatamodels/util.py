@@ -32,108 +32,61 @@ def gentle_asarray(a, dtype):
         out_dtype = copy.copy(dtype)
     else:
         out_dtype = np.dtype(dtype)
-    if isinstance(a, np.ndarray):
-        in_dtype = a.dtype
-        # Non-table array
-        if in_dtype.fields is None and out_dtype.fields is None:
-            if np.can_cast(in_dtype, out_dtype, 'equiv'):
-                return a
-            else:
-                return _safe_asanyarray(a, out_dtype)
-        elif in_dtype.fields is not None and out_dtype.fields is not None:
-            # When a FITS file includes a pseudo-unsigned-int column, astropy will return
-            # a FITS_rec with an incorrect table dtype.  The following code rebuilds
-            # in_dtype from the individual fields, which are correctly labeled with an
-            # unsigned int dtype.
-            # We can remove this once the issue is resolved in astropy:
-            # https://github.com/astropy/astropy/issues/8862
-            if isinstance(a, fits.fitsrec.FITS_rec):
-                a.dtype = rebuild_fits_rec_dtype(a)
-                in_dtype = a.dtype
 
-            if in_dtype == out_dtype:
-                return a
-
-            #if len(in_dtype) != len(out_dtype):
-            #    msg = f"Expected {len(out_dtype)} subdtypes, {len(in_dtype)} provided")
-            #    raise ValueError(msg)
-
-            # check if names match (ignoring case)
-            in_names = [n.lower() for n in in_dtype.names]
-            out_names = [n.lower() for n in out_dtype.names]
-            if in_names == out_names:
-                # if we can safely cast, take a view
-                if np.can_cast(in_dtype, out_dtype, 'equiv'):
-                    return a.view(dtype=out_dtype)
-                else:
-                    # else, use asanyarray and copy
-                    return _safe_asanyarray(a, out_dtype)
-
-            # names don't match
-            # try to match the old error message
-            raise ValueError(
-                "Column names don't match schema. "
-                "Schema has {0}. Data has {1}".format(
-                    str(set(out_names).difference(set(in_names))),
-                    str(set(in_names).difference(set(out_names)))))
-
-            # for in_sub_name, out_sub_name in zip(in_dtype.fields, out_dtype.fields):
-            #     # check if subdtype names match (ignoring case)
-            #     if in_sub_name.lower() != out_sub_name.lower():
-            #         msg = f"Column {in_sub_name} does not match {out_sub_name}"
-            #         raise ValueError(msg)
-            #     # TODO if these don't match, copy name from out to in
-
-            #     in_subtype = in_dtype.fields[in_sub_name]
-            #     out_subtype = out_dtype.fields[out_sub_name]
-
-            #     # check that in subdtype can safely cast to out subdtype
-            #     if np.can_cast(in_subdtype, out_subdtype)
-            #     pass
-
-            # # check if dtypes only differ by name
-            # in_names = [n.lower() for n in in_dtype.names]
-            # out_names = [n.lower() for n in out_dtype.names]
-
-            #      raise ValueError(
-            #         "Column names don't match schema. "
-            #         "Schema has {0}. Data has {1}".format(
-
-            # if in_names == out_names:
-            #     # Change the dtype name to match the fits record names
-            #     # as the mismatch causes case insensitive access to fail
-            #     out_dtype.names = in_dtype.names
-            # else:
-            #     raise ValueError(
-            #         "Column names don't match schema. "
-            #         "Schema has {0}. Data has {1}".format(
-            #             str(out_names.difference(in_names)),
-            #             str(in_names.difference(out_names))))
-
-            # new_dtype = []
-            # for i in range(len(out_dtype.fields)):
-            #     in_type = in_dtype[i]
-            #     out_type = out_dtype[i]
-            #     if in_type.subdtype is None:
-            #         type_str = in_type.str
-            #     else:
-            #         type_str = in_type.subdtype[0].str
-            #     if np.can_cast(in_type, out_type, 'equiv'):
-            #         new_dtype.append(
-            #             (out_dtype.names[i],
-            #              type_str,
-            #              in_type.shape))
-            #     else:
-            #         return _safe_asanyarray(a, out_dtype)
-            # return a.view(dtype=np.dtype(new_dtype))
-        else:
-            return _safe_asanyarray(a, out_dtype)
-    else:
+    if not isinstance(a, np.ndarray):
         try:
             a = np.asarray(a, dtype=out_dtype)
         except Exception:
             raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
         return a
+    in_dtype = a.dtype
+
+    # Non-table array
+    if in_dtype.fields is None and out_dtype.fields is None:
+        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+            return a
+        else:
+            return _safe_asanyarray(a, out_dtype)
+
+    # one of these dtypes does not have fields
+    if in_dtype.fields is None or out_dtype.fields is None:
+        return _safe_asanyarray(a, out_dtype)
+
+    # When a FITS file includes a pseudo-unsigned-int column, astropy will return
+    # a FITS_rec with an incorrect table dtype.  The following code rebuilds
+    # in_dtype from the individual fields, which are correctly labeled with an
+    # unsigned int dtype.
+    # We can remove this once the issue is resolved in astropy:
+    # https://github.com/astropy/astropy/issues/8862
+    if isinstance(a, fits.fitsrec.FITS_rec):
+        a.dtype = rebuild_fits_rec_dtype(a)
+        in_dtype = a.dtype
+
+    if in_dtype == out_dtype:
+        return a
+
+    #if len(in_dtype) != len(out_dtype):
+    #    msg = f"Expected {len(out_dtype)} subdtypes, {len(in_dtype)} provided")
+    #    raise ValueError(msg)
+
+    # check if names match (ignoring case)
+    in_names = [n.lower() for n in in_dtype.names]
+    out_names = [n.lower() for n in out_dtype.names]
+    if in_names == out_names:
+        # if we can safely cast, take a view
+        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+            return a.view(dtype=out_dtype)
+        else:
+            # else, use asanyarray and copy
+            return _safe_asanyarray(a, out_dtype)
+
+    # names don't match
+    # try to match the old error message
+    raise ValueError(
+        "Column names don't match schema. "
+        "Schema has {0}. Data has {1}".format(
+            str(set(out_names).difference(set(in_names))),
+            str(set(in_names).difference(set(out_names)))))
 
 
 def _safe_asanyarray(a, dtype):
