@@ -2,6 +2,7 @@
 Various utility functions and data types
 """
 
+import copy
 import os
 
 import numpy as np
@@ -27,7 +28,10 @@ def gentle_asarray(a, dtype):
     different.  It also ignores column name differences -- the
     resulting array will have the column names from the given dtype.
     """
-    out_dtype = np.dtype(dtype)
+    if isinstance(dtype, np.dtype):
+        out_dtype = copy.copy(dtype)
+    else:
+        out_dtype = np.dtype(dtype)
     if isinstance(a, np.ndarray):
         in_dtype = a.dtype
         # Non-table array
