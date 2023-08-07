@@ -6,6 +6,7 @@ import copy
 import os
 
 import numpy as np
+from numpy.lib.recfunctions import merge_arrays
 from astropy.io import fits
 import asdf
 from asdf import treeutil
@@ -95,6 +96,18 @@ def gentle_asarray(a, dtype):
             return _safe_asanyarray(a, out_dtype)
 
     # names don't match
+    # check if names match but the order is incorrect
+    if set(out_names) == set(in_names):
+        # all the columns exist but they are in the wrong order
+        # reorder the columns
+        reordered_array = merge_arrays([a[n] for n in out_names])
+        reordered_subdtypes = [reordered_array.dtype[n] for n in reordered_array.dtype.names]
+        out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+        if reordered_subdtypes == out_subdtypes:
+            return reordered_array
+        else:
+            return _safe_asanyarray(reordered_array, out_dtype)
+
     # try to match the old error message
     raise ValueError(
         "Column names don't match schema. "
