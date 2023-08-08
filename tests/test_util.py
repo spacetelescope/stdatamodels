@@ -172,6 +172,74 @@ def test_gentle_asarray_invalid_conversion():
         util.gentle_asarray(object(), dtype=np.float32)
 
 
+def test_gentle_asarray_reorder_columns():
+    """
+    Test gentle_asarray with a structured array with
+    the correct columns in the wrong order
+    """
+    dt = np.dtype([('a', 'i4'), ('b', 'f8'), ('c', 'S3')])
+    arr = np.zeros(4, dtype=np.dtype([('b', 'f8'), ('a', 'i4'), ('c', 'S3')]))
+    arr['b'] = 0.1
+    r = util.gentle_asarray(arr, dt)
+    assert r.dtype == dt
+    assert np.all(r['b'] == 0.1)
+    assert np.all(r['a'] == 0)
+
+
+@pytest.mark.parametrize("reorder", [True, False], ids=['different_order', 'same_order'])
+@pytest.mark.parametrize("change_dtype", [True, False], ids=['different_dtype', 'same_dtype'])
+@pytest.mark.parametrize("extra_columns", [True, False], ids=['extra_columns', 'no_extra_columns'])
+@pytest.mark.parametrize("allow_extra", [True, False], ids=['allow_extra', 'disallow_extra'])
+def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, extra_columns, allow_extra):
+    target_dtype = np.dtype([('i', 'i4'), ('f', 'f8'), ('s', 'S3'), ('b', 'bool'), ('u', 'uint8'), ('e', 'i4')])
+    input_descr = target_dtype.descr
+    if extra_columns:
+        # add 3 extra columns
+        input_descr.append(('e1', 'i4'))
+        input_descr.append(('e2', 'f8'))
+        input_descr.append(('e3', 'S4'))
+    if change_dtype:
+        input_descr[0] = ('i', 'i8')
+        input_descr[1] = ('f', 'f4')
+        input_descr[5] = ('e', 'f8')
+        if extra_columns:
+            input_descr[6] = ('e1', 'f4')
+            input_descr[7] = ('e2', 'f4')
+    if reorder:
+        input_descr[3], input_descr[2] = input_descr[2], input_descr[3]
+        if extra_columns:
+            input_descr[5], input_descr[6] = input_descr[6], input_descr[5]
+    input_dtype = np.dtype(input_descr)
+    input_array = np.zeros(5, input_dtype)
+    input_array['i'] = 2
+    input_array['f'] = 0.1
+    input_array['s'] = b'a'
+    input_array['b'] = True
+    input_array['u'] = 3
+    if not allow_extra and extra_columns:
+        with pytest.raises(ValueError):
+            new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
+        return
+    else:
+        new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
+    assert np.all(new_array['i'] == 2)
+    assert np.allclose(new_array['f'], 0.1)
+    assert np.all(new_array['s'] == b'a')
+    assert np.all(new_array['b'] == True)
+    assert np.all(new_array['u'] == 3)
+    if not extra_columns:
+        assert new_array.dtype == target_dtype
+    else:
+        assert new_array.dtype.descr[:len(target_dtype.descr)] == target_dtype.descr
+
+
+def test_gentle_asarray_nested_structured_dtype():
+    dt = np.dtype([('a', 'f8'), ('b', [('sa', 'f4'), ('sb', 'i4')])])
+    arr = np.zeros(3, dt)
+    with pytest.raises(ValueError, match=r'.*nested structured dtypes'):
+        util.gentle_asarray(arr, dt)
+
+
 def test_create_history_entry():
     entry = util.create_history_entry("Once upon a time...")
     assert isinstance(entry, HistoryEntry)
