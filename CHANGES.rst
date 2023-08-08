@@ -4,7 +4,7 @@
 Other
 -----
 
--
+- Added the new keyword "GSC_VER" to the JWST core datamodels schema. [#190]
 
 1.7.1 (2023-07-11)
 ==================
