@@ -108,8 +108,9 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     # check if names match but the order is incorrect
     if set(out_lower_names) == set(in_lower_names):
         # all the columns exist but they are in the wrong order
-        # reorder the columns
-        reordered_array = merge_arrays([a[n] for n in out_lower_names], flatten=True)
+        # reorder the columns, the names might differ in case
+        reordered_names = sorted(in_dtype.names, key=lambda n: out_lower_names.index(n.lower()))
+        reordered_array = merge_arrays([a[n] for n in reordered_names], flatten=True)
         reordered_subdtypes = [reordered_array.dtype[n] for n in reordered_array.dtype.names]
         out_subdtypes = [out_dtype[n] for n in out_dtype.names]
         if reordered_subdtypes == out_subdtypes:
@@ -150,15 +151,20 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
             return _safe_asanyarray(a, new_dtype)
 
     # reorder columns so required columns are first
+    required_names = [n for n in in_dtype.names if n.lower() in out_lower_names]
+    required_names.sort(key=lambda n: out_lower_names.index(n.lower()))
     extra_names = [n for n in in_dtype.names if n.lower() not in out_lower_names]
-    names_ordered = out_dtype.names + tuple(extra_names)
+    names_ordered = tuple(required_names + extra_names)
     reordered_array = merge_arrays([a[n] for n in names_ordered], flatten=True)
+    reordered_array.dtype.names = names_ordered
 
     extra_dtype_descr = [(n, in_dtype[n]) for n in extra_names]
     new_dtype = np.dtype(out_dtype.descr + extra_dtype_descr)
 
     # check that required columns have the correct dtype
-    if reordered_array.dtype.descr[:n_required] == out_dtype.descr:
+    reordered_subdtypes = [reordered_array.dtype[n] for n in reordered_array.dtype.names]
+    out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+    if reordered_subdtypes[:n_required] == out_subdtypes:
         return reordered_array.view(new_dtype)
     return _safe_asanyarray(reordered_array, new_dtype)
 
