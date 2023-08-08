@@ -491,6 +491,7 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
     with pytest.raises(ValidationError):
         oifits_ami_model.save(fn)
 
+
 @pytest.mark.parametrize('table_name', ['array', 'target', 'vis', 'vis2', 't3', 'wavelength'])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
