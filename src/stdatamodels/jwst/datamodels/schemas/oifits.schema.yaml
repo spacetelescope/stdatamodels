@@ -204,6 +204,7 @@ allOf:
         datatype: float32
       - name: STAXYZ
         datatype: float64
+        shape: [3]
       - name: FOV
         datatype: float64
       - name: FOVTYPE
