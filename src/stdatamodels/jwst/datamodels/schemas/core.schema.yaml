@@ -33,22 +33,27 @@ properties:
         fits_keyword: FILENAME
         blend_table: True
       data_processing_software_version:
-        title: Data processing software version number
+        title: Data processing (DP) Software Version
         type: string
         fits_keyword: SDP_VER
         blend_table: True
       prd_software_version:
-        title: S&OC PRD version number used in data processing
+        title: S&OC Project Reference Database (PRD) Version
         type: string
         fits_keyword: PRD_VER
         blend_table: True
       oss_software_version:
-        title: Observatory Scheduling Software (OSS) version number
+        title: Observatory Scheduling Software (OSS) Version
         type: string
         fits_keyword: OSS_VER
         blend_table: True
+      guide_star_catalog_version:
+        title: Guide Star Catalog (GSC) Version
+        type: string
+        fits_keyword: GSC_VER
+        blend_table: True
       calibration_software_version:
-        title: Calibration software version number
+        title: Calibration Software Version
         type: string
         fits_keyword: CAL_VER
         blend_table: True
