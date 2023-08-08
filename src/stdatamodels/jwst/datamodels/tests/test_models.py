@@ -5,6 +5,7 @@ from asdf.exceptions import ValidationError
 from astropy.io import fits
 from astropy.table import Table
 from astropy.time import Time
+from numpy.lib.recfunctions import merge_arrays
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
 import pytest
@@ -489,6 +490,14 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
     delattr(oifits_ami_model, keep)
     with pytest.raises(ValidationError):
         oifits_ami_model.save(fn)
+
+@pytest.mark.parametrize('table_name', ['array', 'target', 'vis', 'vis2', 't3', 'wavelength'])
+def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
+    table_data = getattr(oifits_ami_model, table_name)
+    new_table_data = merge_arrays([table_data, np.zeros(table_data.size, dtype=[('extra', 'f8')])], flatten=True)
+    setattr(oifits_ami_model, table_name, new_table_data)
+    fn = tmp_path / "test.fits"
+    oifits_ami_model.save(fn)
 
 
 def test_dq_def_roundtrip(tmp_path):
