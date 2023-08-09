@@ -180,7 +180,16 @@ def _safe_asanyarray(a, dtype):
                 result[new_col] = a[old_col]
             return result
 
-    return np.asanyarray(a, dtype=dtype)
+    result = np.asanyarray(a, dtype=dtype)
+    if isinstance(result, fits.fitsrec.FITS_rec) and isinstance(a, fits.fitsrec.FITS_rec):
+        for column in result.columns:
+            name = column.name
+            try:
+                matching_column = a.columns[name]
+            except KeyError:
+                continue
+            result.columns[name].unit = matching_column.unit
+    return result
 
 
 def create_history_entry(description, software=None):
