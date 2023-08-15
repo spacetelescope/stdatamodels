@@ -1,4 +1,4 @@
-1.7.2 (unreleased)
+1.7.3 (unreleased)
 ==================
 
 Other
@@ -13,8 +13,10 @@ Other
 
 - Use binary masks for dq calculations in dynamicdq [#185]
 
-- Added the new keyword "GSC_VER" to the JWST core datamodels schema. [#190]
+1.7.2 (2023-08-14)
+==================
 
+- Added the new keyword "GSC_VER" to the JWST core datamodels schema. [#190]
 
 1.7.1 (2023-07-11)
 ==================
