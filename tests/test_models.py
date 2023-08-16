@@ -33,16 +33,17 @@ def test_set_shape():
 
 def test_broadcast():
     with BasicModel((50, 50)) as dm:
-        data = np.empty((50,))
+        data = np.zeros((50,))
         dm.dq = data
+        assert dm.dq.dtype == np.uint32
 
 
 def test_broadcast2():
     with BasicModel() as dm:
-        data = np.empty((52, 50))
+        data = np.zeros((52, 50))
         dm.data = data
 
-        dq = np.empty((50,))
+        dq = np.zeros((50,))
         dm.dq = dq
 
 
@@ -87,14 +88,14 @@ def test_stringify(tmp_path):
 
 
 def test_init_with_array():
-    array = np.empty((50, 50))
+    array = np.zeros((50, 50))
     with BasicModel(array) as dm:
         assert dm.data.shape == (50, 50)
 
 
 def test_init_with_array2():
     with pytest.raises(ValueError):
-        array = np.empty((50,))
+        array = np.zeros((50,))
         with BasicModel(array) as dm:
             dm.data
 
@@ -102,13 +103,13 @@ def test_init_with_array2():
 def test_set_array():
     with pytest.raises(ValueError):
         with BasicModel() as dm:
-            data = np.empty((50,))
+            data = np.zeros((50,))
             dm.data = data
 
 
 def test_set_array2():
     with BasicModel() as dm:
-        data = np.empty((50, 50))
+        data = np.zeros((50, 50))
         dm.data = data
 
 
