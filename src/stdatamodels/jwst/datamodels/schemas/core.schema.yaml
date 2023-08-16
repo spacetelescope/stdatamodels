@@ -2212,10 +2212,10 @@ properties:
                 type: string
                 fits_keyword: R_V2V3
                 blend_table: True
-          undersampling_correction:
-            title: Undersampling Correction
+          charge_migration:
+            title: CHARGE MIGRATION
             type: string
-            fits_keyword: S_UNDSMP 
+            fits_keyword: S_CHGLOS 
             blend_table: True
           wavecorr:
             title: Zero point wavelength correction for Nirspec MOS and FS mode
