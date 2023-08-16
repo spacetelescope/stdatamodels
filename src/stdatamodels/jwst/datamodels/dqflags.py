@@ -31,7 +31,7 @@ pixel = {'GOOD':             0,      # No bits set, all is good
          'OUTLIER':          2**4,   # Flagged by outlier detection (was RESERVED_1)
          'PERSISTENCE':      2**5,   # High persistence (was RESERVED_2)
          'AD_FLOOR':         2**6,   # Below A/D floor (0 DN, was RESERVED_3)
-         'CHARGELOSS'        2**7,   # Charge migration (was RESERVED_4)
+         'CHARGELOSS':       2**7,   # Charge migration (was RESERVED_4)
          'UNRELIABLE_ERROR': 2**8,   # Uncertainty exceeds quoted error
          'NON_SCIENCE':      2**9,   # Pixel not on science portion of detector
          'DEAD':             2**10,  # Dead pixel
