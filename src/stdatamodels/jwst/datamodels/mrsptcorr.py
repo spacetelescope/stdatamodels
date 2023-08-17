@@ -12,20 +12,8 @@ class MirMrsPtCorrModel(ReferenceFileModel):
     init : any
         Any of the initializers supported by `~jwst.datamodels.DataModel`.
 
-    data : numpy array
-        An array-like object containing the pixel-by-pixel spectral leak values
-        in units of (MJy / sr) / (DN / sec).
-
-    err : numpy array
-        An array-like object containing the uncertainties in the spectral leak
-        values, in the same units as the data array.
-
-    dq : numpy array
-        An array-like object containing bit-encoded data quality flags,
-        indicating problem conditions for values in the data array.
-
-    dq_def : numpy array
-        A table-like object containing the data quality definitions table.
+    leakcor_table : numpy table
+         IFU spectral leak correction (fractional, Jy to Jy)
 
     tracor_table : numpy table
          IFU across slice transmission correction

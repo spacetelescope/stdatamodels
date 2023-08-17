@@ -9,27 +9,16 @@ allOf:
 - $ref: keyword_pexptype.schema
 - type: object
   properties:
-    data:
-      title: Photometric leak array
-      fits_hdu: SCI
-      default: 1.0
-      ndim: 2
-      datatype: float64
-    err:
-      title: Uncertainty array
-      fits_hdu: ERR
-      default: 0.0
-      ndim: 2
-      datatype: float64
-    dq:
-      title: Data quality array
-      fits_hdu: DQ
-      default: 0
-      ndim: 2
-      datatype: uint32
-- $ref: dq_def.schema
-- type: object
-  properties:
+    leakcor_table:
+      title: IFU spectral leak correction
+      fits_hdu: LEAKCOR
+      datatype:
+      - name: wavelength
+        datatype: float32
+      - name: frac_leak
+        datatype: float32
+      - name: err_leak
+        datatype: float32
     tracor_table:
       title: IFU across slice transmission correction
       fits_hdu: TRACOR

@@ -4,6 +4,9 @@
 Other
 -----
 
+- Change format of the MirMrsPtCorrModel to use a 1d reference table
+  instead of 2d FITS image extensions []
+
 - Remove ignored V23ToSkyConverter from jwst.transforms version 1.0.0
   asdf extension [#184]
 
