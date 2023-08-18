@@ -13,6 +13,13 @@ Other
 
 - Use binary masks for dq calculations in dynamicdq [#185]
 
+- Add keyword_filter.schema reference to gain schema to accomodate
+  changes to CRDS files to support meta.instrument.filter [#197]
+
+- Add charge_migration (new name for undersampling_correction) with keyword
+  S_CHGMIG to cal_step section of core schema.  Change UNDERSAMP DQ flag to
+  CHARGELOSS. [#194]
+
 1.7.2 (2023-08-14)
 ==================
 
