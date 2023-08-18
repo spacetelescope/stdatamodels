@@ -20,6 +20,7 @@ Other
   S_CHGMIG to cal_step section of core schema.  Change UNDERSAMP DQ flag to
   CHARGELOSS. [#194]
 
+
 1.7.2 (2023-08-14)
 ==================
 
