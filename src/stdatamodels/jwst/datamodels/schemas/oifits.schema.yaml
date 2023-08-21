@@ -192,6 +192,7 @@ allOf:
     array:
       title: OIFITS OI_ARRAY table
       fits_hdu: OI_ARRAY
+      allow_extra_columns: true
       datatype:
       - name: TEL_NAME
         datatype: [ascii, 16]
@@ -203,6 +204,7 @@ allOf:
         datatype: float32
       - name: STAXYZ
         datatype: float64
+        shape: [3]
       - name: FOV
         datatype: float64
       - name: FOVTYPE
@@ -213,6 +215,7 @@ allOf:
     target:
       title: OIFITS OI_TARGET table
       fits_hdu: OI_TARGET
+      allow_extra_columns: true
       datatype:
       - name: TARGET_ID
         datatype: int16
@@ -251,6 +254,7 @@ allOf:
     t3:
       title: OIFITS OI_T3 table
       fits_hdu: OI_T3
+      allow_extra_columns: true
       datatype:
       - name: TARGET_ID
         datatype: int16
@@ -284,6 +288,7 @@ allOf:
     vis:
       title: OIFITS OI_VIS table
       fits_hdu: OI_VIS
+      allow_extra_columns: true
       datatype:
       - name: TARGET_ID
         datatype: int16
@@ -313,6 +318,7 @@ allOf:
     vis2:
       title: OIFITS OI_VIS2 table
       fits_hdu: OI_VIS2
+      allow_extra_columns: true
       datatype:
       - name: TARGET_ID
         datatype: int16
@@ -338,6 +344,7 @@ allOf:
     wavelength:
       title: OIFITS OI_WAVELENGTH table
       fits_hdu: OI_WAVELENGTH
+      allow_extra_columns: true
       datatype:
       - name: EFF_WAVE
         datatype: float32

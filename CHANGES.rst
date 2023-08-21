@@ -16,11 +16,15 @@ Other
 - Add keyword_filter.schema reference to gain schema to accomodate
   changes to CRDS files to support meta.instrument.filter [#197]
 
+- Add option to ``allow_extra_columns`` in datamodel schema that defines
+structured arrays (tables) and allow extra columns in oifits tables [#189]
+
 
 1.7.2 (2023-08-14)
 ==================
 
 - Added the new keyword "GSC_VER" to the JWST core datamodels schema. [#190]
+
 
 1.7.1 (2023-07-11)
 ==================
