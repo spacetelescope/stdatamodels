@@ -11,13 +11,13 @@ Other
   directly, remove jsonschema as a direct dependency, increase asdf minimum
   version to 2.15.0.  [#177]
 
-- Use binary masks for dq calculations in dynamicdq [#185]
+- Use binary masks for DQ calculations in dynamicdq [#185]
 
 - Add keyword_filter.schema reference to gain schema to accomodate
-  changes to CRDS files to support meta.instrument.filter [#197]
+  addition of FILTER as a CRDS selector for GAIN ref files. [#197]
 
 - Add option to ``allow_extra_columns`` in datamodel schema that defines
-structured arrays (tables) and allow extra columns in oifits tables [#189]
+  structured arrays (tables) and allow extra columns in tables [#189]
 
 
 1.7.2 (2023-08-14)
