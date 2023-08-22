@@ -17,7 +17,7 @@ allOf:
         kernel_ysize:
           title: outlier detection kernel y size
           type: integer
-          fits_keyword: KERNXSY
+          fits_keyword: KERNYSZ
         threshold_percent:
           title: outlier detection threshold percent
           type: number
