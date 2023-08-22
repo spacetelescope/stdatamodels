@@ -19,6 +19,7 @@ Other
 - Add option to ``allow_extra_columns`` in datamodel schema that defines
   structured arrays (tables) and allow extra columns in tables [#189]
 
+- Fix typo in ``outlierifuoutput`` schema for ``kernel_ysize`` [#191]
 
 1.7.2 (2023-08-14)
 ==================
