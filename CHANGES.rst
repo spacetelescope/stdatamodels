@@ -43,6 +43,8 @@ Other
 
 - Fix typo in ``outlierifuoutput`` schema for ``kernel_ysize`` [#191]
 
+- Add ``AmiLgFitModel`` class and schema [#199]
+
 
 1.7.2 (2023-08-14)
 ==================
