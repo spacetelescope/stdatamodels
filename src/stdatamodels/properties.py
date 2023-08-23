@@ -44,12 +44,16 @@ def _cast(val, schema):
         if isinstance(val, ndarray.NDArrayType):
             val = val._make_array()
 
+        allow_extra_columns = False
         if (_is_struct_array_schema(schema) and len(val) and
             (_is_struct_array_precursor(val) or _is_struct_array(val))):
             # we are dealing with a structured array. Because we may
             # modify schema (to add shape), we make a deep copy of the
             # schema here:
             schema = copy.deepcopy(schema)
+
+            if 'allow_extra_columns' in schema:
+                allow_extra_columns = schema['allow_extra_columns']
 
             for t, v in zip(schema['datatype'], val[0]):
                 if not isinstance(t, Mapping):
@@ -79,7 +83,7 @@ def _cast(val, schema):
                     t['shape'] = shape
 
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
-        val = util.gentle_asarray(val, dtype)
+        val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
 
         if dtype.fields is not None:
             val = _as_fitsrec(val)

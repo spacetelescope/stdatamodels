@@ -11,6 +11,18 @@ from asdf.tags.core import Software, HistoryEntry
 from stdatamodels import util
 
 
+def test_gentle_asarray():
+    x = np.array([('abc', 1.0)], dtype=[
+        ('FOO', 'S3'),
+        ('BAR', '>f8')])
+
+    new_dtype = [('foo', '|S3'), ('bar', '<f8')]
+
+    y = util.gentle_asarray(x, new_dtype)
+
+    assert y['bar'][0] == 1.0
+
+
 def test_gentle_asarray_array_input():
     """
     Test gentle_asarray with various forms of np.ndarray input,
@@ -158,6 +170,88 @@ def test_gentle_asarray_invalid_conversion():
     """
     with pytest.raises(ValueError):
         util.gentle_asarray(object(), dtype=np.float32)
+
+
+@pytest.mark.parametrize("reorder", [True, False], ids=['different_order', 'same_order'])
+@pytest.mark.parametrize("change_dtype", [True, False], ids=['different_dtype', 'same_dtype'])
+@pytest.mark.parametrize("extra_columns", [True, False], ids=['extra_columns', 'no_extra_columns'])
+@pytest.mark.parametrize("allow_extra", [True, False], ids=['allow_extra', 'disallow_extra'])
+@pytest.mark.parametrize("change_case", [True, False], ids=['changed_case', 'same_case'])
+def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, extra_columns, allow_extra, change_case):
+    """
+    Test gentle_asarray with a structured array with a few combinations of:
+        - misordered columns
+        - columns with different dtypes
+        - extra columns
+        - allowing extra columns
+    """
+    # start with a target dtype which should (if no error occurs) be the dtype of the result
+    target_dtype = np.dtype([('i', 'i4'), ('f', 'f8'), ('s', 'S3'), ('b', 'bool'), ('u', 'uint8'), ('e', 'i4')])
+    input_descr = target_dtype.descr
+    if extra_columns:
+        # add 3 extra columns
+        input_descr.append(('e1', 'i4'))
+        input_descr.append(('e2', 'f8'))
+        input_descr.append(('e3', 'S4'))
+    if change_dtype:
+        # change the dtype of a few columns
+        input_descr[0] = ('i', 'i8')
+        input_descr[1] = ('f', 'f4')
+        input_descr[5] = ('e', 'f8')
+        if extra_columns:
+            # if we have extra columns, change those as well
+            input_descr[6] = ('e1', 'f4')
+            input_descr[7] = ('e2', 'i4')
+    if reorder:
+        # swap 2 columns
+        input_descr[3], input_descr[2] = input_descr[2], input_descr[3]
+        if extra_columns:
+            # and swap the first extra column with the last required column
+            input_descr[5], input_descr[6] = input_descr[6], input_descr[5]
+
+    # generate the input datatype and data
+    input_dtype = np.dtype(input_descr)
+    input_array = np.zeros(5, input_dtype)
+    input_array['i'] = 2
+    input_array['f'] = 0.1
+    input_array['s'] = b'a'
+    input_array['b'] = True
+    input_array['u'] = 3
+    if change_case:
+        input_array.dtype.names = tuple([n.upper() for n in input_array.dtype.names])
+        input_dtype = input_array.dtype
+    if not allow_extra and extra_columns:
+        # if we have extra columns, but don't allow them, gentle_asarray should fail
+        with pytest.raises(ValueError):
+            new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
+        return
+
+    new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
+    # check data passed through correctly
+    assert np.all(new_array['i'] == 2)
+    assert np.allclose(new_array['f'], 0.1)
+    assert np.all(new_array['s'] == b'a')
+    assert np.all(new_array['b'] == True)
+    assert np.all(new_array['u'] == 3)
+    if not extra_columns:
+        # if we have not extra columns, the output dtype should match the target
+        assert new_array.dtype == target_dtype
+    else:
+        # if we have extra columns, the required columns should have a dtype
+        # that matches the required dtype
+        n_required = len(target_dtype.descr)
+        assert new_array.dtype.descr[:n_required] == target_dtype.descr
+        # for the extra columns, the dtype should match the input
+        for extra_name in new_array.dtype.names[n_required:]:
+            new_array.dtype[extra_name] == input_dtype[extra_name]
+
+
+
+def test_gentle_asarray_nested_structured_dtype():
+    dt = np.dtype([('a', 'f8'), ('b', [('sa', 'f4'), ('sb', 'i4')])])
+    arr = np.zeros(3, dt)
+    with pytest.raises(ValueError, match=r'.*nested structured dtypes'):
+        util.gentle_asarray(arr, dt)
 
 
 def test_create_history_entry():
