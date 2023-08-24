@@ -16,10 +16,15 @@ Other
 - Add keyword_filter.schema reference to gain schema to accomodate
   addition of FILTER as a CRDS selector for GAIN ref files. [#197]
 
+- Add charge_migration (new name for undersampling_correction) with keyword
+  S_CHGMIG to cal_step section of core schema.  Change UNDERSAMP DQ flag to
+  CHARGELOSS. [#194]
+
 - Add option to ``allow_extra_columns`` in datamodel schema that defines
   structured arrays (tables) and allow extra columns in tables [#189]
 
 - Fix typo in ``outlierifuoutput`` schema for ``kernel_ysize`` [#191]
+
 
 1.7.2 (2023-08-14)
 ==================
