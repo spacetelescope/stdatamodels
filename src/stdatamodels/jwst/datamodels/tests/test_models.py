@@ -566,7 +566,14 @@ def test_nirspec_flat_table_migration(tmp_path, model):
             # drop the error column
             ext.data = drop_fields(ext.data, 'error')
         ff.writeto(fn, overwrite=True)
+    # check that migration works with datamodels.open
     with datamodels.open(fn) as dm:
+        if model == NirspecQuadFlatModel:
+            assert np.isnan(dm.quadrants[0].flat_table['error'][0])
+        else:
+            assert np.isnan(dm.flat_table['error'][0])
+    # and with DataModel(fn)
+    with model(fn) as dm:
         if model == NirspecQuadFlatModel:
             assert np.isnan(dm.quadrants[0].flat_table['error'][0])
         else:
