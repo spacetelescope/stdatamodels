@@ -1,0 +1,49 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/amilgfitmodel.schema"
+title: AMI LG analysis data model
+description: |
+  Centered and optionally cleaned AMI data, best-fit LG model,
+  residual (data-model) images, and the 44-parameter model
+  solution are stored in this datamodel.
+allOf:
+- $ref: core.schema
+- type: object
+  properties:
+    centered_image:
+      title: Centered image
+      fits_hdu: CTRD
+      default: 0.0
+      datatype: float32
+    norm_centered_image:
+      title: Normalized centered image
+      fits_hdu: N_CTRD
+      default: 0.0
+      datatype: float32
+    fit_image:
+      title: Fitted image
+      fits_hdu: FIT
+      default: 0.0
+      datatype: float32
+    norm_fit_image:
+      title: Normalized fitted image
+      fits_hdu: N_FIT
+      default: 0.0
+      datatype: float32
+    resid_image:
+      title: Residual image
+      fits_hdu: RESID
+      default: 0.0
+      datatype: float32
+    norm_resid_image:
+      title: Normalized residual image
+      fits_hdu: N_RESID
+      default: 0.0
+      datatype: float32
+    solns_table:
+      title: Solutions table
+      fits_hdu: SOLNS
+      datatype:
+      - name: coeffs
+        datatype: float64

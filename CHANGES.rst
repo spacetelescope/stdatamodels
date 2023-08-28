@@ -14,7 +14,8 @@ Changes to API
 Other
 -----
 
--
+- Add ``AmiLgFitModel`` class and schema [#199]
+
 
 1.8.0 (2023-08-24)
 ==================
