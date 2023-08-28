@@ -14,7 +14,8 @@ Changes to API
 Other
 -----
 
--
+- Add ``AmiLgFitModel`` class and schema [#199]
+
 
 1.8.0 (2023-08-24)
 ==================
@@ -42,8 +43,6 @@ Other
   structured arrays (tables) and allow extra columns in tables [#189]
 
 - Fix typo in ``outlierifuoutput`` schema for ``kernel_ysize`` [#191]
-
-- Add ``AmiLgFitModel`` class and schema [#199]
 
 
 1.7.2 (2023-08-14)
