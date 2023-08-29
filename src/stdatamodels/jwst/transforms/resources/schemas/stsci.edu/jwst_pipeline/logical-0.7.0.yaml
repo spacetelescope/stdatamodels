@@ -16,7 +16,7 @@ examples:
           value: .nan
 
 allOf:
-  - $ref: "tag:stsci.edu:asdf/transform/transform-1.1.0"
+  - $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.1.0"
   - type: object
     properties:
       condition:

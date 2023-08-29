@@ -28,7 +28,7 @@ examples:
           model_type: unitless2directional
 
 allOf:
-  - $ref:  "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
+  - $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.2.0"
   - object:
     properties:
       model_type:
