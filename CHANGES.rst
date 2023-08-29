@@ -16,6 +16,8 @@ Other
 
 - Add ``AmiLgFitModel`` class and schema [#199]
 
+- Switch schema refs from tags to equivalent uris [#201]
+
 
 1.8.0 (2023-08-24)
 ==================
