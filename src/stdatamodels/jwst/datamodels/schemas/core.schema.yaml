@@ -1335,8 +1335,7 @@ properties:
             fits_keyword: DITH_RA
           dithered_dec:
             title: Dec of dithered pointing location
-            type: float
-            default: 0.0
+            type: number
             fits_keyword: DITH_DEC
       ephemeris:
         title: JWST ephemeris information
