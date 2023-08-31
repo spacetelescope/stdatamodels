@@ -16,6 +16,9 @@ Other
 
 - Add ``AmiLgFitModel`` class and schema [#199]
 
+- Add ``DITH_RA`` and ``DITH_DEC`` to JWST core schema metadata,
+  to be used in spectral extraction window centering. [#203]
+
 
 1.8.0 (2023-08-24)
 ==================
