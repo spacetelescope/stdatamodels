@@ -329,3 +329,14 @@ def rebuild_fits_rec_dtype(fits_rec):
         else:
             new_dtype.append((field_name, table_dtype))
     return np.dtype((np.record, new_dtype))
+
+
+def _fits_rec_to_array(fits_rec):
+    new_dtype = rebuild_fits_rec_dtype(fits_rec)
+    if new_dtype == fits_rec.dtype:
+        return fits_rec.view(np.ndarray)
+    arr = np.asarray(fits_rec, new_dtype)
+    for name in fits_rec.dtype.fields:
+        if new_dtype != fits_rec.dtype[name]:
+            arr[name] = fits_rec[name]
+    return arr

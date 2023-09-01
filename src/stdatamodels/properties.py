@@ -44,6 +44,9 @@ def _cast(val, schema):
         if isinstance(val, ndarray.NDArrayType):
             val = val._make_array()
 
+        if isinstance(val, fits.FITS_rec):
+            val = val.view(np.ndarray)
+
         allow_extra_columns = False
         if (_is_struct_array_schema(schema) and len(val) and
             (_is_struct_array_precursor(val) or _is_struct_array(val))):
@@ -85,8 +88,8 @@ def _cast(val, schema):
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
         val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
 
-        if dtype.fields is not None:
-            val = _as_fitsrec(val)
+        #if dtype.fields is not None:
+        #    val = _as_fitsrec(val)
 
     if 'ndim' in schema and len(val.shape) != schema['ndim']:
         raise ValueError(

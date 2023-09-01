@@ -146,6 +146,7 @@ def _check_value(value, schema, ctx):
         value = remove_none_from_tree(value)
         value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
 
+
         if ctx._validate_arrays:
             validators = _VALIDATORS
         else:
