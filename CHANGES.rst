@@ -22,6 +22,9 @@ Other
 - Change format of the MirMrsPtCorrModel to use a 1d reference table
   instead of 2d FITS image extensions [#196]
 
+- Convert ``FITS_rec`` instances to arrays before serializing or
+  validating with asdf [#205]
+
 
 1.8.0 (2023-08-24)
 ==================
