@@ -25,7 +25,7 @@ from . import fits_support
 from . import properties
 from . import schema as mschema
 from . import validate
-from .util import get_envar_as_boolean, remove_none_from_tree
+from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
 
 from .history import HistoryList
 
@@ -585,9 +585,14 @@ class DataModel(properties.ObjectNode):
             `~asdf.AsdfFile.write_to`.
         """
         self.on_save(init)
-        self.validate()
-        asdffile = self.open_asdf(self._instance, **kwargs)
+        self.validate()  # required to trigger ValidationWarning
+        tree = convert_fitsrec_to_array_in_tree(self._instance)
+        # don't open_asdf(tree) as this will cause a second validation of the tree
+        # instead open an empty tree, then assign to the hidden '_tree'
+        asdffile = self.open_asdf(None, **kwargs)
+        asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
+
 
     @classmethod
     def from_fits(cls, init, schema=None, **kwargs):
