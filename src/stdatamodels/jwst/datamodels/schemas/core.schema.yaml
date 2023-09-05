@@ -2212,11 +2212,6 @@ properties:
                 type: string
                 fits_keyword: R_V2V3
                 blend_table: True
-          undersampling_correction:
-            title: Undersampling Correction
-            type: string
-            fits_keyword: S_UNDSMP 
-            blend_table: True
           wavecorr:
             title: Zero point wavelength correction for Nirspec MOS and FS mode
             type: object
@@ -2287,6 +2282,11 @@ properties:
             title: Bar shadow correction
             type: string
             fits_keyword: S_BARSHA
+            blend_table: True
+          charge_migration:
+            title: Charge Migration
+            type: string
+            fits_keyword: S_CHGMIG
             blend_table: True
           combine_1d:
             title: 1-D Spectral Combination

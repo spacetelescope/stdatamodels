@@ -1,4 +1,23 @@
-1.7.3 (unreleased)
+1.8.1 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+-
+
+Changes to API
+--------------
+
+-
+
+Other
+-----
+
+- Add ``AmiLgFitModel`` class and schema [#199]
+
+
+1.8.0 (2023-08-24)
 ==================
 
 Other
@@ -14,12 +33,26 @@ Other
   directly, remove jsonschema as a direct dependency, increase asdf minimum
   version to 2.15.0.  [#177]
 
-- Use binary masks for dq calculations in dynamicdq [#185]
+- Use binary masks for DQ calculations in dynamicdq [#185]
+
+- Add keyword_filter.schema reference to gain schema to accomodate
+  addition of FILTER as a CRDS selector for GAIN ref files. [#197]
+
+- Add charge_migration (new name for undersampling_correction) with keyword
+  S_CHGMIG to cal_step section of core schema.  Change UNDERSAMP DQ flag to
+  CHARGELOSS. [#194]
+
+- Add option to ``allow_extra_columns`` in datamodel schema that defines
+  structured arrays (tables) and allow extra columns in tables [#189]
+
+- Fix typo in ``outlierifuoutput`` schema for ``kernel_ysize`` [#191]
+
 
 1.7.2 (2023-08-14)
 ==================
 
 - Added the new keyword "GSC_VER" to the JWST core datamodels schema. [#190]
+
 
 1.7.1 (2023-07-11)
 ==================

@@ -2,9 +2,11 @@
 Various utility functions and data types
 """
 
+import copy
 import os
 
 import numpy as np
+from numpy.lib.recfunctions import merge_arrays
 from astropy.io import fits
 import asdf
 from asdf import treeutil
@@ -21,71 +23,150 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def gentle_asarray(a, dtype):
+def gentle_asarray(a, dtype, allow_extra_columns=False):
     """
-    Performs an asarray that doesn't cause a copy if the byteorder is
-    different.  It also ignores column name differences -- the
-    resulting array will have the column names from the given dtype.
+    Convert ``a`` to dtype ``dtype`` ignoring case differences in
+    dtype field (column) names for structured arrays (tables).
+
+    When name conflicts occur (the cases differ) the name from
+    ``dtype`` will be used.
+
+    Parameters
+    ----------
+
+    a : np.ndarray
+        Array which will be converted to the new dtype.
+
+    dtype : np.dtype
+        The dtype of the new array.
+
+    Returns
+    -------
+
+    new_array : np.ndarray
+        Array converted to the new dtype.
     """
-    out_dtype = np.dtype(dtype)
-    if isinstance(a, np.ndarray):
-        in_dtype = a.dtype
-        # Non-table array
-        if in_dtype.fields is None and out_dtype.fields is None:
-            if np.can_cast(in_dtype, out_dtype, 'equiv'):
-                return a
-            else:
-                return _safe_asanyarray(a, out_dtype)
-        elif in_dtype.fields is not None and out_dtype.fields is not None:
-            # When a FITS file includes a pseudo-unsigned-int column, astropy will return
-            # a FITS_rec with an incorrect table dtype.  The following code rebuilds
-            # in_dtype from the individual fields, which are correctly labeled with an
-            # unsigned int dtype.
-            # We can remove this once the issue is resolved in astropy:
-            # https://github.com/astropy/astropy/issues/8862
-            if isinstance(a, fits.fitsrec.FITS_rec):
-                a.dtype = rebuild_fits_rec_dtype(a)
-                in_dtype = a.dtype
-
-            if in_dtype == out_dtype:
-                return a
-            in_names = {n.lower() for n in in_dtype.names}
-            out_names = {n.lower() for n in out_dtype.names}
-            if in_names == out_names:
-                # Change the dtype name to match the fits record names
-                # as the mismatch causes case insensitive access to fail
-                out_dtype.names = in_dtype.names
-            else:
-                raise ValueError(
-                    "Column names don't match schema. "
-                    "Schema has {0}. Data has {1}".format(
-                        str(out_names.difference(in_names)),
-                        str(in_names.difference(out_names))))
-
-            new_dtype = []
-            for i in range(len(out_dtype.fields)):
-                in_type = in_dtype[i]
-                out_type = out_dtype[i]
-                if in_type.subdtype is None:
-                    type_str = in_type.str
-                else:
-                    type_str = in_type.subdtype[0].str
-                if np.can_cast(in_type, out_type, 'equiv'):
-                    new_dtype.append(
-                        (out_dtype.names[i],
-                         type_str,
-                         in_type.shape))
-                else:
-                    return _safe_asanyarray(a, out_dtype)
-            return a.view(dtype=np.dtype(new_dtype))
-        else:
-            return _safe_asanyarray(a, out_dtype)
+    if isinstance(dtype, np.dtype):
+        out_dtype = copy.copy(dtype)
     else:
+        out_dtype = np.dtype(dtype)
+
+    if not isinstance(a, np.ndarray):
         try:
             a = np.asarray(a, dtype=out_dtype)
         except Exception:
             raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
         return a
+    in_dtype = a.dtype
+
+    # Non-table array
+    if in_dtype.fields is None and out_dtype.fields is None:
+        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+            return a
+        else:
+            return _safe_asanyarray(a, out_dtype)
+
+    # one of these dtypes does not have fields
+    if in_dtype.fields is None or out_dtype.fields is None:
+        return _safe_asanyarray(a, out_dtype)
+
+    # this function should not handle nested structured dtypes
+    # as they aren't supported by FITS_rec and not handled well
+    # by merge_arrays below (which currently flattens the dtype)
+    for dt in (in_dtype, out_dtype):
+        for n in dt.names:
+            if dt[n].names is not None:
+                msg = f"gentle_asarray does not support nested structured dtypes: {dt}"
+                raise ValueError(msg)
+
+    # When a FITS file includes a pseudo-unsigned-int column, astropy will return
+    # a FITS_rec with an incorrect table dtype.  The following code rebuilds
+    # in_dtype from the individual fields, which are correctly labeled with an
+    # unsigned int dtype.
+    # We can remove this once the issue is resolved in astropy:
+    # https://github.com/astropy/astropy/issues/8862
+    if isinstance(a, fits.fitsrec.FITS_rec):
+        a.dtype = rebuild_fits_rec_dtype(a)
+        in_dtype = a.dtype
+
+    if in_dtype == out_dtype:
+        return a
+
+    # check if names match (ignoring case)
+    in_lower_names = [n.lower() for n in in_dtype.names]
+    out_lower_names = [n.lower() for n in out_dtype.names]
+    if in_lower_names == out_lower_names:
+        in_subdtypes = [in_dtype[n] for n in in_dtype.names]
+        out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+        if in_subdtypes == out_subdtypes:
+            return a.view(dtype=out_dtype)
+        else:
+            # else, use asanyarray and copy
+            return _safe_asanyarray(a, out_dtype)
+
+    # names don't match
+    # check if names match but the order is incorrect
+    if set(out_lower_names) == set(in_lower_names):
+        # all the columns exist but they are in the wrong order
+        # reorder the columns, the names might differ in case
+        reordered_names = sorted(in_dtype.names, key=lambda n: out_lower_names.index(n.lower()))
+        reordered_array = merge_arrays([a[n] for n in reordered_names], flatten=True)
+        reordered_subdtypes = [reordered_array.dtype[n] for n in reordered_array.dtype.names]
+        out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+        if reordered_subdtypes == out_subdtypes:
+            return reordered_array.view(out_dtype)
+        else:
+            return _safe_asanyarray(reordered_array, out_dtype)
+
+    # if extra columns are not allowed or they are (and the required columns are missing)
+    # then raise an exception
+    if not allow_extra_columns or (not set(out_lower_names).issubset(in_lower_names)):
+        # try to match the old error message
+        raise ValueError(
+            "Column names don't match schema. "
+            "Schema has {0}. Data has {1}".format(
+                str(set(out_lower_names).difference(set(in_lower_names))),
+                str(set(in_lower_names).difference(set(out_lower_names)))))
+
+    # construct new dtype with required columns at start
+    # in_dtype vs out_dtype
+    # - might have inconsequential (since fitsrec is used) name differences
+    # - might have dtype differences (requiring _safe_asanyarray)
+    # - in_dtype will have more columns (since we've handled everything else above)
+    # if the first set of columns match (by name and dtype) the required dtype, return the array
+    n_required = len(out_dtype)
+    if in_dtype.descr[:n_required] == out_dtype.descr:
+        return a
+
+    # if the names of the first n_required columns match the columns
+    if in_lower_names[:n_required] == out_lower_names:
+        in_subdtypes = [in_dtype[n] for n in in_dtype.names]
+        out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+        new_dtype = copy.copy(in_dtype)
+        new_dtype.names = tuple(out_dtype.names + in_dtype.names[n_required:])
+        if in_subdtypes[:n_required] == out_subdtypes:
+            return a.view(dtype=new_dtype)
+        else:
+            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr):])
+            return _safe_asanyarray(a, new_dtype)
+
+    # reorder columns so required columns are first
+    required_names = [n for n in in_dtype.names if n.lower() in out_lower_names]
+    required_names.sort(key=lambda n: out_lower_names.index(n.lower()))
+    extra_names = [n for n in in_dtype.names if n.lower() not in out_lower_names]
+    names_ordered = tuple(required_names + extra_names)
+    reordered_array = merge_arrays([a[n] for n in names_ordered], flatten=True)
+    reordered_array.dtype.names = names_ordered
+
+    extra_dtype_descr = [(n, in_dtype[n]) for n in extra_names]
+    new_dtype = np.dtype(out_dtype.descr + extra_dtype_descr)
+
+    # check that required columns have the correct dtype
+    reordered_subdtypes = [reordered_array.dtype[n] for n in reordered_array.dtype.names]
+    out_subdtypes = [out_dtype[n] for n in out_dtype.names]
+    if reordered_subdtypes[:n_required] == out_subdtypes:
+        return reordered_array.view(new_dtype)
+    return _safe_asanyarray(reordered_array, new_dtype)
 
 
 def _safe_asanyarray(a, dtype):
@@ -99,7 +180,16 @@ def _safe_asanyarray(a, dtype):
                 result[new_col] = a[old_col]
             return result
 
-    return np.asanyarray(a, dtype=dtype)
+    result = np.asanyarray(a, dtype=dtype)
+    if isinstance(result, fits.fitsrec.FITS_rec) and isinstance(a, fits.fitsrec.FITS_rec):
+        for column in result.columns:
+            name = column.name
+            try:
+                matching_column = a.columns[name]
+            except KeyError:
+                continue
+            result.columns[name].unit = matching_column.unit
+    return result
 
 
 def create_history_entry(description, software=None):

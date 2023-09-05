@@ -1,9 +1,12 @@
 import os
 import logging
 from collections.abc import Iterable
-from stdatamodels.jwst import datamodels as dm
-import pytest
 import warnings
+
+import asdf
+import pytest
+
+from stdatamodels.jwst import datamodels as dm
 
 os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 
@@ -207,6 +210,11 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                         with warnings.catch_warnings():
                             warnings.simplefilter('ignore', dm.util.NoTypeWarning)
                             refs = cache_references(context, {reftype: f})
+                            if os.path.basename(refs[reftype]) == 'jwst_fgs_distortion_0003.asdf':
+                                # jwst_fgs_distortion_0003.asdf contains an invalid set of ASDF
+                                # tags and will load with a warning for asdf >= 3.0. This is a known
+                                # issue and doesn't affect the use of the file in this test.
+                                warnings.simplefilter('ignore', asdf.exceptions.AsdfConversionWarning)
                             with dm.open(refs[reftype]) as model:
                                 try:
                                     ref_exptype = model.meta.exposure.type
