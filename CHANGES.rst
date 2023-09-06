@@ -16,6 +16,9 @@ Other
 
 - Add ``AmiLgFitModel`` class and schema [#199]
 
+- Change format of the MirMrsPtCorrModel to use a 1d reference table
+  instead of 2d FITS image extensions [#196]
+
 
 1.8.0 (2023-08-24)
 ==================
