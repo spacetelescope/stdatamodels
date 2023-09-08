@@ -1,4 +1,3 @@
-from astropy.io.fits import HDUList
 import numpy as np
 from numpy.lib.recfunctions import merge_arrays
 
