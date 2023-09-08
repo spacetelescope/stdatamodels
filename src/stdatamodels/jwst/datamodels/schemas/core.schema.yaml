@@ -1328,6 +1328,14 @@ properties:
             type: string
             enum: [ALL, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4]
             fits_keyword: MRSPRCHN
+          dithered_ra:
+            title: RA of dithered pointing location
+            type: number
+            fits_keyword: DITH_RA
+          dithered_dec:
+            title: Dec of dithered pointing location
+            type: number
+            fits_keyword: DITH_DEC
       ephemeris:
         title: JWST ephemeris information
         type: object
