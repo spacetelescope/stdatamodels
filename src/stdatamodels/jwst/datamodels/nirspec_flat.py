@@ -24,8 +24,8 @@ def _migrate_fast_variation_table(hdulist):
         # for older files they might be missing an 'err' column
         table_data = ext.data
         if ('error', '>f4') not in table_data.dtype.descr:
-            err_column = np.full(table_data.shape[0], np.nan, dtype=[('error', '>f4')])
-            table_data = merge_arrays((table_data, err_column), flatten=True)
+            err_column = np.full(table_data.wavelength.shape, np.nan, dtype=[('error', '>f4')])
+            table_data = merge_arrays((table_data, err_column))
             ext.data = table_data
     return hdulist
 
