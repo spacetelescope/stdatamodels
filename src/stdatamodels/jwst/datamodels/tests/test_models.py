@@ -548,16 +548,26 @@ def test_deprecation_data_model():
             pass
 
 
+@pytest.mark.parametrize("shape", [None, 10])
 @pytest.mark.parametrize("model", [NirspecFlatModel, NirspecQuadFlatModel])
-def test_nirspec_flat_table_migration(tmp_path, model):
+def test_nirspec_flat_table_migration(tmp_path, model, shape):
     fn = tmp_path / 'test.fits'
-    fake_data = [('ABC', 1, 0.1, 2.0, 3.0)]
+
+    def make_data(table_dtype):
+        if shape:
+            fake_data = [('ABC', shape, [0.1] * shape, [2.0] * shape, [3.0] * shape)]
+            dtype = [(n, table_dtype[n], shape if n != 'slit_name' else ()) for n in table_dtype.fields]
+        else:
+            fake_data = [('ABC', 1, 0.1, 2.0, 3.0)]
+            dtype = table_dtype
+        return np.array(fake_data, dtype=dtype)
+
     m = model()
     if model == NirspecQuadFlatModel:
         m.quadrants.append(m.quadrants.item())
-        m.quadrants[0].flat_table = np.array(fake_data, dtype=m.quadrants[0].flat_table.dtype)
+        m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
     else:
-        m.flat_table = np.array(fake_data, dtype=m.flat_table.dtype)
+        m.flat_table = make_data(m.flat_table.dtype)
     m.save(fn)
     with fits.open(fn) as ff:
         for ext in ff:
@@ -566,15 +576,17 @@ def test_nirspec_flat_table_migration(tmp_path, model):
             # drop the error column
             ext.data = drop_fields(ext.data, 'error')
         ff.writeto(fn, overwrite=True)
+
+    def check_error_column(model):
+        if isinstance(model, NirspecQuadFlatModel):
+            table = model.quadrants[0].flat_table
+        else:
+            table = model.flat_table
+        assert np.all(np.isnan(table['error']))
+
     # check that migration works with datamodels.open
     with datamodels.open(fn) as dm:
-        if model == NirspecQuadFlatModel:
-            assert np.isnan(dm.quadrants[0].flat_table['error'][0])
-        else:
-            assert np.isnan(dm.flat_table['error'][0])
+        check_error_column(dm)
     # and with DataModel(fn)
     with model(fn) as dm:
-        if model == NirspecQuadFlatModel:
-            assert np.isnan(dm.quadrants[0].flat_table['error'][0])
-        else:
-            assert np.isnan(dm.flat_table['error'][0])
+        check_error_column(dm)
