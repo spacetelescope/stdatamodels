@@ -1,4 +1,5 @@
 import numpy as np
+from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
@@ -57,7 +58,8 @@ class NirspecFlatModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nirspec_flat.schema"
 
     def __init__(self, init=None, **kwargs):
-        init = _migrate_fast_variation_table(init)
+        if isinstance(init, fits.HDUList):
+            init = _migrate_fast_variation_table(init)
 
         super(NirspecFlatModel, self).__init__(init=init, **kwargs)
 
@@ -99,7 +101,8 @@ class NirspecQuadFlatModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nirspec_quad_flat.schema"
 
     def __init__(self, init=None, **kwargs):
-        init = _migrate_fast_variation_table(init)
+        if isinstance(init, fits.HDUList):
+            init = _migrate_fast_variation_table(init)
 
         if isinstance(init, NirspecFlatModel):
             super(NirspecQuadFlatModel, self).__init__(init=None, **kwargs)
