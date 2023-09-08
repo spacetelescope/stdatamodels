@@ -19,6 +19,9 @@ Other
 - Add ``DITH_RA`` and ``DITH_DEC`` to JWST core schema metadata,
   to be used in spectral extraction window centering. [#203]
 
+- Change format of the MirMrsPtCorrModel to use a 1d reference table
+  instead of 2d FITS image extensions [#196]
+
 
 1.8.0 (2023-08-24)
 ==================
