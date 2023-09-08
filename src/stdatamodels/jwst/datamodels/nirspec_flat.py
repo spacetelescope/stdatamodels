@@ -10,7 +10,7 @@ from .reference import ReferenceFileModel
 __all__ = ['NirspecFlatModel', 'NirspecQuadFlatModel']
 
 
-def _migrate_missing_error_hdulist(hdulist):
+def _migrate_fast_variation_table(hdulist):
     # Files produced with NirspecFlatModel and NirspecQuadFlatModel
     # prior to https://github.com/spacetelescope/stdatamodels/pull/183
     # have flat_table tables (stored in the FAST_VARIATION extension)
@@ -70,7 +70,7 @@ class NirspecFlatModel(ReferenceFileModel):
         self.err = self.err
 
     def _migrate_hdulist(self, hdulist):
-        return _migrate_missing_error_hdulist(hdulist)
+        return _migrate_fast_variation_table(hdulist)
 
 
 class NirspecQuadFlatModel(ReferenceFileModel):
@@ -118,4 +118,4 @@ class NirspecQuadFlatModel(ReferenceFileModel):
         super(NirspecQuadFlatModel, self).__init__(init=init, **kwargs)
 
     def _migrate_hdulist(self, hdulist):
-        return _migrate_missing_error_hdulist(hdulist)
+        return _migrate_fast_variation_table(hdulist)
