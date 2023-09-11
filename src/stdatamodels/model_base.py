@@ -220,6 +220,7 @@ class DataModel(properties.ObjectNode):
             asdffile = init
 
         elif isinstance(init, fits.HDUList):
+            init = self._migrate_hdulist(init)
             asdffile = fits_support.from_fits(init, self._schema, self._ctx,
                                               **kwargs)
 
@@ -233,6 +234,7 @@ class DataModel(properties.ObjectNode):
             if file_type == "fits":
                 hdulist = fits.open(init, memmap=memmap)
                 self._file_references.append(_FileReference(hdulist))
+                hdulist = self._migrate_hdulist(hdulist)
                 asdffile = fits_support.from_fits(
                     hdulist, self._schema, self._ctx, **kwargs
                 )
@@ -291,6 +293,34 @@ class DataModel(properties.ObjectNode):
 
         # Call hook that sets model properties
         self.on_init(init)
+
+    def _migrate_hdulist(self, hdulist):
+        """
+        Optional method that can migrate a hdulist for an old (incompatible)
+        format to a new format.
+
+        For example, say you have a file with a table that is missing a
+        column that is now required. This method can be used to add the
+        missing column to the old file.
+
+        This method is only called when a datamodel is constructed using a
+        HDUList or a string (not when the DataModel is cloned or created
+        from an existing DataModel).
+
+        The migration occurs prior to loading the ASDF extension.
+
+        Parameters
+        ----------
+        hdulist : HDUList
+            The opened hdulist that this method should possibly migrate.
+
+        Returns
+        -------
+        migrated_hdulist : HDUList
+            The migrated/updated hdulist (this can be identical to the
+            input hdulist if no migration is needed).
+        """
+        return hdulist
 
     @property
     def _ctx(self):

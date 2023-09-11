@@ -8,11 +8,13 @@ from astropy.time import Time
 from numpy.lib.recfunctions import merge_arrays
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
+from numpy.lib.recfunctions import drop_fields
 import pytest
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
                                           MultiSlitModel, SlitModel, DataModel,
                                           DrizProductModel, MultiProductModel, MIRIRampModel,
+                                          NirspecFlatModel, NirspecQuadFlatModel,
                                           SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
@@ -544,3 +546,47 @@ def test_deprecation_data_model():
     with pytest.deprecated_call():
         class Dummy(DataModel):
             pass
+
+
+@pytest.mark.parametrize("shape", [None, 10])
+@pytest.mark.parametrize("model", [NirspecFlatModel, NirspecQuadFlatModel])
+def test_nirspec_flat_table_migration(tmp_path, model, shape):
+    fn = tmp_path / 'test.fits'
+
+    def make_data(table_dtype):
+        if shape:
+            fake_data = [('ABC', shape, [0.1] * shape, [2.0] * shape, [3.0] * shape)]
+            dtype = [(n, table_dtype[n], shape if n != 'slit_name' else ()) for n in table_dtype.fields]
+        else:
+            fake_data = [('ABC', 1, 0.1, 2.0, 3.0)]
+            dtype = table_dtype
+        return np.array(fake_data, dtype=dtype)
+
+    m = model()
+    if model == NirspecQuadFlatModel:
+        m.quadrants.append(m.quadrants.item())
+        m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
+    else:
+        m.flat_table = make_data(m.flat_table.dtype)
+    m.save(fn)
+    with fits.open(fn) as ff:
+        for ext in ff:
+            if ext.name != 'FAST_VARIATION':
+                continue
+            # drop the error column
+            ext.data = drop_fields(ext.data, 'error')
+        ff.writeto(fn, overwrite=True)
+
+    def check_error_column(model):
+        if isinstance(model, NirspecQuadFlatModel):
+            table = model.quadrants[0].flat_table
+        else:
+            table = model.flat_table
+        assert np.all(np.isnan(table['error']))
+
+    # check that migration works with datamodels.open
+    with datamodels.open(fn) as dm:
+        check_error_column(dm)
+    # and with DataModel(fn)
+    with model(fn) as dm:
+        check_error_column(dm)
