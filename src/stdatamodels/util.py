@@ -333,7 +333,7 @@ def rebuild_fits_rec_dtype(fits_rec):
     for field_name in dtype.fields:
         table_dtype = dtype[field_name]
         field_dtype = fits_rec.field(field_name).dtype
-        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(field_dtype, np.unsignedinteger):
+        if np.issubdtype(field_dtype, np.unsignedinteger):
             new_dtype.append((field_name, field_dtype))
         else:
             new_dtype.append((field_name, table_dtype))
