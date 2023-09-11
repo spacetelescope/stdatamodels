@@ -318,6 +318,15 @@ def remove_none_from_tree(tree):
     return treeutil.walk_and_modify(tree, _remove_none)
 
 
+def convert_fitsrec_to_array_in_tree(tree):
+    def _convert_fitsrec(node):
+        if isinstance(node, fits.FITS_rec):
+            return _fits_rec_to_array(node)
+        else:
+            return node
+    return treeutil.walk_and_modify(tree, _convert_fitsrec)
+
+
 def rebuild_fits_rec_dtype(fits_rec):
     dtype = fits_rec.dtype
     new_dtype = []
@@ -329,3 +338,14 @@ def rebuild_fits_rec_dtype(fits_rec):
         else:
             new_dtype.append((field_name, table_dtype))
     return np.dtype((np.record, new_dtype))
+
+
+def _fits_rec_to_array(fits_rec):
+    bad_columns = [n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)]
+    if not len(bad_columns):
+        return fits_rec.view(np.ndarray)
+    new_dtype = rebuild_fits_rec_dtype(fits_rec)
+    arr = np.asarray(fits_rec, new_dtype).copy()
+    for name in bad_columns:
+        arr[name] = fits_rec[name]
+    return arr

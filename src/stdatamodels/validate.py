@@ -11,7 +11,7 @@ from asdf.schema import YAML_VALIDATORS
 from asdf.util import HashableDict
 import numpy as np
 
-from .util import remove_none_from_tree
+from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
 
 
 class ValidationWarning(Warning):
@@ -144,6 +144,7 @@ def _check_value(value, schema, ctx):
         # converting to tagged tree, so that we don't have to descend unnecessarily
         # into nodes for custom types.
         value = remove_none_from_tree(value)
+        value = convert_fitsrec_to_array_in_tree(value)
         value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
 
         if ctx._validate_arrays:

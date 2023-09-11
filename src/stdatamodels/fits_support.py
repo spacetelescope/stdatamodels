@@ -775,7 +775,8 @@ def _map_hdulist_to_arrays(hdulist, af):
             data = hdulist[pair].data
             return data
         return node
-    af.tree = treeutil.walk_and_modify(af.tree, callback)
+    # don't assign to af.tree to avoid an extra validation
+    af._tree = treeutil.walk_and_modify(af.tree, callback)
 
 
 def from_fits_hdu(hdu, schema, cast_arrays=True):
