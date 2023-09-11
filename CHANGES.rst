@@ -16,6 +16,8 @@ Other
 
 - Add ``AmiLgFitModel`` class and schema [#199]
 
+- Switch schema refs from tags to equivalent uris [#201]
+
 - Add ``DITH_RA`` and ``DITH_DEC`` to JWST core schema metadata,
   to be used in spectral extraction window centering. [#203]
 
