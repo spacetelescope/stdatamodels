@@ -71,6 +71,8 @@ jobs:
           python-version: 3.11
         - linux: test-xdist-cov
           coverage: codecov
+        - linux: test-xdist-devdeps
+          python-version: 3.11
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     needs: [ crds ]
@@ -84,3 +86,4 @@ jobs:
       cache-key: crds-${{ needs.crds.outputs.context }}
       envs: |
         - linux: test-jwst-xdist-cov
+        - linux: test-jwst-xdist-devdeps

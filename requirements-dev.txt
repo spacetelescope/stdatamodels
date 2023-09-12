@@ -1,0 +1,11 @@
+git+https://github.com/astropy/asdf-astropy
+git+https://github.com/asdf-format/asdf
+
+# Use weekly astropy dev build
+--extra-index-url https://pypi.anaconda.org/astropy/simple astropy --pre
+
+# Use Bi-weekly numpy/scipy dev builds
+--extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+numpy>=0.0.dev0
+# even though we don't need scipy some deps might and it's version is tightly linked to numpy
+scipy>=0.0.dev0
