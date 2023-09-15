@@ -229,8 +229,10 @@ class RefractionIndexFromPrism(Model):
         self.outputs = ("n",)
 
     def evaluate(self, alpha_in, beta_in, alpha_out, prism_angle):
-        sangle = (math.sin(prism_angle))
-        cangle = (math.cos(prism_angle))
+        if isinstance(prism_angle, np.ndarray) and prism_angle.ndim == 1 and prism_angle.size == 1:
+            prism_angle = prism_angle[0]
+        sangle = np.sin(prism_angle)
+        cangle = np.cos(prism_angle)
         nsq = ((alpha_out + alpha_in * (1 - 2 * sangle ** 2)) / (2 * sangle * cangle)) ** 2 + \
             alpha_in ** 2 + beta_in ** 2
         return np.sqrt(nsq)
