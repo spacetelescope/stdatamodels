@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   data:
+    if: (github.repository == 'spacetelescope/stdatamodels' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run devdeps tests')))
     name: retrieve current CRDS context
     runs-on: ubuntu-latest
     env:
@@ -43,6 +44,7 @@ jobs:
       crds_path: ${{ steps.crds_path.outputs.path }}
       crds_server: ${{ steps.crds_server.outputs.url }}
   test:
+    if: (github.repository == 'spacetelescope/stdatamodels' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run devdeps tests')))
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
     needs: [ data ]
     with:
