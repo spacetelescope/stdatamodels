@@ -12,7 +12,8 @@ Bug Fixes
 Changes to API
 --------------
 
--
+- Deprecate ``cast_arrays`` argument to ``from_fits_hdu`` and
+  ``cast_fits_arrays`` argument to ``Datamodel.__init__`` [#214]
 
 Other
 -----
