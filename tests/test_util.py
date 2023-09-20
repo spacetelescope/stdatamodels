@@ -103,17 +103,46 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned(tmp_path):
     # handling on our end to dodge the bug.
     file_path = tmp_path / "test.fits"
 
-    data = np.array([(0,)], dtype=[("col1", np.uint16)])
+    dtype = np.dtype('>u2')
+    data = np.array([(0,)], dtype=[("col1", dtype)])
     hdu = fits.BinTableHDU()
     hdu.data = data
     hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
     hdul.writeto(file_path)
 
     with fits.open(file_path) as hdul:
-        result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", np.uint32)])
-        # Without the fix, the value in the array would be 128 due to bzero
-        # shift being applied twice.
-        assert result[0][0] == 0
+        for dtype_str in ('>u2', '<u2', '>i2', '<i2'):
+            dtype = np.dtype(dtype_str)
+            result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", dtype)])
+            # Without the fix, the value in the array would be 128 due to bzero
+            # shift being applied twice.
+            assert result[0][0] == 0
+
+
+def test_gentle_asarray_fits_rec_pseudo_unsigned_shaped(tmp_path):
+    # This tests the case where a table with a pseudo unsigned integer column
+    # is opened from a FITS file and needs to be cast.  This requires special
+    # handling on our end to dodge the bug.
+    file_path = tmp_path / "test.fits"
+
+    data = np.array([((1,2),), ((3,4),)], dtype=[("col1", '>u2', 2)])
+    hdu = fits.BinTableHDU()
+    hdu.data = data
+    hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
+    hdul.writeto(file_path)
+
+    with fits.open(file_path) as hdul:
+        for sdtype in  (np.dtype('>i2'), np.dtype('>u2')):
+            result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", sdtype, 2)])
+            assert result['col1'].dtype.base == sdtype
+            assert result.dtype['col1'].base == sdtype
+            assert result.dtype['col1'].shape == (2, )
+            assert result['col1'][0][0] == 1
+            assert result['col1'][0][1] == 2
+            assert result['col1'][1][0] == 3
+            assert result['col1'][1][1] == 4
+            assert result['col1'][[True, False]][0][0] == 1
+            assert result['col1'][[True, False]][0][1] == 2
 
 
 def test_gentle_asarray_nested_array():
