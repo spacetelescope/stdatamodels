@@ -6,6 +6,9 @@ Bug Fixes
 
 - Fixed ``ValidationError`` during ``AmiOIModel.update`` [#234]
 
+- Fix ``rebuild_fits_rec_dtype`` handling of unsigned integer columns
+  with shapes [#213]
+
 Changes to API
 --------------
 
