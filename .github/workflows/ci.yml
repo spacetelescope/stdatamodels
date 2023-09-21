@@ -25,6 +25,7 @@ jobs:
       OBSERVATORY: jwst
       CRDS_PATH: /tmp/crds_cache
       CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      CRDS_LOCKING_MODE: filelock
     steps:
       - id: crds_context
         run: >
@@ -38,10 +39,13 @@ jobs:
         run: echo "path=${{ env.CRDS_PATH }}" >> $GITHUB_OUTPUT
       - id: crds_server
         run: echo "url=${{ env.CRDS_SERVER_URL }}" >> $GITHUB_OUTPUT
+      - id: crds_locking_mode
+        run: echo "mode=${{ env.CRDS_LOCKING_MODE }}" >> $GITHUB_OUTPUT
     outputs:
       crds_context: ${{ steps.crds_context.outputs.pmap }}
       crds_path: ${{ steps.crds_path.outputs.path }}
       crds_server: ${{ steps.crds_server.outputs.url }}
+      crds_locking_mode: ${{ steps.crds_locking_mode.outputs.mode }}
   check:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
     with:
@@ -56,6 +60,7 @@ jobs:
       setenv: |
         CRDS_PATH: ${{ needs.data.outputs.crds_path }}
         CRDS_SERVER_URL: ${{ needs.data.outputs.crds_server }}
+        CRDS_LOCKING_MODE: ${{ needs.data.outputs.crds_locking_mode }}
         CRDS_CLIENT_RETRY_COUNT: 3
         CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
       cache-path: ${{ needs.data.outputs.crds_path }}
@@ -74,6 +79,7 @@ jobs:
       setenv: |
         CRDS_PATH: ${{ needs.data.outputs.crds_path }}
         CRDS_SERVER_URL: ${{ needs.data.outputs.crds_server }}
+        CRDS_LOCKING_MODE: ${{ needs.data.outputs.crds_locking_mode }}
         CRDS_CLIENT_RETRY_COUNT: 3
         CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
       cache-path: ${{ needs.data.outputs.crds_path }}
