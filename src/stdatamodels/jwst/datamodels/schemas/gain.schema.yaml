@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/gain.schema"
 allOf:
 - $ref: referencefile.schema
 - $ref: subarray.schema
+- $ref: keyword_band.schema
 - $ref: keyword_gainfact.schema
 - $ref: keyword_filter.schema
 - $ref: bunit.schema
