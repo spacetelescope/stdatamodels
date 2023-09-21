@@ -63,7 +63,8 @@ jobs:
       envs: |
         - linux: py39-xdist
         - linux: py310-xdist
-        - linux: py311-xdist
+        - linux: py312-xdist
+          python-version: '3.12-dev'
         - macos: py311-xdist
         - linux: py3-cov-xdist
           coverage: codecov
