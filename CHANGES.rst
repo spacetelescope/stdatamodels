@@ -14,7 +14,10 @@ Changes to API
 Other
 -----
 
-- 
+- Update ``RefractionIndexFromPrism`` converting single element ndarrays
+  to scalar values before use to avoid ``DeprecationWarning``s introduced
+  in numpy 1.25 [#210]
+
 
 1.8.1 (2023-09-13)
 ==================
