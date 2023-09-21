@@ -322,12 +322,12 @@ def test_table_with_unsigned_int(tmp_path):
         test_table = np.array(list(zip(float64_arr, uint32_arr)), dtype=dm.test_table.dtype)
 
         def assert_table_correct(model):
-            for idx, (col_name, col_data) in enumerate([('float64_col', float64_arr), ('uint32_col', uint32_arr)]):
+            for idx, (col_name, col_data) in enumerate([('FLOAT64_COL', float64_arr), ('UINT32_COL', uint32_arr)]):
                 # The table dtype and field dtype are stored separately, and may not
                 # necessarily agree.
                 assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, 'equiv')
-                assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, 'equiv')
-                assert np.array_equal(model.test_table.field(col_name), col_data)
+                assert np.can_cast(model.test_table[col_name].dtype, col_data.dtype, 'equiv')
+                assert np.array_equal(model.test_table[col_name], col_data)
 
         # The datamodel casts our array to FITS_rec on assignment, so here we're
         # checking that the data survived the casting.
@@ -666,9 +666,9 @@ def test_table_linking(tmp_path):
     with DataModel(schema=schema) as dm:
         test_array = np.array([(1, 2), (3, 4)], dtype=[('A_COL', 'i1'), ('B_COL', 'i1')])
 
-        # assigning to the model will convert the array to a FITS_rec
+        # assigning to the model should NOT convert the array to a FITS_rec
         dm.test_table = test_array
-        assert isinstance(dm.test_table, fits.FITS_rec)
+        assert not isinstance(dm.test_table, fits.FITS_rec)
 
         # save the model (with the table)
         dm.save(file_path)

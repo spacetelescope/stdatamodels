@@ -206,7 +206,7 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
             hdulist.remove(hdu)
             hdu = new_hdu
         elif value is not None:
-            hdu.data = value
+            hdu.data = value.copy()
     return hdu
 
 
@@ -297,7 +297,7 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name,
                            index=index, hdu_type=hdu_type)
 
-    hdu.data = instance
+    hdu.data = instance.copy()
     if instance_id in fits_context.extension_array_links:
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
@@ -790,18 +790,8 @@ def from_fits_hdu(hdu, schema, cast_arrays=None):
     data = hdu.data
 
     if cast_arrays:
-        # Save the column listeners for possible restoration
-        if hasattr(data, '_coldefs'):
-            listeners = data._coldefs._listeners
-        else:
-            listeners = None
-
         # Cast array to type mentioned in schema
         data = properties._cast(data, schema)
-
-        # Casting a table loses the column listeners, so restore them
-        if listeners is not None:
-            data._coldefs._listeners = listeners
     else:
         # Correct the pseudo-unsigned int problem (this normally occurs
         # inside properties._cast, but we still need to do it even
