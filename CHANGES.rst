@@ -18,6 +18,9 @@ Other
   to scalar values before use to avoid ``DeprecationWarning``s introduced
   in numpy 1.25 [#210]
 
+- Add band to ``GainModel`` schema to account for miri crds file updates
+  [#219]
+
 
 1.8.1 (2023-09-13)
 ==================
