@@ -3,7 +3,6 @@ from functools import partial
 import hashlib
 import inspect
 import io
-from pkg_resources import parse_version
 import re
 import warnings
 import weakref
@@ -37,9 +36,6 @@ __all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_
 _ASDF_EXTENSION_NAME = "ASDF"
 _FITS_SOURCE_PREFIX = "fits:"
 _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
-
-_ASDF_GE_2_6 = parse_version(asdf.__version__) >= parse_version('2.6')
-
 
 _builtin_regexes = [
     '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
@@ -372,10 +368,7 @@ def _save_from_schema(hdulist, tree, schema):
 
     tree = treeutil.walk_and_modify(tree, datetime_callback)
 
-    if _ASDF_GE_2_6:
-        kwargs = {"_visit_repeat_nodes": True}
-    else:
-        kwargs = {}
+    kwargs = {"_visit_repeat_nodes": True}
 
     validators, context = _get_validators(hdulist)
     validator = asdf_schema.get_validator(schema, None, validators, **kwargs)
