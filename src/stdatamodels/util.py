@@ -346,6 +346,15 @@ def rebuild_fits_rec_dtype(fits_rec):
 
 def _fits_rec_to_array(fits_rec):
     # every fits_rec is bad, don't use it
+    new_dtype = []
+    for name in fits_rec.dtype.names:
+        data = fits_rec[name]
+        new_dtype.append((name, data.dtype, fits_rec.dtype[name].shape))
+    new_dtype = np.dtype(new_dtype)
+    new_array = np.empty(fits_rec.size, new_dtype)
+    for name in fits_rec.dtype.names:
+        new_array[name] = fits_rec[name]
+    return new_array
     arr = merge_arrays([fits_rec[n] for n in fits_rec.dtype.names], flatten=True)
     arr.dtype.names = fits_rec.dtype.names
     return arr

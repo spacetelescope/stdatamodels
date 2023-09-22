@@ -186,7 +186,7 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
         - allowing extra columns
     """
     # start with a target dtype which should (if no error occurs) be the dtype of the result
-    target_dtype = np.dtype([('i', 'i4'), ('f', 'f8'), ('s', 'S3'), ('b', 'bool'), ('u', 'uint8'), ('e', 'i4')])
+    target_dtype = np.dtype([('i', 'i4'), ('f', 'f8'), ('s', 'U3'), ('b', 'bool'), ('u', 'uint8'), ('e', 'i4')])
     input_descr = target_dtype.descr
     if extra_columns:
         # add 3 extra columns
@@ -214,7 +214,7 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
     input_array = np.zeros(5, input_dtype)
     input_array['i'] = 2
     input_array['f'] = 0.1
-    input_array['s'] = b'a'
+    input_array['s'] = 'a'
     input_array['b'] = True
     input_array['u'] = 3
     if change_case:
@@ -230,7 +230,7 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
     # check data passed through correctly
     assert np.all(new_array['i'] == 2)
     assert np.allclose(new_array['f'], 0.1)
-    assert np.all(new_array['s'] == b'a')
+    assert np.all(new_array['s'] == 'a')
     assert np.all(new_array['b'] == True)
     assert np.all(new_array['u'] == 3)
     if not extra_columns:
