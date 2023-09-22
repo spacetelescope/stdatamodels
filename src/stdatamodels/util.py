@@ -46,6 +46,9 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     new_array : np.ndarray
         Array converted to the new dtype.
     """
+    if isinstance(a, fits.FITS_rec):
+        a = _fits_rec_to_array(a)
+
     if isinstance(dtype, np.dtype):
         out_dtype = copy.copy(dtype)
     else:
@@ -66,6 +69,17 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         else:
             return _safe_asanyarray(a, out_dtype)
 
+    # schemas that list string types don't actually expect string types
+    # they expect unicode
+    dtype_with_unicode = []
+    for name in out_dtype.names:
+        sub_dtype = out_dtype[name]
+        if np.issubdtype(sub_dtype, np.string_):
+            dtype_with_unicode.append((name, np.dtype(('U', sub_dtype.itemsize))))
+        else:
+            dtype_with_unicode.append((name, sub_dtype))
+    out_dtype = np.dtype(dtype_with_unicode)
+
     # one of these dtypes does not have fields
     if in_dtype.fields is None or out_dtype.fields is None:
         return _safe_asanyarray(a, out_dtype)
@@ -78,16 +92,6 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
             if dt[n].names is not None:
                 msg = f"gentle_asarray does not support nested structured dtypes: {dt}"
                 raise ValueError(msg)
-
-    # When a FITS file includes a pseudo-unsigned-int column, astropy will return
-    # a FITS_rec with an incorrect table dtype.  The following code rebuilds
-    # in_dtype from the individual fields, which are correctly labeled with an
-    # unsigned int dtype.
-    # We can remove this once the issue is resolved in astropy:
-    # https://github.com/astropy/astropy/issues/8862
-    if isinstance(a, fits.fitsrec.FITS_rec):
-        a.dtype = rebuild_fits_rec_dtype(a)
-        in_dtype = a.dtype
 
     if in_dtype == out_dtype:
         return a
@@ -341,11 +345,7 @@ def rebuild_fits_rec_dtype(fits_rec):
 
 
 def _fits_rec_to_array(fits_rec):
-    bad_columns = [n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)]
-    if not len(bad_columns):
-        return fits_rec.view(np.ndarray)
-    new_dtype = rebuild_fits_rec_dtype(fits_rec)
-    arr = np.asarray(fits_rec, new_dtype).copy()
-    for name in bad_columns:
-        arr[name] = fits_rec[name]
+    # every fits_rec is bad, don't use it
+    arr = merge_arrays([fits_rec[n] for n in fits_rec.dtype.names], flatten=True)
+    arr.dtype.names = fits_rec.dtype.names
     return arr
