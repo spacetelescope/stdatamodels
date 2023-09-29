@@ -14,7 +14,7 @@ Changes to API
 Other
 -----
 
--
+- Add ``channel`` keyword to MIRI MRS Apcorr schema [#224]
 
 1.8.2 (2023-09-26)
 ==================
