@@ -9,6 +9,9 @@ Bug Fixes
 - Fix ``rebuild_fits_rec_dtype`` handling of unsigned integer columns
   with shapes [#213]
 
+- Sort keyword files used for schema_editor to make output non-arbitrary
+  copy schema before merging to avoid schema modification [#227]
+
 Changes to API
 --------------
 
