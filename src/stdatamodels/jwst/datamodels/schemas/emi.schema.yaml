@@ -24,14 +24,4 @@ allOf:
       default: 0.0
       ndim: 2
       datatype: float32
-    dq:
-      title: Data quality array
-      fits_hdu: DQ
-      default: 0
-      datatype: uint32
-    err:
-      title: Error array
-      fits_hdu: ERR
-      default: 0.0
-      datatype: float32
-- $ref: dq_def.schema
+      fits_keyword: FREQ

@@ -17,6 +17,7 @@ from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
 from .drizpars import DrizParsModel
 from .drizproduct import DrizProductModel
+from .emi import EmiModel
 from .extract1dimage import Extract1dImageModel
 from .extract1d_spec import Extract1dIFUModel
 from .flat import FlatModel
@@ -107,6 +108,7 @@ __all__ = [
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
     'DrizParsModel',
     'DrizProductModel',
+    'EmiModel',
     'Extract1dImageModel',
     'Extract1dIFUModel',
     'FilteroffsetModel',
