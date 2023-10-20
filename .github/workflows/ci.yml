@@ -48,7 +48,6 @@ jobs:
       envs: |
         - linux: check-style
         - linux: check-security
-        - linux: build-dist
   test:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
     needs: [ data ]
