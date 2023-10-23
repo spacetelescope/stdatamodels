@@ -2004,6 +2004,15 @@ properties:
                 type: string
                 fits_keyword: R_MRSXAR
                 blend_table: True
+          mrsptcorr:
+            title: MRS point source correction reference file information
+            type: object
+            properties:
+              name:
+                title: MRS point source correction reference file name
+                type: string
+                fits_keyword: R_MRSPT
+                blend_table: True
           ote:
             title: Nirspec OTE Model reference file information
             type: object
@@ -2480,6 +2489,11 @@ properties:
             title: Source Photometry and Morphology
             type: string
             fits_keyword: S_SRCCAT
+            blend_table: True
+          spectral_leak:
+            title: MRS spectral leak
+            type: string
+            fits_keyword: S_SPLEAK
             blend_table: True
           srctype:
             title: Source Type Determination
