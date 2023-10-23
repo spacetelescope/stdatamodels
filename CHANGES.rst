@@ -14,7 +14,7 @@ Changes to API
 Other
 -----
 
-- 
+- Add mrsptcorr ref_file to core.schema [#228] 
 
 1.8.3 (2023-10-02)
 ==================
