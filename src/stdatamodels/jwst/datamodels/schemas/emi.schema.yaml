@@ -22,6 +22,5 @@ allOf:
       title: The science data
       fits_hdu: SCI
       default: 0.0
-      ndim: 2
+      ndim: 1
       datatype: float32
-      fits_keyword: FREQ
