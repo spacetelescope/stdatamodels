@@ -227,9 +227,10 @@ def create_history_entry(description, software=None):
     elif software is not None:
         software = Software(software)
 
+    dt = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
     entry = HistoryEntry({
         'description': description,
-        'time': datetime.datetime.utcnow()
+        'time': dt
     })
 
     if software is not None:
