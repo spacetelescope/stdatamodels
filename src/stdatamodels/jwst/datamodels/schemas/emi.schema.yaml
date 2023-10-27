@@ -1,26 +1,43 @@
 %YAML 1.1
 ---
-$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/emi.schema"
 allOf:
 - $ref: referencefile.schema
-- $ref: subarray.schema
 - $ref: keyword_exptype.schema
 - $ref: keyword_filter.schema
 - $ref: keyword_pfilter.schema
 - $ref: keyword_readpatt.schema
 - $ref: keyword_preadpatt.schema
-- $ref: keyword_pupil.schema
-- $ref: keyword_ppupil.schema
-- $ref: keyword_channel.schema
-- $ref: keyword_pchannel.schema
-- $ref: keyword_band.schema
-- $ref: keyword_pband.schema
+- $ref: keyword_psubarray.schema
+- $ref: subarray.schema
 - type: object
   properties:
     data:
-      title: The science data
-      fits_hdu: SCI
-      default: 0.0
-      ndim: 1
-      datatype: float32
+      title: MIRI Reference Waves Table for EMI correction
+      type: object
+      properties:
+        Hz390:
+            datatype: float32
+        Hz390_units:
+            type: string
+        Hz218a:
+            datatype: float32
+        Hz218a_units:
+            type: string
+        Hz218b:
+            datatype: float32
+        Hz218b_units:
+            type: string
+        Hz218c:
+            datatype: float32
+        Hz218c_units:
+            type: string
+        Hz164:
+            datatype: float32
+        Hz164_units:
+            type: string
+        Hz10:
+            datatype: float32
+        Hz10_units:
+            type: string
