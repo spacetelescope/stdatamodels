@@ -16,6 +16,8 @@ Other
 
 - Add mrsptcorr ref_file to core.schema [#228]
 
+- Replace uses of ``utcnow`` (deprecated in python 3.12) [#231] 
+
 - Updated JWST MIRI imager photom model to include time-dependent correction
   coeffs. [#235]
 
