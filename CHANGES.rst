@@ -14,7 +14,7 @@ Changes to API
 Other
 -----
 
-- 
+- Replace uses of ``utcnow`` (deprecated in python 3.12) [#231] 
 
 1.8.3 (2023-10-02)
 ==================
