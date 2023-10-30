@@ -48,7 +48,7 @@ test = [
     "psutil",
     "pytest>=4.6.0",
     "pytest-doctestplus",
-    "crds>=11.16.14",
+    "crds @ git+http://github.com/braingram/crds.git@ast_str",
     "scipy>=1.5",
 ]
 docs = [
