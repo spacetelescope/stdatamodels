@@ -94,8 +94,7 @@ class DataModel(properties.ObjectNode):
             will be used.
 
         memmap : bool
-            Turn memmap of FITS file on or off.  (default: False).  Ignored for
-            ASDF files.
+            Turn memmap of FITS/ASDF file on or off.  (default: False).
 
         pass_invalid_values : bool or None
             If `True`, values that do not validate the schema
@@ -244,6 +243,8 @@ class DataModel(properties.ObjectNode):
                 )
 
             elif file_type == "asdf":
+                # use memmap argument of "copy_arrays" was not defined
+                kwargs["copy_arrays"] = kwargs.get("copy_arrays", not memmap)
                 asdffile = self.open_asdf(init=init, **kwargs)
 
             else:
@@ -575,7 +576,8 @@ class DataModel(properties.ObjectNode):
         if isinstance(init, str):
             asdffile = asdf.open(init,
                                  ignore_version_mismatch=ignore_version_mismatch,
-                                 ignore_unrecognized_tag=ignore_unrecognized_tag)
+                                 ignore_unrecognized_tag=ignore_unrecognized_tag,
+                                 **kwargs)
 
         else:
             asdffile = AsdfFile(init,
