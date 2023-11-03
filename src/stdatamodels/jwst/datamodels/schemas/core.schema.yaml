@@ -1824,12 +1824,12 @@ properties:
                 type: string
                 fits_keyword: R_DRZPAR
                 blend_table: True
-          emi:
-            title: MIRI Reference Waves Table for EMI correction
+          emicorr:
+            title: MIRI EMI correction reference file name
             type: object
             properties:
               name:
-                title: MIRI Reference Waves Table for EMI correction
+                title: MIRI EMI correction reference file name
                 type: string
                 fits_keyword: R_MIREMI
                 blend_table: True
@@ -2334,7 +2334,7 @@ properties:
             type: string
             fits_keyword: S_DQINIT
             blend_table: True
-          emi:
+          emicorr:
             title: MIRI EMI Correction
             type: string
             fits_keyword: S_MIREMI
