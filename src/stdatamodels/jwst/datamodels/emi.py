@@ -1,5 +1,4 @@
 from .reference import ReferenceFileModel
-from .dqflags import pixel
 
 
 __all__ = ['EmiModel']
@@ -23,4 +22,3 @@ class EmiModel(ReferenceFileModel):
         - Hz10: float32 1D array
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/emi.schema"
-
