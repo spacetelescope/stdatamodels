@@ -1824,6 +1824,15 @@ properties:
                 type: string
                 fits_keyword: R_DRZPAR
                 blend_table: True
+          emi:
+            title: MIRI Reference Waves Table for EMI correction
+            type: object
+            properties:
+              name:
+                title: MIRI Reference Waves Table for EMI correction
+                type: string
+                fits_keyword: R_MIREMI
+                blend_table: True
           extract1d:
             title: 1-D extraction parameters reference file information
             type: object
@@ -2324,6 +2333,11 @@ properties:
             title: Data Quality Initialization
             type: string
             fits_keyword: S_DQINIT
+            blend_table: True
+          emi:
+            title: MIRI EMI Correction
+            type: string
+            fits_keyword: S_MIREMI
             blend_table: True
           emission:
             title: Telescope Emission Correction
