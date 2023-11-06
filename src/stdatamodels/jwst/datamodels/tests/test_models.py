@@ -434,6 +434,14 @@ def oifits_ami_model():
     return m
 
 
+def test_amioi_model_oifits_validate(oifits_ami_model):
+    oifits_ami_model.validate()
+
+
+def test_amioi_model_oifits_update(oifits_ami_model):
+    oifits_ami_model.update({})
+
+
 def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
     """
     This test cannot fully test oifits compliance but the schema for the model
