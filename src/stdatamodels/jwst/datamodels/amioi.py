@@ -17,9 +17,7 @@ class AmiOIModel(JwstDataModel):
         # for the example file OI_T3 is the largest array
         return 't3'
 
-    def on_save(self, path=None):
-        super().on_save(path)
-
+    def _map_oifits_keywords(self):
         # OIFITS requires specific keyword names for some data that already
         # exist in JWST files under different keywords. For existing
         # (and defined) metadata, copy the data to the OIFITS compatible
@@ -73,3 +71,12 @@ class AmiOIModel(JwstDataModel):
             self.meta.oifits.derived.array.y = 0.0
         if self.meta.oifits.derived.array.z is None:
             self.meta.oifits.derived.array.z = 0.0
+
+    def on_save(self, path=None):
+        super().on_save(path)
+        self._map_oifits_keywords()
+
+    def validate(self):
+        # map the JWST to OIFITS keywords prior to validate
+        self._map_oifits_keywords()
+        super().validate()
