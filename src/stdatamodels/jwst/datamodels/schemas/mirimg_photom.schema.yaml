@@ -23,3 +23,15 @@ allOf:
         datatype: float32
       - name: uncertainty
         datatype: float32
+- type: object
+  properties:
+    correction_table:
+      title: Temporal correction to the PHOTOM value
+      fits_hdu: TIMECORR
+      datatype:
+      - name: amplitude
+        datatype: float32
+      - name: tau
+        datatype: float32
+      - name: t0
+        datatype: float32
