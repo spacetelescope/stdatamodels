@@ -16,6 +16,9 @@ Other
 
 - Add mrsptcorr ref_file to core.schema [#228]
 
+- Modified MIRI-Imager photom scheme [#8064, spacetelescope/stdatamodels#235]
+
+  
 1.8.3 (2023-10-02)
 ==================
 

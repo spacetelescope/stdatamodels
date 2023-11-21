@@ -25,9 +25,9 @@ allOf:
         datatype: float32
 - type: object
   properties:
-    correction_table:
+    timecoeff:
       title: Temporal correction to the PHOTOM value
-      fits_hdu: TIMECORR
+      fits_hdu: TIMECOEFF
       datatype:
       - name: amplitude
         datatype: float32

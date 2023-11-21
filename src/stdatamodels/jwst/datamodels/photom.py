@@ -45,7 +45,7 @@ class MirImgPhotomModel(ReferenceFileModel):
        - photmjsr: float32
        - uncertainty: float32
 
-    correction_table : numpy table
+    timecoeff : numpy table
         Table with the coefficients for the time-dependent correction.
 
        - amplitude: float32
