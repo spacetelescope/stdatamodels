@@ -16,6 +16,10 @@ Other
 
 - Add mrsptcorr ref_file to core.schema [#228]
 
+- Updated JWST MIRI imager photom model to include time-dependent correction
+  coeffs. [#235]
+
+  
 1.8.3 (2023-10-02)
 ==================
 

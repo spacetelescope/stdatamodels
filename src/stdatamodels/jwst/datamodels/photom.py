@@ -45,8 +45,18 @@ class MirImgPhotomModel(ReferenceFileModel):
        - photmjsr: float32
        - uncertainty: float32
 
+    timecoeff : numpy table
+        Table with the coefficients for the time-dependent correction.
+
+       - amplitude: float32
+       - tau: float32
+       - t0: float32
+
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirimg_photom.schema"
+
+    def __init__(self, init=None, **kwargs):
+        super(MirImgPhotomModel, self).__init__(init=init, **kwargs)
 
 
 class MirLrsPhotomModel(ReferenceFileModel):
