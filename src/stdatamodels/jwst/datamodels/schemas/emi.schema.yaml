@@ -17,27 +17,11 @@ allOf:
       title: MIRI Reference Waves Table for EMI correction
       type: object
       properties:
-        Hz390:
-            datatype: float32
-        Hz390_units:
-            type: string
-        Hz218a:
-            datatype: float32
-        Hz218a_units:
-            type: string
-        Hz218b:
-            datatype: float32
-        Hz218b_units:
-            type: string
-        Hz218c:
-            datatype: float32
-        Hz218c_units:
-            type: string
-        Hz164:
-            datatype: float32
-        Hz164_units:
-            type: string
-        Hz10:
-            datatype: float32
-        Hz10_units:
-            type: string
+        frequencies:
+            type: object
+            description: |
+               Frequency names, values and phase amplitude values
+        subarray_cases:
+            type: object
+            description: |
+               Frequencies to correct for according to subarray
