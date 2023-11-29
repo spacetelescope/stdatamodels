@@ -15,12 +15,14 @@ allOf:
   properties:
     data:
       title: MIRI Reference Waves Table for EMI correction
-      type: object
+      type: dict
       properties:
+        meta:
+            type: object
         frequencies:
             type: object
             description: |
-               Frequency names, values and phase amplitude values
+               Frequency names, values, and phase amplitude values
         subarray_cases:
             type: object
             description: |
