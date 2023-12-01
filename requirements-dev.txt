@@ -3,6 +3,7 @@ git+https://github.com/asdf-format/asdf
 
 # Use weekly astropy dev build
 --extra-index-url https://pypi.anaconda.org/astropy/simple astropy --pre
+--extra-index-url https://pypi.anaconda.org/liberfa/simple erfa --pre
 
 # Use Bi-weekly numpy/scipy dev builds
 --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
