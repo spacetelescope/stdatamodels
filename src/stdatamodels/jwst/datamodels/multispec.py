@@ -1,7 +1,9 @@
 from .model_base import JwstDataModel
 from .spec import SpecModel
-from astropy.io import fits
 
+import logging
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 __all__ = ['MultiSpecModel']
 
@@ -67,4 +69,5 @@ class MultiSpecModel(JwstDataModel):
                         for spec in self.spec:
                             spec.spec_table.columns[col].unit = init[1].header[key]
         except (AttributeError, IndexError) as e:
+            log.info(f"Failed to load units from FITS header: {e}")
             pass
