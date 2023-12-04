@@ -406,7 +406,10 @@ class DataModel(properties.ObjectNode):
     def clone(target, source, deepcopy=False, memo=None):
         if deepcopy:
             instance = copy.deepcopy(source._instance, memo=memo)
-            target._asdf = AsdfFile(instance)
+            target._asdf = AsdfFile()
+            # assign to private '_tree' to avoid validation caused
+            # by either using AsdfFile(instance) or target._asdf = tree
+            target._asdf._tree = instance
             target._instance = instance
         else:
             target._asdf = source._asdf
