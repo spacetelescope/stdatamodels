@@ -44,6 +44,7 @@
 
 import argparse
 from collections import OrderedDict
+import copy
 import datetime
 import inspect
 import os
@@ -228,7 +229,7 @@ class Keyword_db:
             raise ValueError("Cannot locate keyword database directory")
 
         self.schema = None
-        for filename in os.listdir(directory):
+        for filename in sorted(os.listdir(directory)):
             if filename.startswith("top."):
                 keyword_db = os.path.abspath(os.path.join(directory, filename))
                 schema = aschema.load_schema(keyword_db, resolve_references=False)
@@ -381,7 +382,7 @@ class Keyword_db:
                                             set(dictionary["enum"]))
 
         merged_subschema = OrderedDict()
-        for dictionary in schema:
+        for dictionary in copy.deepcopy(schema):
             if merged_subschema:
                 merge_dictionaries(merged_subschema, dictionary)
             else:
@@ -448,7 +449,7 @@ class Model_db:
                                      'schemas', '')
         self.schema_files = []
 
-        for filename in os.listdir(self.base_url):
+        for filename in sorted(os.listdir(self.base_url)):
             if filename.endswith(".yaml") and filename not in exclude:
                 self.schema_files.append(filename)
 
