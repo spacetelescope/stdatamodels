@@ -1,5 +1,6 @@
 from .model_base import JwstDataModel
 from .spec import SpecModel
+from astropy.io import fits
 
 import logging
 log = logging.getLogger(__name__)
@@ -62,12 +63,15 @@ class MultiSpecModel(JwstDataModel):
         super(MultiSpecModel, self).__init__(init=init, **kwargs)
 
         try:
-            if init[1].name == 'EXTRACT1D':
-                for key in init[1].header.keys():
-                    if 'TUNIT' in key:
-                        col = int(key.split('TUNIT')[1]) - 1
-                        for spec in self.spec:
-                            spec.spec_table.columns[col].unit = init[1].header[key]
-        except (AttributeError, IndexError) as e:
+            if isinstance(init, fits.hdu.hdulist.HDUList):
+                for entry in init:
+                    if entry.name == 'EXTRACT1D':
+                        for key in entry.header.keys():
+                            if 'TUNIT' in key:
+                                col = int(key.split('TUNIT')[1]) - 1
+                                for spec in self.spec:
+                                    spec.spec_table.columns[col].unit = init[1].header[key]
+                        break
+        except (KeyError, IndexError) as e:
             log.info(f"Failed to load units from FITS header: {e}")
             pass
