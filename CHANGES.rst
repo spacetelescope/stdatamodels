@@ -1,4 +1,22 @@
-1.8.4 (unreleased)
+1.9.0 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+- 
+
+Changes to API
+--------------
+
+- 
+
+Other
+-----
+
+- 
+
+1.8.4 (2023-12-04)
 ==================
 
 Bug Fixes
@@ -11,11 +29,6 @@ Bug Fixes
 
 - Sort keyword files used for schema_editor to make output non-arbitrary
   copy schema before merging to avoid schema modification [#227]
-
-Changes to API
---------------
-
--
 
 Other
 -----
