@@ -4,7 +4,8 @@
 Bug Fixes
 ---------
 
-- 
+- Pull unit strings from FITS ``TUNIT`` header keywords
+  to populate ``MultiSpecModel`` table units. [#238]
 
 Changes to API
 --------------
