@@ -2420,6 +2420,10 @@ properties:
             type: string
             fits_keyword: S_MSAFLG
             blend_table: True
+          nsclean:
+            title: NIRSpec 1/f Noise Correction
+            type: string
+            fits_keyword: S_NSCLEN
           outlier_detection:
             title: Outlier Detection
             type: string
