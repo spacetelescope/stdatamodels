@@ -44,6 +44,9 @@ def _cast(val, schema):
         if isinstance(val, ndarray.NDArrayType):
             val = val._make_array()
 
+        if isinstance(val, fits.FITS_rec):
+            val = util._fits_rec_to_array(val)
+
         allow_extra_columns = False
         if (_is_struct_array_schema(schema) and len(val) and
             (_is_struct_array_precursor(val) or _is_struct_array(val))):
@@ -85,9 +88,6 @@ def _cast(val, schema):
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
         val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
 
-        if dtype.fields is not None:
-            val = _as_fitsrec(val)
-
     if 'ndim' in schema and len(val.shape) != schema['ndim']:
         raise ValueError(
             "Array has wrong number of dimensions.  Expected {}, got {}"
@@ -102,23 +102,6 @@ def _cast(val, schema):
         val = val.item()
 
     return val
-
-
-def _as_fitsrec(val):
-    """
-    Convert a numpy record into a fits record if it is not one already
-    """
-    if isinstance(val, fits.FITS_rec):
-        return val
-    else:
-        coldefs = fits.ColDefs(val)
-        uint = any(c._pseudo_unsigned_ints for c in coldefs)
-        fits_rec = fits.FITS_rec(val)
-        fits_rec._coldefs = coldefs
-        # FITS_rec needs to know if it should be operating in pseudo-unsigned-ints mode,
-        # otherwise it won't properly convert integer columns with TZEROn before saving.
-        fits_rec._uint = uint
-        return fits_rec
 
 
 def _get_schema_type(schema):
