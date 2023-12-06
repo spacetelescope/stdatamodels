@@ -4,13 +4,6 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/emi.schema"
 allOf:
 - $ref: referencefile.schema
-- $ref: keyword_exptype.schema
-- $ref: keyword_filter.schema
-- $ref: keyword_pfilter.schema
-- $ref: keyword_readpatt.schema
-- $ref: keyword_preadpatt.schema
-- $ref: keyword_psubarray.schema
-- $ref: subarray.schema
 - type: object
   properties:
     data:

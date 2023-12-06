@@ -1825,7 +1825,7 @@ properties:
                 fits_keyword: R_DRZPAR
                 blend_table: True
           emicorr:
-            title: MIRI EMI correction reference file name
+            title: MIRI EMI reference file information
             type: object
             properties:
               name:

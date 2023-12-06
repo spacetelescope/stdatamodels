@@ -11,7 +11,7 @@ class EmiModel(ReferenceFileModel):
     Parameters
     __________
     data : numpy table
-         The reference waves to correct for MIRI EMI.
+        The reference waves to correct for MIRI EMI.
         A table-like object containing phase amplitude values
         corresponding to the appropriate frequency
         - Hz390: float32 1D array
