@@ -9,7 +9,8 @@ Bug Fixes
 Changes to API
 --------------
 
-- 
+- Deprecate ``cast_arrays`` argument to ``from_fits_hdu`` and
+  ``cast_fits_arrays`` argument to ``Datamodel.__init__`` [#214]
 
 Other
 -----
@@ -31,9 +32,6 @@ Bug Fixes
 
 Changes to API
 --------------
-
-- Deprecate ``cast_arrays`` argument to ``from_fits_hdu`` and
-  ``cast_fits_arrays`` argument to ``Datamodel.__init__`` [#214]
 
 - Sort keyword files used for schema_editor to make output non-arbitrary
   copy schema before merging to avoid schema modification [#227]
