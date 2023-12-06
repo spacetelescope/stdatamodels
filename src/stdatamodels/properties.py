@@ -83,10 +83,20 @@ def _cast(val, schema):
                     t['shape'] = shape
 
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
+
+        # save columns in case this is cast back to a fitsrec
+        if hasattr(val, 'columns'):
+            cols = val.columns
+        else:
+            cols = None
         val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
 
         if dtype.fields is not None:
             val = _as_fitsrec(val)
+            if cols is not None:
+                for col in cols:
+                    if col.name in val.names and col.unit is not None:
+                        val.columns[col.name].unit = col.unit
 
     if 'ndim' in schema and len(val.shape) != schema['ndim']:
         raise ValueError(
