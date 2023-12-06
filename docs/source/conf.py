@@ -37,6 +37,7 @@ release = package.__version__
 
 extensions = [
     "sphinx_automodapi.automodapi",
+    "sphinxcontrib.jquery",
     "numpydoc",
     'sphinx_asdf',
 ]
