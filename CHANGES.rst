@@ -4,7 +4,7 @@
 Bug Fixes
 ---------
 
-- 
+- Fix search in documentation [#241] 
 
 Changes to API
 --------------
