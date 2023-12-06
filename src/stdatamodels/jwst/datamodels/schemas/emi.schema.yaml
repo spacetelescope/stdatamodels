@@ -8,7 +8,7 @@ allOf:
   properties:
     data:
       title: MIRI Reference Waves Table for EMI correction
-      type: dict
+      type: object
       properties:
         meta:
             type: object
