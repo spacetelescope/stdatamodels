@@ -1,4 +1,24 @@
-1.8.4 (unreleased)
+1.9.0 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+- 
+
+Changes to API
+--------------
+
+- 
+
+Other
+-----
+
+- Updated JWST core datamodel schema to include the new step status keyword
+  "S_NSCLEN" for the new "nsclean" calibration step. [#237]
+
+
+1.8.4 (2023-12-04)
 ==================
 
 Bug Fixes
@@ -15,10 +35,15 @@ Changes to API
 - Deprecate ``cast_arrays`` argument to ``from_fits_hdu`` and
   ``cast_fits_arrays`` argument to ``Datamodel.__init__`` [#214]
 
+- Sort keyword files used for schema_editor to make output non-arbitrary
+  copy schema before merging to avoid schema modification [#227]
+
 Other
 -----
 
 - Add mrsptcorr ref_file to core.schema [#228]
+
+- Avoid unnecessary validation during ``DataModel.clone`` [#230] 
 
 - Replace uses of ``utcnow`` (deprecated in python 3.12) [#231] 
 
