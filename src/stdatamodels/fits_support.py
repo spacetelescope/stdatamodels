@@ -772,10 +772,14 @@ def _map_hdulist_to_arrays(hdulist, af):
     af._tree = treeutil.walk_and_modify(af.tree, callback)
 
 
-def from_fits_hdu(hdu, schema, cast_arrays=True):
+def from_fits_hdu(hdu, schema, cast_arrays=None):
     """
     Read the data from a fits hdu into a numpy ndarray
     """
+    if cast_arrays is not None:
+        warnings.warn("cast_arrays is deprecated and will be removed")
+    else:
+        cast_arrays = True
     data = hdu.data
 
     if cast_arrays:

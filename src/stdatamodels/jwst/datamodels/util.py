@@ -79,11 +79,6 @@ def open(init=None, guess=True, memmap=False, **kwargs):
 
         - FITS
 
-           cast_fits_arrays : bool
-             If `True`, arrays will be cast to the dtype described by the schema
-             when read from a FITS file.
-             If `False`, arrays will be read without casting.
-
            skip_fits_update :  bool or None
               `True` to skip updating the ASDF tree from the FITS headers, if possible.
               If `None`, value will be taken from the environmental SKIP_FITS_UPDATE.
