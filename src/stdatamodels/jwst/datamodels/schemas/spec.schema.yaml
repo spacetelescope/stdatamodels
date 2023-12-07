@@ -48,35 +48,39 @@ allOf:
           type: string
           fits_keyword: TUNIT9
           fits_hdu: EXTRACT1D
-        SB_VAR_FLAT:
+        SB_VAR_RNOISE:
           type: string
           fits_keyword: TUNIT10
           fits_hdu: EXTRACT1D
-        DQ:
+        SB_VAR_FLAT:
           type: string
           fits_keyword: TUNIT11
           fits_hdu: EXTRACT1D
-        BACKGROUND:
+        DQ:
           type: string
           fits_keyword: TUNIT12
           fits_hdu: EXTRACT1D
-        BKGD_ERROR:
+        BACKGROUND:
           type: string
           fits_keyword: TUNIT13
           fits_hdu: EXTRACT1D
-        BKGD_VAR_POISSON:
+        BKGD_ERROR:
           type: string
           fits_keyword: TUNIT14
           fits_hdu: EXTRACT1D
-        BKGD_VAR_RNOISE:
+        BKGD_VAR_POISSON:
           type: string
           fits_keyword: TUNIT15
           fits_hdu: EXTRACT1D
-        BKGD_VAR_FLAT:
+        BKGD_VAR_RNOISE:
           type: string
           fits_keyword: TUNIT16
           fits_hdu: EXTRACT1D
-        NPIXELS:
+        BKGD_VAR_FLAT:
           type: string
           fits_keyword: TUNIT17
+          fits_hdu: EXTRACT1D
+        NPIXELS:
+          type: string
+          fits_keyword: TUNIT18
           fits_hdu: EXTRACT1D
