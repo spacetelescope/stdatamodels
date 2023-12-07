@@ -1,0 +1,22 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/emi.schema"
+allOf:
+- $ref: referencefile.schema
+- type: object
+  properties:
+    data:
+      title: MIRI Reference Waves Table for EMI correction
+      type: object
+      properties:
+        meta:
+            type: object
+        frequencies:
+            type: object
+            description: |
+               Frequency names, values, and phase amplitude values
+        subarray_cases:
+            type: object
+            description: |
+               Frequencies to correct for according to subarray

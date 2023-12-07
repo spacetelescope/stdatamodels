@@ -18,6 +18,10 @@ Other
 - Updated JWST core datamodel schema to include the new step status keyword
   "S_NSCLEN" for the new "nsclean" calibration step. [#237]
 
+- Adding emicorr datamodel and schema, as well as
+  corresponding completion and reference file keywords [#200]
+
+
 
 1.8.4 (2023-12-04)
 ==================
