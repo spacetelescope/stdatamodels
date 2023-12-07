@@ -598,3 +598,45 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     # and with DataModel(fn)
     with model(fn) as dm:
         check_error_column(dm)
+
+
+@pytest.mark.parametrize("set_via", ("attr", "column"))
+def test_table_units(tmp_path, set_via):
+    fn = tmp_path / 'test.fits'
+    unit = 'nm'
+    new_unit = 'km'
+
+    # write out a model with a table with a unit
+    m = datamodels.SpecModel()
+    m.spec_table = m.spec_table
+    # test setting by attribute and by FITS_rec column unit
+    if set_via == "attr":
+        m.spec_table_units.WAVELENGTH = unit
+    else:
+        m.spec_table.columns['WAVELENGTH'].unit = unit
+    m.save(fn)
+
+    # verify that the unit is read by astropy
+    with fits.open(fn) as ff:
+        assert ff['EXTRACT1D'].data.columns['WAVELENGTH'].unit == unit
+
+    # verify that the unit is read by stdatamodels
+    with datamodels.open(fn) as m2:
+        # both the unit definition outside the table
+        assert m2.spec_table_units.WAVELENGTH == unit
+        # and via the FITS_rec columns
+        assert m2.spec_table.columns['WAVELENGTH'].unit == unit
+
+    # now, change the unit in the fits file directly
+    with fits.open(fn) as ff:
+        ff['EXTRACT1D'].data.columns['WAVELENGTH'].unit = new_unit
+        ff.writeto(fn, overwrite=True)
+
+    # verify that the new unit is read by astropy
+    with fits.open(fn) as ff:
+        assert ff['EXTRACT1D'].data.columns['WAVELENGTH'].unit == new_unit
+
+    # and that the datamodel sees the new unit
+    with datamodels.open(fn) as m2:
+        assert m2.spec_table_units.WAVELENGTH == new_unit
+        assert m2.spec_table.columns['WAVELENGTH'].unit == new_unit
