@@ -1,4 +1,22 @@
-1.9.0 (unreleased)
+1.9.1 (unreleased)
+==================
+
+Bug Fixes
+---------
+
+-
+
+Changes to API
+--------------
+
+-
+
+Other
+-----
+
+-
+
+1.9.0 (2023-12-11)
 ==================
 
 Bug Fixes
@@ -23,8 +41,6 @@ Other
 
 - Adding emicorr datamodel and schema, as well as
   corresponding completion and reference file keywords [#200]
-
-
 
 1.8.4 (2023-12-04)
 ==================
