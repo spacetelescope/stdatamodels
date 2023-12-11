@@ -37,6 +37,9 @@ Bug Fixes
 - Fix ``rebuild_fits_rec_dtype`` handling of unsigned integer columns
   with shapes [#213]
 
+- Fix unit roundtripping when writing to a datamodel with a table
+  to a FITS file [#242]
+
 Changes to API
 --------------
 
