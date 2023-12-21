@@ -357,7 +357,7 @@ def _get_validators(hdulist):
 
 
 def _save_from_schema(hdulist, tree, schema):
-    def datetime_callback(node, json_id):
+    def datetime_callback(node):
         if isinstance(node, datetime.datetime):
             node = time.Time(node)
 
@@ -378,7 +378,7 @@ def _save_from_schema(hdulist, tree, schema):
 
     # Now link extensions to items in the tree
 
-    def callback(node, json_id):
+    def callback(node):
         if id(node) in context.extension_array_links:
             hdu = context.extension_array_links[id(node)]()
             return _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
@@ -432,7 +432,7 @@ def _normalize_arrays(tree):
     don't want the asdf library to notice the change in memory
     layout and duplicate the array in the embedded ASDF.
     """
-    def normalize_array(node, json_id):
+    def normalize_array(node):
         if isinstance(node, np.ndarray):
             # We can't use np.ascontiguousarray because it converts FITS_rec
             # to vanilla np.ndarray, which results in misinterpretation of
@@ -746,7 +746,7 @@ def from_fits_asdf(hdulist,
 
 
 def _map_hdulist_to_arrays(hdulist, af):
-    def callback(node, json_id):
+    def callback(node):
         if (
                 isinstance(node, NDArrayType) and
                 isinstance(node._source, str) and

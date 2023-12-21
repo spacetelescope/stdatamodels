@@ -394,9 +394,8 @@ class Keyword_db:
         """
         Resolve urls in the schema
         """
-        def resolve_refs(node, json_id):
-            if json_id is None:
-                json_id = url
+        def resolve_refs(node):
+            json_id = url
             if isinstance(node, dict) and '$ref' in node:
                 suburl = generic_io.resolve_uri(json_id, node['$ref'])
                 parts = urlparse(suburl)
