@@ -9,7 +9,8 @@ Bug Fixes
 Changes to API
 --------------
 
--
+- Remove ``json_id`` argument use for callbacks passed
+  to ``asdf.treeutil.walk_and_modify`` [#244]
 
 Other
 -----
