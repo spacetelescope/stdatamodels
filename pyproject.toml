@@ -57,7 +57,7 @@ docs = [
     "numpydoc",
     "sphinx-rtd-theme",
     "stsci-rtd-theme",
-    "sphinx-asdf>=0.1.1",
+    "sphinx-asdf @ git+https://github.com/braingram/sphinx-asdf.git@no_bootstrap", 
     'tomli; python_version <"3.11"',
 ]
 
