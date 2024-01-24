@@ -18,6 +18,9 @@ Other
 - Add ``ngroups`` keyword to ``mask`` schema to match
   parkeys on crds [#249]
 
+- Updated JWST core datamodel schema to include the new
+  TMEASURE keyword for measurement time. [#248]
+
 1.9.0 (2023-12-11)
 ==================
 
