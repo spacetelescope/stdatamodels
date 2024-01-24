@@ -8,6 +8,7 @@ allOf:
 - $ref: keyword_exptype.schema
 - $ref: keyword_readpatt.schema
 - $ref: keyword_preadpatt.schema
+- $ref: keyword_ngroups.schema
 - type: object
   properties:
     dq:
