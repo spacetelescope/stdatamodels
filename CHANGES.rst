@@ -15,11 +15,15 @@ Changes to API
 Other
 -----
 
-- Add ``ngroups`` keyword to ``mask`` schema to match
+- Add ``ngroups`` keyword to JWST ``mask`` ref file schema to match
   parkeys on crds [#249]
 
+- Added keywords ``noutputs`` and ``bunit`` to the JWST
+  readnoise and superbias datamodel schemas. [#250]
+
 - Updated JWST core datamodel schema to include the new
-  TMEASURE keyword for measurement time. [#248]
+  ``TMEASURE`` keyword for measurement time. [#248]
+
 
 1.9.0 (2023-12-11)
 ==================
