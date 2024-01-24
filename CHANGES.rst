@@ -15,7 +15,8 @@ Changes to API
 Other
 -----
 
--
+- Add ``ngroups`` keyword to ``mask`` schema to match
+  parkeys on crds [#249]
 
 1.9.0 (2023-12-11)
 ==================

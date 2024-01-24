@@ -239,7 +239,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     # No need to actually load the reference file into the datamodel!
                     with ref_model() as m:
                         for key in parkeys:
-                            assert len(m.search_schema(key.lower())) > 0
+                            assert len(m.search_schema(key.lower())) > 0, f"{f} missing {key} required by {r.basename}"
                     break
         except IrrelevantReferenceTypeError as e:
             log.debug(e)
