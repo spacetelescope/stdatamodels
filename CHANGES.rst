@@ -18,6 +18,9 @@ Other
 - Add ``ngroups`` keyword to ``mask`` schema to match
   parkeys on crds [#249]
 
+- Added keywords ``noutputs`` and ``bunit`` to the JWST
+  readnoise and superbias datamodel schemas. [#250]
+
 1.9.0 (2023-12-11)
 ==================
 
