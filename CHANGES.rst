@@ -15,7 +15,8 @@ Changes to API
 Other
 -----
 
--
+- Added ``ngroups`` keyword to JWST mask reference file
+  datamodel. [#251]
 
 1.9.0 (2023-12-11)
 ==================
