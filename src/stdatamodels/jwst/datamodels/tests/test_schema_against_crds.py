@@ -145,6 +145,7 @@ ref_to_datamodel_dict = {
     'mrsptcorr': dm.MirMrsPtCorrModel,
     'msa': dm.MSAModel,
     'msaoper': None,
+    'nrm': dm.NRMModel,
     'ote': dm.OTEModel,
     'persat': dm.PersistenceSatModel,
     'psfmask': dm.PsfMaskModel,

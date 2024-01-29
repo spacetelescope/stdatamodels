@@ -1,0 +1,15 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/nrm.schema"
+title: Non-Redundant Mask data model
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- type: object
+  properties:
+    nrm:
+      title: Non-Redundant Mask
+      fits_hdu: NRM
+      ndim: 2
+      datatype: float32

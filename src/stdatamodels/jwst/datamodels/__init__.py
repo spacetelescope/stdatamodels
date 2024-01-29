@@ -46,6 +46,7 @@ from .multiprod import MultiProductModel
 from .multislit import MultiSlitModel
 from .multispec import MultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
+from .nrm import NRMModel
 from .outlierpars import OutlierParsModel
 from .outlierifuoutput import OutlierIFUOutputModel
 from .pathloss import PathlossModel, MirLrsPathlossModel
@@ -98,6 +99,7 @@ __all__ = [
     'AmiLgModel',
     'AmiLgFitModel',
     'AmiOIModel',
+    'NRMModel',
     'FgsImgApcorrModel', 'MirImgApcorrModel', 'NrcImgApcorrModel', 'NisImgApcorrModel',
     'MirLrsApcorrModel', 'MirMrsApcorrModel', 'NrcWfssApcorrModel', 'NisWfssApcorrModel',
     'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
