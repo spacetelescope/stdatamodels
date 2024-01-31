@@ -8,6 +8,8 @@ Bug Fixes
   keyword, in order to support proper handling of MIRI MRS
   and Imager exposures done in parallel. [#259]
 
+- Fix mask schema to allow for non-integer ngroups selectors [#256]
+
 Changes to API
 --------------
 
