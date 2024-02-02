@@ -21,6 +21,8 @@
 - Change ``integration_number`` from int16 to int32 in ``group``
   schema. [#283]
 
+- Fix datamodel schema ids for abvegaoffset, keyword_lampmode, nrsfs_apcorr [#258]
+
 
 1.10.0 (2024-02-29)
 ===================
