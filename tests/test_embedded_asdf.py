@@ -7,9 +7,7 @@ from numpy.testing import assert_array_equal
 from astropy.io import fits
 
 from models import FitsModel
-
-
-_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
+from stdatamodels.fits_support import _NDARRAY_TAG
 
 
 def create_fits_model():
