@@ -4,7 +4,9 @@
 Bug Fixes
 ---------
 
--
+- Adding "IMAGER" as another allowed value for the "MRSPRCHN"
+  keyword, in order to support proper handling of MIRI MRS
+  and Imager exposures done in parallel. [#259]
 
 Changes to API
 --------------
