@@ -13,11 +13,11 @@ Changes to API
 
 -
 
-
 Other
 -----
 
--
+- Add ``grating`` keyword to JWST ``barshadow`` ref file schema to match
+  parkeys on crds [#260]
 
 
 1.9.1 (2024-01-25)
