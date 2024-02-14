@@ -1235,6 +1235,11 @@ properties:
                    5-SHUTTER-SLITLET-WITH-GAP]
             fits_keyword: NOD_TYPE
             blend_table: True
+          nod_pts:
+            title: Number of points in nod pattern
+            type: integer
+            fits_keyword: NOD_PTS
+            blend_table: True
           pattern_size:
             title: "Primary dither pattern size"
             type: string
