@@ -56,7 +56,6 @@ docs = [
     "sphinx-automodapi",
     "numpydoc",
     "sphinx-rtd-theme",
-    "stsci-rtd-theme",
     "sphinx-asdf>=0.1.1",
     'tomli; python_version <"3.11"',
 ]
