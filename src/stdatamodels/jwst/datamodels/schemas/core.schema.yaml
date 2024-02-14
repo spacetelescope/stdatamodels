@@ -862,6 +862,12 @@ properties:
             fits_hdu: SCI
             blend_rule: sum
             blend_table: True
+          measurement_time:
+            title: "[s] Measurement time"
+            type: number
+            fits_keyword: TMEASURE
+            blend_rule: sum
+            blend_table: True
           duration:
             title: "[s] Total duration of exposure"
             type: number
