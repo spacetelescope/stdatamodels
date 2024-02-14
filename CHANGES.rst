@@ -21,6 +21,8 @@ Other
 - Add ``grating`` keyword to JWST ``barshadow`` ref file schema to match
   parkeys on crds [#260]
 
+- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
+
 
 1.9.1 (2024-01-25)
 ==================
