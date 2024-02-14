@@ -18,6 +18,9 @@ Other
 - Add ``ngroups`` keyword to ``mask`` schema to match
   parkeys on crds [#249]
 
+- Add ``nod_pts`` keyword to ``core`` schema to support association
+  rules for grouping NIRSpec MOS observations [#262]
+
 1.9.0 (2023-12-11)
 ==================
 
