@@ -44,6 +44,11 @@ allOf:
       default: 0.0
       ndim: 4
       datatype: float32
+    average_dark_current:
+      title: Average dark current
+      fits_hdu: AVDRKCUR
+      ndim: 2
+      datatype: float32
 - $ref: group.schema
 - $ref: int_times.schema
 - $ref: msatargacq.schema
