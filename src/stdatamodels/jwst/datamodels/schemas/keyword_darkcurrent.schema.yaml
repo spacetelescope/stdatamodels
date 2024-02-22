@@ -1,0 +1,17 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/keyword_darkcurrent.schema"
+type: object
+properties:
+  meta:
+    type: object
+    properties:
+      exposure:
+        type: object
+        properties:
+          average_dark_current:
+            title: Average dark current
+            type: number
+            default: 0.0
+            fits_keyword: AVDRKCUR

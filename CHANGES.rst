@@ -21,6 +21,9 @@ Other
 - Add ``grating`` keyword to JWST ``barshadow`` ref file schema to match
   parkeys on crds [#260]
 
+- Add ``average_dark_current`` in both scalar keyword and array extension
+  options to ``DarkModel`` and ``MIRIDarkModel``. Add the array extension
+  to the ``RampModel``, for tracking the average dark current. [#265]
 
 1.9.1 (2024-01-25)
 ==================
