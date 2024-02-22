@@ -23,7 +23,7 @@ statement. ::
         pass
 
 It is recommended that a with statement is used to ensure the resulting
-`asdf.AsdfFile <https://asdf.readthedocs.io/en/stable/api/asdf.AsdfFile.html>`_
+`asdf.AsdfFile <https://asdf.readthedocs.io/en/latest/api/asdf.AsdfFile.html>`_
 and `astropy.io.fits.HDUList <https://docs.astropy.org/en/stable/io/fits/api/hdulists.html#hdulist>`_ are closed properly.
 
 If a ``with`` statement cannot be used,
