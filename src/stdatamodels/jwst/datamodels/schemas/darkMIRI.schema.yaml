@@ -36,6 +36,7 @@ allOf:
     average_dark_current:
       title: Average dark current
       fits_hdu: AVDRKCUR
+      default: 0.0
       ndim: 2
       datatype: float32
 - $ref: dq_def.schema
