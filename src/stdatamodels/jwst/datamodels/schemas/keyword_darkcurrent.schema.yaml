@@ -13,4 +13,5 @@ properties:
           average_dark_current:
             title: Average dark current
             type: number
+            default: 0.0
             fits_keyword: AVDRKCUR
