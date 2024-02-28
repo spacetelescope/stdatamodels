@@ -13,7 +13,7 @@ Bug Fixes
 Changes to API
 --------------
 
--
+- Add ``NRMModel`` for new NIRISS NRM reference file [#253]
 
 Other
 -----

@@ -2028,6 +2028,15 @@ properties:
                 type: string
                 fits_keyword: R_MRSPT
                 blend_table: True
+          nrm:
+            title: Non-Redundant mask reference file information
+            type: object
+            properties:
+              name:
+                title: Non-Redundant mask reference file name
+                type: string
+                fits_keyword: R_NRM
+                blend_table: True
           ote:
             title: Nirspec OTE Model reference file information
             type: object
