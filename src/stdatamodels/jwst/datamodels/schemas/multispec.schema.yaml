@@ -84,6 +84,26 @@ allOf:
             type: number
             fits_keyword: EXTR_Y
             fits_hdu: EXTRACT1D
+          extraction_xstart:
+            title: X axis start of extraction region
+            type: number
+            fits_keyword: EXTRXSTR
+            fits_hdu: EXTRACT1D
+          extraction_xstop:
+            title: X axis end of extraction region
+            type: number
+            fits_keyword: EXTRXSTP
+            fits_hdu: EXTRACT1D
+          extraction_ystart:
+            title: Y axis start of extraction region
+            type: number
+            fits_keyword: EXTRYSTR
+            fits_hdu: EXTRACT1D
+          extraction_ystop:
+            title: Y axis end of extraction region
+            type: number
+            fits_keyword: EXTRYSTP
+            fits_hdu: EXTRACT1D
           shutter_state:
             title: All (open and close) shutters in a slit
             type: string
