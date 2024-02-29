@@ -126,6 +126,7 @@ ref_to_datamodel_dict = {
     'dflat': dm.NirspecFlatModel,
     'disperser': dm.DisperserModel,
     'drizpars': dm.DrizParsModel,
+    'emicorr': dm.EmiModel,
     'extract1d': dm.Extract1dIFUModel,
     'fflat': dm.NirspecFlatModel,
     'filteroffset': dm.FilteroffsetModel,
