@@ -25,10 +25,6 @@ Other
   options to ``DarkModel`` and ``MIRIDarkModel``. Add the array extension
   to the ``RampModel``, for tracking the average dark current. [#265]
 
-- Add new JWST keywords ``EXTRXSTR``, ``EXTRXSTP``, ``EXTRYSTR``, and ``EXTRYSTP``
-  to the ``MultiSpecModel`` schema for extracted 1-D spectra. [#264]
-
-
 1.9.1 (2024-01-25)
 ==================
 
