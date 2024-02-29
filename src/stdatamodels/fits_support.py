@@ -504,9 +504,7 @@ def to_fits(tree, schema, hdulist=None):
     if _ASDF_EXTENSION_NAME in hdulist:
         del hdulist[_ASDF_EXTENSION_NAME]
 
-    # Do not pass "extra_fits" to _create_asdf_hdu
-    # as we've already saved the contents above in _save_extra_fits
-    hdulist.append(_create_asdf_hdu({k: v for k, v in tree.items() if k != 'extra_fits'}))
+    hdulist.append(_create_asdf_hdu(tree))
 
     return hdulist
 
