@@ -504,14 +504,21 @@ def to_fits(tree, schema, hdulist=None):
     if _ASDF_EXTENSION_NAME in hdulist:
         del hdulist[_ASDF_EXTENSION_NAME]
 
-    hdulist.append(_create_asdf_hdu(tree))
+    # Do not pass "extra_fits" to _create_asdf_hdu
+    # as we've already saved the contents above in _save_extra_fits
+    hdulist.append(_create_asdf_hdu({k: v for k, v in tree.items() if k != 'extra_fits'}))
 
     return hdulist
 
 
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
-    asdf.AsdfFile(tree).write_to(buffer)
+    # convert all FITS_rec instances to numpy arrays, this is needed as
+    # some arrays loaded from the fits data for old files may not be defined
+    # in the current schemas. These will be loaded as FITS_rec instances but
+    # not linked back (and safely converted) on write if they are removed
+    # from the schema.
+    asdf.AsdfFile(util.convert_fitsrec_to_array_in_tree(tree)).write_to(buffer)
     buffer.seek(0)
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
