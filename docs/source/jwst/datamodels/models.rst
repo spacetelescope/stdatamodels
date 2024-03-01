@@ -343,6 +343,7 @@ SKIP_FITS_UPDATE
   of the FITS header can be skipped or not.
 
 DMODEL_ALLOWED_MEMORY
+  DEPRECATED this function did not behave as intended
   Implemented by the utility function
   `jwst.datamodels.util.check_memory_allocation` and used by
   `~jwst.outlier_detection.OutlierDetectionStep` and

@@ -415,6 +415,10 @@ def check_memory_allocation(shape, allowed=None, model_type=None, include_swap=T
     can_instantiate, required_memory : bool, number
         True if the model can be instantiated and the predicted memory footprint.
     """
+    warnings.warn(
+        "check_memory_allocation is deprecated and did not work as intended",
+        DeprecationWarning
+    )
     # Determine desired allowed amount.
     if allowed is None:
         allowed = os.environ.get('DMODEL_ALLOWED_MEMORY', None)
