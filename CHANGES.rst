@@ -32,6 +32,11 @@
   hdu was linked in the old schema (but is no longer linked)
   when rewriting files. [#268]
 
+- Deprecate ``skip_fits_update`` and environment variable
+  ``SKIP_FITS_UPDATE``. Future behavior will be as if
+  ``skip_fits_update`` was ``False`` and the FITS headers
+  will always be read [#270]
+
 
 1.10.0 (2024-02-29)
 ===================
