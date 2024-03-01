@@ -1,3 +1,4 @@
+import contextlib
 import re
 import warnings
 
@@ -421,13 +422,19 @@ def test_skip_fits_update(tmp_path,
     with fits.open(file_path) as hduls:
         hduls[0].header['EXP_TYPE'] = 'FGS_DARK'
 
+        if skip_fits_update is not None:
+            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
+        else:
+            ctx = contextlib.nullcontext()
+
         if use_env:
             if skip_fits_update is not None:
                 monkeypatch.setenv("SKIP_FITS_UPDATE", str(skip_fits_update))
                 skip_fits_update = None
 
-        model = FitsModel(hduls, skip_fits_update=skip_fits_update)
-        assert model.meta.exposure.type == expected_exp_type
+        with ctx:
+            model = FitsModel(hduls, skip_fits_update=skip_fits_update)
+            assert model.meta.exposure.type == expected_exp_type
 
 
 def test_from_hdulist(tmp_path):

@@ -1,3 +1,4 @@
+import contextlib
 import os
 import warnings
 
@@ -89,13 +90,20 @@ def test_skip_fits_update(jail_environ,
         except KeyError:
             # No need to worry, environmental doesn't exist anyways
             pass
+
+        if skip_fits_update is not None:
+            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
+        else:
+            ctx = contextlib.nullcontext()
+
         if use_env:
             if skip_fits_update is not None:
                 os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
                 skip_fits_update = None
 
-        with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-            assert model.meta.exposure.type == expected_exp_type
+        with ctx:
+            with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
+                assert model.meta.exposure.type == expected_exp_type
 
 
 def test_asnmodel_table_size_zero():

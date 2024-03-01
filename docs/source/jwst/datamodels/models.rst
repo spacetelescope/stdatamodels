@@ -334,6 +334,7 @@ STRICT_VALIDATION
   Default is ``False``.
 
 SKIP_FITS_UPDATE
+  DEPRECATED in the future the fits header will always be used
   Used by `~jwst.datamodels.DataModel` when instantiating a
   model from a FITS file. When ``False``, models opened from FITS files will
   proceed and load the FITS header values into the model. When ``True`` and the

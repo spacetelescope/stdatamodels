@@ -698,6 +698,7 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         The `DataModel` to update
 
     skip_fits_update : bool or None
+        DEPRECATED
         When `False`, models opened from FITS files will proceed
         and load the FITS header values into the model.
         When `True` and the FITS file has an ASDF extension, the
@@ -850,6 +851,9 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
     """
     if skip_fits_update is None:
         skip_fits_update = util.get_envar_as_boolean('SKIP_FITS_UPDATE', None)
+    if skip_fits_update is not None:
+        # warn if the value was not None (defined by the user)
+        warnings.warn("skip_fits_update is deprecated and will be removed", DeprecationWarning)
 
     # If skipping has been explicitly disallowed, indicate as such.
     if skip_fits_update is False:
