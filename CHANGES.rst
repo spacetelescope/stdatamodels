@@ -10,7 +10,7 @@
   because it duplicates the information of ``XPOSURE``. [#277]
 
 - Deprecate ``check_memory_allocation``. This function did not
-  work as intended. [#273] 
+  work as intended. [#273]
 
 
 1.10.0 (2024-02-29)
