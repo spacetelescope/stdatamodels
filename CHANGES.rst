@@ -4,6 +4,9 @@
 - Provide existing ``AsdfFile`` instance to ``validate`` to
   speed up assignment validation ``check_value``. [#276] 
 
+- Deprecate ``deprecate_class`` unused by downstream. [#274] 
+
+
 1.10.0 (2024-02-29)
 ===================
 
