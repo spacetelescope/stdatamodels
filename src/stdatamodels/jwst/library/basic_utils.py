@@ -1,5 +1,7 @@
 """General utility objects"""
 
+import warnings
+
 
 def deprecate_class(new_class,
                     message='"{old_class}" is deprecated and will be removed. Use {new_class}'):
@@ -13,6 +15,8 @@ def deprecate_class(new_class,
     message : str
         The deprecation warning message
     """
+
+    warnings.warn("deprecate_class is deprecated and will be removed", DeprecationWarning)
 
     # Implement the inner decorator
     def _decorator(old_class):
