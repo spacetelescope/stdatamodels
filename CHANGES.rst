@@ -1,7 +1,8 @@
 1.10.1 (unreleased)
 ===================
 
-- 
+- Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
+  because it duplicates the information of ``XPOSURE``. [#277]
 
 1.10.0 (2024-02-29)
 ===================
