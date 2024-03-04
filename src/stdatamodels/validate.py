@@ -152,7 +152,7 @@ def _check_value(value, schema, ctx):
         else:
             validators = YAML_VALIDATORS
 
-        asdf_schema.validate(value, schema=schema, validators=validators)
+        asdf_schema.validate(value, ctx=ctx._asdf, schema=schema, validators=validators)
 
 
 def _error_message(path, error):
