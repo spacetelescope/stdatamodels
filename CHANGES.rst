@@ -6,6 +6,9 @@
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
+- Add cache to hdu accesses during ``_load_from_schema``
+  to speed up file opening. [#278]
+
 
 1.10.0 (2024-02-29)
 ===================
