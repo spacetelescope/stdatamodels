@@ -1,5 +1,7 @@
+import warnings
+
 from .model_base import JwstDataModel
-from stdatamodels.jwst.library.basic_utils import deprecate_class
+
 
 __all__ = ['RampModel', 'MIRIRampModel']
 
@@ -43,9 +45,14 @@ class RampModel(JwstDataModel):
         self.err = self.err
 
 
-@deprecate_class(RampModel)
-class MIRIRampModel:
+class MIRIRampModel(RampModel):
     """A data model for 4D MIRI ramps.
 
     This model has been deprecated. Please use `RampModel` instead.
     """
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            '"MIRIRampModel" is deprecated and will be removed. Use RampModel',
+            category=DeprecationWarning,
+        )
+        return super(MIRIRampModel, self).__init__(*args, **kwargs)
