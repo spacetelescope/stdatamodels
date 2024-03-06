@@ -1,6 +1,11 @@
 1.10.1 (unreleased)
 ===================
 
+- Provide existing ``AsdfFile`` instance to ``validate`` to
+  speed up assignment validation ``check_value``. [#276] 
+
+- Deprecate ``deprecate_class`` unused by downstream. [#274] 
+
 - Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
   because it duplicates the information of ``XPOSURE``. [#277]
 
