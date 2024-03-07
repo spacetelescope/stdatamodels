@@ -6,11 +6,15 @@
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
+<<<<<<< HEAD
 - Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
   because it duplicates the information of ``XPOSURE``. [#277]
 
 - Deprecate ``check_memory_allocation``. This function did not
   work as intended. [#273]
+
+- Decrease size of ``SPECTYP`` and ``TARGET`` columns in
+  ``OI_TARGET`` table of oifits schema to 16 characters. [#281]
 
 
 1.10.0 (2024-02-29)
