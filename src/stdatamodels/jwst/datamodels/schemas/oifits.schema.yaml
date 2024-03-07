@@ -220,7 +220,7 @@ allOf:
       - name: TARGET_ID
         datatype: int16
       - name: TARGET
-        datatype: [ascii, 32]
+        datatype: [ascii, 16]
       - name: RAEP0
         datatype: float64
       - name: DECEP0
@@ -250,7 +250,7 @@ allOf:
       - name: PARA_ERR
         datatype: float32
       - name: SPECTYP
-        datatype: [ascii, 32]
+        datatype: [ascii, 16]
     t3:
       title: OIFITS OI_T3 table
       fits_hdu: OI_T3
