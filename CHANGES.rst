@@ -6,7 +6,6 @@
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
-<<<<<<< HEAD
 - Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
   because it duplicates the information of ``XPOSURE``. [#277]
 
