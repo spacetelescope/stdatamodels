@@ -15,6 +15,9 @@
 - Decrease size of ``SPECTYP`` and ``TARGET`` columns in
   ``OI_TARGET`` table of oifits schema to 16 characters. [#281]
 
+- Change ``integration_number`` from int16 to int32 in ``group``
+  schema. [#283]
+
 
 1.10.0 (2024-02-29)
 ===================
