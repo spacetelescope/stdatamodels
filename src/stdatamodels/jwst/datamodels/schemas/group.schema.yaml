@@ -9,7 +9,7 @@ properties:
     fits_hdu: GROUP
     datatype:
     - name: integration_number
-      datatype: int16
+      datatype: int32
     - name: group_number
       datatype: int16
     - name: end_day
