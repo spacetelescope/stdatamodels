@@ -1,7 +1,7 @@
 1.10.1 (unreleased)
 ===================
 
-- Added MRS_ALL in list for keyword MRSPRCHN in core
+- Added ALL_MRS to allowed values for keyword MRSPRCHN in core
   schema. [#285]
 
 - Provide existing ``AsdfFile`` instance to ``validate`` to
