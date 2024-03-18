@@ -1332,7 +1332,7 @@ properties:
           primary_channel:
             title: MRS primary channel
             type: string
-            enum: [ALL, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER, ALL_MRS]
+            enum: [ALL, ALL_MRS, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER]
             fits_keyword: MRSPRCHN
           dithered_ra:
             title: RA of dithered pointing location
