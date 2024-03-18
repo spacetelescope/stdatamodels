@@ -23,6 +23,8 @@
 
 - Fix datamodel schema ids for abvegaoffset, keyword_lampmode, nrsfs_apcorr [#258]
 
+- Drop support for python 3.9 [#287]
+
 
 1.10.0 (2024-02-29)
 ===================
