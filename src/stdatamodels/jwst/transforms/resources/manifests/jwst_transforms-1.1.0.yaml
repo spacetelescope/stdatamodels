@@ -68,7 +68,7 @@ tags:
   description: |-
     A sequence of 3D rotations around different axes.
 - tag_uri: "tag:stsci.edu:jwst_pipeline/snell-1.1.0"
-  schema_uri: http://stsci.edu/schemas/jwst_pipeline/snell-1.0.0
+  schema_uri: http://stsci.edu/schemas/jwst_pipeline/snell-1.1.0
   title: NIRSpec transforms through the prism.
   description: |-
     This model does all transforms through the NIRSpec prism:
