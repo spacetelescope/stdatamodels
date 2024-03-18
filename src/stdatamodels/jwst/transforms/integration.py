@@ -2,8 +2,6 @@
 This module supports the entry points for ASDF support for the `jwst.transforms`.
 """
 
-import sys
-
 import importlib.resources
 
 

@@ -1,5 +1,3 @@
-import sys
-
 import importlib.resources
 
 import asdf
