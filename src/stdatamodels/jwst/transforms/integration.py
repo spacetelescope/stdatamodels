@@ -4,7 +4,7 @@ This module supports the entry points for ASDF support for the `jwst.transforms`
 
 import sys
 
-import importlib.resources as importlib_resources
+import importlib.resources
 
 
 from asdf.resource import DirectoryResourceMapping
@@ -23,7 +23,7 @@ def get_resource_mappings():
     list of the `asdf.resource.ResourceMapping` instances containing the `jwst.transforms`
     schemas.
     """
-    resources_root = importlib_resources.files(transforms) / "resources"
+    resources_root = importlib.resources.files(transforms) / "resources"
     if not resources_root.is_dir():
         raise RuntimeError(f"Missing resources directory: {resources_root=}")
 
