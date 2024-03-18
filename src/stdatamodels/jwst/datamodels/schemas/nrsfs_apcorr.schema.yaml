@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/jwst_datamodel/nrsmos_apcorr.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/nrsfs_apcorr.schema"
 title: NIRSpec Fixed Slit aperture correction data model
 allOf:
 - $ref: referencefile.schema

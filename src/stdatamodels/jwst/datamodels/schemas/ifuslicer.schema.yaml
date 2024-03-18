@@ -14,7 +14,7 @@ allOf:
         An instance of astropy.modeling.Model.
       type: object
     data:
-      $ref: http://stsci.edu/schemas/asdf/core/ndarray-1.0.0
+      tag: tag:stsci.edu:asdf/core/ndarray-1.*
     meta:
       type: object
       properties:
