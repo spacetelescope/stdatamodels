@@ -1,8 +1,11 @@
 1.10.1 (unreleased)
 ===================
 
+- Added ALL_MRS to allowed values for keyword MRSPRCHN in core
+  schema. [#285]
+
 - Provide existing ``AsdfFile`` instance to ``validate`` to
-  speed up assignment validation ``check_value``. [#276] 
+  speed up assignment validation ``check_value``. [#276]
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
