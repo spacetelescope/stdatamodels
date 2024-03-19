@@ -56,9 +56,7 @@ jobs:
       cache-path: ${{ needs.data.outputs.crds_path }}
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
-        - macos: py39-xdist
-        - windows: py39-xdist
-        - macos: py310-xdist
         - windows: py310-xdist
+        - macos: py311-xdist
         - windows: py311-xdist
         - windows: py3-xdist

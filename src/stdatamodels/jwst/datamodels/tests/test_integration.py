@@ -1,9 +1,4 @@
-import sys
-
-if sys.version_info < (3, 10):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
+import importlib.resources
 
 import asdf
 import pytest
@@ -11,16 +6,16 @@ import yaml
 
 
 METASCHEMAS = list(
-    importlib_resources.files("stdatamodels.jwst.datamodels.metaschema").glob("*.yaml")
+    importlib.resources.files("stdatamodels.jwst.datamodels.metaschema").glob("*.yaml")
 )
 
 DATAMODEL_SCHEMAS = list(
-    importlib_resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml")
+    importlib.resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml")
 )
 # transform schemas are nested in a directory with a '.'
 TRANSFORM_SCHEMAS = list(
     next(
-        importlib_resources.files(
+        importlib.resources.files(
             "stdatamodels.jwst.transforms.resources.schemas"
         ).iterdir()
     ).glob("**/*.yaml")
@@ -29,7 +24,7 @@ TRANSFORM_SCHEMAS = list(
 SCHEMAS = METASCHEMAS + DATAMODEL_SCHEMAS + TRANSFORM_SCHEMAS
 
 TRANSFORM_MANIFESTS = list(
-    importlib_resources.files("stdatamodels.jwst.transforms.resources.manifests").glob(
+    importlib.resources.files("stdatamodels.jwst.transforms.resources.manifests").glob(
         "*.yaml"
     )
 )
