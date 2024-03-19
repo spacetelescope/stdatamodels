@@ -89,9 +89,10 @@ def test_check_memory_allocation_env(monkeypatch, mock_get_available_memory,
         monkeypatch.setenv('DMODEL_ALLOWED_MEMORY', str(allowed_env))
 
     # Allocate amount that would fit at 100% + swap.
-    can_allocate, required = util.check_memory_allocation(
-        (MEMORY // 2, 1), allowed=allowed_explicit,
-    )
+    with pytest.warns(DeprecationWarning, match="check_memory_allocation is deprecated"):
+        can_allocate, required = util.check_memory_allocation(
+            (MEMORY // 2, 1), allowed=allowed_explicit,
+        )
     assert can_allocate is result
 
 
@@ -107,9 +108,10 @@ def test_check_memory_allocation_env(monkeypatch, mock_get_available_memory,
 )
 def test_check_memory_allocation(mock_get_available_memory, dim, allowed, include_swap, result):
     """Check general operation of check_memory_allocation"""
-    can_allocate, required = util.check_memory_allocation(
-        (dim, 1), allowed=allowed, include_swap=include_swap
-    )
+    with pytest.warns(DeprecationWarning, match="check_memory_allocation is deprecated"):
+        can_allocate, required = util.check_memory_allocation(
+            (dim, 1), allowed=allowed, include_swap=include_swap
+        )
     assert can_allocate is result
 
 

@@ -415,6 +415,10 @@ def check_memory_allocation(shape, allowed=None, model_type=None, include_swap=T
     can_instantiate, required_memory : bool, number
         True if the model can be instantiated and the predicted memory footprint.
     """
+    warnings.warn(
+        "check_memory_allocation is deprecated and did not work as intended",
+        DeprecationWarning
+    )
     # Determine desired allowed amount.
     if allowed is None:
         allowed = os.environ.get('DMODEL_ALLOWED_MEMORY', None)
@@ -438,7 +442,9 @@ def check_memory_allocation(shape, allowed=None, model_type=None, include_swap=T
         size *= dimension
 
     # Get available memory
-    available = get_available_memory(include_swap=include_swap)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=DeprecationWarning)
+        available = get_available_memory(include_swap=include_swap)
     log.debug(f'Model size {bytes2human(size)} available system memory {bytes2human(available)}')
 
     if size > available:
@@ -469,15 +475,22 @@ def get_available_memory(include_swap=True):
     available : number
         The amount available.
     """
+    warnings.warn(
+        "get_available_memory is deprecated. Please use psutil",
+        DeprecationWarning
+    )
     system = platform_system()
 
     # Apple MacOS
     log.debug(f'Running OS is "{system}"')
     if system in ['Darwin']:
-        return get_available_memory_darwin(include_swap=include_swap)
+        get_available_memory_os = get_available_memory_darwin
+    else:
+        get_available_memory_os = get_available_memory_linux
 
-    # Default to Linux-like:
-    return get_available_memory_linux(include_swap=include_swap)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=DeprecationWarning)
+        return get_available_memory_os(include_swap=include_swap)
 
 
 def get_available_memory_linux(include_swap=True):
@@ -496,6 +509,10 @@ def get_available_memory_linux(include_swap=True):
     available : number
         The amount available.
     """
+    warnings.warn(
+        "get_available_memory_linux is deprecated. Please use psutil",
+        DeprecationWarning
+    )
     vm_stats = psutil.virtual_memory()
     available = vm_stats.available
     if include_swap:
@@ -523,6 +540,10 @@ def get_available_memory_darwin(include_swap=True):
     available : number
         The amount available.
     """
+    warnings.warn(
+        "get_available_memory_darwin is deprecated. Please use psutil",
+        DeprecationWarning
+    )
     vm_stats = psutil.virtual_memory()
     available = vm_stats.available
     if include_swap:

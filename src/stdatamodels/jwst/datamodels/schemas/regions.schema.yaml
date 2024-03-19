@@ -11,4 +11,4 @@ allOf:
 - type: object
   properties:
     regions:
-      $ref: http://stsci.edu/schemas/asdf/core/ndarray-1.0.0
+      tag: tag:stsci.edu:asdf/core/ndarray-1.*

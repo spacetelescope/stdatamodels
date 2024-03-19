@@ -1,13 +1,30 @@
 1.10.1 (unreleased)
 ===================
 
+- Added ALL_MRS to allowed values for keyword MRSPRCHN in core
+  schema. [#285]
+
 - Provide existing ``AsdfFile`` instance to ``validate`` to
-  speed up assignment validation ``check_value``. [#276] 
+  speed up assignment validation ``check_value``. [#276]
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
 - Add cache to hdu accesses during ``_load_from_schema``
   to speed up file opening. [#278]
+
+- Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
+  because it duplicates the information of ``XPOSURE``. [#277]
+
+- Deprecate ``check_memory_allocation``. This function did not
+  work as intended. [#273]
+
+- Decrease size of ``SPECTYP`` and ``TARGET`` columns in
+  ``OI_TARGET`` table of oifits schema to 16 characters. [#281]
+
+- Change ``integration_number`` from int16 to int32 in ``group``
+  schema. [#283]
+
+- Fix datamodel schema ids for abvegaoffset, keyword_lampmode, nrsfs_apcorr [#258]
 
 
 1.10.0 (2024-02-29)

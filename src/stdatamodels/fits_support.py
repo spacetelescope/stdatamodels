@@ -35,7 +35,10 @@ __all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_
 
 _ASDF_EXTENSION_NAME = "ASDF"
 _FITS_SOURCE_PREFIX = "fits:"
-_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
+if asdf.versioning.default_version > "1.5.0":
+    _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.1.0"
+else:
+    _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
 
 _builtin_regexes = [
     '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
