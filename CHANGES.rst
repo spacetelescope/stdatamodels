@@ -9,6 +9,9 @@
 
 - Deprecate ``deprecate_class`` unused by downstream. [#274] 
 
+- Add cache to hdu accesses during ``_load_from_schema``
+  to speed up file opening. [#278]
+
 - Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
   because it duplicates the information of ``XPOSURE``. [#277]
 

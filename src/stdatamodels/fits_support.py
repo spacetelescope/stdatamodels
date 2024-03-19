@@ -131,8 +131,10 @@ def _get_hdu_pair(hdu_name, index=None):
     return pair
 
 
-def get_hdu(hdulist, hdu_name, index=None):
+def get_hdu(hdulist, hdu_name, index=None, _cache=None):
     pair = _get_hdu_pair(hdu_name, index=index)
+    if _cache is not None and pair in _cache:
+        return _cache[pair]
     try:
         hdu = hdulist[pair]
     except (KeyError, IndexError, AttributeError):
@@ -156,6 +158,8 @@ def get_hdu(hdulist, hdu_name, index=None):
                 "{0!r} HDU".format(
                     pair))
 
+    if _cache is not None:
+        _cache[pair] = hdu
     return hdu
 
 
@@ -520,11 +524,11 @@ def _create_asdf_hdu(tree):
 # READER
 
 
-def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keywords):
+def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keywords, fits_hdu_cache):
 
     hdu_name = _get_hdu_name(schema)
     try:
-        hdu = get_hdu(hdulist, hdu_name, hdu_index)
+        hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
     except AttributeError:
         return None
 
@@ -542,11 +546,11 @@ def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keyword
     return val
 
 
-def _fits_array_loader(hdulist, schema, hdu_index, known_datas, context):
+def _fits_array_loader(hdulist, schema, hdu_index, known_datas, context, fits_hdu_cache):
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
     try:
-        hdu = get_hdu(hdulist, hdu_name, hdu_index)
+        hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
     except AttributeError:
         return None
 
@@ -580,13 +584,19 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
     # This is needed to constrain the loop over HDU's when resolving arrays.
     max_extver = max(hdu.ver for hdu in hdulist) if len(hdulist) else 0
 
+    # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
+    # for a nirspec mos file with ~500 extensions) so we use a cache
+    # here to handle repeated accesses. A lru_cache around get_hdu
+    # was not used as hdulist is not hashable.
+    hdu_cache = {}
+
     def callback(schema, path, combiner, ctx, recurse):
         result = None
         if not skip_fits_update and 'fits_keyword' in schema:
             fits_keyword = schema['fits_keyword']
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema,
-                ctx.get('hdu_index'), known_keywords)
+                ctx.get('hdu_index'), known_keywords, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -600,7 +610,7 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
         elif 'fits_hdu' in schema and (
                 'max_ndim' in schema or 'ndim' in schema or 'datatype' in schema):
             result = _fits_array_loader(
-                hdulist, schema, ctx.get('hdu_index'), known_datas, context)
+                hdulist, schema, ctx.get('hdu_index'), known_datas, context, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
