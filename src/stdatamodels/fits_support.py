@@ -511,7 +511,12 @@ def to_fits(tree, schema, hdulist=None):
 
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
-    asdf.AsdfFile(tree).write_to(buffer)
+    # convert all FITS_rec instances to numpy arrays, this is needed as
+    # some arrays loaded from the fits data for old files may not be defined
+    # in the current schemas. These will be loaded as FITS_rec instances but
+    # not linked back (and safely converted) on write if they are removed
+    # from the schema.
+    asdf.AsdfFile(util.convert_fitsrec_to_array_in_tree(tree)).write_to(buffer)
     buffer.seek(0)
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]

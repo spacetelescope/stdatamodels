@@ -697,3 +697,14 @@ def test_table_linking(tmp_path):
         tree_string = asdf_bytes.split(b'...')[0].decode('ascii')
         unlinked_arrays = re.findall(r'source:\s+[^f]', tree_string)
         assert not len(unlinked_arrays), unlinked_arrays
+
+
+def test_fitsrec_for_non_schema_data(tmp_path):
+    # make a file where some non-schema data is linked between
+    # the asdf extension and another hdu. This simulates an old
+    # file where this condition might occur (perhaps after a schema
+    # update).
+    m = DataModel()
+    m._instance['sneaky_table'] = fits.FITS_rec(np.array([('a', 1),], dtype=[('foo', 'S3'), ('bar', 'f4')]))
+    fn = tmp_path / "test.fits"
+    m.save(fn)

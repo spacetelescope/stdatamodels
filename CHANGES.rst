@@ -28,6 +28,10 @@
 
 - Drop support for python 3.9 [#287]
 
+- Convert ``FITS_rec`` instances read from old files where a
+  hdu was linked in the old schema (but is no longer linked)
+  when rewriting files. [#268]
+
 
 1.10.0 (2024-02-29)
 ===================
