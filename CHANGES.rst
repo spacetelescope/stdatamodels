@@ -1,4 +1,4 @@
-1.10.1 (unreleased)
+1.10.1 (2024-03-21)
 ===================
 
 - Added ALL_MRS to allowed values for keyword MRSPRCHN in core
