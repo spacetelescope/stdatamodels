@@ -80,6 +80,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         - FITS
 
            skip_fits_update :  bool or None
+              DEPRECATED
               `True` to skip updating the ASDF tree from the FITS headers, if possible.
               If `None`, value will be taken from the environmental SKIP_FITS_UPDATE.
               Otherwise, the default value is `True`.
