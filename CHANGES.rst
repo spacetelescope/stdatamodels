@@ -37,6 +37,8 @@
   ``skip_fits_update`` was ``False`` and the FITS headers
   will always be read [#270]
 
+- Increase minimum required asdf version [#288]
+
 
 1.10.0 (2024-02-29)
 ===================
