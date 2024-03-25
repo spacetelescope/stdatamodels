@@ -1,3 +1,9 @@
+1.10.2 (unreleased)
+===================
+
+- Removed deprecated ``DrizProductModel``, ``MIRIRampModel``, and
+  ``MultiProductModel`` model types [#290]
+
 1.10.1 (2024-03-25)
 ===================
 

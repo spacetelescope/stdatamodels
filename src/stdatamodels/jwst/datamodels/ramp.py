@@ -1,5 +1,3 @@
-import warnings
-
 from .model_base import JwstDataModel
 
 
