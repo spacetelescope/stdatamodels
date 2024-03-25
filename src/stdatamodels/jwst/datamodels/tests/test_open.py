@@ -44,22 +44,6 @@ def test_guess(guess):
                     pass
 
 
-def test_mirirampmodel_deprecation(tmp_path):
-    """Test that a deprecated MIRIRampModel can be opened"""
-    path = str(tmp_path / "ramp.fits")
-    # Create a MIRIRampModel, working around the deprecation.
-    model = datamodels.RampModel((1, 1, 10, 10))
-    model.save(path)
-    hduls = fits.open(path, mode='update')
-    hduls[0].header['datamodl'] = 'MIRIRampModel'
-    hduls.close()
-
-    # Test it.
-    with pytest.warns(DeprecationWarning):
-        miri_ramp = datamodels.open(path)
-    assert isinstance(miri_ramp, datamodels.RampModel)
-
-
 @pytest.fixture
 def mock_get_available_memory(monkeypatch):
     def mock(include_swap=True):

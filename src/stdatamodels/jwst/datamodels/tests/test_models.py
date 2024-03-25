@@ -14,7 +14,6 @@ import pytest
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
                                           MultiSlitModel, SlitModel, DataModel,
-                                          DrizProductModel, MultiProductModel, MIRIRampModel,
                                           NirspecFlatModel, NirspecQuadFlatModel,
                                           SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels.jwst import datamodels
@@ -322,7 +321,7 @@ def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
     """
-    if model in (DrizProductModel, MultiProductModel, MIRIRampModel):
+    if model in ():
         with pytest.warns(DeprecationWarning):
             model()
     else:

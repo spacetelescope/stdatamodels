@@ -51,7 +51,7 @@ The current models are as follows:
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
     'PsfMaskModel',
-    'QuadModel', 'RampModel', 'MIRIRampModel',
+    'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
