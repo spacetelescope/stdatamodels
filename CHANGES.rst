@@ -1,3 +1,12 @@
+2.0.0 (unreleased)
+===================
+
+- Remove deprecated jwst.datamodels models: DataModel, DrizProductModel,
+  MIRIRampModel, MultiProductModel [#171]
+
+- Increase CRDS minimum version to 11.17.1 [#171]
+
+
 1.10.1 (2024-03-25)
 ===================
 
@@ -297,7 +306,6 @@ Other
   flagging outliers for JWST MIRI/MRS and NIRSpec IFU data. [#167]
 
 - Close for opened files [#169]
-
 
 1.5.0 (2023-05-16)
 ==================

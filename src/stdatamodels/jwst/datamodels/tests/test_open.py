@@ -2,7 +2,6 @@
 Test datamodel.open
 """
 
-import contextlib
 import os
 import os.path
 from pathlib import Path, PurePath
@@ -42,22 +41,6 @@ def test_guess(guess):
             with pytest.raises(TypeError):
                 with datamodels.open(path, guess=guess) as model:
                     pass
-
-
-def test_mirirampmodel_deprecation(tmp_path):
-    """Test that a deprecated MIRIRampModel can be opened"""
-    path = str(tmp_path / "ramp.fits")
-    # Create a MIRIRampModel, working around the deprecation.
-    model = datamodels.RampModel((1, 1, 10, 10))
-    model.save(path)
-    hduls = fits.open(path, mode='update')
-    hduls[0].header['datamodl'] = 'MIRIRampModel'
-    hduls.close()
-
-    # Test it.
-    with pytest.warns(DeprecationWarning):
-        miri_ramp = datamodels.open(path)
-    assert isinstance(miri_ramp, datamodels.RampModel)
 
 
 @pytest.fixture
@@ -255,10 +238,12 @@ def test_open_asdf_no_datamodel_class(tmp_path, suffix):
     model = DataModel()
     model.save(path)
 
-    # Note: only the fits open emits a "model_type not found" warning.  Both
-    # fits and asdf should behave the same
-    ctx = pytest.warns(util.NoTypeWarning) if suffix == 'fits' else contextlib.nullcontext()
-    with ctx:
+    # previously, only the fits file issued a NoTypeWarning
+    # this was a quirk of the deprecated (and now removed) jwst.DataModel
+    # sharing the same class name as stdatamodels.DataModel (used here)
+    # now that jwst.DataModel is removed, both the fits and asdf
+    # files correctly report NoTypeWarning
+    with pytest.warns(util.NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 

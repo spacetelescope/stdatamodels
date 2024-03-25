@@ -51,7 +51,7 @@ The current models are as follows:
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
     'PsfMaskModel',
-    'QuadModel', 'RampModel', 'MIRIRampModel',
+    'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
@@ -105,9 +105,9 @@ is stored in a separate image extension).  Full-frame data for all other
 instruments have four columns or rows of reference pixels on each edge
 of the image.
 
-DataModel Base Class
+JwstDataModel Base Class
 --------------------
 
-.. autoclass:: jwst.datamodels.DataModel
+.. autoclass:: jwst.datamodels.JwstDataModel
    :members:
    :noindex:

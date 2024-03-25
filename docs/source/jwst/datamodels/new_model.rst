@@ -189,16 +189,16 @@ The model class
 Now, let's see how this schema is tied in with a new Python class for
 the model.
 
-First, we need to import the `DataModel` class, which is the base
+First, we need to import the `JwstDataModel` class, which is the base
 class for all models::
 
-  from stdatamodels.jwst.datamodels import DataModel
+  from stdatamodels.jwst.datamodels import JwstDataModel
 
-Then we create a new Python class that inherits from `DataModel`, and
+Then we create a new Python class that inherits from `JwstDataModel`, and
 set its `schema_url` class member to point to the schema that we just
 defined above::
 
-  class MiriBadPixelMaskModel(DataModel):
+  class MiriBadPixelMaskModel(JwstDataModel):
       schema_url = "bad_pixel_mask.schema.yaml"
 
 Here, the `schema_url` has all of the "magical" URL abilities
@@ -234,7 +234,7 @@ elements, by setting `schema_url` to::
 Within this class, we'll define a constructor.  All model constructors
 must take the highly polymorphic ``init`` value as the first argument.
 This can be a file, another model, or all kinds of other things.  See
-the docstring of `jwst.datamodels.DataModel.__init__` for more
+the docstring of `jwst.datamodels.JwstDataModel.__init__` for more
 information.  But we're going to let the base class handle that
 anyway.
 
@@ -252,7 +252,7 @@ technically writing a new constructor for the model is optional:
         Parameters
         ----------
         init : any
-            Any of the initializers supported by `~jwst.datamodels.DataModel`.
+            Any of the initializers supported by `~jwst.datamodels.JwstDataModel`.
 
         dq : numpy array
             The data quality array.
@@ -336,7 +336,7 @@ function.
 Lastly, remember the ``meta.bad_pixel_count`` element we defined
 above?  We need some way to make sure that whenever the file is
 written out that it has the correct value.  The model may have been
-loaded and modified.  For this, `DataModel` has the `on_save` method
+loaded and modified.  For this, `JwstDataModel` has the `on_save` method
 hook, which may be overridden by the subclass to add anything that
 should happen just before saving:
 

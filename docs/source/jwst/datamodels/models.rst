@@ -239,7 +239,7 @@ use::
 In place of `ImageModel`, use the type of data one expects to find in
 the file.  For example, if spectrographic data is expected, use
 `SpecModel`.  If it doesn't matter (perhaps the application is only
-sorting FITS files into categories) use the base class `DataModel`.
+sorting FITS files into categories) use the base class `JwstDataModel`.
 
 An alternative is to use::
 
@@ -276,9 +276,9 @@ use the :ref:`metadata` tree.
 There is a convenience method, `find_fits_keyword` to find where a
 FITS keyword is used in the metadata tree::
 
-    >>> from stdatamodels.jwst.datamodels import DataModel
+    >>> from stdatamodels.jwst.datamodels import JwstDataModel
     >>> # First, create a model of the desired type
-    >>> model = DataModel()
+    >>> model = JwstDataModel()
     >>> model.find_fits_keyword('DATE-OBS')
     [u'meta.observation.date']
 
@@ -322,20 +322,20 @@ Environment Variables
 There are a number of environment variables that affect how models are read.
 
 PASS_INVALID_VALUES
-  Used by `~jwst.datamodels.DataModel` when instantiating
+  Used by `~jwst.datamodels.JwstDataModel` when instantiating
   a model from a file. If ``True``, values that do not validate the schema will
   still be added to the metadata. If ``False``, they will be set to ``None``.
   Default is ``False``.
 
 STRICT_VALIDATION
-  Used by `~jwst.datamodels.DataModel` when instantiating a model from a file.
+  Used by `~jwst.datamodels.JwstDataModel` when instantiating a model from a file.
   If ``True``, schema validation errors will generate an exception.
   If ``False``, they will generate a warning.
   Default is ``False``.
 
 SKIP_FITS_UPDATE
   DEPRECATED: In the future the FITS header will always be used.
-  Used by `~jwst.datamodels.DataModel` when instantiating a
+  Used by `~jwst.datamodels.JwstDataModel` when instantiating a
   model from a FITS file. When ``False``, models opened from FITS files will
   proceed and load the FITS header values into the model. When ``True`` and the
   FITS file has an ASDF extension, the loading/validation of the FITS header

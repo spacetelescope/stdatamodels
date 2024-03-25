@@ -49,7 +49,7 @@ test = [
     "psutil",
     "pytest>=4.6.0",
     "pytest-doctestplus",
-    "crds>=11.16.14",
+    "crds>=11.17.1",
     "scipy>=1.5",
 ]
 docs = [
