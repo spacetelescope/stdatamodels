@@ -13,7 +13,7 @@ from numpy.lib.recfunctions import drop_fields
 import pytest
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
-                                          MultiSlitModel, SlitModel, DataModel
+                                          MultiSlitModel, SlitModel,
                                           NirspecFlatModel, NirspecQuadFlatModel,
                                           SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels.jwst import datamodels
