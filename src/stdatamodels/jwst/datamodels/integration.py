@@ -2,7 +2,12 @@
 This module supports the entry points for ASDF support for the `jwst.datamodels`.
 """
 
-import importlib.resources
+import sys
+
+if sys.version_info < (3, 9):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 
 from asdf.resource import DirectoryResourceMapping
@@ -21,7 +26,7 @@ def get_resource_mappings():
     list of the `asdf.resource.ResourceMapping` instances containing the `jwst.datamodels`
     schemas.
     """
-    resources_root = importlib.resources.files(datamodels)
+    resources_root = importlib_resources.files(datamodels)
     if not resources_root.is_dir():
         raise RuntimeError(f"Missing resources directory: {resources_root=}")
 
