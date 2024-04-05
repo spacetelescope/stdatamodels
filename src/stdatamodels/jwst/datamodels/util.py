@@ -19,8 +19,6 @@ from astropy.io import fits
 from stdatamodels import filetype
 from stdatamodels.model_base import _FileReference
 
-from stdatamodels.jwst.library.basic_utils import bytes2human
-
 
 __all__ = ['open', 'NoTypeWarning', 'can_broadcast', 'to_camelcase', 'is_association']
 
