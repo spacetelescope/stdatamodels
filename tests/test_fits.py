@@ -1,12 +1,10 @@
 import contextlib
 import re
-import warnings
 
 import pytest
 from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from asdf.exceptions import ValidationError
 import asdf.schema
 
 from stdatamodels import DataModel

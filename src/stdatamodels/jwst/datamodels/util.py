@@ -4,12 +4,8 @@ Various utility functions and data types
 
 import sys
 import warnings
-import os
 from os.path import basename
 from pathlib import Path
-from platform import system as platform_system
-import psutil
-import traceback
 import logging
 
 import asdf

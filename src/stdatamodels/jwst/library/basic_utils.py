@@ -1,7 +1,5 @@
 """General utility objects"""
 
-import warnings
-
 
 def bytes2human(n):
     """Convert bytes to human-readable format
