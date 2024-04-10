@@ -21,9 +21,6 @@ from stdatamodels.jwst.datamodels import util
 
 import asdf
 
-# Define artificial memory size
-MEMORY = 100  # 100 bytes
-
 
 @pytest.mark.parametrize('guess', [True, False])
 def test_guess(guess):
@@ -41,61 +38,6 @@ def test_guess(guess):
             with pytest.raises(TypeError):
                 with datamodels.open(path, guess=guess) as model:
                     pass
-
-
-@pytest.fixture
-def mock_get_available_memory(monkeypatch):
-    def mock(include_swap=True):
-        available = MEMORY
-        if include_swap:
-            available *= 2
-        return available
-    monkeypatch.setattr(util, 'get_available_memory', mock)
-
-
-@pytest.mark.parametrize(
-    'allowed_env, allowed_explicit, result',
-    [
-        (None, None, True),  # Perform no check.
-        (0.1, None, False),  # Force too little memory.
-        (0.1, 1.0, True),    # Explicit overrides environment.
-        (1.0, 0.1, False),   # Explicit overrides environment.
-        (None, 0.1, False),  # Explicit overrides environment.
-    ]
-)
-def test_check_memory_allocation_env(monkeypatch, mock_get_available_memory,
-                                     allowed_env, allowed_explicit, result):
-    """Check environmental control over memory check"""
-    if allowed_env is None:
-        monkeypatch.delenv('DMODEL_ALLOWED_MEMORY', raising=False)
-    else:
-        monkeypatch.setenv('DMODEL_ALLOWED_MEMORY', str(allowed_env))
-
-    # Allocate amount that would fit at 100% + swap.
-    with pytest.warns(DeprecationWarning, match="check_memory_allocation is deprecated"):
-        can_allocate, required = util.check_memory_allocation(
-            (MEMORY // 2, 1), allowed=allowed_explicit,
-        )
-    assert can_allocate is result
-
-
-@pytest.mark.parametrize(
-    'dim, allowed, include_swap, result',
-    [
-        (MEMORY // 2, 1.0, True, True),    # Fit within memory and swap
-        (MEMORY // 2, 1.0, False, False),  # Does not fit without swap
-        (MEMORY, 1.0, True, False),        # Does not fit at all
-        (MEMORY, None, True, True),        # Check disabled
-        (MEMORY // 2, 0.1, True, False),   # Does not fit in restricted memory
-    ]
-)
-def test_check_memory_allocation(mock_get_available_memory, dim, allowed, include_swap, result):
-    """Check general operation of check_memory_allocation"""
-    with pytest.warns(DeprecationWarning, match="check_memory_allocation is deprecated"):
-        can_allocate, required = util.check_memory_allocation(
-            (dim, 1), allowed=allowed, include_swap=include_swap
-        )
-    assert can_allocate is result
 
 
 def test_open_from_pathlib():

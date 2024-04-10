@@ -6,6 +6,9 @@
 
 - Increase CRDS minimum version to 11.17.1 [#171]
 
+- Removed deprecated ``deprecate_class``, ``cast_arrays`` and
+  ``jwst.datamodels.util`` [#298]
+
 
 1.10.1 (2024-03-25)
 ===================

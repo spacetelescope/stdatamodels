@@ -63,7 +63,7 @@ class DataModel(properties.ObjectNode):
 
     def __init__(self, init=None, schema=None, memmap=False,
                  pass_invalid_values=None, strict_validation=None,
-                 validate_on_assignment=None, cast_fits_arrays=None,
+                 validate_on_assignment=None,
                  validate_arrays=False, ignore_missing_extensions=True, **kwargs):
         """
         Parameters
@@ -117,11 +117,6 @@ class DataModel(properties.ObjectNode):
             If 'False', schema validation occurs only once at the time of write.
             Validation errors generate warnings.
 
-        cast_fits_arrays : bool
-            If `True`, arrays will be cast to the dtype described by the schema
-            when read from a FITS file.
-            If `False`, arrays will be read without casting.
-
         validate_arrays : bool
             If `True`, arrays will be validated against ndim, max_ndim, and datatype
             validators in the schemas.
@@ -158,11 +153,6 @@ class DataModel(properties.ObjectNode):
         self._strict_validation = strict_validation
         self._ignore_missing_extensions = ignore_missing_extensions
         self._validate_on_assignment = validate_on_assignment
-        if cast_fits_arrays is not None:
-            warnings.warn("cast_fits_array is deprecated and will be removed", DeprecationWarning)
-            self._cast_fits_arrays = cast_fits_arrays
-        else:
-            self._cast_fits_arrays = None
         self._validate_arrays = validate_arrays
 
         kwargs.update({'ignore_missing_extensions': ignore_missing_extensions})

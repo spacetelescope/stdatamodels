@@ -1,12 +1,10 @@
 import contextlib
 import re
-import warnings
 
 import pytest
 from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from asdf.exceptions import ValidationError
 import asdf.schema
 
 from stdatamodels import DataModel
@@ -598,24 +596,6 @@ def test_ndarray_validation(tmp_path):
     with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
         model.validate()
 
-    # But raise an error when casting is disabled
-    with pytest.raises(ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                category=UserWarning,
-                message="cast_arrays is deprecated and will be removed"
-            )
-            # also warn due to the cast_fits_array deprecation
-            with pytest.warns(DeprecationWarning, match="cast_fits_array"):
-                with FitsModel(
-                    file_path,
-                    strict_validation=True,
-                    cast_fits_arrays=False,
-                    validate_arrays=True,
-                ) as model:
-                    model.validate()
-
     # Wrong dimensions
     hdu = fits.ImageHDU(data=np.ones((4,), dtype=np.float64), name="SCI")
     hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
@@ -625,19 +605,6 @@ def test_ndarray_validation(tmp_path):
     with pytest.raises(ValueError, match="Array has wrong number of dimensions"):
         with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
             model.validate()
-
-    # Should also be caught by validation
-    with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                category=UserWarning,
-                message="cast_arrays is deprecated and will be removed"
-            )
-            # also warn due to the cast_fits_array deprecation
-            with pytest.warns(DeprecationWarning, match="cast_fits_array"):
-                with FitsModel(file_path, strict_validation=True, cast_fits_arrays=False, validate_arrays=True) as model:
-                    model.validate()
 
 
 def test_resave_duplication_bug(tmp_path):

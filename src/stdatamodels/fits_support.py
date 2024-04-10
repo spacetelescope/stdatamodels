@@ -551,7 +551,7 @@ def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keyword
     return val
 
 
-def _fits_array_loader(hdulist, schema, hdu_index, known_datas, context, fits_hdu_cache):
+def _fits_array_loader(hdulist, schema, hdu_index, known_datas, fits_hdu_cache):
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
     try:
@@ -560,7 +560,7 @@ def _fits_array_loader(hdulist, schema, hdu_index, known_datas, context, fits_hd
         return None
 
     known_datas.add(hdu)
-    return from_fits_hdu(hdu, schema, context._cast_fits_arrays)
+    return from_fits_hdu(hdu, schema)
 
 
 def _schema_has_fits_hdu(schema):
@@ -615,7 +615,7 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
         elif 'fits_hdu' in schema and (
                 'max_ndim' in schema or 'ndim' in schema or 'datatype' in schema):
             result = _fits_array_loader(
-                hdulist, schema, ctx.get('hdu_index'), known_datas, context, hdu_cache)
+                hdulist, schema, ctx.get('hdu_index'), known_datas, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -791,35 +791,24 @@ def _map_hdulist_to_arrays(hdulist, af):
     af._tree = treeutil.walk_and_modify(af.tree, callback)
 
 
-def from_fits_hdu(hdu, schema, cast_arrays=None):
+def from_fits_hdu(hdu, schema):
     """
     Read the data from a fits hdu into a numpy ndarray
     """
-    if cast_arrays is not None:
-        warnings.warn("cast_arrays is deprecated and will be removed")
-    else:
-        cast_arrays = True
     data = hdu.data
 
-    if cast_arrays:
-        # Save the column listeners for possible restoration
-        if hasattr(data, '_coldefs'):
-            listeners = data._coldefs._listeners
-        else:
-            listeners = None
-
-        # Cast array to type mentioned in schema
-        data = properties._cast(data, schema)
-
-        # Casting a table loses the column listeners, so restore them
-        if listeners is not None:
-            data._coldefs._listeners = listeners
+    # Save the column listeners for possible restoration
+    if hasattr(data, '_coldefs'):
+        listeners = data._coldefs._listeners
     else:
-        # Correct the pseudo-unsigned int problem (this normally occurs
-        # inside properties._cast, but we still need to do it even
-        # when not casting, otherwise arrays from FITS will fail validation).
-        if isinstance(data, fits.FITS_rec):
-            data.dtype = util.rebuild_fits_rec_dtype(data)
+        listeners = None
+
+    # Cast array to type mentioned in schema
+    data = properties._cast(data, schema)
+
+    # Casting a table loses the column listeners, so restore them
+    if listeners is not None:
+        data._coldefs._listeners = listeners
 
     return data
 
