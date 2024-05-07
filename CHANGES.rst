@@ -12,6 +12,9 @@
 - Remove ``stdatamodels.jwst.datamodels.schema`` which is an out-of-date
   duplicate of ``stdatamodels.schema`` [#175]
 
+- Remove unnecessary references to overwritten datamodel
+  attributes to free up memory [#301]
+
 
 1.10.1 (2024-03-25)
 ===================
