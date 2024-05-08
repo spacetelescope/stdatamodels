@@ -1,4 +1,6 @@
+import gc
 import warnings
+import weakref
 
 import pytest
 import asdf
@@ -391,3 +393,37 @@ def test_ndarray_validation(tmp_path):
     with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
         with BasicModel(file_path, strict_validation=True, validate_arrays=True) as model:
             model.validate()
+
+
+def test_validation_memory_leak():
+    """
+    Test that assigning an array to a model and then overwriting
+    the attribute with a new array doesn't result in the model keeping
+    a reference to the assigned array.
+    """
+    # basic model validates `data` to be a float32 with 2 dimensions
+    model = BasicModel()
+
+    # get the default array
+    original_array = model.data
+
+    # make a new valid array
+    new_array = np.ones_like(original_array)
+
+    # assign it to the model
+    model.data = new_array
+
+    # grab a weakref to the new array
+    new_array_ref = weakref.ref(new_array)
+
+    # re-assign the original array
+    model.data = original_array
+
+    # delete the new array (which should no longer be linked to the model)
+    del new_array
+
+    # and collect garbage to free the array
+    gc.collect()
+
+    # verify that the weakref fails to resolve
+    assert new_array_ref() is None

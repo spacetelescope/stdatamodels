@@ -145,7 +145,10 @@ def _check_value(value, schema, ctx):
         # into nodes for custom types.
         value = remove_none_from_tree(value)
         value = convert_fitsrec_to_array_in_tree(value)
-        value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
+        # without this "write_context" asdf will queue up blocks for writing which
+        # will hold onto arrays after they have be overwritten
+        with ctx._asdf._blocks.write_context(None):
+            value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
 
         if ctx._validate_arrays:
             validators = _VALIDATORS
