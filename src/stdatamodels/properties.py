@@ -455,30 +455,6 @@ class ListNode(Node):
         if self._ctx._validate_on_assignment:
             self._validate()
 
-    def __getslice__(self, i, j):
-        if isinstance(self._schema['items'], list):
-            r = range(*(slice(i, j).indices(len(self._instance))))
-            schema_parts = [
-                _get_schema_for_index(self._schema, x) for x in r
-            ]
-        else:
-            schema_parts = self._schema['items']
-        schema = {'type': 'array', 'items': schema_parts}
-        return _make_node(self._name, self._instance[i:j], schema, self._ctx, self)
-
-    def __setslice__(self, i, j, other):
-        parts = _unmake_node(other)
-        parts = [_cast(x, _get_schema_for_index(self._schema, k))
-                 for (k, x) in enumerate(parts)]
-        self._instance[i:j] = _unmake_node(other)
-        if self._ctx._validate_on_assignment:
-            self._validate()
-
-    def __delslice__(self, i, j):
-        del self._instance[i:j]
-        if self._ctx._validate_on_assignment:
-            self._validate()
-
     def append(self, item):
         schema = _get_schema_for_index(self._schema, len(self._instance))
         item = _cast(item, schema)
