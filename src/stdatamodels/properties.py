@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
-import warnings
 import numpy as np
 from collections.abc import Mapping
 from astropy.io import fits
