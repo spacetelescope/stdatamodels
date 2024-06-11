@@ -15,6 +15,8 @@
 - Remove unnecessary references to overwritten datamodel
   attributes to free up memory [#301]
 
+- Remove unused ``deprecated_properties`` [#303]
+
 
 1.10.1 (2024-03-25)
 ===================
