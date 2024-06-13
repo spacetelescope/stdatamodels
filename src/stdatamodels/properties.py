@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
-import warnings
 import numpy as np
 from collections.abc import Mapping
 from astropy.io import fits
@@ -297,53 +296,10 @@ class ObjectNode(Node):
         else:
             return self._instance == other
 
-    def _is_deprecated(self, attr):
-        return "deprecated_properties" in self._schema and attr in self._schema["deprecated_properties"]
-
-    def _warn_deprecated_attr(self, attr):
-        node = self
-        path = []
-        while node._parent is not None:
-            if not isinstance(node, ListNode):
-                path.append(node._name)
-            node = node._parent
-
-        path.reverse()
-
-        old_attr = ".".join(path + [attr])
-
-        property_path = self._schema["deprecated_properties"][attr]
-        parts = property_path.split("/")
-        for part in parts:
-            if part == "..":
-                path.pop()
-            else:
-                path.append(part)
-
-        new_attr = ".".join(path)
-
-        warnings.warn(f"Attribute '{old_attr}' has been deprecated.  Use '{new_attr}' instead.", DeprecationWarning)
-
-    def _get_deprecated(self, attr):
-        property_path = self._schema["deprecated_properties"][attr]
-        node = self
-        parts = property_path.split("/")
-        for part in parts[:-1]:
-            if part == "..":
-                node = node._parent
-            else:
-                node = getattr(node, part)
-        return node, parts[-1]
-
     def __getattr__(self, attr):
 
         if attr.startswith('_'):
             raise AttributeError('No attribute {0}'.format(attr))
-
-        if self._is_deprecated(attr):
-            self._warn_deprecated_attr(attr)
-            node, new_attr = self._get_deprecated(attr)
-            return getattr(node, new_attr)
 
         schema = _get_schema_for_property(self._schema, attr)
         try:
@@ -368,10 +324,6 @@ class ObjectNode(Node):
     def __setattr__(self, attr, val):
         if attr.startswith('_'):
             self.__dict__[attr] = val
-        elif self._is_deprecated(attr):
-            self._warn_deprecated_attr(attr)
-            node, new_attr = self._get_deprecated(attr)
-            setattr(node, new_attr, val)
         else:
             schema = _get_schema_for_property(self._schema, attr)
             if val is None:
@@ -388,10 +340,6 @@ class ObjectNode(Node):
     def __delattr__(self, attr):
         if attr.startswith('_'):
             del self.__dict__[attr]
-        elif self._is_deprecated(attr):
-            self._warn_deprecated_attr(attr)
-            node, new_attr = self._get_deprecated(attr)
-            delattr(node, new_attr)
         else:
             schema = _get_schema_for_property(self._schema, attr)
             if validate.value_change(attr, None, schema, self._ctx) or self._ctx._pass_invalid_values:
