@@ -59,6 +59,9 @@
 
 - Increase minimum required asdf version [#288]
 
+- Add ``S_BPXSLF`` keyword to the JWST core schema to reflect the addition
+  of the ``badpix_selfcal`` step. [#305]
+
 
 1.10.0 (2024-02-29)
 ===================

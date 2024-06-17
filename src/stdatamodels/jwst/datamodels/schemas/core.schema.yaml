@@ -2319,6 +2319,11 @@ properties:
             type: string
             fits_keyword: S_BKDSUB
             blend_table: True
+          badpix_selfcal:
+            title: Bad Pixel Self-Calibration
+            type: string
+            fits_keyword: S_BPXSLF
+            blend_table: True
           barshadow:
             title: Bar shadow correction
             type: string
