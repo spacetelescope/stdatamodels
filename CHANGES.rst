@@ -1,4 +1,9 @@
-2.0.0 (unreleased)
+2.0.1 (unreleased)
+===================
+
+- 
+
+2.0.0 (2024-06-24)
 ===================
 
 - Remove deprecated jwst.datamodels models: DataModel, DrizProductModel,
