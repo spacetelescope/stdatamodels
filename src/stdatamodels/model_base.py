@@ -234,8 +234,8 @@ class DataModel(properties.ObjectNode):
                 )
 
             elif file_type == "asdf":
-                # use memmap argument of "copy_arrays" was not defined
-                kwargs["copy_arrays"] = kwargs.get("copy_arrays", not memmap)
+                # "copy_arrays" is deprecated; use "memmap" instead
+                kwargs["memmap"] = not kwargs.get("copy_arrays", not memmap)
                 asdffile = self.open_asdf(init=init, **kwargs)
 
             else:
