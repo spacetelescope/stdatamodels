@@ -396,6 +396,14 @@ class DataModel(properties.ObjectNode):
             # Discard the list in case close is called a second time.
             self._file_references = []
 
+        # hollow out the model to remove all references
+        # to data arrays
+        self._asdf = AsdfFile()
+        self._instance = self._asdf.tree
+        # and drop the schema so __getattr__ calls to the underlying
+        # ObjectNode don't re-create objects
+        self._schema = {}
+
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
         if deepcopy:
