@@ -3,6 +3,10 @@
 
 - replace usages of ``copy_arrays`` with ``memmap`` [#306]
 
+- Remove deprecated ``R_DRIZPAR`` keyword from core schema 
+  as well as ``jwst.datamodels.DrizParsModel``. [#316]
+  
+
 2.0.0 (2024-06-24)
 ===================
 
