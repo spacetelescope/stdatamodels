@@ -1,0 +1,49 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/soss_tracemodel.schema"
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_filter.schema
+- type: object
+  properties:
+    meta:
+      pwcpos_cmd:
+        title: Commanded position
+        type: float32
+    traces:
+      type: array
+      title: An array of trace models by order
+      items:
+        spectral_order:
+          title: Spectral order
+          type: integer
+          minimum: 1
+        pivot_x:
+          title: Pixel rotation point
+          type: float32
+        pivot_y:
+          title: Pixel rotation point
+          type: float32
+        trace:
+          title: The trace position
+          ndim: 2
+          datatype: float32
+    wavecal_models:
+      type: array
+      title: Polynomial regression model fitting wavelength to x, offset
+      items:
+        polynomial_degree:
+          title: Polynomial degree of model
+          type: integer
+        coefficients:
+          title: List of polynomial coefficients
+          type: float64
+        coefficient_labels:
+          title: Coefficient order specification
+          type: string
+        scale_extents:
+          title: Range of values for normalization
+          type: float64
+          ndim: 2
