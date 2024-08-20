@@ -729,7 +729,6 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
 
 
 def from_fits_asdf(hdulist,
-                   ignore_version_mismatch=True,
                    ignore_unrecognized_tag=False,
                    **kwargs):
     """
@@ -742,7 +741,6 @@ def from_fits_asdf(hdulist,
     except (KeyError, IndexError, AttributeError):
         # This means there is no ASDF extension
         return asdf.AsdfFile(
-            ignore_version_mismatch=ignore_version_mismatch,
             ignore_unrecognized_tag=ignore_unrecognized_tag,
         )
 
@@ -754,7 +752,6 @@ def from_fits_asdf(hdulist,
     }
     af = asdf.open(
         generic_file,
-        ignore_version_mismatch=ignore_version_mismatch,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
         **akwargs
