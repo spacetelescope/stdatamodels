@@ -6,6 +6,7 @@
 - Remove deprecated ``R_DRIZPAR`` keyword from core schema 
   as well as ``jwst.datamodels.DrizParsModel``. [#316]
   
+- add grating keyword to dark and superbias schemas [#317]
 
 2.0.0 (2024-06-24)
 ===================
