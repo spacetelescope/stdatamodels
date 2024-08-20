@@ -3,6 +3,8 @@
 
 - replace usages of ``copy_arrays`` with ``memmap`` [#306]
 
+- add grating keyword to dark and superbias schemas [#317]
+
 2.0.0 (2024-06-24)
 ===================
 
