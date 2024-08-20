@@ -15,6 +15,7 @@ allOf:
 - $ref: keyword_gainfact.schema
 - $ref: keyword_psubarray.schema
 - $ref: keyword_darkcurrent.schema
+- $ref: keyword_grating.schema
 - $ref: subarray.schema
 - type: object
   properties:
