@@ -2,7 +2,6 @@
 Test datamodel.open
 """
 
-import contextlib
 import os
 import os.path
 from pathlib import Path, PurePath
@@ -22,9 +21,6 @@ from stdatamodels.jwst.datamodels import util
 
 import asdf
 
-# Define artificial memory size
-MEMORY = 100  # 100 bytes
-
 
 @pytest.mark.parametrize('guess', [True, False])
 def test_guess(guess):
@@ -42,75 +38,6 @@ def test_guess(guess):
             with pytest.raises(TypeError):
                 with datamodels.open(path, guess=guess) as model:
                     pass
-
-
-def test_mirirampmodel_deprecation(tmp_path):
-    """Test that a deprecated MIRIRampModel can be opened"""
-    path = str(tmp_path / "ramp.fits")
-    # Create a MIRIRampModel, working around the deprecation.
-    model = datamodels.RampModel((1, 1, 10, 10))
-    model.save(path)
-    hduls = fits.open(path, mode='update')
-    hduls[0].header['datamodl'] = 'MIRIRampModel'
-    hduls.close()
-
-    # Test it.
-    with pytest.warns(DeprecationWarning):
-        miri_ramp = datamodels.open(path)
-    assert isinstance(miri_ramp, datamodels.RampModel)
-
-
-@pytest.fixture
-def mock_get_available_memory(monkeypatch):
-    def mock(include_swap=True):
-        available = MEMORY
-        if include_swap:
-            available *= 2
-        return available
-    monkeypatch.setattr(util, 'get_available_memory', mock)
-
-
-@pytest.mark.parametrize(
-    'allowed_env, allowed_explicit, result',
-    [
-        (None, None, True),  # Perform no check.
-        (0.1, None, False),  # Force too little memory.
-        (0.1, 1.0, True),    # Explicit overrides environment.
-        (1.0, 0.1, False),   # Explicit overrides environment.
-        (None, 0.1, False),  # Explicit overrides environment.
-    ]
-)
-def test_check_memory_allocation_env(monkeypatch, mock_get_available_memory,
-                                     allowed_env, allowed_explicit, result):
-    """Check environmental control over memory check"""
-    if allowed_env is None:
-        monkeypatch.delenv('DMODEL_ALLOWED_MEMORY', raising=False)
-    else:
-        monkeypatch.setenv('DMODEL_ALLOWED_MEMORY', str(allowed_env))
-
-    # Allocate amount that would fit at 100% + swap.
-    can_allocate, required = util.check_memory_allocation(
-        (MEMORY // 2, 1), allowed=allowed_explicit,
-    )
-    assert can_allocate is result
-
-
-@pytest.mark.parametrize(
-    'dim, allowed, include_swap, result',
-    [
-        (MEMORY // 2, 1.0, True, True),    # Fit within memory and swap
-        (MEMORY // 2, 1.0, False, False),  # Does not fit without swap
-        (MEMORY, 1.0, True, False),        # Does not fit at all
-        (MEMORY, None, True, True),        # Check disabled
-        (MEMORY // 2, 0.1, True, False),   # Does not fit in restricted memory
-    ]
-)
-def test_check_memory_allocation(mock_get_available_memory, dim, allowed, include_swap, result):
-    """Check general operation of check_memory_allocation"""
-    can_allocate, required = util.check_memory_allocation(
-        (dim, 1), allowed=allowed, include_swap=include_swap
-    )
-    assert can_allocate is result
 
 
 def test_open_from_pathlib():
@@ -253,10 +180,12 @@ def test_open_asdf_no_datamodel_class(tmp_path, suffix):
     model = DataModel()
     model.save(path)
 
-    # Note: only the fits open emits a "model_type not found" warning.  Both
-    # fits and asdf should behave the same
-    ctx = pytest.warns(util.NoTypeWarning) if suffix == 'fits' else contextlib.nullcontext()
-    with ctx:
+    # previously, only the fits file issued a NoTypeWarning
+    # this was a quirk of the deprecated (and now removed) jwst.DataModel
+    # sharing the same class name as stdatamodels.DataModel (used here)
+    # now that jwst.DataModel is removed, both the fits and asdf
+    # files correctly report NoTypeWarning
+    with pytest.warns(util.NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 

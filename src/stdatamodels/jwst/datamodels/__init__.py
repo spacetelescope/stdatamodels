@@ -1,4 +1,4 @@
-from .model_base import JwstDataModel, DataModel
+from .model_base import JwstDataModel
 from .abvega_offset import ABVegaOffsetModel
 from .amilg import AmiLgModel
 from .amilgfitmodel import AmiLgFitModel
@@ -16,7 +16,6 @@ from .cube import CubeModel
 from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
 from .drizpars import DrizParsModel
-from .drizproduct import DrizProductModel
 from .emi import EmiModel
 from .extract1dimage import Extract1dImageModel
 from .extract1d_spec import Extract1dIFUModel
@@ -37,15 +36,14 @@ from .lastframe import LastFrameModel
 from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
-from .ramp import MIRIRampModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
 from .multiextract1d import MultiExtract1dImageModel
-from .multiprod import MultiProductModel
 from .multislit import MultiSlitModel
 from .multispec import MultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
+from .nrm import NRMModel
 from .outlierpars import OutlierParsModel
 from .outlierifuoutput import OutlierIFUOutputModel
 from .pathloss import PathlossModel, MirLrsPathlossModel
@@ -93,11 +91,12 @@ from .util import open
 
 __all__ = [
     'open',
-    'DataModel', 'JwstDataModel',
+    'JwstDataModel',
     'ABVegaOffsetModel',
     'AmiLgModel',
     'AmiLgFitModel',
     'AmiOIModel',
+    'NRMModel',
     'FgsImgApcorrModel', 'MirImgApcorrModel', 'NrcImgApcorrModel', 'NisImgApcorrModel',
     'MirLrsApcorrModel', 'MirMrsApcorrModel', 'NrcWfssApcorrModel', 'NisWfssApcorrModel',
     'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
@@ -107,7 +106,6 @@ __all__ = [
     'DarkModel', 'DarkMIRIModel',
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
     'DrizParsModel',
-    'DrizProductModel',
     'EmiModel',
     'Extract1dImageModel',
     'Extract1dIFUModel',
@@ -124,7 +122,6 @@ __all__ = [
     'LinearityModel', 'MaskModel', 'MSAModel',
     'MultiCombinedSpecModel', 'MultiExposureModel',
     'MultiExtract1dImageModel', 'MultiSlitModel',
-    'MultiProductModel',
     'MultiSpecModel',
     'NIRCAMGrismModel', 'NIRISSGrismModel',
     'OTEModel',
@@ -138,7 +135,7 @@ __all__ = [
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
     'PsfMaskModel',
-    'QuadModel', 'RampModel', 'MIRIRampModel',
+    'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',

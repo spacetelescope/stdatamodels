@@ -35,7 +35,10 @@ __all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_
 
 _ASDF_EXTENSION_NAME = "ASDF"
 _FITS_SOURCE_PREFIX = "fits:"
-_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
+if asdf.versioning.default_version > "1.5.0":
+    _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.1.0"
+else:
+    _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
 
 _builtin_regexes = [
     '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
@@ -128,8 +131,10 @@ def _get_hdu_pair(hdu_name, index=None):
     return pair
 
 
-def get_hdu(hdulist, hdu_name, index=None):
+def get_hdu(hdulist, hdu_name, index=None, _cache=None):
     pair = _get_hdu_pair(hdu_name, index=index)
+    if _cache is not None and pair in _cache:
+        return _cache[pair]
     try:
         hdu = hdulist[pair]
     except (KeyError, IndexError, AttributeError):
@@ -153,6 +158,8 @@ def get_hdu(hdulist, hdu_name, index=None):
                 "{0!r} HDU".format(
                     pair))
 
+    if _cache is not None:
+        _cache[pair] = hdu
     return hdu
 
 
@@ -504,7 +511,12 @@ def to_fits(tree, schema, hdulist=None):
 
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
-    asdf.AsdfFile(tree).write_to(buffer)
+    # convert all FITS_rec instances to numpy arrays, this is needed as
+    # some arrays loaded from the fits data for old files may not be defined
+    # in the current schemas. These will be loaded as FITS_rec instances but
+    # not linked back (and safely converted) on write if they are removed
+    # from the schema.
+    asdf.AsdfFile(util.convert_fitsrec_to_array_in_tree(tree)).write_to(buffer)
     buffer.seek(0)
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
@@ -517,11 +529,11 @@ def _create_asdf_hdu(tree):
 # READER
 
 
-def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keywords):
+def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keywords, fits_hdu_cache):
 
     hdu_name = _get_hdu_name(schema)
     try:
-        hdu = get_hdu(hdulist, hdu_name, hdu_index)
+        hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
     except AttributeError:
         return None
 
@@ -539,16 +551,16 @@ def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keyword
     return val
 
 
-def _fits_array_loader(hdulist, schema, hdu_index, known_datas, context):
+def _fits_array_loader(hdulist, schema, hdu_index, known_datas, fits_hdu_cache):
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
     try:
-        hdu = get_hdu(hdulist, hdu_name, hdu_index)
+        hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
     except AttributeError:
         return None
 
     known_datas.add(hdu)
-    return from_fits_hdu(hdu, schema, context._cast_fits_arrays)
+    return from_fits_hdu(hdu, schema)
 
 
 def _schema_has_fits_hdu(schema):
@@ -577,13 +589,19 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
     # This is needed to constrain the loop over HDU's when resolving arrays.
     max_extver = max(hdu.ver for hdu in hdulist) if len(hdulist) else 0
 
+    # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
+    # for a nirspec mos file with ~500 extensions) so we use a cache
+    # here to handle repeated accesses. A lru_cache around get_hdu
+    # was not used as hdulist is not hashable.
+    hdu_cache = {}
+
     def callback(schema, path, combiner, ctx, recurse):
         result = None
         if not skip_fits_update and 'fits_keyword' in schema:
             fits_keyword = schema['fits_keyword']
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema,
-                ctx.get('hdu_index'), known_keywords)
+                ctx.get('hdu_index'), known_keywords, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -597,7 +615,7 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
         elif 'fits_hdu' in schema and (
                 'max_ndim' in schema or 'ndim' in schema or 'datatype' in schema):
             result = _fits_array_loader(
-                hdulist, schema, ctx.get('hdu_index'), known_datas, context)
+                hdulist, schema, ctx.get('hdu_index'), known_datas, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -680,6 +698,7 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         The `DataModel` to update
 
     skip_fits_update : bool or None
+        DEPRECATED
         When `False`, models opened from FITS files will proceed
         and load the FITS header values into the model.
         When `True` and the FITS file has an ASDF extension, the
@@ -772,35 +791,24 @@ def _map_hdulist_to_arrays(hdulist, af):
     af._tree = treeutil.walk_and_modify(af.tree, callback)
 
 
-def from_fits_hdu(hdu, schema, cast_arrays=None):
+def from_fits_hdu(hdu, schema):
     """
     Read the data from a fits hdu into a numpy ndarray
     """
-    if cast_arrays is not None:
-        warnings.warn("cast_arrays is deprecated and will be removed")
-    else:
-        cast_arrays = True
     data = hdu.data
 
-    if cast_arrays:
-        # Save the column listeners for possible restoration
-        if hasattr(data, '_coldefs'):
-            listeners = data._coldefs._listeners
-        else:
-            listeners = None
-
-        # Cast array to type mentioned in schema
-        data = properties._cast(data, schema)
-
-        # Casting a table loses the column listeners, so restore them
-        if listeners is not None:
-            data._coldefs._listeners = listeners
+    # Save the column listeners for possible restoration
+    if hasattr(data, '_coldefs'):
+        listeners = data._coldefs._listeners
     else:
-        # Correct the pseudo-unsigned int problem (this normally occurs
-        # inside properties._cast, but we still need to do it even
-        # when not casting, otherwise arrays from FITS will fail validation).
-        if isinstance(data, fits.FITS_rec):
-            data.dtype = util.rebuild_fits_rec_dtype(data)
+        listeners = None
+
+    # Cast array to type mentioned in schema
+    data = properties._cast(data, schema)
+
+    # Casting a table loses the column listeners, so restore them
+    if listeners is not None:
+        data._coldefs._listeners = listeners
 
     return data
 
@@ -832,6 +840,9 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
     """
     if skip_fits_update is None:
         skip_fits_update = util.get_envar_as_boolean('SKIP_FITS_UPDATE', None)
+    if skip_fits_update is not None:
+        # warn if the value was not None (defined by the user)
+        warnings.warn("skip_fits_update is deprecated and will be removed", DeprecationWarning)
 
     # If skipping has been explicitly disallowed, indicate as such.
     if skip_fits_update is False:

@@ -14,6 +14,7 @@ allOf:
 - $ref: keyword_groupgap.schema
 - $ref: keyword_gainfact.schema
 - $ref: keyword_psubarray.schema
+- $ref: keyword_darkcurrent.schema
 - $ref: subarray.schema
 - type: object
   properties:
@@ -34,5 +35,11 @@ allOf:
       fits_hdu: ERR
       default: 0.0
       ndim: 3
+      datatype: float32
+    average_dark_current:
+      title: Average dark current
+      fits_hdu: AVDRKCUR
+      default: 0.0
+      ndim: 2
       datatype: float32
 - $ref: dq_def.schema

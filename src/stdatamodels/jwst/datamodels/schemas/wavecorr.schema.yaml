@@ -18,7 +18,7 @@ definitions:
           [SLIT] or pitch [MOS]).  An instance of astropy.modeling.Model.
         type: object
       variance:
-        $ref: http://stsci.edu/schemas/asdf/core/ndarray-1.0.0
+        tag: tag:stsci.edu:asdf/core/ndarray-1.*
         title: Variance of the zero-point offset
         description: |
           Estimated variance on the zero-point offset (in units of detector pixel)

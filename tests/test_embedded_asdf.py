@@ -7,9 +7,7 @@ from numpy.testing import assert_array_equal
 from astropy.io import fits
 
 from models import FitsModel
-
-
-_NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
+from stdatamodels.fits_support import _NDARRAY_TAG
 
 
 def create_fits_model():
@@ -27,9 +25,9 @@ def create_fits_model():
 
 def open_embedded_asdf(file_path):
     with fits.open(file_path) as hdul:
-        return asdf.open(
+        return asdf.util.load_yaml(
             BytesIO(hdul["ASDF"].data["ASDF_METADATA"].tobytes()),
-            _force_raw_types=True,
+            tagged=True,
         )
 
 
@@ -62,7 +60,7 @@ def test_asdf_hdu_format(tmp_path):
         # Force raw types to avoid errors when the ndarray converter
         # encounters the linked FITS arrays.
         fd = BytesIO(asdf_bytes)
-        asdf.open(fd, _force_raw_types=True)
+        asdf.open(fd)
 
 
 def test_linked_arrays(tmp_path):
@@ -71,26 +69,26 @@ def test_linked_arrays(tmp_path):
     model, data, dq, err = create_fits_model()
     model.save(file_path)
 
-    af = open_embedded_asdf(file_path)
+    tagged_tree = open_embedded_asdf(file_path)
 
-    assert "data" in af
-    tagged_data = af["data"]
+    assert "data" in tagged_tree
+    tagged_data = tagged_tree["data"]
     assert tagged_data._tag == _NDARRAY_TAG
     assert tagged_data["source"] == "fits:SCI,1"
     assert tagged_data["datatype"] == "float32"
     assert tagged_data["byteorder"] == "big"
     assert tagged_data["shape"] == [50, 50]
 
-    assert "dq" in af
-    tagged_dq = af["dq"]
+    assert "dq" in tagged_tree
+    tagged_dq = tagged_tree["dq"]
     assert tagged_dq._tag == _NDARRAY_TAG
     assert tagged_dq["source"] == "fits:DQ,1"
     assert tagged_dq["datatype"] == "uint32"
     assert tagged_dq["byteorder"] == "big"
     assert tagged_dq["shape"] == [50, 50]
 
-    assert "err" in af
-    tagged_err = af["err"]
+    assert "err" in tagged_tree
+    tagged_err = tagged_tree["err"]
     assert tagged_err._tag == _NDARRAY_TAG
     assert tagged_err["source"] == "fits:ERR,1"
     assert tagged_err["datatype"] == "float32"
@@ -122,10 +120,10 @@ def test_non_fits_array(tmp_path):
         # We shouldn't have gained an HDU:
         assert len(hdul) == 5
 
-    af = open_embedded_asdf(file_path)
-    assert "favorite_integers" in af
+    tagged_tree = open_embedded_asdf(file_path)
+    assert "favorite_integers" in tagged_tree
     # Should be an integer internal block source and not a string FITS source:
-    assert isinstance(af["favorite_integers"]["source"], int)
+    assert isinstance(tagged_tree["favorite_integers"]["source"], int)
 
     with FitsModel(file_path) as dm:
         assert_array_equal(dm.favorite_integers, favorite_integers)
@@ -141,8 +139,8 @@ def test_non_fits_metadata(tmp_path):
     with fits.open(file_path) as hdul:
         assert "splines" not in hdul[0].header
 
-    af = open_embedded_asdf(file_path)
-    assert af["splines"] == "reticulated"
+    tagged_tree = open_embedded_asdf(file_path)
+    assert tagged_tree["splines"] == "reticulated"
 
     with FitsModel(file_path) as dm:
         assert dm.splines == "reticulated"
@@ -160,8 +158,8 @@ def test_array_update_and_save_new_file(tmp_path):
         dm.data = new_data
         dm.save(updated_file_path)
 
-    af = open_embedded_asdf(updated_file_path)
-    assert af["data"]["source"] == "fits:SCI,1"
+    tagged_tree = open_embedded_asdf(updated_file_path)
+    assert tagged_tree["data"]["source"] == "fits:SCI,1"
 
     with fits.open(updated_file_path) as hdul:
         with FitsModel(hdul) as dm:
@@ -180,8 +178,8 @@ def test_array_update_and_save_same_file(tmp_path):
         dm.data = new_data
         dm.save(file_path)
 
-    af = open_embedded_asdf(file_path)
-    assert af["data"]["source"] == "fits:SCI,1"
+    tagged_tree = open_embedded_asdf(file_path)
+    assert tagged_tree["data"]["source"] == "fits:SCI,1"
 
     with fits.open(file_path) as hdul:
         with FitsModel(hdul) as dm:
@@ -204,8 +202,8 @@ def test_fits_array_view(tmp_path):
     model["view"] = view
     model.save(file_path)
 
-    af = open_embedded_asdf(file_path)
-    assert isinstance(af["view"]["source"], int)
+    tagged_tree = open_embedded_asdf(file_path)
+    assert isinstance(tagged_tree["view"]["source"], int)
 
     with fits.open(file_path) as hdul:
         # We shouldn't have gained an HDU:

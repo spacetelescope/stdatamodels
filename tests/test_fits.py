@@ -1,11 +1,10 @@
+import contextlib
 import re
-import warnings
 
 import pytest
 from astropy.io import fits
 import numpy as np
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from asdf.exceptions import ValidationError
 import asdf.schema
 
 from stdatamodels import DataModel
@@ -421,13 +420,19 @@ def test_skip_fits_update(tmp_path,
     with fits.open(file_path) as hduls:
         hduls[0].header['EXP_TYPE'] = 'FGS_DARK'
 
+        if skip_fits_update is not None:
+            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
+        else:
+            ctx = contextlib.nullcontext()
+
         if use_env:
             if skip_fits_update is not None:
                 monkeypatch.setenv("SKIP_FITS_UPDATE", str(skip_fits_update))
                 skip_fits_update = None
 
-        model = FitsModel(hduls, skip_fits_update=skip_fits_update)
-        assert model.meta.exposure.type == expected_exp_type
+        with ctx:
+            model = FitsModel(hduls, skip_fits_update=skip_fits_update)
+            assert model.meta.exposure.type == expected_exp_type
 
 
 def test_from_hdulist(tmp_path):
@@ -591,24 +596,6 @@ def test_ndarray_validation(tmp_path):
     with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
         model.validate()
 
-    # But raise an error when casting is disabled
-    with pytest.raises(ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                category=UserWarning,
-                message="cast_arrays is deprecated and will be removed"
-            )
-            # also warn due to the cast_fits_array deprecation
-            with pytest.warns(DeprecationWarning, match="cast_fits_array"):
-                with FitsModel(
-                    file_path,
-                    strict_validation=True,
-                    cast_fits_arrays=False,
-                    validate_arrays=True,
-                ) as model:
-                    model.validate()
-
     # Wrong dimensions
     hdu = fits.ImageHDU(data=np.ones((4,), dtype=np.float64), name="SCI")
     hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
@@ -618,19 +605,6 @@ def test_ndarray_validation(tmp_path):
     with pytest.raises(ValueError, match="Array has wrong number of dimensions"):
         with FitsModel(file_path, strict_validation=True, validate_arrays=True) as model:
             model.validate()
-
-    # Should also be caught by validation
-    with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                category=UserWarning,
-                message="cast_arrays is deprecated and will be removed"
-            )
-            # also warn due to the cast_fits_array deprecation
-            with pytest.warns(DeprecationWarning, match="cast_fits_array"):
-                with FitsModel(file_path, strict_validation=True, cast_fits_arrays=False, validate_arrays=True) as model:
-                    model.validate()
 
 
 def test_resave_duplication_bug(tmp_path):
@@ -697,3 +671,14 @@ def test_table_linking(tmp_path):
         tree_string = asdf_bytes.split(b'...')[0].decode('ascii')
         unlinked_arrays = re.findall(r'source:\s+[^f]', tree_string)
         assert not len(unlinked_arrays), unlinked_arrays
+
+
+def test_fitsrec_for_non_schema_data(tmp_path):
+    # make a file where some non-schema data is linked between
+    # the asdf extension and another hdu. This simulates an old
+    # file where this condition might occur (perhaps after a schema
+    # update).
+    m = DataModel()
+    m._instance['sneaky_table'] = fits.FITS_rec(np.array([('a', 1),], dtype=[('foo', 'S3'), ('bar', 'f4')]))
+    fn = tmp_path / "test.fits"
+    m.save(fn)

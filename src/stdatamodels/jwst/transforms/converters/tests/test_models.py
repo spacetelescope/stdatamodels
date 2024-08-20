@@ -73,8 +73,8 @@ def test_niriss_soss(tmpdir):
     with asdf.AsdfFile({"model": soss_model}) as af:
         af.write_to(path)
 
-    with asdf.open(path, _force_raw_types=True) as af:
-        assert af.tree["model"]._tag == "tag:stsci.edu:jwst_pipeline/niriss_soss-1.0.0"
+    tagged_tree = asdf.util.load_yaml(path, tagged=True)
+    assert "tag:stsci.edu:jwst_pipeline/niriss_soss" in tagged_tree["model"]._tag
 
 
 def test_niriss_soss_legacy():
@@ -82,8 +82,8 @@ def test_niriss_soss_legacy():
     data = os.path.join(data_path, 'niriss_soss.asdf')
 
     # confirm that the file contains the legacy tag
-    with asdf.open(data, _force_raw_types=True) as af:
-        assert af.tree["model"]._tag == "tag:stsci.edu:jwst_pipeline/niriss-soss-0.7.0"
+    tagged_tree = asdf.util.load_yaml(data, tagged=True)
+    assert tagged_tree["model"]._tag == "tag:stsci.edu:jwst_pipeline/niriss-soss-0.7.0"
 
     # test that it opens with the legacy tag
     with asdf.open(data) as af:

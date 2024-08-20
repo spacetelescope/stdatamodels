@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
-id: "http://stsci.edu/schemas/jwst_datamodel/abvegamag_offset.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/abvegaoffset.schema"
 title: AB to Vega magnitude offset reference file model
 allOf:
 - $ref: referencefile.schema

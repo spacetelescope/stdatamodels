@@ -1,5 +1,77 @@
-1.9.2 (unreleased)
-==================
+2.0.1 (unreleased)
+===================
+
+- replace usages of ``copy_arrays`` with ``memmap`` [#306]
+
+- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
+
+2.0.0 (2024-06-24)
+===================
+
+- Remove deprecated jwst.datamodels models: DataModel, DrizProductModel,
+  MIRIRampModel, MultiProductModel [#171]
+
+- Increase CRDS minimum version to 11.17.1 [#171]
+
+- Removed deprecated ``deprecate_class``, ``cast_arrays`` and
+  ``jwst.datamodels.util`` [#298]
+
+- Remove ``stdatamodels.jwst.datamodels.schema`` which is an out-of-date
+  duplicate of ``stdatamodels.schema`` [#175]
+
+- Remove unnecessary references to overwritten datamodel
+  attributes to free up memory [#301]
+
+- Remove unused ``deprecated_properties`` [#303]
+
+
+1.10.1 (2024-03-25)
+===================
+
+- Added ALL_MRS to allowed values for keyword MRSPRCHN in core
+  schema. [#285]
+
+- Provide existing ``AsdfFile`` instance to ``validate`` to
+  speed up assignment validation ``check_value``. [#276]
+
+- Deprecate ``deprecate_class`` unused by downstream. [#274] 
+
+- Add cache to hdu accesses during ``_load_from_schema``
+  to speed up file opening. [#278]
+
+- Remove ``TEXPTIME`` keyword from the JWST core datamodel schema
+  because it duplicates the information of ``XPOSURE``. [#277]
+
+- Deprecate ``check_memory_allocation``. This function did not
+  work as intended. [#273]
+
+- Decrease size of ``SPECTYP`` and ``TARGET`` columns in
+  ``OI_TARGET`` table of oifits schema to 16 characters. [#281]
+
+- Change ``integration_number`` from int16 to int32 in ``group``
+  schema. [#283]
+
+- Fix datamodel schema ids for abvegaoffset, keyword_lampmode, nrsfs_apcorr [#258]
+
+- Drop support for python 3.9 [#287]
+
+- Convert ``FITS_rec`` instances read from old files where a
+  hdu was linked in the old schema (but is no longer linked)
+  when rewriting files. [#268]
+
+- Deprecate ``skip_fits_update`` and environment variable
+  ``SKIP_FITS_UPDATE``. Future behavior will be as if
+  ``skip_fits_update`` was ``False`` and the FITS headers
+  will always be read [#270]
+
+- Increase minimum required asdf version [#288]
+
+- Add ``S_BPXSLF`` keyword to the JWST core schema to reflect the addition
+  of the ``badpix_selfcal`` step. [#305]
+
+
+1.10.0 (2024-02-29)
+===================
 
 Bug Fixes
 ---------
@@ -13,7 +85,7 @@ Bug Fixes
 Changes to API
 --------------
 
--
+- Add ``NRMModel`` for new NIRISS NRM reference file [#253]
 
 Other
 -----
@@ -21,7 +93,12 @@ Other
 - Add ``grating`` keyword to JWST ``barshadow`` ref file schema to match
   parkeys on crds [#260]
 
-- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
+- Add ``average_dark_current`` in both scalar keyword and array extension
+  options to ``DarkModel`` and ``MIRIDarkModel``. Add the array extension
+  to the ``RampModel``, for tracking the average dark current. [#265]
+
+- Add ``EXTRXSTR``, ``EXTRXSTP``, ``EXTRYSTR``, and ``EXTRYSTP`` keywords
+  to the jwst ``MultiSpec`` schema. [#264]
 
 
 1.9.1 (2024-01-25)
@@ -250,7 +327,6 @@ Other
   flagging outliers for JWST MIRI/MRS and NIRSpec IFU data. [#167]
 
 - Close for opened files [#169]
-
 
 1.5.0 (2023-05-16)
 ==================

@@ -1,3 +1,4 @@
+import contextlib
 import os
 import warnings
 
@@ -12,8 +13,7 @@ from numpy.lib.recfunctions import drop_fields
 import pytest
 
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
-                                          MultiSlitModel, SlitModel, DataModel,
-                                          DrizProductModel, MultiProductModel, MIRIRampModel,
+                                          MultiSlitModel, SlitModel,
                                           NirspecFlatModel, NirspecQuadFlatModel,
                                           SlitDataModel, IFUImageModel, ABVegaOffsetModel)
 from stdatamodels.jwst import datamodels
@@ -89,13 +89,20 @@ def test_skip_fits_update(jail_environ,
         except KeyError:
             # No need to worry, environmental doesn't exist anyways
             pass
+
+        if skip_fits_update is not None:
+            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
+        else:
+            ctx = contextlib.nullcontext()
+
         if use_env:
             if skip_fits_update is not None:
                 os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
                 skip_fits_update = None
 
-        with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-            assert model.meta.exposure.type == expected_exp_type
+        with ctx:
+            with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
+                assert model.meta.exposure.type == expected_exp_type
 
 
 def test_asnmodel_table_size_zero():
@@ -314,11 +321,7 @@ def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
     """
-    if model in (DrizProductModel, MultiProductModel, MIRIRampModel):
-        with pytest.warns(DeprecationWarning):
-            model()
-    else:
-        model()
+    model()
 
 
 def test_meta_date_management(tmp_path):
@@ -545,15 +548,6 @@ def test_dq_def_roundtrip(tmp_path):
     assert diff is not None
     total_diff = sum(sum(diff))
     assert total_diff == 0
-
-
-def test_deprecation_data_model():
-    """ Tests that inheriting from stdatamodels.jwst.datamodels.DataModel
-    raises a DeprecationWarning."""
-
-    with pytest.deprecated_call():
-        class Dummy(DataModel):
-            pass
 
 
 @pytest.mark.parametrize("shape", [None, 10])

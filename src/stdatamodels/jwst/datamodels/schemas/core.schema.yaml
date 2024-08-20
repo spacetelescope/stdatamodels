@@ -1332,7 +1332,7 @@ properties:
           primary_channel:
             title: MRS primary channel
             type: string
-            enum: [ALL, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER]
+            enum: [ALL, ALL_MRS, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER]
             fits_keyword: MRSPRCHN
           dithered_ra:
             title: RA of dithered pointing location
@@ -2028,6 +2028,15 @@ properties:
                 type: string
                 fits_keyword: R_MRSPT
                 blend_table: True
+          nrm:
+            title: Non-Redundant mask reference file information
+            type: object
+            properties:
+              name:
+                title: Non-Redundant mask reference file name
+                type: string
+                fits_keyword: R_NRM
+                blend_table: True
           ote:
             title: Nirspec OTE Model reference file information
             type: object
@@ -2310,6 +2319,11 @@ properties:
             type: string
             fits_keyword: S_BKDSUB
             blend_table: True
+          badpix_selfcal:
+            title: Bad Pixel Self-Calibration
+            type: string
+            fits_keyword: S_BPXSLF
+            blend_table: True
           barshadow:
             title: Bar shadow correction
             type: string
@@ -2588,10 +2602,6 @@ properties:
             title: "Number of groups/pointings included in resampled product"
             type: integer
             fits_keyword: NDRIZ
-          product_exposure_time:
-            title: "[s] Total exposure time for product"
-            type: number
-            fits_keyword: TEXPTIME
           weight_type:
             title: Type of drizzle weighting to use in resampling input
             type: string

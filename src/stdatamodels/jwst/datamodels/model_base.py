@@ -1,10 +1,9 @@
-import warnings
 from astropy.time import Time
 
 from stdatamodels import DataModel as _DataModel
 
 
-__all__ = ["DataModel", "JwstDataModel"]
+__all__ = ["JwstDataModel"]
 
 
 class JwstDataModel(_DataModel):
@@ -53,8 +52,3 @@ class JwstDataModel(_DataModel):
         super().on_save(init)
 
         self.meta.date = Time.now().isot
-
-
-class DataModel(JwstDataModel):
-    def __init_subclass__(cls):
-        warnings.warn("Class DataModel has been renamed JwstDataModel. It will be removed in v 1.5.", DeprecationWarning, 2)

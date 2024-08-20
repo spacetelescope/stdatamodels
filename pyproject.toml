@@ -1,7 +1,7 @@
 [project]
 name = "stdatamodels"
 description = "Core support for DataModel classes used in calibration pipelines"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     { name = "STScI" },
 ]
@@ -12,9 +12,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "asdf>=2.15.0",
+    "asdf>=3.1.0",
+    "asdf-transform-schemas>=0.5.0",
     "asdf-astropy>=0.3.0",
-    "psutil>=5.7.2",
     "numpy>=1.18",
     "astropy>=5.0.4",
 ]
@@ -44,12 +44,10 @@ jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_resource_mappings"
 
 [project.optional-dependencies]
 test = [
-    "asdf>=2.8.0",
     "psutil",
     "pytest>=4.6.0",
     "pytest-doctestplus",
-    "crds>=11.16.14",
-    "scipy>=1.5",
+    "crds>=11.17.1",
 ]
 docs = [
     "sphinx",
