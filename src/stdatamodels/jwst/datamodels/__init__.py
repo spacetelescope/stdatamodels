@@ -66,6 +66,7 @@ from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
 from .slit import SlitModel, SlitDataModel
+from .soss_tracemodel import SossTraceModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
 from .spec import SpecModel
@@ -142,7 +143,7 @@ __all__ = [
     'ResolutionModel', 'MiriResolutionModel',
     'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
     'SegmentationMapModel',
-    'SossExtractModel',
+    'SossExtractModel', 'SossTraceModel',
     'SossWaveGridModel',
     'SpecKernelModel',
     'SpecProfileModel', 'SpecProfileSingleModel',
