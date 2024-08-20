@@ -159,8 +159,7 @@ def test_initialize_arrays_with_arglist():
 
 def test_open_asdf_model(tmp_path):
     # Open an empty asdf file, pass extra arguments
-    with DataModel(ignore_version_mismatch=False, ignore_unrecognized_tag=True) as model:
-        assert not model._asdf._ignore_version_mismatch
+    with DataModel(ignore_unrecognized_tag=True) as model:
         assert model._asdf._ignore_unrecognized_tag
 
     file_path = tmp_path/"test.asdf"
@@ -168,8 +167,7 @@ def test_open_asdf_model(tmp_path):
     with asdf.AsdfFile() as af:
         af.write_to(file_path)
 
-    with DataModel(file_path, ignore_version_mismatch=False, ignore_unrecognized_tag=True) as model:
-        assert not model._asdf._ignore_version_mismatch
+    with DataModel(file_path, ignore_unrecognized_tag=True) as model:
         assert model._asdf._ignore_unrecognized_tag
 
 
