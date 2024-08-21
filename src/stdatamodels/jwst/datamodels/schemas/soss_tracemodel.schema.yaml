@@ -22,14 +22,14 @@ allOf:
           minimum: 1
         pivot_x:
           title: Pixel rotation point
-          type: float32
+          type: float64
         pivot_y:
           title: Pixel rotation point
-          type: float32
+          type: float64
         trace:
           title: The trace position
           ndim: 2
-          datatype: float32
+          datatype: float64
     wavecal_models:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
