@@ -3,6 +3,8 @@
 
 - replace usages of ``copy_arrays`` with ``memmap`` [#306]
 
+- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
+
 - add grating keyword to dark and superbias schemas [#317]
 
 - remove uses of now unused ``ignore_version_mismatch`` [#313]
