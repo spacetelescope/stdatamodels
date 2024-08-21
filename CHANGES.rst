@@ -7,6 +7,8 @@
 
 - add grating keyword to dark and superbias schemas [#317]
 
+- remove uses of now unused ``ignore_version_mismatch`` [#313]
+
 2.0.0 (2024-06-24)
 ===================
 

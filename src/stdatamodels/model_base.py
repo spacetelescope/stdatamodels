@@ -556,7 +556,6 @@ class DataModel(properties.ObjectNode):
 
     @staticmethod
     def open_asdf(init=None,
-                  ignore_version_mismatch=True,
                   ignore_unrecognized_tag=False,
                   **kwargs):
         """
@@ -564,13 +563,11 @@ class DataModel(properties.ObjectNode):
         """
         if isinstance(init, str):
             asdffile = asdf.open(init,
-                                 ignore_version_mismatch=ignore_version_mismatch,
                                  ignore_unrecognized_tag=ignore_unrecognized_tag,
                                  **kwargs)
 
         else:
             asdffile = AsdfFile(init,
-                            ignore_version_mismatch=ignore_version_mismatch,
                             ignore_unrecognized_tag=ignore_unrecognized_tag
                             )
         return asdffile
