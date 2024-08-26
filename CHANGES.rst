@@ -6,6 +6,8 @@
 - Remove deprecated ``R_DRIZPAR`` keyword from core schema 
   as well as ``jwst.datamodels.DrizParsModel``. [#316]
   
+- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
+
 - add grating keyword to dark and superbias schemas [#317]
 
 - remove uses of now unused ``ignore_version_mismatch`` [#313]
