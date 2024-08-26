@@ -66,7 +66,7 @@ from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
 from .slit import SlitModel, SlitDataModel
-from .soss_tracemodel import SossTraceModel
+from .pastasossmodel import SossTraceModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
 from .spec import SpecModel
@@ -135,6 +135,7 @@ __all__ = [
     'NrcImgPhotomModel', 'NrcWfssPhotomModel',
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
+    'PastasossModel',
     'PsfMaskModel',
     'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
@@ -143,7 +144,7 @@ __all__ = [
     'ResolutionModel', 'MiriResolutionModel',
     'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
     'SegmentationMapModel',
-    'SossExtractModel', 'SossTraceModel',
+    'SossExtractModel',
     'SossWaveGridModel',
     'SpecKernelModel',
     'SpecProfileModel', 'SpecProfileSingleModel',
