@@ -2037,6 +2037,15 @@ properties:
                 type: string
                 fits_keyword: R_OTE
                 blend_table: True
+          pastasoss:
+            title: NIRISS SOSS trace and wavecal reference file information
+            type: object
+            properties:
+              name:
+                title: SOSS trace and wavecal reference file name
+                type: string
+                fits_keyword: R_PSTSOS
+                blend_table: True
           pathloss:
             title: Pathloss reference file information
             type: object
