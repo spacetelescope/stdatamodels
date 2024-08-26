@@ -60,3 +60,7 @@ properties:
       datatype: float64
     - name: mt_true_z_jwst
       datatype: float64
+    - name: mt_v2
+      datatype: float64
+    - name: mt_v3
+      datatype: float64
