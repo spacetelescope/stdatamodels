@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from stdatamodels.jwst import datamodels
-from stdatamodels.jwst.datamodels import ImageModel, JwstDataModel, RampModel, SpecModel
+from stdatamodels.jwst.datamodels import ImageModel, JwstDataModel, RampModel, SpecModel, FlatModel
 
 
 @pytest.fixture
@@ -106,3 +106,25 @@ def test_units_roundtrip(tmp_path):
 
     m = datamodels.open(fn)
     assert m.spec_table.columns['WAVELENGTH'].unit == 'nm'
+
+
+def test_flatmodel_dqdef_roundtrip(tmp_path):
+    '''Covers an old bug where this roundtrip would fail due to
+    a mix-up between signed and unsigned integer data types, leading to flag values
+    like 2147483649 instead of 0'''
+    flatdata = [(0,1,2),(3,4,5),(6,7,8)]
+    flatflags = [(0, 1, "DO_NOT_USE", "Bad pixel. Do not use."),
+                 (1, 2, "NON_SCIENCE", "Pixel not on science portion of detector"),
+                 (2, 4, "UNRELIABLE_FLAT", "Flat variance large")]
+    flatmodel = FlatModel( data=flatdata, dq_def=flatflags )
+
+    fn = tmp_path / "test_flat.fits"
+    flatmodel.save(fn)
+
+    with datamodels.open(fn) as flatmodel2:
+        assert np.allclose(flatmodel2.data, flatdata)
+        for i, flag in enumerate(flatmodel2.dq_def):
+            for j in range(2):
+                # tuples do not directly assert True because datamodels.open() returns np.int32
+                # which is not technically of type int. So must check their equality directly
+                assert flag[j] == flatflags[i][j]
