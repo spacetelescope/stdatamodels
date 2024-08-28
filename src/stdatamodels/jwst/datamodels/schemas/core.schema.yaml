@@ -1785,6 +1785,15 @@ properties:
                 type: string
                 fits_keyword: R_COLLIM
                 blend_table: True
+          conv_kernel:
+            title: NIR Optimized Convolution Kernel reference file information
+            type: object
+            properties:
+              name:
+                title: NIR Optimized Convolution Kernel reference file name
+                type: string
+                fits_keyword: R_CONVKL
+                blend_table: True
           cubepar:
             title: IFU cube reference file information
             type: object

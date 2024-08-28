@@ -1,0 +1,22 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/conv_kernel.schema"
+allOf:
+- $ref: referencefile.schema
+- type: object
+  properties:
+    data:
+      title: NIR Optimized Convolution Kernel Fourier Coefficients
+      type: object
+      properties:
+        meta:
+            type: object
+        frequencies:
+            type: object
+            description: |
+               Detector name, gamma, and zeta values
+        subarray_cases:
+            type: object
+            description: |
+               Fourier Coefficients for NIR Optimized Convolution Kernel
