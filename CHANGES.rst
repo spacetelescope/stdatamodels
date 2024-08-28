@@ -9,6 +9,9 @@
 
 - remove uses of now unused ``ignore_version_mismatch`` [#313]
 
+- Added ``MEDIUMDEEP2`` and ``MEDIUMDEEP8`` to allowed readout patterns
+  in JWST core schema, ``READPATT``, and ``PREADPATT``. [#315]
+
 2.0.0 (2024-06-24)
 ===================
 
