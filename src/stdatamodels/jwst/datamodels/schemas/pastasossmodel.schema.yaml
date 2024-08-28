@@ -30,6 +30,14 @@ allOf:
           title: The trace position
           ndim: 2
           datatype: float64
+        oversampling:
+          title: Pixel oversampling
+          type: integer
+          default: 1
+        padding:
+          title: Native pixel-size padding around the image
+          type: integer
+          default: 0
     wavecal_models:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
