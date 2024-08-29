@@ -12,6 +12,7 @@ from .asn import AsnModel
 from .barshadow import BarshadowModel
 from .combinedspec import CombinedSpecModel
 from .contrast import ContrastModel
+from .conv_kernel import ConvKernelModel
 from .cube import CubeModel
 from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
@@ -102,7 +103,7 @@ __all__ = [
     'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
     'AsnModel',
     'BarshadowModel', 'CameraModel', 'CollimatorModel',
-    'CombinedSpecModel', 'ContrastModel', 'CubeModel',
+    'CombinedSpecModel', 'ContrastModel', 'ConvKernelModel','CubeModel',
     'DarkModel', 'DarkMIRIModel',
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
     'DrizParsModel',
