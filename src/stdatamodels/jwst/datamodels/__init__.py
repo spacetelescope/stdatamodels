@@ -29,6 +29,7 @@ from .guider import GuiderRawModel, GuiderCalModel
 from .ifucube import IFUCubeModel
 from .ifucubepars import NirspecIFUCubeParsModel, MiriIFUCubeParsModel
 from .ifuimage import IFUImageModel
+from .ifuoffset import IFUOffsetModel
 from .mrsptcorr import MirMrsPtCorrModel
 from .image import ImageModel
 from .ipc import IPCModel
