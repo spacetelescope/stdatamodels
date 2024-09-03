@@ -71,6 +71,3 @@ allOf:
           title: The order throughput
           ndim: 2
           datatype: float64
-
-
-
