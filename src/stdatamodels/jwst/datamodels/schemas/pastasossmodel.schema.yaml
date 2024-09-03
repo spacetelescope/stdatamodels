@@ -42,6 +42,10 @@ allOf:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
       items:
+        spectral_order:
+          title: Spectral order
+          type: integer
+          minimum: 1
         polynomial_degree:
           title: Polynomial degree of model
           type: integer
@@ -55,3 +59,18 @@ allOf:
           title: Range of values for normalization
           type: float64
           ndim: 2
+    throughputs:
+      type: array
+      title: An array of GR700XD throughputs by order
+      items:
+        spectral_order:
+          title: Spectral order
+          type: integer
+          minimum: 1
+        throughput:
+          title: The order throughput
+          ndim: 2
+          datatype: float64
+
+
+
