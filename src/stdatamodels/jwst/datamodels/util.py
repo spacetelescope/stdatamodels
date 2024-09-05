@@ -2,6 +2,7 @@
 Various utility functions and data types
 """
 
+from collections.abc import Sequence
 import sys
 import warnings
 from os.path import basename
@@ -153,7 +154,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):
     elif isinstance(init, fits.HDUList):
         hdulist = init
 
-    elif is_association(init) or isinstance(init, list):
+    elif is_association(init) or isinstance(init, Sequence):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
