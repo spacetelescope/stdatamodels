@@ -32,7 +32,7 @@ ignored_parkeys = ['META.OBSERVATION.DATE',
                    'META.OBSERVATION.TIME',
                    ]
 
-# Reference types to ignore, e.g. because they have been deprecated
+# Ignore pars files and deprecated files
 ignored_stems = ("pars-", "drizpars")
 
 apcorr_model_map = {
