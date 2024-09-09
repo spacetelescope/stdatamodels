@@ -9,65 +9,78 @@ allOf:
 - type: object
   properties:
     meta:
-      pwcpos_cmd:
-        title: Commanded position
-        type: float32
+      type: object
+      properties:
+        pwcpos_cmd:
+          title: Commanded position
+          type: float32
     traces:
       type: array
       title: An array of trace models by order
       items:
-        spectral_order:
-          title: Spectral order
-          type: integer
-          minimum: 1
-        pivot_x:
-          title: Pixel rotation point
-          type: float64
-        pivot_y:
-          title: Pixel rotation point
-          type: float64
-        trace:
-          title: The trace position
-          ndim: 2
-          datatype: float64
-        oversampling:
-          title: Pixel oversampling
-          type: integer
-          default: 1
-        padding:
-          title: Native pixel-size padding around the image
-          type: integer
-          default: 0
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          pivot_x:
+            title: Pixel rotation point
+            type: number
+          pivot_y:
+            title: Pixel rotation point
+            type: number
+          trace:
+            title: The trace position
+            ndim: 2
+            datatype: float64
+          oversampling:
+            title: Pixel oversampling
+            type: integer
+            default: 1
+          padding:
+            title: Native pixel-size padding around the image
+            type: integer
+            default: 0
     wavecal_models:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
       items:
-        spectral_order:
-          title: Spectral order
-          type: integer
-          minimum: 1
-        polynomial_degree:
-          title: Polynomial degree of model
-          type: integer
-        coefficients:
-          title: List of polynomial coefficients
-          type: float64
-        coefficient_labels:
-          title: Coefficient order specification
-          type: string
-        scale_extents:
-          title: Range of values for normalization
-          type: float64
-          ndim: 2
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          polynomial_degree:
+            title: Polynomial degree of model
+            type: integer
+          coefficients:
+            title: List of polynomial coefficients
+            ndim: 1
+            datatype: float64
+          coefficient_labels:
+            title: Coefficient order specification
+            type: string
+          scale_extents:
+            title: Range of values for normalization
+            ndim: 2
+            datatype: float64
     throughputs:
       type: array
       title: An array of GR700XD throughputs by order
       items:
-        spectral_order:
-          title: Spectral order
-          type: integer
-          minimum: 1
-        throughput:
-          title: The order throughput
-          ndim: 2
-          datatype: float64
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          throughput:
+            title: The throughput array
+            ndim: 1
+            datatype: float64
+          wavelength:
+            title: The wavelength array
+            ndim: 1
+            datatype: float64
