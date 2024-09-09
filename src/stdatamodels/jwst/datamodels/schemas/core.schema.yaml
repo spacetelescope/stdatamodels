@@ -1821,15 +1821,6 @@ properties:
                 type: string
                 fits_keyword: R_DISTOR
                 blend_table: True
-          drizpars:
-            title: Drizzle parameters reference file information
-            type: object
-            properties:
-              name:
-                title: Drizzle parameters reference file name
-                type: string
-                fits_keyword: R_DRZPAR
-                blend_table: True
           emicorr:
             title: MIRI EMI reference file information
             type: object

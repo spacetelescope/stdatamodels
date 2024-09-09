@@ -23,7 +23,6 @@ The current models are as follows:
     'CombinedSpecModel', 'ContrastModel', 'CubeModel',
     'DarkModel', 'DarkMIRIModel',
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
-    'DrizParsModel',
     'Extract1dImageModel',
     'Extract1dIFUModel',
     'FilteroffsetModel',
