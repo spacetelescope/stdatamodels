@@ -15,6 +15,8 @@
 - Added ``MEDIUMDEEP2`` and ``MEDIUMDEEP8`` to allowed readout patterns
   in JWST core schema, ``READPATT``, and ``PREADPATT``. [#315]
 
+- Add test to check datamodels against their schema. [#324]
+
 2.0.0 (2024-06-24)
 ===================
 
