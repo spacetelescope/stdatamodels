@@ -1,8 +1,17 @@
 from asdf import schema as mschema
 import numpy as np
 from numpy.testing import assert_array_almost_equal
+import stdatamodels.jwst.datamodels as dm
 
-from stdatamodels.jwst.datamodels import JwstDataModel
+def test_schema_validation():
+    model_list = [model for model in dm.__all__ if 'Model' in model]
+    for model in model_list:
+        class_ = getattr(dm, model)
+        m = class_()
+        try:
+            assert mschema.check_schema(m.schema) is None
+        except Exception as e:
+            print(f"{model} failed: {e}")
 
 
 def test_data_array(tmp_path):
@@ -48,7 +57,7 @@ def test_data_array(tmp_path):
     array2 = np.random.rand(5, 5)
     array3 = np.random.rand(5, 5)
 
-    with JwstDataModel(schema=data_array_schema) as x:
+    with dm.JwstDataModel(schema=data_array_schema) as x:
         x.arr.append(x.arr.item())
         x.arr[0].data = array1
         assert len(x.arr) == 1
@@ -61,7 +70,7 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 2
         x.save(path)
 
-    with JwstDataModel(path, schema=data_array_schema) as x:
+    with dm.JwstDataModel(path, schema=data_array_schema) as x:
         assert len(x.arr) == 2
         assert_array_almost_equal(x.arr[0].data, array1)
         assert_array_almost_equal(x.arr[1].data, array3)
