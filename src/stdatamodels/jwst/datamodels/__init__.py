@@ -16,7 +16,6 @@ from .conv_kernel import ConvKernelModel
 from .cube import CubeModel
 from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
-from .drizpars import DrizParsModel
 from .emi import EmiModel
 from .extract1dimage import Extract1dImageModel
 from .extract1d_spec import Extract1dIFUModel
@@ -106,7 +105,6 @@ __all__ = [
     'CombinedSpecModel', 'ContrastModel', 'ConvKernelModel','CubeModel',
     'DarkModel', 'DarkMIRIModel',
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
-    'DrizParsModel',
     'EmiModel',
     'Extract1dImageModel',
     'Extract1dIFUModel',

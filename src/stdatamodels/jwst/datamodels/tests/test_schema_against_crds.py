@@ -32,6 +32,9 @@ ignored_parkeys = ['META.OBSERVATION.DATE',
                    'META.OBSERVATION.TIME',
                    ]
 
+# Ignore pars files and deprecated files
+ignored_stems = ("pars-", "drizpars")
+
 apcorr_model_map = {
     'MIR_LRS-FIXEDSLIT': dm.MirLrsApcorrModel,
     'MIR_LRS-SLITLESS': dm.MirLrsApcorrModel,
@@ -125,7 +128,6 @@ ref_to_datamodel_dict = {
     'dark': dm.DarkModel,
     'dflat': dm.NirspecFlatModel,
     'disperser': dm.DisperserModel,
-    'drizpars': dm.DrizParsModel,
     'emicorr': dm.EmiModel,
     'extract1d': dm.Extract1dIFUModel,
     'fflat': dm.NirspecFlatModel,
@@ -194,7 +196,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
     # get the reftypes
     reftypes = imap.get_filekinds()
     # remove pars- files
-    _ = [reftypes.remove(name) for name in reftypes[::-1] if name.startswith('pars-')]
+    _ = [reftypes.remove(name) for name in reftypes[::-1] if name.startswith(ignored_stems)]
 
     # iterate over reftypes for this instrument
     for reftype in reftypes:
