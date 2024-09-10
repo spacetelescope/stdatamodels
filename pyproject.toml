@@ -45,6 +45,7 @@ jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_resource_mappings"
 [project.optional-dependencies]
 test = [
     "psutil",
+    "pyyaml",
     "pytest>=4.6.0",
     "pytest-doctestplus",
     "crds>=11.17.1",
