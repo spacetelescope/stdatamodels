@@ -123,7 +123,7 @@ minversion = "4.6"
 doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
-addopts = "--color=yes"
+addopts = "--color=yes -vv"
 testpaths = [
     "docs",
     "tests",
