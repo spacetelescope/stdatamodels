@@ -150,6 +150,7 @@ ref_to_datamodel_dict = {
     'msaoper': None,
     'nrm': dm.NRMModel,
     'ote': dm.OTEModel,
+    'pastasoss': dm.PastasossModel,
     'persat': dm.PersistenceSatModel,
     'psfmask': dm.PsfMaskModel,
     'readnoise': dm.ReadnoiseModel,
