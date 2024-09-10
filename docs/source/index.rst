@@ -6,6 +6,7 @@ Welcome to stdatamodels's documentation!
    :caption: Contents:
 
    asdf_in_fits.rst
+   changes.rst
 
 JWST
 ====

@@ -153,3 +153,26 @@ write_to = "src/stdatamodels/_version.py"
 omit = [
     '*/tests/*',
 ]
+
+[tool.towncrier]
+filename = "CHANGES.rst"
+directory = "changes"
+package = "stdatamodels"
+title_format = "{version} ({project_date})"
+ignore = [".gitkeep"]
+wrap = true
+issue_format = "`#{issue} <https://github.com/spacetelescope/stdatamodels/issues/{issue}>`_"
+
+[tool.towncrier.fragment.feature]
+name = "New Features"
+
+[tool.towncrier.fragment.bugfix]
+name = "Bug Fixes"
+
+[tool.towncrier.fragment.doc]
+name = "Documentation"
+
+[tool.towncrier.fragment.removal]
+name = "Deprecations and Removals"
+
+[tool.towncrier.fragment.misc]

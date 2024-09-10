@@ -1,0 +1,1 @@
+Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema
