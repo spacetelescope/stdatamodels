@@ -13,7 +13,7 @@ allOf:
       properties:
         pwcpos_cmd:
           title: Commanded position
-          type: number
+          type: float64
     traces:
       type: array
       title: An array of trace models by order
