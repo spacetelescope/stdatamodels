@@ -15,9 +15,7 @@ This PR addresses ...
 - [ ] update relevant docstrings and / or `docs/` page
 - [ ] Does this PR change the public API? (if not, label with `no-changelog-entry-needed`)
   - [ ] write news fragment(s) in `changes/`: `echo "changed something" > changes/<PR#>.<changetype>.rst` (see below for change types)
-  - [ ] run regression tests with this branch installed (`"git+https://github.com/<fork>/stdatamodels@<branch>"`)
-    - [ ] [`jwst` regression test](https://github.com/spacetelescope/RegressionTests/actions/workflows/jwst.yml) 
-    - [ ] [`romancal` regression test](https://github.com/spacetelescope/RegressionTests/actions/workflows/romancal.yml)
+  - [ ] [run `jwst` regression tests](https://github.com/spacetelescope/RegressionTests/actions/workflows/jwst.yml) with this branch installed (`"git+https://github.com/<fork>/stdatamodels@<branch>"`)
 
 <details><summary>news fragment change types...</summary>
 
