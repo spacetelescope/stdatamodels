@@ -34,8 +34,8 @@ allOf:
       fits_hdu: DQ
       datatype:
       - name: OUTPUT
-        datatype: uint8
+        datatype: uint16
       - name: ODD_EVEN
-        datatype: uint8
+        datatype: uint16
       - name: MASK
         datatype: uint32
