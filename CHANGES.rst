@@ -1,20 +1,3 @@
-2.0.1 (unreleased)
-===================
-
-- replace usages of ``copy_arrays`` with ``memmap`` [#306]
-
-- Remove deprecated ``R_DRIZPAR`` keyword from core schema 
-  as well as ``jwst.datamodels.DrizParsModel``. [#316]
-  
-- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema [#263]
-
-- add grating keyword to dark and superbias schemas [#317]
-
-- remove uses of now unused ``ignore_version_mismatch`` [#313]
-
-- Added ``MEDIUMDEEP2`` and ``MEDIUMDEEP8`` to allowed readout patterns
-  in JWST core schema, ``READPATT``, and ``PREADPATT``. [#315]
-
 2.0.0 (2024-06-24)
 ===================
 
