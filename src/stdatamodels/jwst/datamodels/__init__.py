@@ -65,6 +65,7 @@ from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
 from .slit import SlitModel, SlitDataModel
+from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
 from .spec import SpecModel
@@ -132,6 +133,7 @@ __all__ = [
     'NrcImgPhotomModel', 'NrcWfssPhotomModel',
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
+    'PastasossModel',
     'PsfMaskModel',
     'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
