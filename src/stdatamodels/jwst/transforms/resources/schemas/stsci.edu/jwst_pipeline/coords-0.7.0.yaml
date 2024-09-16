@@ -29,7 +29,7 @@ examples:
 
 allOf:
   - $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.1.0"
-  - object:
+  - type: object
     properties:
       model_type:
         description: |
