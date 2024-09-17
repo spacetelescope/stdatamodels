@@ -1,0 +1,1 @@
+Add keyword to JWST core schema to track status of new step ``clean_flicker_noise``.
