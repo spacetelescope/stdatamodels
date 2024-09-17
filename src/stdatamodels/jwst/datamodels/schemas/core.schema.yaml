@@ -2334,6 +2334,11 @@ properties:
             type: string
             fits_keyword: S_CHGMIG
             blend_table: True
+          clean_flicker_noise:
+            title: Clean flicker noise
+            type: string
+            fits_keyword: S_CLNFNS
+            blend_table: True
           combine_1d:
             title: 1-D Spectral Combination
             type: string
