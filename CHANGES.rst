@@ -31,6 +31,9 @@ New Features
 - Add datamodel and schema for ``PastasossModel``, a new reference file type
   for JWST NIRISS SOSS exposures. (`#320
   <https://github.com/spacetelescope/stdatamodels/issues/320>`_)
+- Add keyword to JWST core schema to track status of new step
+  ``clean_flicker_noise``. (`#328
+  <https://github.com/spacetelescope/stdatamodels/issues/328>`_)
 
 
 Deprecations and Removals
