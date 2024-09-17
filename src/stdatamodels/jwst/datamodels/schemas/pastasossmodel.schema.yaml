@@ -1,0 +1,86 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/pastasossmodel.schema"
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_filter.schema
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        pwcpos_cmd:
+          title: Commanded position
+          type: number
+    traces:
+      type: array
+      title: An array of trace models by order
+      items:
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          pivot_x:
+            title: Pixel rotation point
+            type: number
+          pivot_y:
+            title: Pixel rotation point
+            type: number
+          trace:
+            title: The trace position
+            ndim: 2
+            datatype: float64
+          oversampling:
+            title: Pixel oversampling
+            type: integer
+            default: 1
+          padding:
+            title: Native pixel-size padding around the image
+            type: integer
+            default: 0
+    wavecal_models:
+      type: array
+      title: Polynomial regression model fitting wavelength to x, offset
+      items:
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          polynomial_degree:
+            title: Polynomial degree of model
+            type: integer
+          coefficients:
+            title: List of polynomial coefficients
+            ndim: 1
+            datatype: float64
+          coefficient_labels:
+            title: Coefficient order specification
+            type: string
+          scale_extents:
+            title: Range of values for normalization
+            ndim: 2
+            datatype: float64
+    throughputs:
+      type: array
+      title: An array of GR700XD throughputs by order
+      items:
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order
+            type: integer
+            minimum: 1
+          throughput:
+            title: The throughput array
+            ndim: 1
+            datatype: float64
+          wavelength:
+            title: The wavelength array
+            ndim: 1
+            datatype: float64

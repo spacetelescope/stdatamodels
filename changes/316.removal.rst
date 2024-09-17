@@ -1,1 +1,0 @@
-Remove deprecated ``R_DRIZPAR`` keyword from core schema as well as ``jwst.datamodels.DrizParsModel``.

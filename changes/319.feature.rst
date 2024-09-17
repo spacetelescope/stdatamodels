@@ -1,1 +1,0 @@
-Update JWST datamodel ``irs2`` datatype to provide ``numpy>=2.0`` compatibility.

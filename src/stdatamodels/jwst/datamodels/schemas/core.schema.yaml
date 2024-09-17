@@ -2046,6 +2046,15 @@ properties:
                 type: string
                 fits_keyword: R_OTE
                 blend_table: True
+          pastasoss:
+            title: NIRISS SOSS trace and wavecal reference file information
+            type: object
+            properties:
+              name:
+                title: SOSS trace and wavecal reference file name
+                type: string
+                fits_keyword: R_PSTSOS
+                blend_table: True
           pathloss:
             title: Pathloss reference file information
             type: object
@@ -2333,6 +2342,11 @@ properties:
             title: Charge Migration
             type: string
             fits_keyword: S_CHGMIG
+            blend_table: True
+          clean_flicker_noise:
+            title: Clean flicker noise
+            type: string
+            fits_keyword: S_CLNFNS
             blend_table: True
           combine_1d:
             title: 1-D Spectral Combination
