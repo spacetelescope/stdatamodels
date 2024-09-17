@@ -1,3 +1,50 @@
+2.1.0 (2024-09-17)
+==================
+
+Bug Fixes
+---------
+
+- Fix invalid ``abvegaoffset`` and ``coords`` schemas. (`#327
+  <https://github.com/spacetelescope/stdatamodels/issues/327>`_)
+
+
+Documentation
+-------------
+
+- use ``towncrier`` to handle change log entries (`#326
+  <https://github.com/spacetelescope/stdatamodels/issues/326>`_)
+
+
+New Features
+------------
+
+- Add ``mt_v2`` and ``mt_v3`` keywords to ``moving_target`` schema (`#263
+  <https://github.com/spacetelescope/stdatamodels/issues/263>`_)
+- Added ``MEDIUMDEEP2`` and ``MEDIUMDEEP8`` to allowed readout patterns in JWST
+  core schema, ``READPATT``, and ``PREADPATT``. (`#315
+  <https://github.com/spacetelescope/stdatamodels/issues/315>`_)
+- add grating keyword to dark and superbias schemas (`#317
+  <https://github.com/spacetelescope/stdatamodels/issues/317>`_)
+- Update JWST datamodel ``irs2`` datatype to provide ``numpy>=2.0``
+  compatibility. (`#319
+  <https://github.com/spacetelescope/stdatamodels/issues/319>`_)
+- Add datamodel and schema for ``PastasossModel``, a new reference file type
+  for JWST NIRISS SOSS exposures. (`#320
+  <https://github.com/spacetelescope/stdatamodels/issues/320>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- replace usages of ``copy_arrays`` with ``memmap`` (`#306
+  <https://github.com/spacetelescope/stdatamodels/issues/306>`_)
+- remove uses of now unused ``ignore_version_mismatch`` (`#313
+  <https://github.com/spacetelescope/stdatamodels/issues/313>`_)
+- Remove deprecated ``R_DRIZPAR`` keyword from core schema as well as
+  ``jwst.datamodels.DrizParsModel``. (`#316
+  <https://github.com/spacetelescope/stdatamodels/issues/316>`_)
+
+
 2.0.0 (2024-06-24)
 ===================
 
