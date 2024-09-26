@@ -1,0 +1,1 @@
+Add function to ``jwst.Level1bModel`` which fills moving target tables with missing columns

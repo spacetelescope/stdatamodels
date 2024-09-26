@@ -15,7 +15,8 @@ import pytest
 from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
                                           MultiSlitModel, SlitModel,
                                           NirspecFlatModel, NirspecQuadFlatModel,
-                                          SlitDataModel, IFUImageModel, ABVegaOffsetModel)
+                                          SlitDataModel, IFUImageModel, ABVegaOffsetModel,
+                                          Level1bModel)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 
@@ -591,4 +592,37 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
         check_error_column(dm)
     # and with DataModel(fn)
     with model(fn) as dm:
+        check_error_column(dm)
+
+
+def test_moving_target_table_migration(tmp_path):
+    fn = tmp_path / 'test_mt.fits'
+
+    def make_data(table_dtype):
+        shape = 10
+        fake_data = [(['0' * 23] * shape,) + ([0.1] * shape,) * (len(table_dtype) - 1)]
+        dtype = [(n, table_dtype[n], shape) for n in table_dtype.fields]
+        return np.array(fake_data, dtype=dtype)
+
+    m = Level1bModel()
+    m.moving_target = make_data(m.moving_target.dtype)
+    m.save(fn)
+    with fits.open(fn) as ff:
+        for ext in ff:
+            if ext.name != 'MOVING_TARGET_POSITION':
+                continue
+            # drop the error column
+            ext.data = drop_fields(ext.data, ('mt_v2', 'mt_v3'))
+        ff.writeto(fn, overwrite=True)
+
+    def check_error_column(model):
+        table = model.moving_target
+        assert np.all(np.isnan(table['mt_v2']))
+        assert np.all(np.isnan(table['mt_v3']))
+
+    # check that migration works with datamodels.open
+    with datamodels.open(fn) as dm:
+        check_error_column(dm)
+    # and with DataModel(fn)
+    with Level1bModel(fn) as dm:
         check_error_column(dm)
