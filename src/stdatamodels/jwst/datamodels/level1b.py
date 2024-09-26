@@ -1,5 +1,4 @@
 from .model_base import JwstDataModel
-from astropy.io import fits
 import numpy as np
 from numpy.lib.recfunctions import merge_arrays
 
