@@ -53,8 +53,5 @@ class Level1bModel(JwstDataModel):
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/level1b.schema"
 
-    def __init__(self, init=None, **kwargs):
-        if isinstance(init, fits.HDUList):
-            init = _migrate_moving_target_table(init)
-
-        super(Level1bModel, self).__init__(init=init, **kwargs)
+    def _migrate_hdulist(self, hdulist):
+        return _migrate_moving_target_table(hdulist)
