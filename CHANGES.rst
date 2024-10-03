@@ -1,3 +1,14 @@
+2.1.1 (2024-09-26)
+==================
+
+New Features
+------------
+
+- Add function to ``jwst.Level1bModel`` which fills moving target tables with
+  missing columns (`#329
+  <https://github.com/spacetelescope/stdatamodels/issues/329>`_)
+
+
 2.1.0 (2024-09-17)
 ==================
 
