@@ -1,0 +1,1 @@
+allow new-look ModelContainer to be the default container when opening any list-like
