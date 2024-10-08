@@ -62,10 +62,11 @@ jobs:
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
         - linux: py310-xdist
-        - macos: py311-xdist
-        - linux: py311-cov-xdist
-          coverage: codecov
+        - linux: py311-xdist
         - linux: py312-xdist
+        - linux: py313-cov-xdist
+          coverage: codecov
+        - macos: py311-xdist
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@924441154cf3053034c6513d5e06c69d262fb9a6  # v1.13.0
     needs: [ data ]
