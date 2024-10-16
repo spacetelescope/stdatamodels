@@ -37,4 +37,7 @@ def compare_keywords(kwd_path):
     # compare keys
     in_kwd = kwd_keys - datamodel_keys
     in_datamodels = datamodel_keys - kwd_keys
-    return in_kwd, in_datamodels, kwd_keywords, datamodel_keywords
+
+    # find keywords that are in both and check if they match
+    in_both = kwd_keys & datamodel_keys
+    return in_kwd, in_datamodels, in_both, kwd_keywords, datamodel_keywords
