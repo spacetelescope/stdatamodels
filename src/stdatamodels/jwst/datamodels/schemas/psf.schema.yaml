@@ -1,0 +1,44 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/psf.schema"
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_readpatt.schema
+- $ref: keyword_psubarray.schema
+- $ref: keyword_grating.schema
+- $ref: subarray.schema
+
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        psf:
+          title: PSF parameters
+          type: object
+          properties:
+            subpix:
+              title: oversampling factor
+              type: number
+              fits_keyword: SUBPIX
+            center_col:
+              title: column ePSF shifted to
+              type: number
+              fits_keyword: CENTCOL
+- type: object
+  properties:
+    data:
+      title: The PSF image
+      fits_hdu: PSF
+      default: 0.0
+      ndim: 2
+      datatype: float32
+    wave:
+      title: Wavelength image
+      fits_hdu: WAVE
+      default: 0
+      ndim: 2
+      datatype: float32
+
