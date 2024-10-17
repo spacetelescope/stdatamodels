@@ -26,13 +26,24 @@ def _filter_non_standard(keyword_dictionary):
     return {k: v for k, v in keyword_dictionary.items() if not _is_standard(k[1])}
 
 
+def _filter_non_pattern(d):
+    # remove all P_XXX keywords
+    return {k: v for k, v in d.items() if not k[1].startswith("P_")}
+
+
 def _compare_path(k, d):
     paths = {}
     for c, n in [(k, 'kwd'), (d, 'dmd')]:
         paths[n] = set(('.'.join(i['path']) for i in c))
     if paths['kwd'] == paths['dmd']:
         return None
-    return paths
+    # the paths differ this is only a problem for keywords
+    # that have an archive destination TODO document this
+    for i in k:
+        if i['keyword'].get('destination'):
+            # since there is a destination, report the differenc
+            return paths
+    return None
 
 
 class _MissingValue:
@@ -139,7 +150,8 @@ def _compare_definitions(k, d):
     diff = {}
     if subdiff := _compare_path(k, d):
         diff['path'] = subdiff
-    for key in ('title', 'description'):
+    #for key in ('title', 'description'):
+    for key in ('title', ):
         if subdiff := _compare_keyword_subitem(k, d, key):
             diff[key] = subdiff
     if subdiff := _compare_type(k, d):
@@ -152,7 +164,7 @@ def _compare_definitions(k, d):
 def compare_keywords(kwd_path):
     # the keyword dictionary contains standard FITS keywords
     # remove them as they're mostly not defined in the datamodel schemas
-    datamodel_keywords = _filter_non_standard(dmd.load())
+    datamodel_keywords = _filter_non_pattern(_filter_non_standard(dmd.load()))
     kwd_keywords = _filter_non_standard(kwd.load(kwd_path))
 
     # get keys to compare
