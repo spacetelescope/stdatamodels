@@ -54,6 +54,31 @@ def _compare_keyword_subitem(k, d, key):
     return items
 
 
+def _compare_type(k, d):
+    # "type" in the keyword dictionary has different possible
+    # values that don't match standard jsonschema types so
+    # map them here.
+    _k_to_d_map = {
+        "float": "number",
+        "integer": "integer",
+        "string": "string",
+        "boolean": "boolean",
+    }
+    diff = _compare_keyword_subitem(k, d, "type")
+    if not diff:
+        return
+    k_values = diff['kwd']
+    d_values = diff['dmd']
+    mapped_k_values = set()
+    for kv in k_values:
+        if kv not in _k_to_d_map:
+            raise ValueError(f"Unknown keyword dictionary type: {kv}")
+        mapped_k_values.add(_k_to_d_map[kv])
+    if mapped_k_values == d_values:
+        return None
+    return {'kwd': mapped_k_values, 'dmd': d_values}
+
+
 def _compare_enum(k, d):
     # enums in the keyword dictionary are lists of items
     k_values = set()
@@ -114,9 +139,11 @@ def _compare_definitions(k, d):
     diff = {}
     if subdiff := _compare_path(k, d):
         diff['path'] = subdiff
-    for key in ('title', 'description', 'type'):
+    for key in ('title', 'description'):
         if subdiff := _compare_keyword_subitem(k, d, key):
             diff[key] = subdiff
+    if subdiff := _compare_type(k, d):
+        diff['type'] = subdiff
     if subdiff := _compare_enum(k, d):
         diff['enum'] = subdiff
     return diff
