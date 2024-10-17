@@ -45,8 +45,19 @@ def _keyword_details(kwd, dmd, k):
     return s
 
 
+def _def_diff_details(d):
+    s = ""
+    for diff_name, diff in d.items():
+        f = pformat(diff)
+        s += R(
+            "dl",
+            R("dt", diff_name) + R("dd", R("pre", R("code", pformat(diff, indent=2)))),
+        )
+    return R("div", s)
+
+
 def generate_report(kwd_path):
-    in_k, in_d, in_both, kwd, dmd = compare_keywords(kwd_path)
+    in_k, in_d, in_both, def_diff, kwd, dmd = compare_keywords(kwd_path)
     body = ""
 
     body += R("h1", "Keywords in the keyword dictionary but NOT in the datamodel schemas")
@@ -56,6 +67,10 @@ def generate_report(kwd_path):
     body += R("h1", "Keywords in the datamodel schemas but NOT in the keyword dictionary")
     for k in sorted(in_d):
         body += R("details", R("summary", _keyword_to_str(k)) + _keyword_details(kwd, dmd, k))
+
+    body += R("h1", "Keywords in both with definition differences")
+    for k in sorted(def_diff):
+        body += R("details", R("summary", _keyword_to_str(k)) + _def_diff_details(def_diff[k]))
 
     return R("html", R("body", body))
 

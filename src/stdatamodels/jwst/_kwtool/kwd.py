@@ -33,19 +33,19 @@ def _load_kwd_schema(path):
 
 
 def _sanitize_path(path):
-    return [sub for sub in path if sub not in ("allOf", "properties")]
+    return tuple([sub for sub in path if sub not in ("allOf", "properties")])
 
 
 def _walk_kwd(kwd_path, root, path=None, keywords=None):
     if keywords is None:
         keywords = []
     if path is None:
-        path = []
+        path = tuple()
     if not isinstance(root, (dict, list)):
         return root
     if isinstance(root, list):
         # ignoring list item index path
-        return [_walk_kwd(sub, path, keywords) for sub in root]
+        return [_walk_kwd(kwd_path, sub, path, keywords) for sub in root]
     if "$ref" in root:
         assert len(root) == 1
         return _walk_kwd(kwd_path, _load_kwd_schema(kwd_path / root["$ref"]), path, keywords)
@@ -53,7 +53,7 @@ def _walk_kwd(kwd_path, root, path=None, keywords=None):
         assert "fits_hdu" in root
         return keywords.append((_sanitize_path(path), root))
     for key, sub in root.items():
-        _walk_kwd(kwd_path, sub, path + [key, ], keywords)
+        _walk_kwd(kwd_path, sub, path + (key, ), keywords)
 
 
 def load(path):
@@ -61,6 +61,8 @@ def load(path):
 
     # start at each "top" schema
     top_schema_files = list(kwd_path.glob("top*.json"))
+    if not top_schema_files:
+        raise ValueError("Failed to find any top schema files")
 
     keyword_infos_per_mode = {}
     for top_schema_file in top_schema_files:
