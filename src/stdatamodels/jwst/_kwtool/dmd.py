@@ -1,5 +1,3 @@
-import itertools
-
 import asdf
 
 import stdatamodels.jwst.datamodels as dm
