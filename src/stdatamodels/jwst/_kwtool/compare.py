@@ -23,11 +23,14 @@ def _is_standard(keyword):
 
 
 def _filter_non_standard(keyword_dictionary):
+    # Remove keywords that are already defined by the FITS standard.
     return {k: v for k, v in keyword_dictionary.items() if not _is_standard(k[1])}
 
 
 def _filter_non_pattern(d):
-    # remove all P_XXX keywords
+    # Remove all P_XXX keywords. These are used in reference
+    # files to aid in generating rmaps for CRDS and are not needed
+    # in the keyword dictionary.
     return {k: v for k, v in d.items() if not k[1].startswith("P_")}
 
 
