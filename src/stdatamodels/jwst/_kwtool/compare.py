@@ -44,7 +44,7 @@ def _compare_path(k, d):
     # that have an archive destination TODO document this
     for i in k:
         if i['keyword'].get('destination'):
-            # since there is a destination, report the differenc
+            # since there is a destination, report the difference
             return paths
     return None
 
