@@ -19,6 +19,8 @@ __all__ = [
     "SnellConverter",
     "CoordsConverter",
     "Rotation3DToGWAConverter",
+    "Slit2MsaConverter",
+    "Slit2GwaConverter"
 ]
 
 
@@ -137,10 +139,29 @@ class Gwa2SlitConverter(TransformConverterBase):
         return node
 
 
+class Slit2GwaConverter(TransformConverterBase):
+
+    tags = ["tag:stsci.edu:jwst_pipeline/slit_to_gwa-*"]
+
+    types = ["stdatamodels.jwst.transforms.models.Slit2Gwa"]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+
+        from stdatamodels.jwst.transforms.models import Slit2Gwa
+
+        return Slit2Gwa(node['slits'], node['models'])
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        node = {'slits': model._slits,
+                'models': model.models}
+        return node
+
+
 class Slit2MsaConverter(TransformConverterBase):
     tags = ["tag:stsci.edu:jwst_pipeline/slit_to_msa-*"]
 
-    types = ["stdatamodels.jwst.transforms.models.Slit2Msa"]
+    types = ["stdatamodels.jwst.transforms.models.Slit2Msa",
+             "stdatamodels.jwst.transforms.models.Msa2Slit"]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
         from stdatamodels.jwst.transforms.models import Slit2Msa
@@ -148,7 +169,25 @@ class Slit2MsaConverter(TransformConverterBase):
         return Slit2Msa(node["slits"], node["models"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {"slits": model._slits, "models": model.models}
+        node = {'slits': model._slits,
+                'models': model.models,}
+        return node
+
+
+class Msa2SlitConverter(TransformConverterBase):
+
+    tags = ["tag:stsci.edu:jwst_pipeline/msa_to_slit-*"]
+
+    types = ["stdatamodels.jwst.transforms.models.Msa2Slit"]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+
+        from stdatamodels.jwst.transforms.models import Msa2Slit
+
+        return Msa2Slit(node['slits'], node['models'])
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        node = {'slits': model._slits, 'models': model.models,}
         return node
 
 
