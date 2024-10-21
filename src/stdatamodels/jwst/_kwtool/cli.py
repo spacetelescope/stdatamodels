@@ -49,7 +49,6 @@ def _keyword_details(kwd, dmd, k):
 def _def_diff_details(d):
     s = ""
     for diff_name, diff in d.items():
-        f = pformat(diff)
         s += R(
             "dl",
             R("dt", diff_name) + R("dd", R("pre", R("code", pformat(diff, indent=2)))),
@@ -74,6 +73,7 @@ def generate_report(kwd_path):
         body += R("details", R("summary", _keyword_to_str(k)) + _def_diff_details(def_diff[k]))
 
     return R("html", R("body", body))
+
 
 def _configure_cmdline_parser():
     parser = argparse.ArgumentParser(
