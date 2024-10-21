@@ -1,3 +1,4 @@
+import argparse
 from pprint import pformat
 
 from .compare import compare_keywords
@@ -74,13 +75,29 @@ def generate_report(kwd_path):
 
     return R("html", R("body", body))
 
+def _configure_cmdline_parser():
+    parser = argparse.ArgumentParser(
+        prog="kwtool",
+        description="Generate a report of FITS keyword differences between datamodel schemas and the keyword dictionary",
+    )
+    parser.add_argument(
+        "keyword_dictionary_path",
+        help="Path to keyword dictionary directory.",
+    )
+    parser.add_argument(
+        "-o", "--output_file",
+        default="report.html",
+        help="HTML report output filename.",
+    )
+    return parser
 
-if __name__ == '__main__':
-    import sys
 
-    kwd_path = sys.argv[1]
-    output_path = "report.html"
+def _from_cmdline():
+    # used in parent module __main__
+    parser = _configure_cmdline_parser()
+    args = parser.parse_args()
 
-    report = generate_report(kwd_path)
-    with open(output_path, "w") as f:
+    report = generate_report(args.keyword_dictionary_path)
+
+    with open(args.output_file, "w") as f:
         f.write(report)
