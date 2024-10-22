@@ -119,7 +119,7 @@ The heirarchical structure in which the of the keyword dictionary definitions
 are nested has in practice been considered the "data model path" (or sometimes
 referred to as the "data model name'). Practically this is used for:
 
-- constructing filename for the keyword dictionary GUI
+- constructing filenames for the keyword dictionary GUI
 - entry into the archive database to allow triggering reprocessing based
   on reference file updates
 
@@ -155,6 +155,7 @@ Unfortunately there are 4 slightly different versions of the same file
 and all are private.
 
 Generally the code appears to:
+
 - "walk" the schema (more on this below)
 - ignore all nodes that aren't a dict and don't contain "fits_keyword"
 - store the node as a keyword definition (keyed by top file name and "data model name")
