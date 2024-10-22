@@ -87,9 +87,17 @@ def test_compare_type(ktype, dtype, expected):
     assert compare._compare_type(k, d) == expected
 
 
-def test_compare_enum():
-    # TODO
-    pass
+@pytest.mark.parametrize(
+    "kv, dv, expected", [
+        (["a", "z"], ["z", "a"], None),
+        (["a", "z"], ["a"], {"kwd": {"a", "z"}, "dmd": {"a"}}),
+        (["a"], ["a", "z"], {"kwd": {"a"}, "dmd": {"a", "z"}}),
+    ]
+)
+def test_compare_enum(kv, dv, expected):
+    k = [{"keyword": {"enum": kv}}]
+    d = [{"keyword": {"enum": dv}}]
+    assert compare._compare_enum(k, d) == expected
 
 
 @pytest.fixture(scope="module")
