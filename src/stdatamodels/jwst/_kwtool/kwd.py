@@ -1,16 +1,5 @@
 """
-allOf exists in weird places
-schema_editor says that "standard" and "misc" keyword_name is ignored (for create_dict)
-schema_editor ignores all non PRIMARY and SCI fits_hdu (for create_dict)
-
-keyword_dict is:
-    key : FITS_KEYWORD (not hdu as it's only PRIMARY or SCI)
-    path : in keyword dictionary
-
-keyword_schema is some weird combination of everything in
-the keyword dictionary as one sort of but not quite a schema.
-
-Since these aren't schemas the usual tools won't work.
+Since these aren't jsonschemas the usual tools won't work.
 - Start with a "top" schema
 - Traverse (keeping track of path, ignore combiners, properties, etc)
 - When we hit 'fits_keyword'...
