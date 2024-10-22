@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/spacetelescope/stdatamodels/branch/main/graph/badge.svg?token=TrmUKaTP2t)](https://codecov.io/gh/spacetelescope/stdatamodels)
 
 
-Provides `DataModel`, which is the base class for data models implemented in the JWST and Roman calibration software.
+Provides JWST data model classes and schemas.
 
 
 ## Unit Tests
