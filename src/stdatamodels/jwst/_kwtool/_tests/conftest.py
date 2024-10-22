@@ -3,7 +3,7 @@ import json
 import pytest
 
 from stdatamodels.jwst._kwtool import dmd, kwd
-from stdatamodels.jwst.datamodels import ImageModel, JwstDataModel
+from stdatamodels.jwst.datamodels import ImageModel
 
 
 @pytest.fixture(scope="module")
