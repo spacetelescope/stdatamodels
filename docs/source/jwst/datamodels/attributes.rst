@@ -5,70 +5,6 @@ the underlying file format.  The same data model may be used for data
 created from scratch in memory, loaded from FITS or ASDF files, or from
 some other future format.
 
-Calling sequences of models
-===========================
-
-List of current models
-----------------------
-
-The current models are as follows:
-
-    'ABVegaOffsetModel',
-    'AmiLgModel',
-    'FgsImgApcorrModel', 'MirImgApcorrModel', 'NrcImgApcorrModel', 'NisImgApcorrModel',
-    'MirLrsApcorrModel', 'MirMrsApcorrModel', 'NrcWfssApcorrModel', 'NisWfssApcorrModel',
-    'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
-    'AsnModel',
-    'BarshadowModel', 'CameraModel', 'CollimatorModel',
-    'CombinedSpecModel', 'ContrastModel', 'CubeModel',
-    'DarkModel', 'DarkMIRIModel',
-    'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
-    'Extract1dImageModel',
-    'Extract1dIFUModel',
-    'FilteroffsetModel',
-    'FlatModel', 'NirspecFlatModel', 'NirspecQuadFlatModel',
-    'FOREModel', 'FPAModel',
-    'FringeModel', 'GainModel', 'GLS_RampFitModel',
-    'GuiderRawModel', 'GuiderCalModel',
-    'IFUCubeModel',
-    'NirspecIFUCubeParsModel', 'MiriIFUCubeParsModel',
-    'IFUFOREModel', 'IFUImageModel', 'IFUPostModel', 'IFUSlicerModel',
-    'ImageModel', 'IPCModel', 'IRS2Model', 'LastFrameModel', 'Level1bModel',
-    'LinearityModel', 'MaskModel', 'MSAModel',
-    'MultiCombinedSpecModel', 'MultiExposureModel',
-    'MultiExtract1dImageModel', 'MultiSlitModel',
-    'MultiSpecModel',
-    'NIRCAMGrismModel', 'NIRISSGrismModel',
-    'OTEModel',
-    'OutlierParsModel',
-    'PathlossModel',
-    'PersistenceSatModel',
-    'PixelAreaModel', 'NirspecSlitAreaModel', 'NirspecMosAreaModel', 'NirspecIfuAreaModel',
-    'FgsImgPhotomModel',
-    'MirImgPhotomModel', 'MirLrsPhotomModel', 'MirMrsPhotomModel',
-    'NrcImgPhotomModel', 'NrcWfssPhotomModel',
-    'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
-    'NrsFsPhotomModel', 'NrsMosPhotomModel',
-    'PsfMaskModel',
-    'QuadModel', 'RampModel',
-    'RampFitOutputModel', 'ReadnoiseModel',
-    'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
-    'RegionsModel', 'ResetModel',
-    'ResolutionModel', 'MiriResolutionModel',
-    'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
-    'SegmentationMapModel',
-    'SpecKernelModel',
-    'SpecProfileModel', 'SpecProfileSingleModel',
-    'SpecTraceModel', 'SpecTraceSingleModel',
-    'SpecwcsModel',
-    'StrayLightModel', 'SuperBiasModel',
-    'ThroughputModel',
-    'TrapDensityModel', 'TrapParsModel', 'TrapsFilledModel',
-    'TsoPhotModel',
-    'WavelengthrangeModel', 'WaveCorrModel',
-    'WaveMapModel', 'WaveMapSingleModel',
-    'WfssBkgModel'
-
 Commonly used attributes
 ------------------------
 Here are a few model attributes that are used by some of the pipeline
@@ -105,7 +41,7 @@ instruments have four columns or rows of reference pixels on each edge
 of the image.
 
 JwstDataModel Base Class
---------------------
+------------------------
 
 .. autoclass:: jwst.datamodels.JwstDataModel
    :members:
