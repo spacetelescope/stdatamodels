@@ -153,7 +153,6 @@ def _compare_definitions(k, d):
     diff = {}
     if subdiff := _compare_path(k, d):
         diff['path'] = subdiff
-    #for key in ('title', 'description'):
     for key in ('title', ):
         if subdiff := _compare_keyword_subitem(k, d, key):
             diff[key] = subdiff
