@@ -5,7 +5,7 @@ Keyword Dictionary
 
 The "keyword dictionary" is a collection
 of json files that describe FITS keywords used in JWST files.
-Although the format is similar to jsonschema is is not compatible
+Although the format is similar to jsonschema it is not compatible
 with jsonschema parsers and cannot be treated as any draft of jsonschema.
 A brief ADASS proceedings paper is the only documentation of the format:
 
