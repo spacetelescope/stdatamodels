@@ -136,7 +136,7 @@ def fake_kwd(fake_kwd_path):
 def limit_dmd_models():
     # we can't use the monkeypatch fixture as it's function scoped
     with pytest.MonkeyPatch.context() as mp:
-        mp.setattr(dmd, "_get_subclasses", lambda k: [ImageModel])
+        mp.setattr(dmd, "_get_subclasses", lambda k, s: [ImageModel])
         yield
 
 

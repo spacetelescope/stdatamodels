@@ -7,10 +7,15 @@ import stdatamodels.schema
 __all__ = ["load"]
 
 
-def _get_subclasses(klass):
+
+def _get_subclasses(klass, skip_models=None):
+    if skip_models is None:
+        skip_models = set()
     for subclass in klass.__subclasses__():
+        if subclass in skip_models:
+            continue
         yield subclass
-        yield from _get_subclasses(subclass)
+        yield from _get_subclasses(subclass, skip_models)
 
 
 def _get_schema_keywords_callback(ss, path, combiner, ctx, r):
@@ -18,8 +23,8 @@ def _get_schema_keywords_callback(ss, path, combiner, ctx, r):
         ctx.append((path, ss))
 
 
-def load():
-    datamodel_classes = list(_get_subclasses(dm.JwstDataModel))
+def load(skip_models=None):
+    datamodel_classes = list(_get_subclasses(dm.JwstDataModel, skip_models))
 
     keywords_by_datamodel = {}
     for klass in datamodel_classes:

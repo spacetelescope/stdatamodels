@@ -4,13 +4,17 @@ separately test _get_subclasses
 """
 import pytest
 
-from stdatamodels.jwst.datamodels import JwstDataModel, FgsImgPhotomModel
+from stdatamodels.jwst.datamodels import DarkModel, JwstDataModel, ReferenceFileModel
 from stdatamodels.jwst._kwtool import dmd
 
 
 def test_get_subclasses():
     # more of a smoke test
-    assert FgsImgPhotomModel in dmd._get_subclasses(JwstDataModel)
+    assert DarkModel in dmd._get_subclasses(JwstDataModel)
+
+
+def test_get_subclasses_ignore():
+    assert DarkModel not in dmd._get_subclasses(JwstDataModel, {ReferenceFileModel})
 
 
 @pytest.fixture(params=[("PRIMARY", "TITLE"), ("PRIMARY", "OBS_ID"), ("PRIMARY", "ENG_QUAL")])
