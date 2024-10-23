@@ -1,4 +1,4 @@
-from .model_base import ReferenceFileModel
+from .reference import ReferenceFileModel
 
 
 __all__ = ['IRS2Model']
