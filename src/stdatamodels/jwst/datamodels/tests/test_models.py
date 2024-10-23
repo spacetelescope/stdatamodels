@@ -3,6 +3,7 @@ import os
 import warnings
 
 from asdf.exceptions import ValidationError
+from asdf.schema import load_schema
 from astropy.io import fits
 from astropy.table import Table
 from astropy.time import Time
@@ -19,6 +20,7 @@ from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, 
                                           Level1bModel)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
+from stdatamodels.schema import walk_schema
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
 FITS_FILE = os.path.join(ROOT_DIR, 'test.fits')
@@ -317,12 +319,68 @@ def test_abvega_offset_model():
         model.validate()
 
 
+def test_defined_models_up_to_date():
+    """
+    Test that defined_models contains all JwstDataModel classes
+    """
+    def get_classes(klass, classes=None):
+        if classes is None:
+            classes = set()
+        classes.add(klass)
+        for subclass in klass.__subclasses__():
+            get_classes(subclass, classes)
+        return classes
+
+    # get all datamodel classes including JwstDataModel
+    # and all subclasses (ignoring any that start with "_")
+    all_classes = {
+        klass for
+        klass in get_classes(JwstDataModel)
+        if klass.__name__[0] != "_"
+    }
+    assert set(defined_models.values()) == all_classes
+
+
 @pytest.mark.parametrize("model", [v for v in defined_models.values()])
 def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
     """
     model()
+
+
+@pytest.mark.parametrize("model", [v for v in defined_models.values()])
+def test_reference_model_schema_inheritance(model):
+    """
+    Test that models that inherit from ReferenceFileModel use
+    referencefile.schema and that all models that use
+    referencefile.schema inherit from ReferenceFileModel.
+    """
+    is_ref_model = issubclass(model, datamodels.ReferenceFileModel)
+    if not model.schema_url:  # this model has no schema
+        # so it shouldn't be a subclass
+        assert not is_ref_model
+        # and we're dont testing this model
+        return
+
+    # crawl the schema looking for all ids
+    schema = load_schema(model.schema_url, resolve_references=True)
+
+    def cb(subschema, path, combiner, ctx, recurse):
+        if not isinstance(subschema, dict):
+            return
+        if 'id' not in subschema:
+            return
+        if subschema["id"] == "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema":
+            ctx['has_ref'] = True
+
+    ctx = {'has_ref': False}
+    walk_schema(schema, cb, ctx=ctx)
+    refs_referencefile_schema = ctx['has_ref']
+    if is_ref_model:
+        assert refs_referencefile_schema, f"Reference model {model} does not ref referencefile.schema"
+    else:
+        assert not refs_referencefile_schema, f"Model {model} does not inherit from ReferenceFileModel"
 
 
 def test_meta_date_management(tmp_path):
