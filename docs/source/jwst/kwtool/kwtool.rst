@@ -70,6 +70,7 @@ Data model schema parsing
 Datamodel schemas are parsed by:
 
 - Finding all subclasses of JwstDataModel (recursively)
+- Ignore some subclasses (for example ReferenceFileModel, see code full list).
 - For each subclass load the corresponding schema
 - Walk each schema using ``stdatamodels.schema.walk_schema``
 - Construct a "keyword definition" for each dict node with a "fits_keyword" key
