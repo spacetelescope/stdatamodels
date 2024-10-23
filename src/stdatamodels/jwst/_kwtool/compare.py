@@ -1,5 +1,6 @@
 import re
 
+import stdatamodels.jwst.datamodels as dm
 from stdatamodels.schema import walk_schema
 
 from . import dmd
@@ -16,6 +17,11 @@ _fits_standard_regex = re.compile('|'.join('(^{0}$)'.format(x) for x in [
     'TUNIT[0-9]{1,3}', 'TSCAL[0-9]{1,3}', 'TZERO[0-9]{1,3}',
     'TNULL[0-9]{1,3}', 'TDISP[0-9]{1,3}', 'HISTORY'
 ]))
+
+_DEFAULT_SKIP_MODELS = {
+    dm.ReferenceFileModel,  # ignore reference file models
+    dm.IRS2Model,  # this is a reference file
+}
 
 
 def _is_standard(keyword):
@@ -163,10 +169,12 @@ def _compare_definitions(k, d):
     return diff
 
 
-def compare_keywords(kwd_path):
+def compare_keywords(kwd_path, skip_models=None):
+    if skip_models is None:
+        skip_models = _DEFAULT_SKIP_MODELS
     # the keyword dictionary contains standard FITS keywords
     # remove them as they're mostly not defined in the datamodel schemas
-    datamodel_keywords = _filter_non_pattern(_filter_non_standard(dmd.load()))
+    datamodel_keywords = _filter_non_pattern(_filter_non_standard(dmd.load(skip_models)))
     kwd_keywords = _filter_non_standard(kwd.load(kwd_path))
 
     # get keys to compare
