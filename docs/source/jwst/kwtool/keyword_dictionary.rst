@@ -7,13 +7,20 @@ The "keyword dictionary" is a collection
 of json files that describe FITS keywords used in JWST files.
 Although the format is similar to jsonschema it is not compatible
 with jsonschema parsers and cannot be treated as any draft of jsonschema.
-A brief ADASS proceedings paper is the only documentation of the format:
+A brief ADASS proceedings paper is the only public documentation of
+the format:
 
 https://www.aspbooks.org/publications/522/165.pdf
 
-The documentation here will attempt to add to that documentaion
-based largely on the usage of the keyword dictionary files by
-current code.
+and appears to be out of date with private documentation
+(available to STScI staff) at:
+
+https://innerspace.stsci.edu/pages/viewpage.action?spaceKey=jwstdms&title=JWST+Keyword+Dictionary
+
+This document will attempt to describe the format from the
+perspective of comparing the keyword dictionary and data model
+schemas. This documentation is incomplete and based largely
+on the usage of the keyword dictionary files by current code.
 
 
 Availability
@@ -83,33 +90,19 @@ they would be supported.
 Keyword definitions
 -------------------
 
-The above document mentions the following properites for
-keyword definitions:
+Rather than attempt to describe all entries in the keyword definitions
+this section will only describe the key/value pairs used
+by the comparison tool. For a more complete description see
+the private documentation linked above.
 
-==================  ========  ==================================================
-Key                 Required  Use
-==================  ========  ==================================================
-fits_keyword        Y         FITS 8 character or less keyword name
-title               Y         FITS comment for the keyword
-description         N         Long description for documentation
-type                Y         FITS type of keyword value
-units               N         Units of value
-example             N         Example value for documentation
-default_value       Y         Keyword default value
-sw_source           N         Used by data reduction pipeline to populate value
-destination         N         Archivial system table and field
-sql_dtype           N         Archival system field type
-level               Y         FITS file product
-fits_hdu            Y         FITS HDU identification
-special_processing  N         Designates if keyword is required or optional
-comment_line        N         Value precedes keyword as FITS comment line
-==================  ========  ==================================================
+The comparison tool will use the following keys from the
+keyword definitions in the keyword dictionary:
 
-However this list is incomplete with many keywords containing extra
-undocumented key/value pairs. This documentation will not attempt
-to fill in these gaps but instead will focus only on the entries
-relevant to the keyword tool (for comparing keywords between this
-resource and the datamodel schemas).
+- fits_keyword: the FITS keyword name
+- fits_hdu: the FITS hdu name
+- title: the title of the keyword defintion
+- type: one of "float", "integer", "string", "boolean"
+- enum (optional): list of valid values
 
 
 Data model paths
