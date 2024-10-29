@@ -150,6 +150,15 @@ def _compare_enum(k, d):
             # See note about MISSING_VALUE above
             d_values.add(_MISSING_VALUE)
 
+    # If this is a bool the keyword dictionary defines T/F
+    # This is not needed for the datamodel schemas so
+    # if only _MISSING_VALUE was found, overwrite it to {T, F}
+    for i in k:
+        if i["keyword"]["type"] == "boolean":
+            if d_values == {_MISSING_VALUE}:
+                d_values = set()
+            d_values |= {"T", "F"}
+
     if k_values == d_values:
         return None
     return {'kwd': k_values, 'dmd': d_values}
