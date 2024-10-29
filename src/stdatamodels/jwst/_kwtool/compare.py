@@ -46,8 +46,16 @@ def _compare_path(k, d):
         paths[n] = set(('.'.join(i['path']) for i in c))
     if paths['kwd'] == paths['dmd']:
         return None
-    # the paths differ this is only a problem for keywords
-    # that have an archive destination TODO document this
+
+    # Ignore paths that are nested under "items" in the
+    # datamodel schemas as these can't be matched to specific
+    # keywords
+    for i in d:
+        if 'items' in i['path']:
+            return None
+
+    # Paths differences are only a problem for the keywords
+    # that have an archive destination
     for i in k:
         if i['keyword'].get('destination'):
             # since there is a destination, report the difference
@@ -112,10 +120,11 @@ def _compare_enum(k, d):
                     raise ValueError(f"keyword dictionary contains a non-list enum: {enum}")
             k_values.update(enum)
         else:
-            # TODO I'm not sure _MISSING_VALUE makes sense here
-            # if one scope has an enum and one doesn't this will make
+            # If one scope has an enum and one doesn't this will make
             # an enum that contains some values and a _MISSING_VALUE
-            # it's not clear if we want that in the comparison
+            # it's not clear if we want that in the comparison but we
+            # add one here to at least detect the comparison.
+            # The same as the note below.
             k_values.add(_MISSING_VALUE)
 
     # enums in the datamodel schema can:
@@ -138,7 +147,7 @@ def _compare_enum(k, d):
         if enum_values:
             d_values.update(enum_values)
         else:
-            # TODO same as above
+            # See note about MISSING_VALUE above
             d_values.add(_MISSING_VALUE)
 
     if k_values == d_values:
@@ -153,8 +162,7 @@ def _compare_definitions(k, d):
     # has orgnization that will lead to many definitions for a single keyword
     # The things to compare are:
     # - paths: these should match
-    # - title: these should match (TODO required? might not exist)
-    # - description: these should match (TODO required? might not exist)
+    # - title: these should match
     # - enum: these should match (after combination, might not exist)
     diff = {}
     if subdiff := _compare_path(k, d):

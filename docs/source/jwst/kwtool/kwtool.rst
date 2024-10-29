@@ -158,6 +158,11 @@ constructing a set of paths for each source then comparing these sets.
 Sets are used here since each key might appear in multiple top
 files in the keyword dictionary and in multiple data model schemas.
 
+There are a few instances where "path" won't be compared. These are:
+
+- if the keyword dictionary entry does not have an archive destination
+- if the datamodel schema keyword definition is nested in an "items" array
+
 
 Report format
 -------------
