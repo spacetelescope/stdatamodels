@@ -24,6 +24,7 @@ def fetch_keyword_dictionary():
         "https://mast.stsci.edu/api/v0/invoke",
         data=f"request={request_data}",
         headers={"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"},
+        timeout=10,
     ).json()
     del response["msg"]
     del response["status"]
