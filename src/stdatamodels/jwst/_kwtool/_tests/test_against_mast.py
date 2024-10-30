@@ -12,6 +12,8 @@ from stdatamodels.jwst._kwtool import cli
 
 def fetch_keyword_dictionary():
     # Fetch the latest versioned keyword dictionary from MAST
+    # This uses an "unofficial" service as there is no
+    # officially supported way to query the keyword dictionary.
     request_data = urlencode(json.dumps({
         "service": "Mast.Jwst.Keywords",
         "timeout": 10,
