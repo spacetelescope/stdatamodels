@@ -49,6 +49,7 @@ test = [
     "pytest>=4.6.0",
     "pytest-doctestplus",
     "crds>=11.17.1",
+    "requests",
 ]
 docs = [
     "sphinx",

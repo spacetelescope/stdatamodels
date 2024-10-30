@@ -46,12 +46,27 @@ def _keyword_details(kwd, dmd, k):
     return s
 
 
+def _set_to_list(item):
+    if isinstance(item, set):
+        return _set_to_list(sorted(list(item)))
+    if isinstance(item, (list, tuple)):
+        return [_set_to_list(i) for i in item]
+    if isinstance(item, dict):
+        return {_set_to_list(k): _set_to_list(v) for k, v in item.items()}
+    return item
+
+
+def _diff_format(diff):
+    # convert all sets to lists and sort them for consistent output
+    return pformat(_set_to_list(diff), indent=2)
+
+
 def _def_diff_details(d):
     s = ""
     for diff_name, diff in d.items():
         s += R(
             "dl",
-            R("dt", diff_name) + R("dd", R("pre", R("code", pformat(diff, indent=2)))),
+            R("dt", diff_name) + R("dd", R("pre", R("code", _diff_format(diff)))),
         )
     return R("div", s)
 
