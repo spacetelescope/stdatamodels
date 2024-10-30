@@ -154,7 +154,7 @@ def _compare_enum(k, d):
     # This is not needed for the datamodel schemas so
     # if only _MISSING_VALUE was found, overwrite it to {T, F}
     for i in k:
-        if i["keyword"]["type"] == "boolean":
+        if i["keyword"].get("type") == "boolean":
             if d_values == {_MISSING_VALUE}:
                 d_values = set()
             d_values |= {"T", "F"}
