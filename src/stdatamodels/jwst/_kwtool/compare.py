@@ -7,6 +7,14 @@ from . import dmd
 from . import kwd
 
 
+class _MissingValue:
+    def __repr__(self):
+        return "MISSING VALUE"
+
+
+_MISSING_VALUE = _MissingValue()
+
+
 # Initialize the standard in regex pattern
 _fits_standard_regex = re.compile('|'.join('(^{0}$)'.format(x) for x in [
     '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
@@ -20,7 +28,43 @@ _fits_standard_regex = re.compile('|'.join('(^{0}$)'.format(x) for x in [
 
 _DEFAULT_SKIP_MODELS = {
     dm.ReferenceFileModel,  # ignore reference file models
-    dm.IRS2Model,  # this is a reference file
+}
+
+# There are some expected differences. One example is an old enum
+# value might be supported in the schemas but not in the keyword dictionary
+# since new files should only get new enum values.
+# These differences are represented in a dict of:
+#   key: (HDU, KEYWORD)
+#   value: dict of
+#     key: difference type (enum, title, path, etc)
+#     value: dict of
+#       key: name of collection to modify (dmd or kwd)
+#       value: dict of
+#         key: set operation (difference, union, etc)
+#         value: set to pass to the operation
+_DEFAULT_EXPECTED_DIFFS = {
+    ("PRIMARY", "ENGQLPTG"): {
+        "enum": {
+            "dmd": {
+                "difference": {"CALCULATED_FULL", "CALCULATED_FULLVA"},
+            },
+        },
+    },
+    ("PRIMARY", "PATTTYPE"): {
+        "enum": {
+            "dmd": {
+                "difference": {'SUBARRAY-DITHER', 'N/A', 'FULL-TIGHT', 'ANY'},
+            },
+        },
+    },
+    ("PRIMARY", "CATEGORY"): {
+        "enum": {
+            "dmd": {
+                "union": {'AR', 'CAL', 'COM', 'DD', 'ENG', 'GO', 'GTO', 'NASA', 'SURVEY'},
+                "difference": {_MISSING_VALUE},
+            },
+        },
+    },
 }
 
 
@@ -61,14 +105,6 @@ def _compare_path(k, d):
             # since there is a destination, report the difference
             return paths
     return None
-
-
-class _MissingValue:
-    def __repr__(self):
-        return "MISSING VALUE"
-
-
-_MISSING_VALUE = _MissingValue()
 
 
 def _compare_keyword_subitem(k, d, key):
@@ -150,7 +186,8 @@ def _compare_enum(k, d):
             # See note about MISSING_VALUE above
             d_values.add(_MISSING_VALUE)
 
-    # If this is a bool the keyword dictionary defines T/F
+    # If this is a bool the keyword dictionary may
+    # define T/F (this is inconsistent).
     # This is not needed for the datamodel schemas so
     # if only _MISSING_VALUE was found, overwrite it to {T, F}
     for i in k:
@@ -158,6 +195,9 @@ def _compare_enum(k, d):
             if d_values == {_MISSING_VALUE}:
                 d_values = set()
             d_values |= {"T", "F"}
+            if k_values == {_MISSING_VALUE}:
+                k_values = set()
+            k_values |= {"T", "F"}
 
     if k_values == d_values:
         return None
@@ -186,9 +226,32 @@ def _compare_definitions(k, d):
     return diff
 
 
-def compare_keywords(kwd_path, skip_models=None):
+def _is_expected(kw, diff, expected_diffs):
+    if kw not in expected_diffs:
+        return False
+    expected = expected_diffs[kw]
+    for expected_key, sub_expected in expected.items():
+        if expected_key not in diff:
+            continue
+        sub_diff = diff[expected_key]
+        for collection_key in ('dmd', 'kwd'):
+            if collection_key not in sub_expected:
+                continue
+            for op, other_set in sub_expected[collection_key].items():
+                sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
+        if sub_diff['dmd'] == sub_diff['kwd']:
+            del diff[expected_key]
+    # if we have no differences left then all was expected
+    if not diff:
+        return True
+    return False
+
+
+def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
     if skip_models is None:
         skip_models = _DEFAULT_SKIP_MODELS
+    if expected_diffs is None:
+        expected_diffs = _DEFAULT_EXPECTED_DIFFS
     # the keyword dictionary contains standard FITS keywords
     # remove them as they're mostly not defined in the datamodel schemas
     datamodel_keywords = _filter_non_pattern(_filter_non_standard(dmd.load(skip_models)))
@@ -211,6 +274,8 @@ def compare_keywords(kwd_path, skip_models=None):
 
         # compare keyword definitions
         if diff := _compare_definitions(k, d):
-            definitions_diff[kw] = diff
+            # only report unexpected differences
+            if not _is_expected(kw, diff, expected_diffs):
+                definitions_diff[kw] = diff
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords
