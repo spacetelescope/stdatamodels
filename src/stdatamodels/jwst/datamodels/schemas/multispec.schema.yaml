@@ -16,7 +16,7 @@ allOf:
           spec_table:
             $ref: spectable.schema
           name:
-            title: Name of the slit
+            title: Slit name
             type: string
             fits_keyword: SLTNAME
             fits_hdu: EXTRACT1D
@@ -111,13 +111,13 @@ allOf:
             fits_keyword: SHUTSTA
             fits_hdu: EXTRACT1D
           slit_ra:
-            title: Right ascension (deg) at middle of slit
+            title: "[deg] Right Ascension at middle of slit"
             type: number
             default: 0.0
             fits_keyword: SLIT_RA
             fits_hdu: EXTRACT1D
           slit_dec:
-            title: Declination (deg) at middle of slit
+            title: "[deg] Declination at middle of slit"
             type: number
             default: 0.0
             fits_keyword: SLIT_DEC
