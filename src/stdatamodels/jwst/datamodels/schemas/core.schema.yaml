@@ -2491,7 +2491,6 @@ properties:
           ramp_fit:
             title: Ramp Fitting
             type: string
-            fits_keyword: S_RAMP
             blend_table: True
           refpix:
             title: Reference Pixel Correction
