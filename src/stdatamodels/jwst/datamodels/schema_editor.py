@@ -51,6 +51,7 @@ import os
 import os.path
 import re
 import sys
+import warnings
 from urllib.parse import urlparse
 import yaml
 
@@ -67,6 +68,12 @@ __all__ = ["enquote", "is_long_line", "leading_length", "new_path",
            "save_scalar", "save_short_line", "save_simple_list",
            "Keyword_db", "Model_db", "Options", "Schema_editor",]
 
+
+warnings.warn(
+    "The schema_editor submodule and it's contents are deprecated "
+    "and will be removed in an upcoming relese",
+    UserWarning,
+)
 
 def enquote(value):
     """
