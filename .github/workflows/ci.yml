@@ -79,3 +79,20 @@ jobs:
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
         - linux: py311-jwst-cov-xdist
+  test_keyword_dictionary:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3  # v5.2.0
+        with:
+          python-version: 3
+      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938  # v4.2.0
+        with:
+          fetch-depth: 0
+      - run: git checkout ${{ github.event.pull_request.base.sha }}
+      - run: pip install -e ".[test]"
+      - run: python -c "from stdatamodels.jwst._kwtool._tests.test_against_mast import dump_keyword_dictionary; dump_keyword_dictionary('jwstkd')"
+      - run: python -m stdatamodels.jwst._kwtool jwstkd -o main.html
+      - run: git checkout ${{ github.sha }}
+      - run: python -m stdatamodels.jwst._kwtool jwstkd -o pr.html
+      - run: diff main.html pr.html >> $GITHUB_STEP_SUMMARY
