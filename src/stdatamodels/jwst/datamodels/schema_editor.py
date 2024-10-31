@@ -71,7 +71,7 @@ __all__ = ["enquote", "is_long_line", "leading_length", "new_path",
 
 warnings.warn(
     "The schema_editor submodule and it's contents are deprecated "
-    "and will be removed in an upcoming relese",
+    "and will be removed in an upcoming release",
     UserWarning,
 )
 
