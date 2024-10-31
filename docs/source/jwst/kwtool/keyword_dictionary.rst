@@ -108,7 +108,7 @@ keyword definitions in the keyword dictionary:
 Data model paths
 ----------------
 
-The heirarchical structure in which the of the keyword dictionary definitions
+The hierarchical structure in which the keyword dictionary definitions
 are nested has in practice been considered the "data model path" (or sometimes
 referred to as the "data model name'). Practically this is used for:
 
@@ -133,7 +133,7 @@ keyword definition includes the final key and is then stripped of all
 for the final "data model path".
 
 It is also possible for referenced files to contain additional
-heirarchical structure (objects with "properties", "allOf", etc).
+hierarchical structure (objects with "properties", "allOf", etc).
 
 
 Parsing
