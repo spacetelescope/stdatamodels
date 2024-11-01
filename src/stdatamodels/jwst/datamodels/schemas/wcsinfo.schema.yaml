@@ -257,13 +257,13 @@ properties:
             fits_hdu: SCI
             blend_table: True
           waverange_start:
-            title: lower bound of the default wavelength range
+            title: Lower bound of the default wavelength range
             type: number
             fits_keyword: WAVSTART
             fits_hdu: SCI
             blend_table: True
           waverange_end:
-            title: upper bound of the default wavelength range
+            title: Upper bound of the default wavelength range
             type: number
             fits_keyword: WAVEND
             fits_hdu: SCI
