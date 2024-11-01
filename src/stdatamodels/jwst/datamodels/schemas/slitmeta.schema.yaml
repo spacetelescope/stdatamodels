@@ -83,7 +83,7 @@ properties:
     fits_keyword: SRCYPOS
     fits_hdu: SCI
   shutter_state:
-    title: All (open and closed) shutters in a slit
+    title: Status of all shutters in the slitlet
     type: string
     default: ""
     fits_keyword: SHUTSTA
