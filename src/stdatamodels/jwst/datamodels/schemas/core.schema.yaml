@@ -1229,7 +1229,7 @@ properties:
             fits_keyword: PATTNPTS
             blend_table: True
           dither_points:
-            title: Number of points in image dither pattern
+            title: Number of points in direct image dither pattern
             type: integer
             fits_keyword: NRIMDTPT
             blend_table: True
