@@ -821,12 +821,12 @@ properties:
             fits_keyword: GROUPGAP
             blend_table: True
           drop_frames1:
-            title: Frames dropped prior to first integration
+            title: Number of frames dropped prior to first integration
             type: integer
             fits_keyword: DRPFRMS1
             blend_table: True
           drop_frames3:
-            title: Frames dropped between integrations
+            title: Number of frames dropped between integrations
             type: integer
             fits_keyword: DRPFRMS3
             blend_table: True
