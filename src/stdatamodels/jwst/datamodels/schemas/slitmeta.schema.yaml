@@ -5,27 +5,27 @@ id: "http://stsci.edu/schemas/jwst_datamodel/slitmeta.schema"
 type: object
 properties:
   name:
-    title: Name of the slit
+    title: Slit name
     type: string
     fits_keyword: SLTNAME
     fits_hdu: SCI
   xstart:
-    title: Starting pixel in x direction
+    title: "Slit starting pixel index along axis 1"
     type: integer
     fits_keyword: SLTSTRT1
     fits_hdu: SCI
   xsize:
-    title: Number of pixels in x direction
+    title: "Slit size along axis 1"
     type: integer
     fits_keyword: SLTSIZE1
     fits_hdu: SCI
   ystart:
-    title: Starting pixel in y direction
+    title: "Slit starting pixel index along axis 2"
     type: integer
     fits_keyword: SLTSTRT2
     fits_hdu: SCI
   ysize:
-    title: Number of pixels in y direction
+    title: "Slit size along axis 2"
     type: integer
     fits_keyword: SLTSIZE2
     fits_hdu: SCI

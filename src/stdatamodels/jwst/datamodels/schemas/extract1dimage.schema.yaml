@@ -13,7 +13,7 @@ allOf:
       default: 0.0
       datatype: float32
     name:
-      title: Name of the slit
+      title: Slit name
       type: string
       fits_keyword: SLTNAME
       fits_hdu: SCI
