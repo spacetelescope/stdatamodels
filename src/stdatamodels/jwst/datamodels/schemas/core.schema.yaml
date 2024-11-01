@@ -1672,7 +1672,7 @@ properties:
             fits_keyword: PCS_MODE
             blend_table: True
           visit_end_time:
-            title: Observatory UTC time when the visit completed
+            title: Observatory UTC time when the visit ended
             type: string
             fits_keyword: VISITEND
             blend_table: True
