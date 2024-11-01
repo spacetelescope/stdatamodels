@@ -347,22 +347,22 @@ properties:
             type: string
             fits_keyword: TARGDESC
           ra:
-            title: Target RA at mid time of exposure
+            title: "[deg] Target RA at mid time of exposure"
             type: number
             fits_keyword: TARG_RA
             blend_table: True
           dec:
-            title: Target Dec at mid time of exposure
+            title: "[deg] Target Dec at mid time of exposure"
             type: number
             fits_keyword: TARG_DEC
             blend_table: True
           ra_uncertainty:
-            title: Target RA uncertainty
+            title: "[arcsec] Target RA uncertainty"
             type: number
             fits_keyword: TARGURA
             blend_table: True
           dec_uncertainty:
-            title: Target Dec uncertainty
+            title: "[arcsec] Target Dec uncertainty"
             type: number
             fits_keyword: TARGUDEC
             blend_table: True
