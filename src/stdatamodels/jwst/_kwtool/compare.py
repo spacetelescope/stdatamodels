@@ -65,6 +65,13 @@ _DEFAULT_EXPECTED_DIFFS = {
             },
         },
     },
+    ("PRIMARY", "FOCUSPOS"): {
+        "type": {
+            "dmd": {
+                "union": {"integer"},
+            },
+        },
+    },
 }
 
 
