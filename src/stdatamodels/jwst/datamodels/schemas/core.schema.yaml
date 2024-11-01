@@ -88,12 +88,12 @@ properties:
         fits_keyword: HGA_STOP
         blend_table: True
       pwfseet:
-        title: Previous WFS exposure end time
+        title: "[d] Previous WFS exposure end time in MJD"
         type: number
         fits_keyword: PWFSEET
         blend_table: True
       nwfsest:
-        title: Next WFS exposure start time
+        title: "[d] Next WFS exposure start time in MJD"
         type: number
         fits_keyword: NWFSEST
         blend_table: True
