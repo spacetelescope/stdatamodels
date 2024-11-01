@@ -1352,7 +1352,7 @@ properties:
         type: object
         properties:
           reference_frame:
-            title: Ephemeris reference frame
+            title: "Ephemeris reference frame (EME2000)"
             type: string
             fits_keyword: REFFRAME
             fits_hdu: SCI
