@@ -1302,12 +1302,12 @@ properties:
             fits_keyword: SPTOFFST
             blend_table: True
           x_offset:
-            title: x offset from pattern starting position
+            title: "[arcsec] X offset in SI ideal coordinate frame"
             type: number
             fits_keyword: XOFFSET
             blend_table: True
           y_offset:
-            title: y offset from pattern starting position
+            title: "[arcsec] Y offset in SI ideal coordinate frame"
             type: number
             fits_keyword: YOFFSET
             blend_table: True
