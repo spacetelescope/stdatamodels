@@ -1686,7 +1686,7 @@ properties:
             type: string
             fits_keyword: GF_END
           data_start:
-            title: MJD start time of guider data within this file
+            title: "[d] MJD start time of guider data in this file"
             type: number
             fits_keyword: DATASTRT
           data_end:
