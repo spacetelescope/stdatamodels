@@ -1335,7 +1335,7 @@ properties:
             type: string
             fits_keyword: DITHPNTS
           primary_channel:
-            title: MRS primary channel
+            title: Optimized MRS channel
             type: string
             enum: [ALL, ALL_MRS, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER]
             fits_keyword: MRSPRCHN

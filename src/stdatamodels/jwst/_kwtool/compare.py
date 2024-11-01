@@ -72,6 +72,13 @@ _DEFAULT_EXPECTED_DIFFS = {
             },
         },
     },
+    ("PRIMARY", "MRSPRCHN"): {
+        "enum": {
+            "dmd": {
+                "difference": {"ALL"},
+            },
+        },
+    }
 }
 
 
