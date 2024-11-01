@@ -1759,7 +1759,7 @@ properties:
             type: object
             properties:
               name:
-                title: NIRSpec operability reference file name
+                title: MSA operability reference file name
                 type: string
                 fits_keyword: R_MSAOPE
                 blend_table: True
@@ -1768,7 +1768,7 @@ properties:
             type: object
             properties:
               name:
-                title: Nirspec Barshadow reference file name
+                title: NIRSpec bar shadow reference file name
                 type: string
                 fits_keyword: R_BARSHA
                 blend_table: True
@@ -1867,7 +1867,7 @@ properties:
             type: object
             properties:
               name:
-                title: DFlat reference file name
+                title: Detector Flat reference file name
                 type: string
                 fits_keyword: R_DFLAT
                 blend_table: True
@@ -1876,7 +1876,7 @@ properties:
             type: object
             properties:
               name:
-                title: FFlat reference file name
+                title: Fore-optics Flat reference file name
                 type: string
                 fits_keyword: R_FFLAT
                 blend_table: True
@@ -1885,7 +1885,7 @@ properties:
             type: object
             properties:
               name:
-                title: SFlat reference file name
+                title: Spectrograph Flat reference file name
                 type: string
                 fits_keyword: R_SFLAT
                 blend_table: True
@@ -2011,7 +2011,7 @@ properties:
             type: object
             properties:
               name:
-                title: MIRI MRS mrsxartcorr reference file name
+                title: MRS Cross-Artifact Correction ref file name
                 type: string
                 fits_keyword: R_MRSXAR
                 blend_table: True
@@ -2047,7 +2047,7 @@ properties:
             type: object
             properties:
               name:
-                title: SOSS trace and wavecal reference file name
+                title: PASTASOSS reference file name
                 type: string
                 fits_keyword: R_PSTSOS
                 blend_table: True
@@ -2200,7 +2200,7 @@ properties:
             type: object
             properties:
               name:
-                title: Straylight reference file name
+                title: MRS Straylight reference file name
                 type: string
                 fits_keyword: R_STRAY
                 blend_table: True
