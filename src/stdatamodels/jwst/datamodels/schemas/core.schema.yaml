@@ -1287,7 +1287,7 @@ properties:
             fits_keyword: SPAT_NUM
             blend_table: True
           spatial_total_points:
-            title: Total number of steps in spatial direction
+            title: Number of steps in spatial direction
             type: integer
             fits_keyword: SPATNSTP
             blend_table: True
