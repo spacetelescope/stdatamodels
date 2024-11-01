@@ -1219,7 +1219,7 @@ properties:
             fits_keyword: PATTSTRT
             blend_table: True
           total_points:
-            title: Total number of points in pattern
+            title: Total number of points in dither pattern
             type: integer
             fits_keyword: NUMDTHPT
             blend_table: True
