@@ -888,7 +888,7 @@ properties:
             blend_rule: sum
             blend_table: True
           nresets_at_start:
-            title: Number of resets at start of exposure
+            title: Number of reset frames at start of exposure
             type: integer
             fits_keyword: NRSTSTRT
             blend_table: True
