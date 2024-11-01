@@ -1267,7 +1267,7 @@ properties:
             fits_keyword: SPEC_NUM
             blend_table: True
           spectral_total_points:
-            title: Total number of steps in spectral direction
+            title: Number of steps in spectral direction
             type: integer
             fits_keyword: SPECNSTP
             blend_table: True
