@@ -1698,12 +1698,12 @@ properties:
             fits_keyword: GSACSTAT
             blend_table: True
           gs_ctd_x:
-            title: "[arcsec] guide star centroid x position in FGS ideal frame"
+            title: "[arcsec] GuideStar x centroid (FGS ideal frame)"
             type: number
             fits_keyword: GSCENTX
             blend_table: True
           gs_ctd_y:
-            title: "[arcsec] guide star centroid y position in FGS ideal frame"
+            title: "[arcsec] GuideStar y centroid (FGS ideal frame)"
             type: number
             fits_keyword: GSCENTY
             blend_table: True
