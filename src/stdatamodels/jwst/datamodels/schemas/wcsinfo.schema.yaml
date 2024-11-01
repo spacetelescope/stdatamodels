@@ -305,7 +305,7 @@ properties:
             fits_hdu: SCI
             blend_table: True
           ra_ref:
-            title: "[deg] Right ascension of the reference point"
+            title: "[deg] Right Ascension of the reference point"
             type: number
             fits_keyword: RA_REF
             fits_hdu: SCI
