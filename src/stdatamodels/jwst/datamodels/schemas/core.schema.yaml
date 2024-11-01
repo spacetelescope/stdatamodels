@@ -1312,9 +1312,8 @@ properties:
             fits_keyword: YOFFSET
             blend_table: True
           starting_set:
-            title: Starting 4-point set number
+            title: Starting 4-point set in dither set list
             type: integer
-            enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             fits_keyword: DSETSTRT
           number_of_sets:
             title: Total number of 4-point sets
