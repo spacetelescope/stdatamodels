@@ -27,7 +27,7 @@ allOf:
             fits_keyword: SLITID
             fits_hdu: EXTRACT1D
           source_id:
-            title: Source ID
+            title: Source ID number
             type: integer
             default: 0
             fits_keyword: SOURCEID

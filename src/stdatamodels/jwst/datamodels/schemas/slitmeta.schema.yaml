@@ -41,7 +41,7 @@ properties:
     fits_keyword: SHUTTRID
     fits_hdu: SCI
   source_id:
-    title: Source ID
+    title: Source ID number
     type: integer
     default: 0
     fits_keyword: SOURCEID
