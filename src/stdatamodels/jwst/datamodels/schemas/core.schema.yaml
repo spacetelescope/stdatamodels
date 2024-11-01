@@ -382,12 +382,12 @@ properties:
             fits_keyword: MU_EPOCH
             blend_table: True
           proposer_ra:
-            title: Proposer's target RA
+            title: "[deg] Proposer's target RA"
             type: number
             fits_keyword: PROP_RA
             blend_table: True
           proposer_dec:
-            title: Proposer's target Dec
+            title: "[deg] Proposer's target Dec"
             type: number
             fits_keyword: PROP_DEC
             blend_table: True
