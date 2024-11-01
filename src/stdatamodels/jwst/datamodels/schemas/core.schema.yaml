@@ -367,17 +367,17 @@ properties:
             fits_keyword: TARGUDEC
             blend_table: True
           proper_motion_ra:
-            title: Target proper motion in RA
+            title: "[arcsec/yr] Target proper motion in RA"
             type: number
             fits_keyword: MU_RA
             blend_table: True
           proper_motion_dec:
-            title: Target proper motion in Dec
+            title: "[arcsec/yr] Target proper motion in Dec"
             type: number
             fits_keyword: MU_DEC
             blend_table: True
           proper_motion_epoch:
-            title: Target proper motion epoch
+            title: Target proper motion epoch in UT
             type: string
             fits_keyword: MU_EPOCH
             blend_table: True
