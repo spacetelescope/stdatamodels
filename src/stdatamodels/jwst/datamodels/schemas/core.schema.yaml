@@ -893,7 +893,7 @@ properties:
             fits_keyword: NRSTSTRT
             blend_table: True
           nresets_between_ints:
-            title: Number of resets between integrations
+            title: Number of reset frames between integrations
             type: integer
             fits_keyword: NRESETS
             blend_table: True
