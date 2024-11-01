@@ -1690,7 +1690,7 @@ properties:
             type: number
             fits_keyword: DATASTRT
           data_end:
-            title: MJD end time of guider data within this file
+            title: "[d] MJD end time of guider data in this file"
             type: number
             fits_keyword: DATAEND
           gs_acq_exec_stat:
