@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/jwst_datamodel/psf.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/miri_lrs_psf.schema"
 allOf:
 - $ref: referencefile.schema
 - $ref: keyword_exptype.schema
@@ -39,6 +39,6 @@ allOf:
       title: Wavelength image
       fits_hdu: WAVE
       default: 0
-      ndim: 2
+      ndim: 1
       datatype: float32
 

@@ -1,10 +1,10 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['PsfModel']
+__all__ = ['MiriLrsPsfModel']
 
 
-class PsfModel(ReferenceFileModel):
+class MiriLrsPsfModel(ReferenceFileModel):
     """
     A data model for 2-D PSF reference images
 
@@ -17,8 +17,8 @@ class PsfModel(ReferenceFileModel):
          Wavelength image
 
     """
-    schema_url = "http://stsci.edu/schemas/jwst_datamodel/psf.schema"
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/miri_lrs_psf.schema"
 
     def __init__(self, init=None, **kwargs):
-        super(PsfModel, self).__init__(init=init, **kwargs)
+        super(MiriLrsPsfModel, self).__init__(init=init, **kwargs)
 
