@@ -1,0 +1,20 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/ami.schema"
+allOf:
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        calibrator_object_id:
+          title: "Calibration object identifier"
+          type: string
+          fits_keyword: CALIB
+          blend_table: True
+        telescope_roll:
+          title: "[deg] Observation position angle"
+          type: number
+          fits_keyword: PA
+          blend_table: True
