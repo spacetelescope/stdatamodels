@@ -1,0 +1,1 @@
+Updated schema subarray enums with new WFS&C subarray names.
