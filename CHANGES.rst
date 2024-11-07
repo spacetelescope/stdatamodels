@@ -1,3 +1,13 @@
+2.1.2 (2024-11-07)
+==================
+
+New Features
+------------
+
+- Updated schema subarray enums with new WFS&C subarray names. (`#358
+  <https://github.com/spacetelescope/stdatamodels/issues/358>`_)
+
+
 2.1.1 (2024-09-26)
 ==================
 
