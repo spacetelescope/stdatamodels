@@ -1,0 +1,1 @@
+Add DHS readout patterns to JWST schema
