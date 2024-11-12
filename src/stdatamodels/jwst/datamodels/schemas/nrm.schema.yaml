@@ -13,46 +13,46 @@ allOf:
       title: "[m] flat2flat hole size"
     x_a1:
       fits_keyword: NRM_X_A1
-      title: "[m] X coordinate (m) of NRM sub-aperture 1"
+      title: "[m] X coordinate of NRM sub-aperture 1"
     y_a1:
       fits_keyword: NRM_Y_A1
-      title: "[m] Y coordinate (m) of NRM sub-aperture 1"
+      title: "[m] Y coordinate of NRM sub-aperture 1"
     x_a2:
       fits_keyword: NRM_X_A2
-      title: "[m] X coordinate (m) of NRM sub-aperture 2"
+      title: "[m] X coordinate of NRM sub-aperture 2"
     y_a2:
       fits_keyword: NRM_Y_A2
-      title: "[m] Y coordinate (m) of NRM sub-aperture 2"
+      title: "[m] Y coordinate of NRM sub-aperture 2"
     x_a3:
       fits_keyword: NRM_X_A3
-      title: "[m] X coordinate (m) of NRM sub-aperture 3"
+      title: "[m] X coordinate of NRM sub-aperture 3"
     y_a3:
       fits_keyword: NRM_Y_A3
-      title: "[m] Y coordinate (m) of NRM sub-aperture 3"
+      title: "[m] Y coordinate of NRM sub-aperture 3"
     x_a4:
       fits_keyword: NRM_X_A4
-      title: "[m] X coordinate (m) of NRM sub-aperture 4"
+      title: "[m] X coordinate of NRM sub-aperture 4"
     y_a4:
       fits_keyword: NRM_Y_A4
-      title: "[m] Y coordinate (m) of NRM sub-aperture 4"
+      title: "[m] Y coordinate of NRM sub-aperture 4"
     x_a5:
       fits_keyword: NRM_X_A5
-      title: "[m] X coordinate (m) of NRM sub-aperture 5"
+      title: "[m] X coordinate of NRM sub-aperture 5"
     y_a5:
       fits_keyword: NRM_Y_A5
-      title: "[m] Y coordinate (m) of NRM sub-aperture 5"
+      title: "[m] Y coordinate of NRM sub-aperture 5"
     x_a6:
       fits_keyword: NRM_X_A6
-      title: "[m] X coordinate (m) of NRM sub-aperture 6"
+      title: "[m] X coordinate of NRM sub-aperture 6"
     y_a6:
       fits_keyword: NRM_Y_A6
-      title: "[m] Y coordinate (m) of NRM sub-aperture 6"
+      title: "[m] Y coordinate of NRM sub-aperture 6"
     x_a7:
       fits_keyword: NRM_X_A7
-      title: "[m] X coordinate (m) of NRM sub-aperture 7"
+      title: "[m] X coordinate of NRM sub-aperture 7"
     y_a7:
       fits_keyword: NRM_Y_A7
-      title: "[m] Y coordinate (m) of NRM sub-aperture 7"
+      title: "[m] Y coordinate of NRM sub-aperture 7"
     nrm:
       title: Non-Redundant Mask
       fits_hdu: NRM
