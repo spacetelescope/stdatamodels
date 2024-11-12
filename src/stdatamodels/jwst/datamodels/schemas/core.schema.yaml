@@ -740,6 +740,11 @@ properties:
               NRSSLOW, RAPID, SHALLOW2, SHALLOW4, SLOW, SLOWR1, TRACK, ANY, N/A]
             fits_keyword: READPATT
             blend_table: True
+          hybrid_full_frame:
+            title: HFF/IRS2TA readout mode used
+            type: boolean
+            fits_keyword: IRS2TA
+            blend_table: True
           segment_number:
             title: Sequential segment number
             type: integer
