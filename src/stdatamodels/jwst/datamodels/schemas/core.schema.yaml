@@ -743,7 +743,7 @@ properties:
           hybrid_full_frame:
             title: HFF/IRS2TA readout mode used
             type: boolean
-            fits_keyword: IRS2TA
+            fits_keyword: HYBRIDFF
             blend_table: True
           segment_number:
             title: Sequential segment number
