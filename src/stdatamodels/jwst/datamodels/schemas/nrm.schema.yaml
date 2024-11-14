@@ -8,9 +8,15 @@ allOf:
 - $ref: keyword_exptype.schema
 - type: object
   properties:
+    diameter:
+      fits_keyword: DIAM
+      title: "[m] Flat-to-flat distance across pupil in V3 axis"
     flat_to_flat:
       fits_keyword: F2F
       title: "[m] flat2flat hole size"
+    pupil_circumscribed:
+      fits_keyword: PUPL_CRC
+      title: "[m] Circumscribing diameter for JWST primary"
     x_a1:
       fits_keyword: NRM_X_A1
       title: "[m] X coordinate of NRM sub-aperture 1"
