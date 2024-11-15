@@ -1,0 +1,1 @@
+Deprecate DataModel.get_fileext.
