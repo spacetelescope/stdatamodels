@@ -1001,6 +1001,10 @@ class DataModel(properties.ObjectNode):
         return self._schema
 
     def get_fileext(self):
+        warnings.warn(
+            "get_fileext always returns 'fits' and will be removed in an upcoming release",
+            DeprecationWarning
+        )
         return 'fits'
 
     @property
