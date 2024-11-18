@@ -3,6 +3,7 @@
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
 id: "http://stsci.edu/schemas/jwst_datamodel/ami.schema"
 allOf:
+- $ref: wcsinfo.schema
 - type: object
   properties:
     meta:
