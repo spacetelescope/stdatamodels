@@ -168,11 +168,17 @@ def merge_property_trees(schema):
     can be represented in individual files and then referenced elsewhere. They
     are then combined by this function into a single schema data structure.
     """
-    newschema = {}
+    # track the "combined" and "top" items separately
+    # this allows the top level "id", "$schema", etc to overwrite
+    # combined items (so that the schema["id"] doesn't change).
+    combined_items = {}
+    top_items = {}
 
     def add_entry(path, schema, combiner):
+        if not top_items:
+            top_items.update(schema)
         # TODO: Simplify?
-        cursor = newschema
+        cursor = combined_items
         for i in range(len(path)):
             part = path[i]
             if part == combiner:
@@ -195,12 +201,12 @@ def merge_property_trees(schema):
         cursor.update(schema)
 
     def callback(schema, path, combiner, ctx, recurse):
-        type = schema.get('type')
-        schema = dict(schema)
-        if type == 'object':
+        schema_type = schema.get('type')
+        schema = dict(schema)  # shallow copy
+        if schema_type == 'object':
             if 'properties' in schema:
                 del schema['properties']
-        elif type == 'array':
+        elif schema_type == 'array':
             del schema['items']
         if 'allOf' in schema:
             del schema['allOf']
@@ -209,7 +215,7 @@ def merge_property_trees(schema):
 
     walk_schema(schema, callback)
 
-    return newschema
+    return combined_items | top_items
 
 
 def build_docstring(klass, template="{fits_hdu} {title}"):
