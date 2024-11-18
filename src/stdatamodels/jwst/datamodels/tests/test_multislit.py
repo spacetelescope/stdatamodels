@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
 
-from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel
+from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel, SlitModel
 
 
 def test_multislit_model():
@@ -155,3 +155,12 @@ def test_copy_multislit():
 
     assert model1.slits[0].data[330, 330] == 1
     assert output.slits[0].data[330, 330] == -1
+
+
+def test_slit_from_multislit():
+    model = MultiSlitModel()
+    slit = SlitModel()
+    # access int_times so it's created
+    slit.int_times = slit.int_times
+    model.slits.append(slit)
+    slit = SlitModel(model.slits[0].instance)
