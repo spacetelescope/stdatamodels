@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import re
-from collections import OrderedDict
 
 
 # return_result included for backward compatibility
@@ -169,7 +168,7 @@ def merge_property_trees(schema):
     can be represented in individual files and then referenced elsewhere. They
     are then combined by this function into a single schema data structure.
     """
-    newschema = OrderedDict()
+    newschema = {}
 
     def add_entry(path, schema, combiner):
         # TODO: Simplify?
@@ -185,19 +184,19 @@ def merge_property_trees(schema):
                     cursor.append({})
                 cursor = cursor[part]
             elif part == 'items':
-                cursor = cursor.setdefault('items', OrderedDict())
+                cursor = cursor.setdefault('items', {})
             else:
-                cursor = cursor.setdefault('properties', OrderedDict())
+                cursor = cursor.setdefault('properties', {})
                 if i < len(path) - 1 and isinstance(path[i + 1], int):
                     cursor = cursor.setdefault(part, [])
                 else:
-                    cursor = cursor.setdefault(part, OrderedDict())
+                    cursor = cursor.setdefault(part, {})
 
         cursor.update(schema)
 
     def callback(schema, path, combiner, ctx, recurse):
         type = schema.get('type')
-        schema = OrderedDict(schema)
+        schema = dict(schema)
         if type == 'object':
             if 'properties' in schema:
                 del schema['properties']
