@@ -14,8 +14,3 @@ allOf:
           type: string
           fits_keyword: CALIB
           blend_table: True
-        telescope_roll:
-          title: "[deg] Observation position angle"
-          type: number
-          fits_keyword: PA
-          blend_table: True
