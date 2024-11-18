@@ -206,6 +206,19 @@ def test_merge_property_trees(combiner):
     assert f == s
 
 
+def test_merge_property_tree_top():
+    s = {
+        "id": "foo",
+        "allOf": [
+            {
+                "id": "bar",
+            },
+        ]
+    }
+    f = merge_property_trees(s)
+    assert f["id"] == "foo"
+
+
 def test_schema_docstring():
     template = "{fits_hdu} {title}"
     docstring = build_docstring(FitsModel, template).split("\n")
