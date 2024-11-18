@@ -1,0 +1,1 @@
+Fix ``model.schema["id"]`` to match schema id.
