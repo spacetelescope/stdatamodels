@@ -1,0 +1,1 @@
+Add hybrid full-frame boolean to core exposure schema
