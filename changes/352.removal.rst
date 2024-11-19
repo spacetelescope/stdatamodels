@@ -1,0 +1,1 @@
+Deprecate schema_editor submodule.

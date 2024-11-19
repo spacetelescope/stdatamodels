@@ -1,0 +1,1 @@
+Avoid unnecessary validation on Model.__init__.

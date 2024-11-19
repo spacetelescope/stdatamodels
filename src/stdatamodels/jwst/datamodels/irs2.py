@@ -1,10 +1,10 @@
-from .model_base import JwstDataModel
+from .reference import ReferenceFileModel
 
 
 __all__ = ['IRS2Model']
 
 
-class IRS2Model(JwstDataModel):
+class IRS2Model(ReferenceFileModel):
     """
     A data model for the IRS2 refpix reference file.
 
