@@ -33,7 +33,7 @@ properties:
         fits_keyword: FILENAME
         blend_table: True
       data_processing_software_version:
-        title: Data processing (DP) Software Version
+        title: Data Processing (DP) Software Version
         type: string
         fits_keyword: SDP_VER
         blend_table: True
@@ -88,12 +88,12 @@ properties:
         fits_keyword: HGA_STOP
         blend_table: True
       pwfseet:
-        title: Previous WFS exposure end time
+        title: "[d] Previous WFS exposure end time in MJD"
         type: number
         fits_keyword: PWFSEET
         blend_table: True
       nwfsest:
-        title: Next WFS exposure start time
+        title: "[d] Next WFS exposure start time in MJD"
         type: number
         fits_keyword: NWFSEST
         blend_table: True
@@ -347,47 +347,47 @@ properties:
             type: string
             fits_keyword: TARGDESC
           ra:
-            title: Target RA at mid time of exposure
+            title: "[deg] Target RA at mid time of exposure"
             type: number
             fits_keyword: TARG_RA
             blend_table: True
           dec:
-            title: Target Dec at mid time of exposure
+            title: "[deg] Target Dec at mid time of exposure"
             type: number
             fits_keyword: TARG_DEC
             blend_table: True
           ra_uncertainty:
-            title: Target RA uncertainty
+            title: "[arcsec] Target RA uncertainty"
             type: number
             fits_keyword: TARGURA
             blend_table: True
           dec_uncertainty:
-            title: Target Dec uncertainty
+            title: "[arcsec] Target Dec uncertainty"
             type: number
             fits_keyword: TARGUDEC
             blend_table: True
           proper_motion_ra:
-            title: Target proper motion in RA
+            title: "[arcsec/yr] Target proper motion in RA"
             type: number
             fits_keyword: MU_RA
             blend_table: True
           proper_motion_dec:
-            title: Target proper motion in Dec
+            title: "[arcsec/yr] Target proper motion in Dec"
             type: number
             fits_keyword: MU_DEC
             blend_table: True
           proper_motion_epoch:
-            title: Target proper motion epoch
+            title: Target proper motion epoch in UT
             type: string
             fits_keyword: MU_EPOCH
             blend_table: True
           proposer_ra:
-            title: Proposer's target RA
+            title: "[deg] Proposer's target RA"
             type: number
             fits_keyword: PROP_RA
             blend_table: True
           proposer_dec:
-            title: Proposer's target Dec
+            title: "[deg] Proposer's target Dec"
             type: number
             fits_keyword: PROP_DEC
             blend_table: True
@@ -423,7 +423,7 @@ properties:
             blend_table: True
             blend_rule: multi
           module:
-            title: 'NIRCam module: A, B, or MULTIPLE'
+            title: 'NIRCam module: A, B or MULTIPLE'
             type: string
             enum: [A, B, MULTIPLE]
             fits_keyword: MODULE
@@ -821,12 +821,12 @@ properties:
             fits_keyword: GROUPGAP
             blend_table: True
           drop_frames1:
-            title: Frames dropped prior to first integration
+            title: Number of frames dropped prior to first integration
             type: integer
             fits_keyword: DRPFRMS1
             blend_table: True
           drop_frames3:
-            title: Frames dropped between integrations
+            title: Number of frames dropped between integrations
             type: integer
             fits_keyword: DRPFRMS3
             blend_table: True
@@ -888,12 +888,12 @@ properties:
             blend_rule: sum
             blend_table: True
           nresets_at_start:
-            title: Number of resets at start of exposure
+            title: Number of reset frames at start of exposure
             type: integer
             fits_keyword: NRSTSTRT
             blend_table: True
           nresets_between_ints:
-            title: Number of resets between integrations
+            title: Number of reset frames between integrations
             type: integer
             fits_keyword: NRESETS
             blend_table: True
@@ -1219,7 +1219,7 @@ properties:
             fits_keyword: PATTSTRT
             blend_table: True
           total_points:
-            title: Total number of points in pattern
+            title: Total number of points in dither pattern
             type: integer
             fits_keyword: NUMDTHPT
             blend_table: True
@@ -1229,7 +1229,7 @@ properties:
             fits_keyword: PATTNPTS
             blend_table: True
           dither_points:
-            title: Number of points in image dither pattern
+            title: Number of points in direct image dither pattern
             type: integer
             fits_keyword: NRIMDTPT
             blend_table: True
@@ -1267,7 +1267,7 @@ properties:
             fits_keyword: SPEC_NUM
             blend_table: True
           spectral_total_points:
-            title: Total number of steps in spectral direction
+            title: Number of steps in spectral direction
             type: integer
             fits_keyword: SPECNSTP
             blend_table: True
@@ -1287,7 +1287,7 @@ properties:
             fits_keyword: SPAT_NUM
             blend_table: True
           spatial_total_points:
-            title: Total number of steps in spatial direction
+            title: Number of steps in spatial direction
             type: integer
             fits_keyword: SPATNSTP
             blend_table: True
@@ -1302,22 +1302,21 @@ properties:
             fits_keyword: SPTOFFST
             blend_table: True
           x_offset:
-            title: x offset from pattern starting position
+            title: "[arcsec] X offset in SI ideal coordinate frame"
             type: number
             fits_keyword: XOFFSET
             blend_table: True
           y_offset:
-            title: y offset from pattern starting position
+            title: "[arcsec] Y offset in SI ideal coordinate frame"
             type: number
             fits_keyword: YOFFSET
             blend_table: True
           starting_set:
-            title: Starting 4-point set number
+            title: Starting 4-point set in dither set list
             type: integer
-            enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             fits_keyword: DSETSTRT
           number_of_sets:
-            title: Total number of 4-point sets
+            title: Number of 4-point sets in dither set list
             type: integer
             enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             fits_keyword: NUMDSETS
@@ -1336,7 +1335,7 @@ properties:
             type: string
             fits_keyword: DITHPNTS
           primary_channel:
-            title: MRS primary channel
+            title: Optimized MRS channel
             type: string
             enum: [ALL, ALL_MRS, CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4, IMAGER]
             fits_keyword: MRSPRCHN
@@ -1353,7 +1352,7 @@ properties:
         type: object
         properties:
           reference_frame:
-            title: Ephemeris reference frame
+            title: "Ephemeris reference frame (EME2000)"
             type: string
             fits_keyword: REFFRAME
             fits_hdu: SCI
@@ -1371,73 +1370,73 @@ properties:
             fits_hdu: SCI
             blend_table: True
           spatial_x_bary:
-            title: "[km] barycentric JWST X coordinate at MJD_AVG"
+            title: "[km] barycentric JWST X coordinate at MJD-AVG"
             type: number
             fits_keyword: JWST_X
             fits_hdu: SCI
             blend_table: True
           spatial_y_bary:
-            title: "[km] barycentric JWST Y coordinate at MJD_AVG"
+            title: "[km] barycentric JWST Y coordinate at MJD-AVG"
             type: number
             fits_keyword: JWST_Y
             fits_hdu: SCI
             blend_table: True
           spatial_z_bary:
-            title: "[km] barycentric JWST Z coordinate at MJD_AVG"
+            title: "[km] barycentric JWST Z coordinate at MJD-AVG"
             type: number
             fits_keyword: JWST_Z
             fits_hdu: SCI
             blend_table: True
           spatial_x_geo:
-            title: "[m] geocentric JWST X coordinate at MJD_AVG"
+            title: "[m] geocentric JWST X coordinate at MJD-AVG"
             type: number
             fits_keyword: OBSGEO-X
             fits_hdu: SCI
             blend_table: True
           spatial_y_geo:
-            title: "[m] geocentric JWST Y coordinate at MJD_AVG"
+            title: "[m] geocentric JWST Y coordinate at MJD-AVG"
             type: number
             fits_keyword: OBSGEO-Y
             fits_hdu: SCI
             blend_table: True
           spatial_z_geo:
-            title: "[m] geocentric JWST Z coordinate at MJD_AVG"
+            title: "[m] geocentric JWST Z coordinate at MJD-AVG"
             type: number
             fits_keyword: OBSGEO-Z
             fits_hdu: SCI
             blend_table: True
           velocity_x_bary:
-            title: "[km/s] barycentric JWST X velocity at MJD_AVG"
+            title: "[km/s] barycentric JWST X velocity at MJD-AVG"
             type: number
             fits_keyword: JWST_DX
             fits_hdu: SCI
             blend_table: True
           velocity_y_bary:
-            title: "[km/s] barycentric JWST Y velocity at MJD_AVG"
+            title: "[km/s] barycentric JWST Y velocity at MJD-AVG"
             type: number
             fits_keyword: JWST_DY
             fits_hdu: SCI
             blend_table: True
           velocity_z_bary:
-            title: "[km/s] barycentric JWST Z velocity at MJD_AVG"
+            title: "[km/s] barycentric JWST Z velocity at MJD-AVG"
             type: number
             fits_keyword: JWST_DZ
             fits_hdu: SCI
             blend_table: True
           velocity_x_geo:
-            title: "[m/s] geocentric JWST X velocity at MJD_AVG"
+            title: "[m/s] geocentric JWST X velocity at MJD-AVG"
             type: number
             fits_keyword: OBSGEODX
             fits_hdu: SCI
             blend_table: True
           velocity_y_geo:
-            title: "[m/s] geocentric JWST Y velocity at MJD_AVG"
+            title: "[m/s] geocentric JWST Y velocity at MJD-AVG"
             type: number
             fits_keyword: OBSGEODY
             fits_hdu: SCI
             blend_table: True
           velocity_z_geo:
-            title: "[m/s] geocentric JWST Z velocity at MJD_AVG"
+            title: "[m/s] geocentric JWST Z velocity at MJD-AVG"
             type: number
             fits_keyword: OBSGEODZ
             fits_hdu: SCI
@@ -1673,7 +1672,7 @@ properties:
             fits_keyword: PCS_MODE
             blend_table: True
           visit_end_time:
-            title: Observatory UTC time when the visit completed
+            title: Observatory UTC time when the visit ended
             type: string
             fits_keyword: VISITEND
             blend_table: True
@@ -1686,11 +1685,11 @@ properties:
             type: string
             fits_keyword: GF_END
           data_start:
-            title: MJD start time of guider data within this file
+            title: "[d] MJD start time of guider data in this file"
             type: number
             fits_keyword: DATASTRT
           data_end:
-            title: MJD end time of guider data within this file
+            title: "[d] MJD end time of guider data in this file"
             type: number
             fits_keyword: DATAEND
           gs_acq_exec_stat:
@@ -1699,12 +1698,12 @@ properties:
             fits_keyword: GSACSTAT
             blend_table: True
           gs_ctd_x:
-            title: "[arcsec] guide star centroid x position in FGS ideal frame"
+            title: "[arcsec] GuideStar x centroid (FGS ideal frame)"
             type: number
             fits_keyword: GSCENTX
             blend_table: True
           gs_ctd_y:
-            title: "[arcsec] guide star centroid y position in FGS ideal frame"
+            title: "[arcsec] GuideStar y centroid (FGS ideal frame)"
             type: number
             fits_keyword: GSCENTY
             blend_table: True
@@ -1714,12 +1713,12 @@ properties:
             fits_keyword: GS_EPOCH
             blend_table: True
           gs_mura:
-            title: Guide star IRCS right ascension proper motion
+            title: Guide star ICRS right ascension proper motion
             type: number
             fits_keyword: GS_MURA
             blend_table: True
           gs_mudec:
-            title: Guide star IRCS declination proper motion
+            title: Guide star ICRS declination proper motion
             type: number
             fits_keyword: GS_MUDEC
             blend_table: True
@@ -1760,7 +1759,7 @@ properties:
             type: object
             properties:
               name:
-                title: NIRSpec operability reference file name
+                title: MSA operability reference file name
                 type: string
                 fits_keyword: R_MSAOPE
                 blend_table: True
@@ -1769,7 +1768,7 @@ properties:
             type: object
             properties:
               name:
-                title: Nirspec Barshadow reference file name
+                title: NIRSpec bar shadow reference file name
                 type: string
                 fits_keyword: R_BARSHA
                 blend_table: True
@@ -1868,7 +1867,7 @@ properties:
             type: object
             properties:
               name:
-                title: DFlat reference file name
+                title: Detector Flat reference file name
                 type: string
                 fits_keyword: R_DFLAT
                 blend_table: True
@@ -1877,7 +1876,7 @@ properties:
             type: object
             properties:
               name:
-                title: FFlat reference file name
+                title: Fore-optics Flat reference file name
                 type: string
                 fits_keyword: R_FFLAT
                 blend_table: True
@@ -1886,7 +1885,7 @@ properties:
             type: object
             properties:
               name:
-                title: SFlat reference file name
+                title: Spectrograph Flat reference file name
                 type: string
                 fits_keyword: R_SFLAT
                 blend_table: True
@@ -2012,7 +2011,7 @@ properties:
             type: object
             properties:
               name:
-                title: MIRI MRS mrsxartcorr reference file name
+                title: MRS Cross-Artifact Correction ref file name
                 type: string
                 fits_keyword: R_MRSXAR
                 blend_table: True
@@ -2048,7 +2047,7 @@ properties:
             type: object
             properties:
               name:
-                title: SOSS trace and wavecal reference file name
+                title: PASTASOSS reference file name
                 type: string
                 fits_keyword: R_PSTSOS
                 blend_table: True
@@ -2201,7 +2200,7 @@ properties:
             type: object
             properties:
               name:
-                title: Straylight reference file name
+                title: MRS Straylight reference file name
                 type: string
                 fits_keyword: R_STRAY
                 blend_table: True
@@ -2293,300 +2292,360 @@ properties:
           align_psfs:
             title: Coronagraphic PSF Alignment
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PSFALI
             blend_table: True
           ami_analyze:
             title: AMI Fringe Analysis
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_AMIANA
             blend_table: True
           ami_average:
             title: AMI Fringe Averaging
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_AMIAVG
             blend_table: True
           ami_normalize:
             title: AMI Fringe Normalization
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_AMINOR
             blend_table: True
           assign_wcs:
             title: Assign World Coordinate System
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WCS
             blend_table: True
           assign_mtwcs:
             title: Assign Moving Target World Coordinate System
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MTWCS
             blend_table: True
           back_sub:
             title: Background subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_BKDSUB
             blend_table: True
           badpix_selfcal:
             title: Bad Pixel Self-Calibration
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_BPXSLF
             blend_table: True
           barshadow:
             title: Bar shadow correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_BARSHA
             blend_table: True
           charge_migration:
             title: Charge Migration
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_CHGMIG
             blend_table: True
           clean_flicker_noise:
-            title: Clean flicker noise
+            title: Clean Flicker Noise
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_CLNFNS
             blend_table: True
           combine_1d:
             title: 1-D Spectral Combination
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_COMB1D
             blend_table: True
           cube_build:
             title: IFU Cube Creation
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_IFUCUB
             blend_table: True
           dark_sub:
             title: Dark Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_DARK
             blend_table: True
           dq_init:
             title: Data Quality Initialization
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_DQINIT
             blend_table: True
           emicorr:
             title: MIRI EMI Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MIREMI
             blend_table: True
           emission:
             title: Telescope Emission Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_TELEMI
             blend_table: True
           err_init:
             title: Error Initialization
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_ERRINI
             blend_table: True
           extract_1d:
             title: 1-D Spectral Extraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_EXTR1D
             blend_table: True
           extract_2d:
             title: 2-D Spectral Extraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_EXTR2D
             blend_table: True
           firstframe:
             title: First Frame Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_FRSTFR
             blend_table: True
           flat_field:
             title: Flat Field Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_FLAT
             blend_table: True
           fringe:
             title: Fringe Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_FRINGE
             blend_table: True
           gain_scale:
             title: Gain Scale Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_GANSCL
             blend_table: True
           group_scale:
             title: Group Scale Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_GRPSCL
             blend_table: True
           guider_cds:
             title: Guide Mode CDS Computation
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_GUICDS
             blend_table: True
           imprint:
             title: NIRSpec MSA Imprint Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_IMPRNT
             blend_table: True
           ipc:
             title: Interpixel Capacitance Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_IPC
             blend_table: True
           jump:
             title: Jump Detection
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_JUMP
             blend_table: True
           klip:
             title: Coronagraphic PSF Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_KLIP
             blend_table: True
           lastframe:
             title: Last Frame Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_LASTFR
             blend_table: True
           linearity:
             title: Linearity Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_LINEAR
             blend_table: True
           master_background:
             title: Master Background Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MSBSUB
             blend_table: True
           mrs_imatch:
             title: MIRI MRS background matching
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MRSMAT
             blend_table: True
           msa_flagging:
             title: NIRSpec MSA Stuck Shutter Flagging
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MSAFLG
             blend_table: True
           nsclean:
             title: NIRSpec 1/f Noise Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_NSCLEN
           outlier_detection:
             title: Outlier Detection
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_OUTLIR
             blend_table: True
           pathloss:
             title: Pathloss Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PTHLOS
             blend_table: True
           persistence:
             title: Persistence Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PERSIS
             blend_table: True
           photom:
             title: Photometric Calibration
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PHOTOM
             blend_table: True
           pixel_replace:
-            title: Pixel Replacment
+            title: Pixel Replacement
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PXREPL
             blend_table: True
           ramp_fit:
             title: Ramp Fitting
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_RAMP
             blend_table: True
           refpix:
             title: Reference Pixel Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_REFPIX
             blend_table: True
           resample:
             title: Image resampling
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_RESAMP
             blend_table: True
           residual_fringe:
-            title: Residual fringe Correction
+            title: Residual Fringe Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_RESFRI
             blend_table: True
           reset:
             title: Reset Anomaly Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_RESET
             blend_table: True
           rscd:
             title: RSCD Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_RSCD
             blend_table: True
           saturation:
             title: Saturation Checking
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SATURA
             blend_table: True
           skymatch:
             title: Sky Background Equalization or Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SKYMAT
             blend_table: True
           source_catalog:
             title: Source Photometry and Morphology
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SRCCAT
             blend_table: True
           spectral_leak:
             title: MRS spectral leak
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SPLEAK
             blend_table: True
           srctype:
             title: Source Type Determination
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SRCTYP
             blend_table: True
           stack_psfs:
             title: Coronagraphic PSF Stacking
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PSFSTK
             blend_table: True
           straylight:
             title: Straylight Correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_STRAY
             blend_table: True
           superbias:
             title: Superbias Subtraction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SUPERB
             blend_table: True
           tso_photometry:
             title: TSO Imaging Photometry
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_TSPHOT
             blend_table: True
           tweakreg:
             title: Image Alignment via Astronomical Sources
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_TWKREG
             blend_table: True
           wavecorr:
             title: NIRSpec wavelength correction
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WAVCOR
             blend_table: True
           wfs_combine:
             title: Wavefront Sensing Combination
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WFSCOM
             blend_table: True
           white_light:
             title: TSO White-Light Curve
             type: string
+            enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WHTLIT
             blend_table: True
       tweakreg_catalog:

@@ -5,27 +5,27 @@ id: "http://stsci.edu/schemas/jwst_datamodel/slitmeta.schema"
 type: object
 properties:
   name:
-    title: Name of the slit
+    title: Slit name
     type: string
     fits_keyword: SLTNAME
     fits_hdu: SCI
   xstart:
-    title: Starting pixel in x direction
+    title: "Slit starting pixel index along axis 1"
     type: integer
     fits_keyword: SLTSTRT1
     fits_hdu: SCI
   xsize:
-    title: Number of pixels in x direction
+    title: "Slit size along axis 1"
     type: integer
     fits_keyword: SLTSIZE1
     fits_hdu: SCI
   ystart:
-    title: Starting pixel in y direction
+    title: "Slit starting pixel index along axis 2"
     type: integer
     fits_keyword: SLTSTRT2
     fits_hdu: SCI
   ysize:
-    title: Number of pixels in y direction
+    title: "Slit size along axis 2"
     type: integer
     fits_keyword: SLTSIZE2
     fits_hdu: SCI
@@ -41,7 +41,7 @@ properties:
     fits_keyword: SHUTTRID
     fits_hdu: SCI
   source_id:
-    title: Source ID
+    title: Source ID number
     type: integer
     default: 0
     fits_keyword: SOURCEID
@@ -83,7 +83,7 @@ properties:
     fits_keyword: SRCYPOS
     fits_hdu: SCI
   shutter_state:
-    title: All (open and closed) shutters in a slit
+    title: Status of all shutters in the slitlet
     type: string
     default: ""
     fits_keyword: SHUTSTA

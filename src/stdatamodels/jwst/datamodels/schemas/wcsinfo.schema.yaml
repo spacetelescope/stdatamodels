@@ -72,37 +72,37 @@ properties:
             fits_hdu: SCI
             blend_table: True
           crpix1:
-            title: axis 1 coordinate of the reference pixel
+            title: Axis 1 pixel coordinate of ref point, 1-indexed
             type: number
             fits_keyword: CRPIX1
             fits_hdu: SCI
             blend_table: True
           crpix2:
-            title: axis 2 coordinate of the reference pixel
+            title: Axis 2 pixel coordinate of ref point, 1-indexed
             type: number
             fits_keyword: CRPIX2
             fits_hdu: SCI
             blend_table: True
           crpix3:
-            title: axis 3 coordinate of the reference pixel
+            title: Axis 3 pixel coordinate of ref point, 1-indexed
             type: number
             fits_keyword: CRPIX3
             fits_hdu: SCI
             blend_table: True
           crval1:
-            title: first axis value at the reference pixel
+            title: Axis 1 coordinate value at reference point
             type: number
             fits_keyword: CRVAL1
             fits_hdu: SCI
             blend_table: True
           crval2:
-            title: second axis value at the reference pixel
+            title: Axis 2 coordinate value at reference point
             type: number
             fits_keyword: CRVAL2
             fits_hdu: SCI
             blend_table: True
           crval3:
-            title: third axis value at the reference pixel
+            title: Axis 3 coordinate value at reference point
             type: number
             fits_keyword: CRVAL3
             fits_hdu: SCI
@@ -162,79 +162,79 @@ properties:
             fits_hdu: SCI
             blend_table: True
           pc1_1:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC1_1
             fits_hdu: SCI
             blend_table: True
           pc1_2:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC1_2
             fits_hdu: SCI
             blend_table: True
           pc1_3:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC1_3
             fits_hdu: SCI
             blend_table: True
           pc2_1:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC2_1
             fits_hdu: SCI
             blend_table: True
           pc2_2:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC2_2
             fits_hdu: SCI
             blend_table: True
           pc2_3:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC2_3
             fits_hdu: SCI
             blend_table: True
           pc3_1:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC3_1
             fits_hdu: SCI
             blend_table: True
           pc3_2:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC3_2
             fits_hdu: SCI
             blend_table: True
           pc3_3:
-            title: linear transformation matrix element
+            title: Linear transformation matrix element
             type: number
             fits_keyword: PC3_3
             fits_hdu: SCI
             blend_table: True
           cd1_1:
-            title: linear transformation matrix element, CD matrix
+            title: Linear transformation matrix element
             type: number
             fits_keyword: CD1_1
             fits_hdu: SCI
             blend_table: True
           cd1_2:
-            title: linear transformation matrix element, CD matrix
+            title: Linear transformation matrix element
             type: number
             fits_keyword: CD1_2
             fits_hdu: SCI
             blend_table: True
           cd2_1:
-            title: linear transformation matrix element, CD matrix
+            title: Linear transformation matrix element
             type: number
             fits_keyword: CD2_1
             fits_hdu: SCI
             blend_table: True
           cd2_2:
-            title: linear transformation matrix element, CD matrix
+            title: Linear transformation matrix element
             type: number
             fits_keyword: CD2_2
             fits_hdu: SCI
@@ -250,20 +250,20 @@ properties:
             fits_keyword: PS3_1
             fits_hdu: SCI
           s_region:
-            title: spatial extent of the observation
+            title: "spatial extent of the observation, footprint"
             type: string
             default: " "
             fits_keyword: S_REGION
             fits_hdu: SCI
             blend_table: True
           waverange_start:
-            title: lower bound of the default wavelength range
+            title: Lower bound of the default wavelength range
             type: number
             fits_keyword: WAVSTART
             fits_hdu: SCI
             blend_table: True
           waverange_end:
-            title: upper bound of the default wavelength range
+            title: Upper bound of the default wavelength range
             type: number
             fits_keyword: WAVEND
             fits_hdu: SCI
@@ -305,7 +305,7 @@ properties:
             fits_hdu: SCI
             blend_table: True
           ra_ref:
-            title: "[deg] Right ascension of the reference point"
+            title: "[deg] Right Ascension of the reference point"
             type: number
             fits_keyword: RA_REF
             fits_hdu: SCI
