@@ -43,7 +43,7 @@ allOf:
               type: number
               fits_keyword: ROIW
             weighting:
-              title: Weighting type (MSM,MIRIPSF,AREA)
+              title: "Weighting type (MSM, MIRIPSF, AREA)"
               type: string
               fits_keyword: WTYPE
             weight_power:

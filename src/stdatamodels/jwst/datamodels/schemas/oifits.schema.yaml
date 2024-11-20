@@ -65,17 +65,17 @@ allOf:
                       fits_keyword: OI_REVN
                       fits_hdu: OI_ARRAY
                     x:
-                      title: Array center x (m)
+                      title: "[m] Array center x"
                       type: number
                       fits_keyword: ARRAYX
                       fits_hdu: OI_ARRAY
                     y:
-                      title: Array center y (m)
+                      title: "[m] Array center y" 
                       type: number
                       fits_keyword: ARRAYY
                       fits_hdu: OI_ARRAY
                     z:
-                      title: Array center z (m)
+                      title: "[m] Array center z"
                       type: number
                       fits_keyword: ARRAYZ
                       fits_hdu: OI_ARRAY

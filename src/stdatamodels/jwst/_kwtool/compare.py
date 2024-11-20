@@ -65,6 +65,20 @@ _DEFAULT_EXPECTED_DIFFS = {
             },
         },
     },
+    ("PRIMARY", "FOCUSPOS"): {
+        "type": {
+            "dmd": {
+                "union": {"integer"},
+            },
+        },
+    },
+    ("PRIMARY", "MRSPRCHN"): {
+        "enum": {
+            "dmd": {
+                "difference": {"ALL"},
+            },
+        },
+    }
 }
 
 
