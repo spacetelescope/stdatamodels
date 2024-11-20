@@ -1,1 +1,1 @@
-Fix ``model.schema["id"]`` to match schema id.
+Allow ``merge_property_trees`` to retain input schema id in ``model.schema["id"]``.
