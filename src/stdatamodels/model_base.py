@@ -566,6 +566,11 @@ class DataModel(properties.ObjectNode):
                                  ignore_unrecognized_tag=ignore_unrecognized_tag,
                                  **kwargs)
 
+        elif isinstance(init, dict):
+            asdffile = AsdfFile(None,
+                            ignore_unrecognized_tag=ignore_unrecognized_tag
+                            )
+            asdffile._tree = init
         else:
             asdffile = AsdfFile(init,
                             ignore_unrecognized_tag=ignore_unrecognized_tag
