@@ -129,7 +129,7 @@ def test_imagemodel():
 
 
 def test_model_with_nonstandard_primary_array():
-    class NonstandardPrimaryArrayModel(JwstDataModel):
+    class _NonstandardPrimaryArrayModel(JwstDataModel):
         schema_url = os.path.join(ROOT_DIR, "nonstandard_primary_array.schema.yaml")
 
         # The wavelength array is the primary array.
@@ -137,7 +137,7 @@ def test_model_with_nonstandard_primary_array():
         def get_primary_array_name(self):
             return 'wavelength'
 
-    m = NonstandardPrimaryArrayModel((10,))
+    m = _NonstandardPrimaryArrayModel((10,))
     assert 'wavelength' in list(m.keys())
     assert m.wavelength.sum() == 0
 
