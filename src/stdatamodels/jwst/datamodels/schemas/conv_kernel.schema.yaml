@@ -6,7 +6,7 @@ allOf:
 - $ref: referencefile.schema
 - type: object
   patternProperties:
-    "nrc[ab][1-4]":
+    "^(nrca1|nrca2|nrca3|nrca4|nrcalong|nrcb1|nrcb2|nrcb3|nrcb4|nrcblong|nrs1|nrs2|mirimage|mirifulong|mirifushort|nis|guider1|guider2)$":
       type: object
       properties:
         gamma:
