@@ -1790,7 +1790,7 @@ properties:
                 type: string
                 fits_keyword: R_COLLIM
                 blend_table: True
-          conv_kernel:
+          sirskernel:
             title: NIR Optimized Convolution Kernel reference file information
             type: object
             properties:
