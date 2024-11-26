@@ -18,6 +18,11 @@ class ValidationWarning(Warning):
     pass
 
 
+# always show validation warnings unless another filter was added that
+# matches these warnings (by passing append=True)
+warnings.filterwarnings("always", category=ValidationWarning, append=True)
+
+
 def value_change(path, value, schema, ctx):
     """
     Validate a change in value against a schema.
