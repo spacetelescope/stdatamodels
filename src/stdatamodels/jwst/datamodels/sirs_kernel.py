@@ -1,12 +1,13 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['ConvKernelModel']
+__all__ = ['SIRSKernelModel']
 
 
-class ConvKernelModel(ReferenceFileModel):
+class SIRSKernelModel(ReferenceFileModel):
     """
-    A data model for the NIR Optimized Convolution Kernel Fourier Coefficients.
+    A data model for the NIR Optimized Convolution Kernel Fourier Coefficients,
+    also called Simple Improved Reference Subtraction (SIRS).
 
     Parameters
     __________
@@ -18,14 +19,14 @@ class ConvKernelModel(ReferenceFileModel):
         - gamma: float32 1D array
         - zeta: float32 1D array
     """
-    schema_url = "http://stsci.edu/schemas/jwst_datamodel/conv_kernel.schema"
-    reftype = "conv_kernel"
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/sirs_kernel.schema"
+    reftype = "sirskernel"
 
     def __init__(self, init=None, **kwargs):
-        super(ConvKernelModel, self).__init__(init=init, **kwargs)
+        super(SIRSKernelModel, self).__init__(init=init, **kwargs)
 
     def on_save(self, path=None):
         self.meta.reftype = self.reftype
 
     def validate(self):
-        super(ConvKernelModel, self).validate()
+        super(SIRSKernelModel, self).validate()

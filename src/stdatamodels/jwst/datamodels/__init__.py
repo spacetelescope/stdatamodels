@@ -12,7 +12,6 @@ from .asn import AsnModel
 from .barshadow import BarshadowModel
 from .combinedspec import CombinedSpecModel
 from .contrast import ContrastModel
-from .conv_kernel import ConvKernelModel
 from .cube import CubeModel
 from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
@@ -65,6 +64,7 @@ from .resolution import ResolutionModel, MiriResolutionModel
 from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
+from .sirs_kernel import SIRSKernelModel
 from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
@@ -103,7 +103,7 @@ __all__ = [
     'NrsMosApcorrModel', 'NrsFsApcorrModel', 'NrsIfuApcorrModel',
     'AsnModel',
     'BarshadowModel', 'CameraModel', 'CollimatorModel',
-    'CombinedSpecModel', 'ContrastModel', 'ConvKernelModel','CubeModel',
+    'CombinedSpecModel', 'ContrastModel', 'CubeModel',
     'DarkModel', 'DarkMIRIModel',
     'DisperserModel', 'DistortionModel', 'DistortionMRSModel',
     'EmiModel',
@@ -141,7 +141,7 @@ __all__ = [
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
     'ResolutionModel', 'MiriResolutionModel',
-    'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
+    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
     'SegmentationMapModel',
     'SossExtractModel',
     'SossWaveGridModel',

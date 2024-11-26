@@ -1795,9 +1795,9 @@ properties:
             type: object
             properties:
               name:
-                title: NIR Optimized Convolution Kernel reference file name
+                title: NIR Simple Improved Reference Subtraction
                 type: string
-                fits_keyword: R_CONVKL
+                fits_keyword: R_SIRSKL
                 blend_table: True
           cubepar:
             title: IFU cube reference file information
