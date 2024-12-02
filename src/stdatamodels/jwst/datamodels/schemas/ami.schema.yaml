@@ -9,8 +9,26 @@ allOf:
     meta:
       type: object
       properties:
-        calibrator_object_id:
-          title: "Calibration object identifier"
-          type: string
-          fits_keyword: CALIB
-          blend_table: True
+        ami:
+          type: object
+          properties:
+            calibrator_object_id:
+              title: "Calibration object identifier"
+              type: string
+              fits_keyword: CALIB
+              blend_table: True
+            roll_ref:
+              title: "[deg] V3 roll angle at the ref point (N over E)"
+              type: number
+              fits_keyword: ROLL_REF
+              blend_table: True
+            v3yangle:
+              title: "[deg] Angle from V3 axis to Ideal y axis"
+              type: number
+              fits_keyword: V3I_YANG
+              blend_table: True
+            vparity:
+              title: Relative sense of rotation between Ideal xy and V2V3
+              type: integer
+              fits_keyword: VPARITY
+              blend_table: True
