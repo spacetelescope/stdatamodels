@@ -44,13 +44,13 @@ jobs:
       crds_path: ${{ steps.crds_path.outputs.path }}
       crds_server: ${{ steps.crds_server.outputs.url }}
   check:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@924441154cf3053034c6513d5e06c69d262fb9a6  # v1.13.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@d68193b68216da64eafaa618f53c59f5d271c56e  # v1.14.0
     with:
       envs: |
         - linux: check-style
         - linux: check-security
   test:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@924441154cf3053034c6513d5e06c69d262fb9a6  # v1.13.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@d68193b68216da64eafaa618f53c59f5d271c56e  # v1.14.0
     needs: [ data ]
     with:
       setenv: |
@@ -68,7 +68,7 @@ jobs:
         - linux: py312-xdist
         - linux: py313-xdist
   test_downstream:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@924441154cf3053034c6513d5e06c69d262fb9a6  # v1.13.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@d68193b68216da64eafaa618f53c59f5d271c56e  # v1.14.0
     needs: [ data ]
     with:
       setenv: |
