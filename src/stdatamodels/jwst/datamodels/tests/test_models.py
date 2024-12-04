@@ -573,6 +573,12 @@ def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name
     oifits_ami_model.save(fn)
 
 
+def test_amioi_model_extra_meta(tmp_path, oifits_ami_model):
+    oifits_ami_model.meta.ami.calibrator_object_id = "foo"
+    fn = tmp_path / "test.fits"
+    oifits_ami_model.save(fn)
+
+
 def test_dq_def_roundtrip(tmp_path):
     """
     Open a MaskModel with a defined DQ array and dq_def that modifies the
