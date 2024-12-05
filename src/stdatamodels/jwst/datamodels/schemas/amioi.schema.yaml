@@ -5,3 +5,4 @@ id: "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 title: AMI OIFITS analysis data model
 allOf:
 - $ref: oifits.schema
+- $ref: ami.schema

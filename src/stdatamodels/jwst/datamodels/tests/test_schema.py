@@ -92,3 +92,21 @@ def test_data_array(tmp_path):
         assert x == set(
             [('FOO', 2), ('FOO', 1), ('ASDF', None), ('DQ', 2),
              (None, None)])
+
+
+def test_ami_wcsinfo():
+    """
+    The ami and wcsinfo schemas contain duplicate information
+    since ami products don't otherwise contain a SCI extension.
+    This test checks that the schema entries for the duplicated
+    information stays in sync.
+    """
+    wcsinfo_schema = mschema.load_schema("http://stsci.edu/schemas/jwst_datamodel/wcsinfo.schema")
+    ami_schema = mschema.load_schema("http://stsci.edu/schemas/jwst_datamodel/ami.schema")
+    ami_def = ami_schema["allOf"][1]["properties"]["meta"]["properties"]["ami"]["properties"]
+    wcsinfo_def = wcsinfo_schema["properties"]["meta"]["properties"]["wcsinfo"]["properties"]
+    for keyword in ("roll_ref", "v3yangle", "vparity"):
+        ami = ami_def[keyword]
+        wcsinfo = wcsinfo_def[keyword]
+        for key in set(ami.keys()) | set(wcsinfo.keys()) - {"fits_hdu"}:
+            assert ami[key] == wcsinfo[key]
