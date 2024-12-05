@@ -1790,6 +1790,15 @@ properties:
                 type: string
                 fits_keyword: R_COLLIM
                 blend_table: True
+          sirskernel:
+            title: NIR Optimized Convolution Kernel reference file information
+            type: object
+            properties:
+              name:
+                title: NIR Simple Improved Reference Subtraction
+                type: string
+                fits_keyword: R_SIRSKL
+                blend_table: True
           cubepar:
             title: IFU cube reference file information
             type: object
