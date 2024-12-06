@@ -21,4 +21,3 @@ class MiriLrsPsfModel(ReferenceFileModel):
 
     def __init__(self, init=None, **kwargs):
         super(MiriLrsPsfModel, self).__init__(init=init, **kwargs)
-
