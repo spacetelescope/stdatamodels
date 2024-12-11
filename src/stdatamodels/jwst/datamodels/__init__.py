@@ -53,6 +53,7 @@ from .photom import NrcImgPhotomModel, NrcWfssPhotomModel
 from .photom import NisImgPhotomModel, NisSossPhotomModel, NisWfssPhotomModel
 from .photom import NrsFsPhotomModel, NrsMosPhotomModel
 from .pixelarea import PixelAreaModel, NirspecSlitAreaModel, NirspecMosAreaModel, NirspecIfuAreaModel
+from .psf import MiriLrsPsfModel
 from .psfmask import PsfMaskModel
 from .quad import QuadModel
 from .ramp import RampModel
@@ -134,6 +135,7 @@ __all__ = [
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
     'PastasossModel',
+    'MiriLrsPsfModel',
     'PsfMaskModel',
     'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
