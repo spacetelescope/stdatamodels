@@ -7,7 +7,7 @@ allOf:
 - $ref: keyword_exptype.schema
 - $ref: keyword_readpatt.schema
 - $ref: keyword_psubarray.schema
-- $ref: keyword_grating.schema
+- $ref: keyword_filter.schema
 - $ref: subarray.schema
 
 - type: object
