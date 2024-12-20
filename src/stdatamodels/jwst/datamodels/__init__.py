@@ -64,6 +64,7 @@ from .resolution import ResolutionModel, MiriResolutionModel
 from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
+from .sirs_kernel import SIRSKernelModel
 from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
@@ -140,7 +141,7 @@ __all__ = [
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
     'ResolutionModel', 'MiriResolutionModel',
-    'RSCDModel', 'SaturationModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
+    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
     'SegmentationMapModel',
     'SossExtractModel',
     'SossWaveGridModel',

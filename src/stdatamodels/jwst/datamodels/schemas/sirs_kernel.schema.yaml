@@ -1,0 +1,16 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/sirs_kernel.schema"
+allOf:
+- $ref: referencefile.schema
+- type: object
+  patternProperties:
+    "^(nrca1|nrca2|nrca3|nrca4|nrcalong|nrcb1|nrcb2|nrcb3|nrcb4|nrcblong|nrs1|nrs2|mirimage|mirifulong|mirifushort|nis)$":
+      type: object
+      properties:
+        gamma:
+          datatype: float64
+        zeta:
+          datatype: float64
+      required: [gamma, zeta]
