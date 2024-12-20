@@ -1,1 +1,0 @@
-Adding datamodel schema for jwst refpix convolution kernel.

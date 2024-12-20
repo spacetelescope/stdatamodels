@@ -1,3 +1,66 @@
+2.2.0 (2024-12-20)
+==================
+
+Bug Fixes
+---------
+
+- Change IRS2Model parent class to ReferenceFileModel (`#348
+  <https://github.com/spacetelescope/stdatamodels/issues/348>`_)
+- Update schema FITS keyword titles to match keyword dictionary. (`#354
+  <https://github.com/spacetelescope/stdatamodels/issues/354>`_)
+- Avoid unnecessary validation on Model.__init__. (`#356
+  <https://github.com/spacetelescope/stdatamodels/issues/356>`_)
+- Allow ``merge_property_trees`` to retain input schema id in
+  ``model.schema["id"]``. (`#364
+  <https://github.com/spacetelescope/stdatamodels/issues/364>`_)
+
+
+Documentation
+-------------
+
+- Add to schema docs describing schema types. (`#338
+  <https://github.com/spacetelescope/stdatamodels/issues/338>`_)
+
+
+New Features
+------------
+
+- Adding datamodel schema for jwst refpix convolution kernel. (`#321
+  <https://github.com/spacetelescope/stdatamodels/issues/321>`_)
+- Add python 3.13 support. (`#333
+  <https://github.com/spacetelescope/stdatamodels/issues/333>`_)
+- Add new keyword dictionary comparison tool for developers. (`#337
+  <https://github.com/spacetelescope/stdatamodels/issues/337>`_)
+- Add CALIB and PA keywords to amioi schema (`#357
+  <https://github.com/spacetelescope/stdatamodels/issues/357>`_)
+- Add DHS readout patterns to JWST schema (`#360
+  <https://github.com/spacetelescope/stdatamodels/issues/360>`_)
+- Add NRM reference file keywords to schema. (`#361
+  <https://github.com/spacetelescope/stdatamodels/issues/361>`_)
+- Add hybrid full-frame boolean to core exposure schema (`#362
+  <https://github.com/spacetelescope/stdatamodels/issues/362>`_)
+- Modify warning filters to re-show identical ValidationWarnings on
+  re-validation. (`#367
+  <https://github.com/spacetelescope/stdatamodels/issues/367>`_)
+
+
+Misc
+----
+
+- allow new-look ModelContainer to be the default container when opening any
+  list-like (`#330
+  <https://github.com/spacetelescope/stdatamodels/issues/330>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Deprecate schema_editor submodule. (`#352
+  <https://github.com/spacetelescope/stdatamodels/issues/352>`_)
+- Deprecate DataModel.get_fileext. (`#363
+  <https://github.com/spacetelescope/stdatamodels/issues/363>`_)
+
+
 2.1.2 (2024-11-07)
 ==================
 

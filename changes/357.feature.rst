@@ -1,1 +1,0 @@
-Add CALIB and PA keywords to amioi schema
