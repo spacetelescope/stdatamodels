@@ -160,6 +160,7 @@ ref_to_datamodel_dict = {
     'rscd': dm.RSCDModel,
     'saturation': dm.SaturationModel,
     'sflat': dm.NirspecFlatModel,
+    'sirskernel': dm.SIRSKernelModel,
     'speckernel': dm.SpecKernelModel,
     'specprofile': dm.SpecProfileModel,
     'spectrace': dm.SpecTraceModel,
@@ -196,8 +197,13 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
 
     # get the reftypes
     reftypes = imap.get_filekinds()
+
     # remove pars- files
     _ = [reftypes.remove(name) for name in reftypes[::-1] if name.startswith(ignored_stems)]
+
+    # remove known missing
+    if 'psf' in reftypes:
+        reftypes.remove('psf')
 
     # iterate over reftypes for this instrument
     for reftype in reftypes:
