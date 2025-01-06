@@ -27,6 +27,10 @@ allOf:
               title: column ePSF shifted to
               type: number
               fits_keyword: CENTCOL
+            center_row:
+              title: row ePSF shifted to
+              type: number
+              fits_keyword: CENTROW
 - type: object
   properties:
     data:
