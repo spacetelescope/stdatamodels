@@ -53,7 +53,6 @@ from .photom import NrcImgPhotomModel, NrcWfssPhotomModel
 from .photom import NisImgPhotomModel, NisSossPhotomModel, NisWfssPhotomModel
 from .photom import NrsFsPhotomModel, NrsMosPhotomModel
 from .pixelarea import PixelAreaModel, NirspecSlitAreaModel, NirspecMosAreaModel, NirspecIfuAreaModel
-from .psf import MiriLrsPsfModel
 from .psfmask import PsfMaskModel
 from .quad import QuadModel
 from .ramp import RampModel
@@ -73,6 +72,7 @@ from .sosswavegrid import SossWaveGridModel
 from .spec import SpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
+from .specpsf import SpecPsfModel
 from .spectrace import SpecTraceModel, SpecTraceSingleModel
 from .straylight import StrayLightModel
 from .superbias import SuperBiasModel
@@ -136,7 +136,6 @@ __all__ = [
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',
     'PastasossModel',
-    'MiriLrsPsfModel',
     'PsfMaskModel',
     'QuadModel', 'RampModel',
     'RampFitOutputModel', 'ReadnoiseModel',
@@ -150,6 +149,7 @@ __all__ = [
     'SpecKernelModel',
     'SpecProfileModel', 'SpecProfileSingleModel',
     'SpecTraceModel', 'SpecTraceSingleModel',
+    'SpecPsfModel',
     'SpecwcsModel',
     'StrayLightModel', 'SuperBiasModel',
     'ThroughputModel',

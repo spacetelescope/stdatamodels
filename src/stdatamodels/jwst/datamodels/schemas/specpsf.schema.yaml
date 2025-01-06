@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/jwst_datamodel/miri_lrs_psf.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/specpsf.schema"
 allOf:
 - $ref: referencefile.schema
 - $ref: keyword_exptype.schema

@@ -163,6 +163,7 @@ ref_to_datamodel_dict = {
     'sirskernel': dm.SIRSKernelModel,
     'speckernel': dm.SpecKernelModel,
     'specprofile': dm.SpecProfileModel,
+    'specpsf': dm.SpecPsfModel,
     'spectrace': dm.SpecTraceModel,
     'specwcs': dm.SpecwcsModel,
     'straymask': dm.StrayLightModel,
