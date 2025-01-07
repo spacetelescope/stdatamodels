@@ -202,10 +202,6 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
     # remove pars- files
     _ = [reftypes.remove(name) for name in reftypes[::-1] if name.startswith(ignored_stems)]
 
-    # remove known missing
-    if 'psf' in reftypes:
-        reftypes.remove('psf')
-
     # iterate over reftypes for this instrument
     for reftype in reftypes:
         try:
