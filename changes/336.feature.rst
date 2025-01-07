@@ -1,1 +1,1 @@
-added MIRI LTS FIXED SLIT PSF reference model
+added Spectral PSF reference model
