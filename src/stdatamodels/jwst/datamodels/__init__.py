@@ -72,6 +72,7 @@ from .sosswavegrid import SossWaveGridModel
 from .spec import SpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
+from .specpsf import SpecPsfModel
 from .spectrace import SpecTraceModel, SpecTraceSingleModel
 from .straylight import StrayLightModel
 from .superbias import SuperBiasModel
@@ -148,6 +149,7 @@ __all__ = [
     'SpecKernelModel',
     'SpecProfileModel', 'SpecProfileSingleModel',
     'SpecTraceModel', 'SpecTraceSingleModel',
+    'SpecPsfModel',
     'SpecwcsModel',
     'StrayLightModel', 'SuperBiasModel',
     'ThroughputModel',
