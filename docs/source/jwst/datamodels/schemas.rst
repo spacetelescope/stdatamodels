@@ -70,10 +70,9 @@ schemas match those expected by CRDS.
 
 This can involve adding "pattern" keywords (for example
 ``keyword_pexptype.schema``) when a reference file might be used
-for several keyword values. For example if a single let's say
-phlogiston reference file matches all filters. To avoid needing to
-host copies of the same file for every filter CRDS can use
-a "pattern" if the reference file schema contains a reference
-to the appropriate pattern schema. See the
+for several keyword values. For example, if a single reference file
+matches all filters, it can reference ``keyword_pfilter.schema`` and then
+CRDS can use a "pattern" to avoid hosting copies of the same file for every filter.
+See the
 `CRDS docs <https://hst-crds.stsci.edu/static/users_guide/reference_conventions.html#matching-keyword-patterns>`_
 for more details about patterns.
