@@ -61,10 +61,9 @@ Reference file keywords
 Reference file schemas often contain references to ``keyword_*``
 schemas (for example ``keyword_exptype.schema`` above). These define
 standard keywords that will be used for reference file selection
-by CRDS. For the above example (and with the associated mappings
-in CRDS) the ``exptype`` from a science file can be used to match
-the appropriate reference file (``exptype`` can be used as a
-CRDS ``parkey``). When crafting (or updating) a reference file
+by CRDS. For the above example, the ``exptype`` from a science file
+is matched with the CRDS ``parkey`` of the same name to determine
+the appropriate reference file. When crafting (or updating) a reference file
 schema it's important to make sure that the referenced keyword
 schemas match those expected by CRDS.
 
