@@ -54,3 +54,24 @@ but use a different set of shared schemas.
   - $ref: keyword_readpatt.schema
 
 Note that reference file schemas ``$ref`` ``referencefile.schema``.
+
+Reference file keywords and use by CRDS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Reference file schemas often contain references to ``keyword_*``
+schemas (for example ``keyword_exptype.schema`` above). These define
+standard keywords that are used for reference file selection
+by CRDS. For the above example, the ``exptype`` from a science file
+is matched with the CRDS ``parkey`` of the same name to determine
+the appropriate reference file. When crafting (or updating) a reference file
+schema it's important to make sure that the referenced keyword
+schemas match those expected by CRDS.
+
+This can involve adding "pattern" keywords (for example
+``keyword_pexptype.schema``) when a reference file might be used
+for several keyword values. For example, if a single reference file
+matches all filters, it can reference ``keyword_pfilter.schema`` and then
+CRDS can use a "pattern" to avoid hosting copies of the same file for every filter.
+See the
+`CRDS docs <https://hst-crds.stsci.edu/static/users_guide/reference_conventions.html#matching-keyword-patterns>`_
+for more details about patterns.
