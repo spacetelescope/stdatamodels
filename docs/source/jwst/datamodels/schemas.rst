@@ -55,8 +55,8 @@ but use a different set of shared schemas.
 
 Note that reference file schemas ``$ref`` ``referencefile.schema``.
 
-Reference file keywords
-^^^^^^^^^^^^^^^^^^^^^^^
+Reference file keywords and use by CRDS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Reference file schemas often contain references to ``keyword_*``
 schemas (for example ``keyword_exptype.schema`` above). These define
