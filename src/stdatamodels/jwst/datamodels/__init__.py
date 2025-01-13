@@ -69,7 +69,7 @@ from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .spec import SpecModel
+from .spec import SpecModel, MrsSpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
 from .specpsf import SpecPsfModel
@@ -142,7 +142,7 @@ __all__ = [
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
     'ResolutionModel', 'MiriResolutionModel',
-    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel',
+    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel','MrsSpecModel',
     'SegmentationMapModel',
     'SossExtractModel',
     'SossWaveGridModel',
