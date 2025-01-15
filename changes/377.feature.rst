@@ -1,0 +1,1 @@
+Add new spectral models for MIRI MRS data, including new table columns for residual fringe corrected flux, surface brightness, and background.
