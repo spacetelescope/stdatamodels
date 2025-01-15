@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
-id: "http://stsci.edu/schemas/jwst_datamodel/multispec.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/mrs_multispec.schema"
 allOf:
 - $ref: core.schema
 - $ref: int_times.schema
@@ -15,5 +15,5 @@ allOf:
           - type: object
             properties:
               spec_table:
-                $ref: spectable.schema
+                $ref: mrs_spectable.schema
           - $ref: specmeta.schema

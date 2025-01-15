@@ -40,7 +40,7 @@ from .multicombinedspec import MultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
 from .multiextract1d import MultiExtract1dImageModel
 from .multislit import MultiSlitModel
-from .multispec import MultiSpecModel
+from .multispec import MultiSpecModel, MRSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
 from .outlierpars import OutlierParsModel
@@ -69,7 +69,7 @@ from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .spec import SpecModel, MrsSpecModel
+from .spec import SpecModel, MRSSpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
 from .specpsf import SpecPsfModel
@@ -123,7 +123,7 @@ __all__ = [
     'LinearityModel', 'MaskModel', 'MSAModel',
     'MultiCombinedSpecModel', 'MultiExposureModel',
     'MultiExtract1dImageModel', 'MultiSlitModel',
-    'MultiSpecModel',
+    'MultiSpecModel', 'MRSMultiSpecModel',
     'NIRCAMGrismModel', 'NIRISSGrismModel',
     'OTEModel',
     'OutlierParsModel','OutlierIFUOutputModel',
@@ -142,7 +142,7 @@ __all__ = [
     'ReferenceFileModel', 'ReferenceCubeModel', 'ReferenceImageModel', 'ReferenceQuadModel',
     'RegionsModel', 'ResetModel',
     'ResolutionModel', 'MiriResolutionModel',
-    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel','MrsSpecModel',
+    'RSCDModel', 'SaturationModel', 'SIRSKernelModel', 'SlitDataModel', 'SlitModel', 'SpecModel','MRSSpecModel',
     'SegmentationMapModel',
     'SossExtractModel',
     'SossWaveGridModel',

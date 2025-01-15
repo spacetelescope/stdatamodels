@@ -2,10 +2,10 @@
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
 id: "http://stsci.edu/schemas/jwst_datamodel/mrs_spec.schema"
-title: MRS residual fringe corrected Spectrum data model
+title: Spectrum data model with residual fringe correction for MIRI MRS
 allOf:
 - $ref: core.schema
 - type: object
   properties:
-    mrs_spec_table:
+    spec_table:
       $ref: mrs_spectable.schema

@@ -1,8 +1,8 @@
 from .model_base import JwstDataModel
-from .spec import SpecModel
+from .spec import SpecModel, MRSSpecModel
 
 
-__all__ = ['MultiSpecModel']
+__all__ = ['MultiSpecModel', 'MRSMultiSpecModel']
 
 
 class MultiSpecModel(JwstDataModel):
@@ -57,3 +57,25 @@ class MultiSpecModel(JwstDataModel):
             return
 
         super(MultiSpecModel, self).__init__(init=init, **kwargs)
+
+
+class MRSMultiSpecModel(JwstDataModel):
+    """
+    A data model for MIRI MRS multi-spec images.
+
+    This model has a special member `spec` that can be used to
+    deal with an entire spectrum at a time.  It behaves identically
+    to `MultiSpecModel`, except that the spectra have additional columns
+    for the MIRI MRS mode, containing residual fringe corrected values.
+    """
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/mrs_multispec.schema"
+
+    def __init__(self, init=None, **kwargs):
+
+        if isinstance(init, MRSSpecModel):
+            super(MRSMultiSpecModel, self).__init__(init=None, **kwargs)
+            self.spec.append(self.spec.item())
+            self.spec[0].spec_table = init.spec_table
+            return
+
+        super(MRSMultiSpecModel, self).__init__(init=init, **kwargs)

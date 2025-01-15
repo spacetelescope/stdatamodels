@@ -2,8 +2,8 @@
 ---
 $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
 id: "http://stsci.edu/schemas/jwst_datamodel/mrs_spectable.schema"
-title: Residual fringe extracted spectral data table
-fits_hdu: RFCORR1D
+title: Extracted spectral data table with residual fringe correction for MIRI MRS
+fits_hdu: EXTRACT1D
 datatype:
 - name: WAVELENGTH
   datatype: float64
