@@ -68,6 +68,8 @@ Slit = namedtuple(
         "source_ypos",
         "source_ra",
         "source_dec",
+        "slit_xscale",
+        "slit_yscale",
     ],
 )
 """ Nirspec Slit structure definition"""
@@ -91,6 +93,8 @@ Slit.__new__.__defaults__ = (
     0.0,
     0.0,
     0.0,
+    1.0,
+    1.0
 )
 
 
