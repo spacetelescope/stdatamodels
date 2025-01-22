@@ -21,7 +21,7 @@ data models. Here is a (partial) example:
 
   %YAML 1.1
   ---
-  $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+  $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
   id: "http://stsci.edu/schemas/jwst_datamodel/ramp.schema"
   allOf:
   - $ref: core.schema
@@ -45,7 +45,7 @@ but use a different set of shared schemas.
 
   %YAML 1.1
   ---
-  $schema: "http://stsci.edu/schemas/fits-schema/fits-schema"
+  $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
   id: "http://stsci.edu/schemas/jwst_datamodel/dark.schema"
   title: Dark current data model
   allOf:
