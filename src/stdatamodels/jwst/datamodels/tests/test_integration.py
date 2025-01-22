@@ -8,10 +8,6 @@ from stdatamodels.jwst.datamodels import JwstDataModel
 import stdatamodels.schema
 
 
-METASCHEMAS = list(
-    importlib.resources.files("stdatamodels.jwst.datamodels.metaschema").glob("*.yaml")
-)
-
 DATAMODEL_SCHEMAS = list(
     importlib.resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml")
 )
@@ -24,7 +20,7 @@ TRANSFORM_SCHEMAS = list(
     ).glob("**/*.yaml")
 )
 
-SCHEMAS = METASCHEMAS + DATAMODEL_SCHEMAS + TRANSFORM_SCHEMAS
+SCHEMAS = DATAMODEL_SCHEMAS + TRANSFORM_SCHEMAS
 
 TRANSFORM_MANIFESTS = list(
     importlib.resources.files("stdatamodels.jwst.transforms.resources.manifests").glob(
@@ -49,7 +45,7 @@ def datamodel_associated_schemas():
 @pytest.mark.parametrize("resource", RESOURCES)
 def test_resource_id(resource):
     """
-    Test that all "resources" (schemas, metaschemas and manifests) are
+    Test that all "resources" (schemas, and manifests) are
     registered with asdf using the "id" in the resource.
     """
     with open(resource, "rb") as f:
