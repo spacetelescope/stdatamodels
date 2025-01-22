@@ -111,6 +111,21 @@ properties:
     default: 0.0
     fits_keyword: SLIT_DEC
     fits_hdu: EXTRACT1D
+  quadrant:
+    title: MSA quadrant for slit
+    type: integer
+    fits_keyword: MSAQUAD
+    fits_hdu: EXTRACT1D
+  slit_xscale:
+    title: Scale open to full MSA slit coordinates (X dir)
+    type: number
+    fits_keyword: SLTXSCL
+    fits_hdu: EXTRACT1D
+  slit_yscale:
+    title: Scale open to full MSA slit coordinates (Y dir)
+    type: number
+    fits_keyword: SLTYSCL
+    fits_hdu: EXTRACT1D
   spectral_order:
     title: Spectral order number
     type: integer
