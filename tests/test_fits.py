@@ -289,7 +289,7 @@ def test_table_with_unsigned_int(tmp_path):
 
     schema = {
         'title': 'Test data model',
-        '$schema': 'http://stsci.edu/schemas/fits-schema/fits-schema',
+        '$schema': 'http://stsci.edu/schemas/asdf/asdf-schema-1.1.0',
         'type': 'object',
         'properties': {
             'meta': {
@@ -632,7 +632,7 @@ def test_table_linking(tmp_path):
 
     schema = {
         'title': 'Test data model',
-        '$schema': 'http://stsci.edu/schemas/fits-schema/fits-schema',
+        '$schema': 'http://stsci.edu/schemas/asdf/asdf-schema-1.1.0',
         'type': 'object',
         'properties': {
             'meta': {

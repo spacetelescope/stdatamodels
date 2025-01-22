@@ -29,9 +29,5 @@ def get_resource_mappings():
         DirectoryResourceMapping(
             resources_root / "schemas",
             "http://stsci.edu/schemas/jwst_datamodel/",
-        ),
-        DirectoryResourceMapping(
-            resources_root / "metaschema",
-            "http://stsci.edu/schemas/fits-schema/",
         )
     ]
