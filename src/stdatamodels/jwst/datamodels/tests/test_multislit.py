@@ -113,7 +113,7 @@ def test_multislit_copy(tmp_path):
     path = tmp_path / "multislit.fits"
     with MultiSlitModel() as input:
         for i in range(4):
-            input.slits.append(input.slits.item(data=np.empty((50, 50))))
+            input.slits.append(input.slits.item(data=np.empty((50, 50), dtype='f4')))
 
         assert len(input.slits) == 4
         input.save(path)

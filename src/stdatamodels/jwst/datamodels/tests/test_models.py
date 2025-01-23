@@ -27,31 +27,6 @@ FITS_FILE = os.path.join(ROOT_DIR, 'test.fits')
 ASN_FILE = os.path.join(ROOT_DIR, 'association.json')
 
 
-@pytest.fixture
-def make_models(tmp_path):
-    """Create basic models
-
-    Returns
-    -------
-    path_just_fits, path_model : (str, str)
-        `path_just_fits` is a FITS file of `JwstDataModel` without the ASDF extension.
-        `path_model` is a FITS file of `JwstDataModel` with the ASDF extension.
-    """
-    path_just_fits = tmp_path / 'just_fits.fits'
-    path_model = tmp_path / 'model.fits'
-    primary_hdu = fits.PrimaryHDU()
-    primary_hdu.header['EXP_TYPE'] = 'NRC_IMAGE'
-    primary_hdu.header['DATAMODL'] = "JwstDataModel"
-    hduls = fits.HDUList([primary_hdu])
-    hduls.writeto(path_just_fits)
-    model = JwstDataModel(hduls)
-    model.save(path_model)
-    return {
-        'just_fits': path_just_fits,
-        'model': path_model
-    }
-
-
 def test_init_from_pathlib(tmp_path):
     """Test initializing model from a Path object"""
     path = tmp_path / "pathlib.fits"
@@ -60,52 +35,6 @@ def test_init_from_pathlib(tmp_path):
     with datamodels.open(path) as model:
         # Test is basically, did we open the model?
         assert isinstance(model, ImageModel)
-
-
-@pytest.mark.parametrize('which_file, skip_fits_update, expected_exp_type',
-                         [
-                             ('just_fits', None, 'FGS_DARK'),
-                             ('just_fits', False, 'FGS_DARK'),
-                             ('just_fits', True, 'FGS_DARK'),
-                             ('model', None, 'FGS_DARK'),
-                             ('model', False, 'FGS_DARK'),
-                             ('model', True, 'NRC_IMAGE')
-                         ]
-                         )
-@pytest.mark.parametrize('use_env', [False, True])
-def test_skip_fits_update(jail_environ,
-                          use_env,
-                          make_models,
-                          which_file,
-                          skip_fits_update,
-                          expected_exp_type):
-    """Test skip_fits_update setting"""
-    # Setup the FITS file, modifying a header value
-    path = make_models[which_file]
-    with fits.open(path) as hduls:
-        hduls[0].header['exp_type'] = 'FGS_DARK'
-
-        # Decide how to skip. If using the environmental,
-        # set that and pass None to the open function.
-        try:
-            del os.environ['SKIP_FITS_UPDATE']
-        except KeyError:
-            # No need to worry, environmental doesn't exist anyways
-            pass
-
-        if skip_fits_update is not None:
-            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
-        else:
-            ctx = contextlib.nullcontext()
-
-        if use_env:
-            if skip_fits_update is not None:
-                os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
-                skip_fits_update = None
-
-        with ctx:
-            with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-                assert model.meta.exposure.type == expected_exp_type
 
 
 def test_asnmodel_table_size_zero():
