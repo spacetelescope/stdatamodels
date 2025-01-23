@@ -411,12 +411,11 @@ def test_ramp_model_zero_frame_open_file(tmp_path):
     zbase = dbase * 0.75
 
     data = np.ones(dims, dtype=float) * dbase
-    err = np.zeros(dims, dtype=float)
     pdq = np.zeros(dims[-2:], dtype=np.uint32)
     gdq = np.zeros(dims, dtype=np.uint8)
 
     # Test default exposure zero_frame
-    ramp = datamodels.RampModel(data=data, err=err, pixeldq=pdq, groupdq=gdq)
+    ramp = datamodels.RampModel(data=data, pixeldq=pdq, groupdq=gdq)
 
     ramp.meta.exposure.zero_frame = True
     ramp.zeroframe = np.ones(zdims, dtype=ramp.data.dtype) * zbase

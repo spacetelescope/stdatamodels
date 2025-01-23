@@ -27,11 +27,6 @@ allOf:
       default: 0
       ndim: 4
       datatype: uint8
-    err:
-      title: Error array
-      fits_hdu: ERR
-      default: 0.0
-      datatype: float32
     zeroframe:
       title: Zeroframe array
       fits_hdu: ZEROFRAME
