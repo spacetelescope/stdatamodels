@@ -13,7 +13,7 @@ __all__ = ['DistortionModel', 'DistortionMRSModel', 'SpecwcsModel', 'RegionsMode
            'WavelengthrangeModel', 'CameraModel', 'CollimatorModel', 'OTEModel',
            'FOREModel', "FPAModel", 'IFUPostModel', 'IFUFOREModel', 'IFUSlicerModel',
            'MSAModel', 'FilteroffsetModel', 'DisperserModel',
-           'NIRCAMGrismModel', 'NIRISSGrismModel', 'WaveCorrModel']
+           'NIRCAMGrismModel', 'NIRISSGrismModel', 'WaveCorrModel', 'MIRILrsModel']
 
 
 class _SimpleModel(ReferenceFileModel):
@@ -343,6 +343,43 @@ class NIRISSGrismModel(ReferenceFileModel):
         raise NotImplementedError("FITS format is not supported for this file.")
 
 
+class MIRILrsModel(ReferenceFileModel):
+    """
+    A model for a reference file of type "specwcs" for MIRI LRS Slit.
+
+    Parameters
+    ----------
+    x_ref : float
+         x coordinate of reference position of fixed slit aperture
+    y_ref : float
+        y coordinate of reference position of fixed slit aperture
+    x_ref_slitless : float
+         x coordinate of reference position of slitless aperture
+    y_ref_slitless : float
+        y coordinate of reference position of slitless aperture
+    v2vert1 : float
+        slit vertex 1 in V2 frame
+    v2vert2 : float
+        slit vertex 2 in V2 frame
+    v2vert3 : float
+        slit vertex 3 in V2 frame
+    v2vert4 : float
+        slit vertex 4 in V2 frames
+    v3vert1 : float
+        slit vertex 1 in V3 frames
+    v3vert2 : float
+        slit vertex 2 in V3 frames
+    v3vert3 : float
+        slit vertex 3 in V3 frames
+    v3vert4 : float
+        slit vertex 4 in V3 frames
+    wavetable : numpy  2-D array
+        For each row in the slit hold  wavelength, and 
+        x center, ycenter, x and y box region cooresponding to the wavelength
+    """
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
+    reftype = "specwcs"
+       
 class RegionsModel(ReferenceFileModel):
     """
     A model for a reference file of type "regions".
