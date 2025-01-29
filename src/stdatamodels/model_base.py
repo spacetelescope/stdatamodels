@@ -240,7 +240,7 @@ class DataModel(properties.ObjectNode):
 
             else:
                 # TODO handle json files as well
-                raise IOError("File does not appear to be a FITS or ASDF file.")
+                raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
             raise ValueError("Can't initialize datamodel using {0}".format(str(type(init))))
