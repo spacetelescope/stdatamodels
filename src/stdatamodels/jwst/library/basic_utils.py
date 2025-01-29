@@ -32,5 +32,5 @@ def bytes2human(n):
     for s in reversed(symbols):
         if n >= prefix[s]:
             value = float(n) / prefix[s]
-            return "%.1f%s" % (value, s)
-    return "%sB" % n
+            return "{:.1f}{}".format(value, s)
+    return "{}B".format(n)
