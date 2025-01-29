@@ -1536,14 +1536,14 @@ class Snell(Model):
 
         # Convert to microns
         lam = np.asarray(lam * 1e6)
-        KtoC = 273.15  # kelvin to celsius conversion
+        KtoC = 273.15  # kelvin to celsius conversion  # noqa: N806
         temp -= KtoC
         tref -= KtoC
         delt = temp - tref
 
-        K1, K2, K3 = kcoef
-        L1, L2, L3 = lcoef
-        D0, D1, D2, E0, E1, lam_tk = tcoef
+        K1, K2, K3 = kcoef  # noqa: N806
+        L1, L2, L3 = lcoef  # noqa: N806
+        D0, D1, D2, E0, E1, lam_tk = tcoef  # noqa: N806
 
         if delt < 20:
             n = np.sqrt(
