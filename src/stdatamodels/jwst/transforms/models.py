@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-# -*- coding: utf-8 -*-
 """
 Models used by the JWST pipeline.
 

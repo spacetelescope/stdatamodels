@@ -59,7 +59,6 @@ ignore = [
     "S101",  # asserts are used in many non-test places
     "SLF001",  # private member access, this is overly restrictive
     # to fix
-    "UP009",
     "UP024",
     "UP028",
     "UP030",
