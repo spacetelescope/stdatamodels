@@ -52,6 +52,7 @@ ignore = [
     "TRY003", # prevents custom exception messages not defined in exception itself.
     "ISC001", # single line implicit string concatenation. formatter recommends ignoring this.
     "PTH123", # use Path.open instead of open
+    "UP038", # isinstance with | instead of ,
     # longer term fix
     "B028", # warnings need stack level, this is non-trivial to determine
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
@@ -59,8 +60,6 @@ ignore = [
     "S101",  # asserts are used in many non-test places
     "SLF001",  # private member access, this is overly restrictive
     # to fix
-    "UP034",
-    "UP038",
     "UP039",
 ]
 
