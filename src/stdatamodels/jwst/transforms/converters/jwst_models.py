@@ -197,7 +197,7 @@ class RefractionIndexConverter(TransformConverterBase):
         return node
 
 
-class MIRI_AB2SliceConverter(TransformConverterBase):
+class MIRI_AB2SliceConverter(TransformConverterBase):  # noqa: N801
     tags = ["tag:stsci.edu:jwst_pipeline/miri_ab2slice-*"]
     types = ["stdatamodels.jwst.transforms.models.MIRI_AB2Slice"]
 

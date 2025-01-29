@@ -4,7 +4,7 @@ from .model_base import JwstDataModel
 __all__ = ["GLS_RampFitModel"]
 
 
-class GLS_RampFitModel(JwstDataModel):
+class GLS_RampFitModel(JwstDataModel):  # noqa: N801
     """
     A data model for the optional output of the ramp fitting step
     for the GLS algorithm.

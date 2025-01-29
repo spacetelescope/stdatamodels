@@ -232,7 +232,7 @@ class GrismObject(
         )
 
 
-class MIRI_AB2Slice(Model):
+class MIRI_AB2Slice(Model):  # noqa: N801
     """
     MIRI MRS alpha, beta to slice transform
 
