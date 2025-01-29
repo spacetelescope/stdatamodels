@@ -264,7 +264,7 @@ def test_gentle_asarray_structured_dtype_configurations(
     assert np.all(new_array["i"] == 2)
     assert np.allclose(new_array["f"], 0.1)
     assert np.all(new_array["s"] == b"a")
-    assert np.all(new_array["b"] == True)
+    assert np.all(new_array["b"])
     assert np.all(new_array["u"] == 3)
     if not extra_columns:
         # if we have not extra columns, the output dtype should match the target
