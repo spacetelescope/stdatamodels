@@ -996,13 +996,13 @@ class DataModel(properties.ObjectNode):
             return val
 
         if include_arrays:
-            return dict((key, convert_val(val)) for (key, val) in self.items())
+            return {key: convert_val(val) for (key, val) in self.items()}
         else:
-            return dict(
-                (key, convert_val(val))
+            return {
+                key: convert_val(val)
                 for (key, val) in self.items()
                 if not isinstance(val, (np.ndarray, NDArrayType))
-            )
+            }
 
     @property
     def schema(self):
