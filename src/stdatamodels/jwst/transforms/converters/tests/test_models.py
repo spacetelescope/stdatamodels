@@ -13,9 +13,17 @@ else:
     from asdf_astropy.converters.transform.tests.test_transform import assert_model_roundtrip
 
 from stdatamodels.jwst.transforms.models import (
-    NirissSOSSModel, Rotation3DToGWA, Gwa2Slit, Logical, Slit,
-    DirCos2Unitless, Unitless2DirCos, Snell, AngleFromGratingEquation,
-    WavelengthFromGratingEquation)
+    NirissSOSSModel,
+    Rotation3DToGWA,
+    Gwa2Slit,
+    Logical,
+    Slit,
+    DirCos2Unitless,
+    Unitless2DirCos,
+    Snell,
+    AngleFromGratingEquation,
+    WavelengthFromGratingEquation,
+)
 import asdf
 import pytest
 
@@ -24,17 +32,28 @@ m1 = Shift(1) & Shift(2) | Rotation2D(3.1)
 m2 = Shift(2) & Shift(2) | Rotation2D(23.1)
 
 
-test_models = [DirCos2Unitless(), Unitless2DirCos(),
-               Rotation3DToGWA(angles=[12.1, 1.3, 0.5, 3.4], axes_order='xyzx'),
-               AngleFromGratingEquation(20000, -1), WavelengthFromGratingEquation(25000, 2),
-               Logical('GT', 5, 10), Logical('LT', np.ones((10,)) * 5, np.arange(10)),
-               Snell(angle=-16.5, kcoef=[0.583, 0.462, 3.891], lcoef=[0.002526, 0.01, 1200.556],
-                     tcoef=[-2.66e-05, 0.0, 0.0, 0.0, 0.0, 0.0], tref=35, pref=0,
-                     temperature=35, pressure=0),
-               ]
+test_models = [
+    DirCos2Unitless(),
+    Unitless2DirCos(),
+    Rotation3DToGWA(angles=[12.1, 1.3, 0.5, 3.4], axes_order="xyzx"),
+    AngleFromGratingEquation(20000, -1),
+    WavelengthFromGratingEquation(25000, 2),
+    Logical("GT", 5, 10),
+    Logical("LT", np.ones((10,)) * 5, np.arange(10)),
+    Snell(
+        angle=-16.5,
+        kcoef=[0.583, 0.462, 3.891],
+        lcoef=[0.002526, 0.01, 1200.556],
+        tcoef=[-2.66e-05, 0.0, 0.0, 0.0, 0.0, 0.0],
+        tref=35,
+        pref=0,
+        temperature=35,
+        pressure=0,
+    ),
+]
 
 
-@pytest.mark.parametrize(('model'), test_models)
+@pytest.mark.parametrize(("model"), test_models)
 def test_model(tmpdir, model, version=None):
     assert_model_roundtrip(model, tmpdir)
 
@@ -78,8 +97,8 @@ def test_niriss_soss(tmpdir):
 
 
 def test_niriss_soss_legacy():
-    data_path = os.path.join(os.path.dirname(__file__), 'data')
-    data = os.path.join(data_path, 'niriss_soss.asdf')
+    data_path = os.path.join(os.path.dirname(__file__), "data")
+    data = os.path.join(data_path, "niriss_soss.asdf")
 
     # confirm that the file contains the legacy tag
     tagged_tree = asdf.util.load_yaml(data, tagged=True)
@@ -87,7 +106,7 @@ def test_niriss_soss_legacy():
 
     # test that it opens with the legacy tag
     with asdf.open(data) as af:
-        model = af['model']
+        model = af["model"]
         assert model.spectral_orders == [1, 2, 3]
         assert (model.models[1].parameters == (1.0, 2.0, 3.0)).all()
         assert (model.models[2].parameters == (4.0, 5.0, 6.0)).all()

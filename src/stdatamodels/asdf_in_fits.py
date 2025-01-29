@@ -4,10 +4,7 @@ from astropy.io import fits
 from . import fits_support
 
 
-__all__ = [
-    'write',
-    'open'
-]
+__all__ = ["write", "open"]
 
 
 def write(filename, tree, hdulist=None, **kwargs):
@@ -52,8 +49,8 @@ def open(filename_or_hdu, **kwargs):
 
     is_hdu = isinstance(filename_or_hdu, fits.HDUList)
     hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
-    if 'ignore_missing_extensions' not in kwargs:
-        kwargs['ignore_missing_extensions'] = False
+    if "ignore_missing_extensions" not in kwargs:
+        kwargs["ignore_missing_extensions"] = False
     af = fits_support.from_fits_asdf(hdulist, **kwargs)
 
     if is_hdu:
@@ -65,6 +62,7 @@ def open(filename_or_hdu, **kwargs):
         def close():
             asdf.AsdfFile.close(af)
             hdulist.close()
+
         return close
 
     af.close = wrap_close(af, hdulist)

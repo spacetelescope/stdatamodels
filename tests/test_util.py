@@ -12,15 +12,13 @@ from stdatamodels import util
 
 
 def test_gentle_asarray():
-    x = np.array([('abc', 1.0)], dtype=[
-        ('FOO', 'S3'),
-        ('BAR', '>f8')])
+    x = np.array([("abc", 1.0)], dtype=[("FOO", "S3"), ("BAR", ">f8")])
 
-    new_dtype = [('foo', '|S3'), ('bar', '<f8')]
+    new_dtype = [("foo", "|S3"), ("bar", "<f8")]
 
     y = util.gentle_asarray(x, new_dtype)
 
-    assert y['bar'][0] == 1.0
+    assert y["bar"][0] == 1.0
 
 
 def test_gentle_asarray_array_input():
@@ -103,7 +101,7 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned(tmp_path):
     # handling on our end to dodge the bug.
     file_path = tmp_path / "test.fits"
 
-    dtype = np.dtype('>u2')
+    dtype = np.dtype(">u2")
     data = np.array([(0,)], dtype=[("col1", dtype)])
     hdu = fits.BinTableHDU()
     hdu.data = data
@@ -111,7 +109,7 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned(tmp_path):
     hdul.writeto(file_path)
 
     with fits.open(file_path) as hdul:
-        for dtype_str in ('>u2', '<u2', '>i2', '<i2'):
+        for dtype_str in (">u2", "<u2", ">i2", "<i2"):
             dtype = np.dtype(dtype_str)
             result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", dtype)])
             # Without the fix, the value in the array would be 128 due to bzero
@@ -125,24 +123,24 @@ def test_gentle_asarray_fits_rec_pseudo_unsigned_shaped(tmp_path):
     # handling on our end to dodge the bug.
     file_path = tmp_path / "test.fits"
 
-    data = np.array([((1,2),), ((3,4),)], dtype=[("col1", '>u2', 2)])
+    data = np.array([((1, 2),), ((3, 4),)], dtype=[("col1", ">u2", 2)])
     hdu = fits.BinTableHDU()
     hdu.data = data
     hdul = fits.HDUList([fits.PrimaryHDU(), hdu])
     hdul.writeto(file_path)
 
     with fits.open(file_path) as hdul:
-        for sdtype in  (np.dtype('>i2'), np.dtype('>u2')):
+        for sdtype in (np.dtype(">i2"), np.dtype(">u2")):
             result = util.gentle_asarray(hdul[-1].data, dtype=[("col1", sdtype, 2)])
-            assert result['col1'].dtype.base == sdtype
-            assert result.dtype['col1'].base == sdtype
-            assert result.dtype['col1'].shape == (2, )
-            assert result['col1'][0][0] == 1
-            assert result['col1'][0][1] == 2
-            assert result['col1'][1][0] == 3
-            assert result['col1'][1][1] == 4
-            assert result['col1'][[True, False]][0][0] == 1
-            assert result['col1'][[True, False]][0][1] == 2
+            assert result["col1"].dtype.base == sdtype
+            assert result.dtype["col1"].base == sdtype
+            assert result.dtype["col1"].shape == (2,)
+            assert result["col1"][0][0] == 1
+            assert result["col1"][0][1] == 2
+            assert result["col1"][1][0] == 3
+            assert result["col1"][1][1] == 4
+            assert result["col1"][[True, False]][0][0] == 1
+            assert result["col1"][[True, False]][0][1] == 2
 
 
 def test_gentle_asarray_nested_array():
@@ -201,11 +199,11 @@ def test_gentle_asarray_invalid_conversion():
         util.gentle_asarray(object(), dtype=np.float32)
 
 
-@pytest.mark.parametrize("reorder", [True, False], ids=['different_order', 'same_order'])
-@pytest.mark.parametrize("change_dtype", [True, False], ids=['different_dtype', 'same_dtype'])
-@pytest.mark.parametrize("extra_columns", [True, False], ids=['extra_columns', 'no_extra_columns'])
-@pytest.mark.parametrize("allow_extra", [True, False], ids=['allow_extra', 'disallow_extra'])
-@pytest.mark.parametrize("change_case", [True, False], ids=['changed_case', 'same_case'])
+@pytest.mark.parametrize("reorder", [True, False], ids=["different_order", "same_order"])
+@pytest.mark.parametrize("change_dtype", [True, False], ids=["different_dtype", "same_dtype"])
+@pytest.mark.parametrize("extra_columns", [True, False], ids=["extra_columns", "no_extra_columns"])
+@pytest.mark.parametrize("allow_extra", [True, False], ids=["allow_extra", "disallow_extra"])
+@pytest.mark.parametrize("change_case", [True, False], ids=["changed_case", "same_case"])
 def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, extra_columns, allow_extra, change_case):
     """
     Test gentle_asarray with a structured array with a few combinations of:
@@ -215,22 +213,22 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
         - allowing extra columns
     """
     # start with a target dtype which should (if no error occurs) be the dtype of the result
-    target_dtype = np.dtype([('i', 'i4'), ('f', 'f8'), ('s', 'S3'), ('b', 'bool'), ('u', 'uint8'), ('e', 'i4')])
+    target_dtype = np.dtype([("i", "i4"), ("f", "f8"), ("s", "S3"), ("b", "bool"), ("u", "uint8"), ("e", "i4")])
     input_descr = target_dtype.descr
     if extra_columns:
         # add 3 extra columns
-        input_descr.append(('e1', 'i4'))
-        input_descr.append(('e2', 'f8'))
-        input_descr.append(('e3', 'S4'))
+        input_descr.append(("e1", "i4"))
+        input_descr.append(("e2", "f8"))
+        input_descr.append(("e3", "S4"))
     if change_dtype:
         # change the dtype of a few columns
-        input_descr[0] = ('i', 'i8')
-        input_descr[1] = ('f', 'f4')
-        input_descr[5] = ('e', 'f8')
+        input_descr[0] = ("i", "i8")
+        input_descr[1] = ("f", "f4")
+        input_descr[5] = ("e", "f8")
         if extra_columns:
             # if we have extra columns, change those as well
-            input_descr[6] = ('e1', 'f4')
-            input_descr[7] = ('e2', 'i4')
+            input_descr[6] = ("e1", "f4")
+            input_descr[7] = ("e2", "i4")
     if reorder:
         # swap 2 columns
         input_descr[3], input_descr[2] = input_descr[2], input_descr[3]
@@ -241,11 +239,11 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
     # generate the input datatype and data
     input_dtype = np.dtype(input_descr)
     input_array = np.zeros(5, input_dtype)
-    input_array['i'] = 2
-    input_array['f'] = 0.1
-    input_array['s'] = b'a'
-    input_array['b'] = True
-    input_array['u'] = 3
+    input_array["i"] = 2
+    input_array["f"] = 0.1
+    input_array["s"] = b"a"
+    input_array["b"] = True
+    input_array["u"] = 3
     if change_case:
         input_array.dtype.names = tuple([n.upper() for n in input_array.dtype.names])
         input_dtype = input_array.dtype
@@ -257,11 +255,11 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
 
     new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
     # check data passed through correctly
-    assert np.all(new_array['i'] == 2)
-    assert np.allclose(new_array['f'], 0.1)
-    assert np.all(new_array['s'] == b'a')
-    assert np.all(new_array['b'] == True)
-    assert np.all(new_array['u'] == 3)
+    assert np.all(new_array["i"] == 2)
+    assert np.allclose(new_array["f"], 0.1)
+    assert np.all(new_array["s"] == b"a")
+    assert np.all(new_array["b"] == True)
+    assert np.all(new_array["u"] == 3)
     if not extra_columns:
         # if we have not extra columns, the output dtype should match the target
         assert new_array.dtype == target_dtype
@@ -275,11 +273,10 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
             new_array.dtype[extra_name] == input_dtype[extra_name]
 
 
-
 def test_gentle_asarray_nested_structured_dtype():
-    dt = np.dtype([('a', 'f8'), ('b', [('sa', 'f4'), ('sb', 'i4')])])
+    dt = np.dtype([("a", "f8"), ("b", [("sa", "f4"), ("sb", "i4")])])
     arr = np.zeros(3, dt)
-    with pytest.raises(ValueError, match=r'.*nested structured dtypes'):
+    with pytest.raises(ValueError, match=r".*nested structured dtypes"):
         util.gentle_asarray(arr, dt)
 
 
@@ -327,7 +324,7 @@ def test_create_history_entry():
         ("t", True),
         ("yes", True),
         ("y", True),
-    ]
+    ],
 )
 def test_get_envar_as_boolean(monkeypatch, value, expected_result):
     monkeypatch.setenv("TEST_VAR", value)

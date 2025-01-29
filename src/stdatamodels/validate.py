@@ -57,10 +57,10 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
         array = ndarray.inline_data_asarray(instance)
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(array.dtype)
     elif isinstance(instance, dict):
-        if 'datatype' in instance:
-            instance_datatype = instance['datatype']
-        elif 'data' in instance:
-            array = ndarray.inline_data_asarray(instance['data'])
+        if "datatype" in instance:
+            instance_datatype = instance["datatype"]
+        elif "data" in instance:
+            array = ndarray.inline_data_asarray(instance["data"])
             instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(array.dtype)
         else:
             yield ValidationError("Not an array")
@@ -77,17 +77,14 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             yield ValidationError(f"Expected scalar datatype '{schema_datatype}', got '{instance_datatype}'")
 
         # Using 'equiv' so that we can be flexible on byte order:
-        if not np.can_cast(instance_dtype, schema_dtype, 'equiv'):
+        if not np.can_cast(instance_dtype, schema_dtype, "equiv"):
             yield ValidationError(f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}'")
     else:
         if not instance_dtype.fields:
             yield ValidationError(f"Expected structured datatype '{schema_datatype}', got '{instance_datatype}'")
 
         if len(instance_dtype.fields) != len(schema_dtype.fields):
-            yield ValidationError(
-                "Mismatch in number of fields: "
-                f"Expected {len(schema_datatype)}, got {len(instance_datatype)}"
-            )
+            yield ValidationError(f"Mismatch in number of fields: Expected {len(schema_datatype)}, got {len(instance_datatype)}")
 
         for i in range(len(schema_dtype.fields)):
             instance_type = instance_dtype[i]
@@ -98,18 +95,14 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             schema_name = schema_dtype.names[i]
 
             if instance_name != schema_name:
+                yield ValidationError(f"Wrong name in field {i}: Expected {instance_name}, got {schema_name}")
+
+            if "ndim" in field_schema and instance_ndim != field_schema["ndim"]:
                 yield ValidationError(
-                    f"Wrong name in field {i}: Expected "
-                    f"{instance_name}, got {schema_name}"
+                    f"Wrong number of dimensions in field {i}: Expected {field_schema['ndim']}, got {instance_ndim}"
                 )
 
-            if 'ndim' in field_schema and instance_ndim != field_schema['ndim']:
-                yield ValidationError(
-                    f"Wrong number of dimensions in field {i}: Expected "
-                    f"{field_schema['ndim']}, got {instance_ndim}"
-                )
-
-            if 'max_ndim' in field_schema and instance_ndim > field_schema['max_ndim']:
+            if "max_ndim" in field_schema and instance_ndim > field_schema["max_ndim"]:
                 yield ValidationError(
                     f"Wrong number of dimensions in field {i}: Expected "
                     f"maximum of {field_schema['max_ndim']}, got {instance_ndim}"
@@ -125,10 +118,9 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
                 compare_schema_type = schema_type
 
             # Using 'equiv' so that we can be flexible on byte order:
-            if not np.can_cast(compare_instance_type, compare_schema_type, 'equiv'):
+            if not np.can_cast(compare_instance_type, compare_schema_type, "equiv"):
                 yield ValidationError(
-                    f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}' at "
-                    f"field {i}"
+                    f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}' at field {i}"
                 )
 
 
@@ -169,7 +161,7 @@ def _error_message(path, error):
     """
     if isinstance(path, list):
         spath = [str(p) for p in path]
-        name = '.'.join(spath)
+        name = ".".join(spath)
     else:
         name = str(path)
 

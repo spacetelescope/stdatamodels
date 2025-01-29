@@ -25,9 +25,12 @@ def _entry_to_str(entry):
         "div",
         R(
             "dl",
-            R("dt", "path") + R("dd", entry["path"]) +
-            R("dt", "scope") + R("dd", entry["scope"]) +
-            R("dt", "keyword") + R("dd", R("pre", R("code", pformat(entry["keyword"], indent=2)))),
+            R("dt", "path")
+            + R("dd", entry["path"])
+            + R("dt", "scope")
+            + R("dd", entry["scope"])
+            + R("dt", "keyword")
+            + R("dd", R("pre", R("code", pformat(entry["keyword"], indent=2)))),
         ),
     )
 
@@ -100,7 +103,8 @@ def _configure_cmdline_parser():
         help="Path to keyword dictionary directory.",
     )
     parser.add_argument(
-        "-o", "--output_file",
+        "-o",
+        "--output_file",
         default="report.html",
         help="HTML report output filename.",
     )

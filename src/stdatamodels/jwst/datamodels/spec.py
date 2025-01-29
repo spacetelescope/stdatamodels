@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ['SpecModel', 'MRSSpecModel']
+__all__ = ["SpecModel", "MRSSpecModel"]
 
 
 class SpecModel(JwstDataModel):
@@ -15,6 +15,7 @@ class SpecModel(JwstDataModel):
         A table with at least four columns:  wavelength, flux, an error
         estimate for the flux, and data quality flags.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/spec.schema"
 
 
@@ -30,4 +31,5 @@ class MRSSpecModel(SpecModel):
         columns for residual fringe corrected data: flux, surface brightness,
         and background.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mrs_spec.schema"

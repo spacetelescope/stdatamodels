@@ -1,4 +1,5 @@
 """Project default for pytest"""
+
 from pathlib import Path
 
 import pytest
@@ -14,13 +15,12 @@ def pytest_addoption(parser):
         help="Skip tests against crds",
     )
 
+
 @pytest.fixture(scope="session", autouse=True)
 def register_schemas():
-    schemas_root = Path(__file__).parent/"schemas"
+    schemas_root = Path(__file__).parent / "schemas"
     with asdf.config_context() as config:
-        config.add_resource_mapping(
-            asdf.resource.DirectoryResourceMapping(schemas_root, "http://example.com/schemas")
-        )
+        config.add_resource_mapping(asdf.resource.DirectoryResourceMapping(schemas_root, "http://example.com/schemas"))
         yield
 
 

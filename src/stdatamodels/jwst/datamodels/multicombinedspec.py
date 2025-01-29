@@ -2,7 +2,7 @@ from .model_base import JwstDataModel
 from .combinedspec import CombinedSpecModel
 
 
-__all__ = ['MultiCombinedSpecModel']
+__all__ = ["MultiCombinedSpecModel"]
 
 
 class MultiCombinedSpecModel(JwstDataModel):
@@ -33,10 +33,10 @@ class MultiCombinedSpecModel(JwstDataModel):
          Extracted spectral data table
 
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/multicombinedspec.schema"
 
     def __init__(self, init=None, **kwargs):
-
         if isinstance(init, CombinedSpecModel):
             super(MultiCombinedSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())

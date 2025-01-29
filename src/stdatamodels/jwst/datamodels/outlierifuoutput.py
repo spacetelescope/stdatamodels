@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ['OutlierIFUOutputModel']
+__all__ = ["OutlierIFUOutputModel"]
 
 
 class OutlierIFUOutputModel(JwstDataModel):
@@ -27,4 +27,5 @@ class OutlierIFUOutputModel(JwstDataModel):
         minarr/normarr
 
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/outlierifuoutput.schema"

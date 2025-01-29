@@ -12,7 +12,7 @@ from models import BasicModel, AnyOfModel, TableModel, TransformModel
 def test_init_from_pathlib(tmp_path):
     """Test initializing model from a PurePath object"""
 
-    file_path = tmp_path/"test.asdf"
+    file_path = tmp_path / "test.asdf"
     with asdf.AsdfFile() as af:
         af["meta"] = {"telescope": "crystal ball"}
         af.write_to(file_path)
@@ -49,8 +49,8 @@ def test_broadcast2():
 
 def test_delete():
     with BasicModel() as dm:
-        dm.meta.telescope= 'JWST'
-        assert dm.meta.telescope == 'JWST'
+        dm.meta.telescope = "JWST"
+        assert dm.meta.telescope == "JWST"
         del dm.meta.telescope
         assert dm.meta.telescope is None
 
@@ -74,17 +74,17 @@ def test_copy():
 
 def test_stringify(tmp_path):
     dm = DataModel()
-    assert str(dm) == '<DataModel>'
+    assert str(dm) == "<DataModel>"
 
     dm = BasicModel((10, 100))
-    assert str(dm) == '<BasicModel(10, 100)>'
+    assert str(dm) == "<BasicModel(10, 100)>"
 
-    file_path = tmp_path/"test.asdf"
+    file_path = tmp_path / "test.asdf"
     dm.save(file_path)
     dm.close()
 
     with BasicModel(file_path) as dm:
-        assert str(dm) == '<BasicModel(10, 100) from test.asdf>'
+        assert str(dm) == "<BasicModel(10, 100) from test.asdf>"
 
 
 def test_init_with_array():
@@ -127,7 +127,7 @@ def test_array_type():
 def test_copy_model():
     with DataModel() as dm:
         with DataModel(dm) as dm2:
-            assert hasattr(dm2, 'meta')
+            assert hasattr(dm2, "meta")
 
 
 def test_dtype_match():
@@ -162,7 +162,7 @@ def test_open_asdf_model(tmp_path):
     with DataModel(ignore_unrecognized_tag=True) as model:
         assert model._asdf._ignore_unrecognized_tag
 
-    file_path = tmp_path/"test.asdf"
+    file_path = tmp_path / "test.asdf"
 
     with asdf.AsdfFile() as af:
         af.write_to(file_path)
@@ -173,7 +173,7 @@ def test_open_asdf_model(tmp_path):
 
 def test_update_from_dict(tmp_path):
     """Test update method from a dictionary"""
-    file_path = tmp_path/"update.asdf"
+    file_path = tmp_path / "update.asdf"
     with BasicModel((5, 5)) as m:
         m.update({"foo": "bar", "baz": 42})
         m.save(file_path)
@@ -189,17 +189,17 @@ def test_object_node_iterator():
     for i in m.meta.items():
         items.append(i[0])
 
-    assert 'foo' in items
+    assert "foo" in items
 
 
 def test_hasattr():
     model = DataModel({"meta": {"foo": "bar"}})
-    assert model.meta.hasattr('foo')
-    assert not model.meta.hasattr('baz')
+    assert model.meta.hasattr("foo")
+    assert not model.meta.hasattr("baz")
 
 
 def test_datamodel_raises_filenotfound(tmp_path):
-    file_path = tmp_path/"missing.asdf"
+    file_path = tmp_path / "missing.asdf"
 
     with pytest.raises(FileNotFoundError):
         DataModel(file_path)
@@ -209,7 +209,7 @@ def test_getarray_noinit_valid():
     """Test for valid value return"""
     arr = np.ones((5, 5))
     model = BasicModel(data=arr)
-    fetched = model.getarray_noinit('data')
+    fetched = model.getarray_noinit("data")
     assert (fetched == arr).all()
 
 
@@ -218,7 +218,7 @@ def test_getarray_noinit_raises():
     arr = np.ones((5, 5))
     model = BasicModel(data=arr)
     with pytest.raises(AttributeError):
-        model.getarray_noinit('area')
+        model.getarray_noinit("area")
 
 
 def test_getarray_noinit_noinit():
@@ -226,16 +226,16 @@ def test_getarray_noinit_noinit():
     arr = np.ones((5, 5))
     model = BasicModel(data=arr)
     try:
-        model.getarray_noinit('area')
+        model.getarray_noinit("area")
     except AttributeError:
         pass
-    assert 'area' not in model.instance
+    assert "area" not in model.instance
 
 
 @pytest.mark.parametrize("filename", ["null.fits", "null.asdf"])
 def test_skip_serializing_null(tmp_path, filename):
     """Make sure that None is not written out to the ASDF tree"""
-    file_path = tmp_path/filename
+    file_path = tmp_path / filename
     with BasicModel() as model:
         model.meta.telescope = None
         model.save(file_path)
@@ -250,6 +250,7 @@ def test_delete_failed_model():
     Test that a model that failed to initialize does not
     error when deleted.
     """
+
     class FailedModel(DataModel):
         def __init__(self, *args, **kwargs):
             # Simulate a failed init by not invoking the
@@ -281,7 +282,7 @@ def test_on_save_hook(tmp_path):
 
     model = OnSaveModel()
     assert "foo" not in model.meta._instance
-    model.save(tmp_path/"test.asdf")
+    model.save(tmp_path / "test.asdf")
     assert model.meta.foo == "bar"
 
 
@@ -291,7 +292,6 @@ def test_garbage_collectable(ModelType, tmp_path):
     # reintroduce the 'difficult to garbage collect' bugs fixed in PR:
     # https://github.com/spacetelescope/stdatamodels/pull/109
 
-
     def find_gen_by_id(object_id):
         for g in (0, 1, 2):
             for o in gc.get_objects(g):
@@ -299,9 +299,8 @@ def test_garbage_collectable(ModelType, tmp_path):
                     return g
         return None
 
-
     # make a bunch of models, keep track of where they are in memory
-    ofn = tmp_path / 'test.fits'
+    ofn = tmp_path / "test.fits"
     mids = set()
     for i in range(30):
         m = ModelType()
@@ -331,4 +330,4 @@ def test_garbage_collectable(ModelType, tmp_path):
 def test_get_fileext_deprecation():
     m = DataModel()
     with pytest.warns(DeprecationWarning):
-        assert m.get_fileext() == 'fits'
+        assert m.get_fileext() == "fits"

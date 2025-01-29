@@ -8,25 +8,15 @@ from stdatamodels.jwst.datamodels import JwstDataModel
 import stdatamodels.schema
 
 
-DATAMODEL_SCHEMAS = list(
-    importlib.resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml")
-)
+DATAMODEL_SCHEMAS = list(importlib.resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml"))
 # transform schemas are nested in a directory with a '.'
 TRANSFORM_SCHEMAS = list(
-    next(
-        importlib.resources.files(
-            "stdatamodels.jwst.transforms.resources.schemas"
-        ).iterdir()
-    ).glob("**/*.yaml")
+    next(importlib.resources.files("stdatamodels.jwst.transforms.resources.schemas").iterdir()).glob("**/*.yaml")
 )
 
 SCHEMAS = DATAMODEL_SCHEMAS + TRANSFORM_SCHEMAS
 
-TRANSFORM_MANIFESTS = list(
-    importlib.resources.files("stdatamodels.jwst.transforms.resources.manifests").glob(
-        "*.yaml"
-    )
-)
+TRANSFORM_MANIFESTS = list(importlib.resources.files("stdatamodels.jwst.transforms.resources.manifests").glob("*.yaml"))
 
 RESOURCES = SCHEMAS + TRANSFORM_MANIFESTS
 
@@ -54,14 +44,12 @@ def test_resource_id(resource):
     resource_manager = asdf.get_config().resource_manager
 
     # check that asdf is aware of the "id"
-    assert (
-        schema["id"] in resource_manager
-    ), f"id[{schema['id']}] for resource[{resource}] was not registered with asdf"
+    assert schema["id"] in resource_manager, f"id[{schema['id']}] for resource[{resource}] was not registered with asdf"
 
     # and that using the "id" to fetch the resource returns the contents of the file
-    assert (
-        resource_manager[schema["id"]] == contents
-    ), f"id[{schema['id']}] for resource[{resource}] did not return the contents of the resource"
+    assert resource_manager[schema["id"]] == contents, (
+        f"id[{schema['id']}] for resource[{resource}] did not return the contents of the resource"
+    )
 
 
 @pytest.mark.parametrize("manifest_filename", TRANSFORM_MANIFESTS)
@@ -101,16 +89,16 @@ def test_schema_refs_base(datamodel_schema_file):
     def cb(subschema, path, combiner, ctx, recurse):
         if not isinstance(subschema, dict):
             return
-        if 'id' not in subschema:
+        if "id" not in subschema:
             return
-        ctx['ids'].add(subschema['id'])
+        ctx["ids"].add(subschema["id"])
 
     seen_ids = set()
-    stdatamodels.schema.walk_schema(schema, cb, ctx={'ids': seen_ids})
+    stdatamodels.schema.walk_schema(schema, cb, ctx={"ids": seen_ids})
 
-    if 'http://stsci.edu/schemas/jwst_datamodel/core.schema' in seen_ids:
-        assert 'http://stsci.edu/schemas/jwst_datamodel/referencefile.schema' not in seen_ids
-    elif 'http://stsci.edu/schemas/jwst_datamodel/referencefile.schema' in seen_ids:
-        assert 'http://stsci.edu/schemas/jwst_datamodel/core.schema' not in seen_ids
+    if "http://stsci.edu/schemas/jwst_datamodel/core.schema" in seen_ids:
+        assert "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema" not in seen_ids
+    elif "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema" in seen_ids:
+        assert "http://stsci.edu/schemas/jwst_datamodel/core.schema" not in seen_ids
     else:
         assert False

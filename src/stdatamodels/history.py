@@ -1,15 +1,18 @@
 from asdf.tags.core import HistoryEntry
 
+
 def _iterable(values):
-    if isinstance(values, str) or not hasattr(values, '__iter__'):
+    if isinstance(values, str) or not hasattr(values, "__iter__"):
         values = (values,)
     return values
+
 
 class HistoryList:
     """
     A list that coerces a new value into a HistoryEntry.
     Only a subset of the list interface is implemented.
     """
+
     def __init__(self, asdf):
         self._context = asdf
         if len(self._context.get_history_entries()):
@@ -53,7 +56,7 @@ class HistoryList:
 
         for self_entry, other_entry in zip(self._entries, other):
             if isinstance(other_entry, str):
-                if self_entry.get('description') != other_entry:
+                if self_entry.get("description") != other_entry:
                     return False
             elif isinstance(other_entry, dict):
                 for key in other_entry.keys():

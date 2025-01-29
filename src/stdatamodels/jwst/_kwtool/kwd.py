@@ -44,7 +44,7 @@ def _walk_kwd(kwd_path, root, path=None, keywords=None):
         assert "fits_hdu" in root
         return keywords.append((_sanitize_path(path), root))
     for key, sub in root.items():
-        _walk_kwd(kwd_path, sub, path + (key, ), keywords)
+        _walk_kwd(kwd_path, sub, path + (key,), keywords)
 
 
 def load(path):
@@ -58,7 +58,7 @@ def load(path):
     keyword_infos_per_mode = {}
     for top_schema_file in top_schema_files:
         schema = _load_kwd_schema(top_schema_file)
-        mode = '.'.join(top_schema_file.name.split('.')[1:3])
+        mode = ".".join(top_schema_file.name.split(".")[1:3])
         keyword_infos_per_mode[mode] = []
         _walk_kwd(kwd_path, schema, keywords=keyword_infos_per_mode[mode])
 
@@ -70,9 +70,11 @@ def load(path):
             key = (keyword["fits_hdu"], keyword["fits_keyword"])
             if key not in kwd:
                 kwd[key] = []
-            kwd[key].append({
-                "scope": mode,
-                "path": path,
-                "keyword": keyword,
-            })
+            kwd[key].append(
+                {
+                    "scope": mode,
+                    "path": path,
+                    "keyword": keyword,
+                }
+            )
     return kwd

@@ -26,11 +26,12 @@ from . import util
 from . import validate
 
 import logging
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-__all__ = ['to_fits', 'from_fits', 'fits_hdu_name', 'get_hdu', 'is_builtin_fits_keyword']
+__all__ = ["to_fits", "from_fits", "fits_hdu_name", "get_hdu", "is_builtin_fits_keyword"]
 
 
 _ASDF_EXTENSION_NAME = "ASDF"
@@ -41,18 +42,40 @@ else:
     _NDARRAY_TAG = "tag:stsci.edu:asdf/core/ndarray-1.0.0"
 
 _builtin_regexes = [
-    '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
-    'EXTEND', 'BSCALE', 'BZERO', 'BLANK', 'DATAMAX', 'DATAMIN',
-    'EXTNAME', 'EXTVER', 'EXTLEVEL', 'GROUPS', 'PYTPE[0-9]',
-    'PSCAL[0-9]', 'PZERO[0-9]', 'SIMPLE', 'TFIELDS',
-    'TBCOL[0-9]{1,3}', 'TFORM[0-9]{1,3}', 'TTYPE[0-9]{1,3}',
-    'TUNIT[0-9]{1,3}', 'TSCAL[0-9]{1,3}', 'TZERO[0-9]{1,3}',
-    'TNULL[0-9]{1,3}', 'TDISP[0-9]{1,3}', 'HISTORY'
-    ]
+    "",
+    "NAXIS[0-9]{0,3}",
+    "BITPIX",
+    "XTENSION",
+    "PCOUNT",
+    "GCOUNT",
+    "EXTEND",
+    "BSCALE",
+    "BZERO",
+    "BLANK",
+    "DATAMAX",
+    "DATAMIN",
+    "EXTNAME",
+    "EXTVER",
+    "EXTLEVEL",
+    "GROUPS",
+    "PYTPE[0-9]",
+    "PSCAL[0-9]",
+    "PZERO[0-9]",
+    "SIMPLE",
+    "TFIELDS",
+    "TBCOL[0-9]{1,3}",
+    "TFORM[0-9]{1,3}",
+    "TTYPE[0-9]{1,3}",
+    "TUNIT[0-9]{1,3}",
+    "TSCAL[0-9]{1,3}",
+    "TZERO[0-9]{1,3}",
+    "TNULL[0-9]{1,3}",
+    "TDISP[0-9]{1,3}",
+    "HISTORY",
+]
 
 
-_builtin_regex = re.compile(
-    '|'.join('(^{0}$)'.format(x) for x in _builtin_regexes))
+_builtin_regex = re.compile("|".join("(^{0}$)".format(x) for x in _builtin_regexes))
 
 
 def is_builtin_fits_keyword(key):
@@ -64,23 +87,17 @@ def is_builtin_fits_keyword(key):
     return _builtin_regex.match(key) is not None
 
 
-_keyword_indices = [
-    ('nnn', 1000, None),
-    ('nn', 100, None),
-    ('n', 10, None),
-    ('s', 27, ' ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    ]
+_keyword_indices = [("nnn", 1000, None), ("nn", 100, None), ("n", 10, None), ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
 
 # Key where the FITS hash is stored in the ASDF tree
-FITS_HASH_KEY = '_fits_hash'
+FITS_HASH_KEY = "_fits_hash"
 
 
 def _get_indexed_keyword(keyword, i):
-    for (sub, max, r) in _keyword_indices:
+    for sub, max, r in _keyword_indices:
         if sub in keyword:
             if i >= max:
-                raise ValueError(
-                    "Too many entries for given keyword '{0}'".format(keyword))
+                raise ValueError("Too many entries for given keyword '{0}'".format(keyword))
             if r is None:
                 val = str(i)
             else:
@@ -96,13 +113,13 @@ def fits_hdu_name(name):
     version of Python.
     """
     if isinstance(name, bytes):
-        return name.decode('ascii')
+        return name.decode("ascii")
     return name
 
 
 def _get_hdu_name(schema):
-    hdu_name = schema.get('fits_hdu')
-    if hdu_name in (None, 'PRIMARY'):
+    hdu_name = schema.get("fits_hdu")
+    if hdu_name in (None, "PRIMARY"):
         hdu_name = 0
     else:
         hdu_name = fits_hdu_name(hdu_name)
@@ -111,14 +128,14 @@ def _get_hdu_name(schema):
 
 def _get_hdu_type(hdu_name, schema=None, value=None):
     hdu_type = None
-    if hdu_name in (0, 'PRIMARY'):
+    if hdu_name in (0, "PRIMARY"):
         hdu_type = fits.PrimaryHDU
     elif schema is not None:
-        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
+        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
         if dtype.fields is not None:
             hdu_type = fits.BinTableHDU
     elif value is not None:
-        if hasattr(value, 'dtype') and value.dtype.names is not None:
+        if hasattr(value, "dtype") and value.dtype.names is not None:
             hdu_type = fits.BinTableHDU
     return hdu_type
 
@@ -146,17 +163,11 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
             else:
                 raise
         except (KeyError, IndexError, AttributeError):
-            raise AttributeError(
-                "Property missing because FITS file has no "
-                "'{0!r}' HDU".format(
-                    pair))
+            raise AttributeError("Property missing because FITS file has no '{0!r}' HDU".format(pair))
 
     if index is not None:
-        if hdu.header.get('EXTVER', 1) != index + 1:
-            raise AttributeError(
-                "Property missing because FITS file has no "
-                "{0!r} HDU".format(
-                    pair))
+        if hdu.header.get("EXTVER", 1) != index + 1:
+            raise AttributeError("Property missing because FITS file has no {0!r} HDU".format(pair))
 
     if _cache is not None:
         _cache[pair] = hdu
@@ -197,12 +208,10 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     try:
         hdu = get_hdu(hdulist, hdu_name, index=index)
     except AttributeError:
-        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type,
-                        value=value)
+        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
     else:
         if hdu_type is not None and not isinstance(hdu, hdu_type):
-            new_hdu = _make_hdu(hdulist, hdu_name, index=index,
-                                hdu_type=hdu_type, value=value)
+            new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
             for key, val in hdu.header.items():
                 if not is_builtin_fits_keyword(key):
                     new_hdu.header[key] = val
@@ -214,9 +223,8 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
 
 
 def _assert_non_primary_hdu(hdu_name):
-    if hdu_name in (None, 0, 'PRIMARY'):
-        raise ValueError(
-            "Schema for data property does not specify a non-primary hdu name")
+    if hdu_name in (None, 0, "PRIMARY"):
+        raise ValueError("Schema for data property does not specify a non-primary hdu name")
 
 
 ##############################################################################
@@ -227,7 +235,7 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
     if not validator.is_type(instance, "object"):
         return
 
-    title = schema.get('title')
+    title = schema.get("title")
     if title is not None:
         current_comment_stack = fits_context.comment_stack
         current_comment_stack.append(ensure_ascii(title))
@@ -247,7 +255,7 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
 
 
 def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema):
-    if schema.get('type', 'object') == 'array':
+    if schema.get("type", "object") == "array":
         raise ValueError("'fits_keyword' is not valid with type of 'array'")
 
     hdu_name = _get_hdu_name(schema)
@@ -255,15 +263,15 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
     hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=fits_context.sequence_index)
 
     for comment in fits_context.comment_stack:
-        hdu.header.append((' ', ''), end=True)
-        hdu.header.append((' ', comment), end=True)
-        hdu.header.append((' ', ''), end=True)
+        hdu.header.append((" ", ""), end=True)
+        hdu.header.append((" ", comment), end=True)
+        hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
     comment = ensure_ascii(get_short_doc(schema))
     instance = ensure_ascii(instance)
 
-    if fits_keyword in ('COMMENT', 'HISTORY'):
+    if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
             hdu.header[fits_keyword] = ensure_ascii(item)
     elif fits_keyword in hdu.header:
@@ -283,12 +291,12 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     if not len(instance.shape):
         return
 
-    if 'ndim' in schema:
-        ndarray.validate_ndim(validator, schema['ndim'], instance, schema)
-    if 'max_ndim' in schema:
-        ndarray.validate_max_ndim(validator, schema['max_ndim'], instance, schema)
-    if 'dtype' in schema:
-        ndarray.validate_dtype(validator, schema['dtype'], instance, schema)
+    if "ndim" in schema:
+        ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
+    if "max_ndim" in schema:
+        ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
+    if "dtype" in schema:
+        ndarray.validate_dtype(validator, schema["dtype"], instance, schema)
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
@@ -297,8 +305,7 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         index = 0
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name,
-                           index=index, hdu_type=hdu_type)
+    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
 
     hdu.data = instance
     if instance_id in fits_context.extension_array_links:
@@ -323,13 +330,16 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
         # We don't do the index trick on "tuple validated" sequences
         for (index, item), subschema in zip(enumerate(instance), items):
             for error in validator.descend(
-                item, subschema, path=index, schema_path=index,
+                item,
+                subschema,
+                path=index,
+                schema_path=index,
             ):
                 yield error
 
 
 def _fits_type(fits_context, validator, items, instance, schema):
-    if instance in ('N/A', '#TODO', '', None):
+    if instance in ("N/A", "#TODO", "", None):
         return
 
     return asdf_schema.YAML_VALIDATORS["type"](validator, items, instance, schema)
@@ -350,15 +360,17 @@ def _get_validators(hdulist):
 
     partial_fits_array_writer = partial(_fits_array_writer, fits_context)
 
-    validators.update({
-        'fits_keyword': partial(_fits_element_writer, fits_context),
-        'ndim': partial_fits_array_writer,
-        'max_ndim': partial_fits_array_writer,
-        'datatype': partial_fits_array_writer,
-        'items': partial(_fits_item_recurse, fits_context),
-        'properties': partial(_fits_comment_section_handler, fits_context),
-        'type': partial(_fits_type, fits_context),
-    })
+    validators.update(
+        {
+            "fits_keyword": partial(_fits_element_writer, fits_context),
+            "ndim": partial_fits_array_writer,
+            "max_ndim": partial_fits_array_writer,
+            "datatype": partial_fits_array_writer,
+            "items": partial(_fits_item_recurse, fits_context),
+            "properties": partial(_fits_comment_section_handler, fits_context),
+            "type": partial(_fits_type, fits_context),
+        }
+    )
 
     return validators, fits_context
 
@@ -369,7 +381,7 @@ def _save_from_schema(hdulist, tree, schema):
             node = time.Time(node)
 
         if isinstance(node, time.Time):
-            node = str(time.Time(node, format='iso'))
+            node = str(time.Time(node, format="iso"))
 
         return node
 
@@ -406,15 +418,11 @@ def _save_from_schema(hdulist, tree, schema):
 
 
 def _create_tagged_dict_for_fits_array(hdu, hdu_index):
-     # Views over arrays stored in FITS files have some idiosyncrasies.
-     # astropy.io.fits always writes arrays C-contiguous with big-endian
-     # byte order, whereas asdf preserves the "contiguousity" and byte order
-     # of the base array.
-    dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(
-        hdu.data.dtype,
-        include_byteorder=True,
-        override_byteorder="big"
-    )
+    # Views over arrays stored in FITS files have some idiosyncrasies.
+    # astropy.io.fits always writes arrays C-contiguous with big-endian
+    # byte order, whereas asdf preserves the "contiguousity" and byte order
+    # of the base array.
+    dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(hdu.data.dtype, include_byteorder=True, override_byteorder="big")
 
     if hdu.name == "":
         source = f"{_FITS_SOURCE_PREFIX}{hdu_index}"
@@ -422,13 +430,7 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
         source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
 
     return tagged.TaggedDict(
-        data={
-            "source": source,
-            "shape": list(hdu.data.shape),
-            "datatype": dtype,
-            "byteorder": byteorder
-        },
-        tag=_NDARRAY_TAG
+        data={"source": source, "shape": list(hdu.data.shape), "datatype": dtype, "byteorder": byteorder}, tag=_NDARRAY_TAG
     )
 
 
@@ -439,6 +441,7 @@ def _normalize_arrays(tree):
     don't want the asdf library to notice the change in memory
     layout and duplicate the array in the embedded ASDF.
     """
+
     def normalize_array(node):
         if isinstance(node, np.ndarray):
             # We can't use np.ascontiguousarray because it converts FITS_rec
@@ -453,29 +456,28 @@ def _normalize_arrays(tree):
 
 def _save_extra_fits(hdulist, tree):
     # Handle _extra_fits
-    for hdu_name, parts in tree.get('extra_fits', {}).items():
+    for hdu_name, parts in tree.get("extra_fits", {}).items():
         hdu_name = fits_hdu_name(hdu_name)
-        if 'data' in parts:
-            hdu_type = _get_hdu_type(hdu_name, value=parts['data'])
-            hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type,
-                                   value=parts['data'])
-        if 'header' in parts:
+        if "data" in parts:
+            hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
+            hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
+        if "header" in parts:
             hdu = _get_or_make_hdu(hdulist, hdu_name)
-            for key, val, comment in parts['header']:
+            for key, val, comment in parts["header"]:
                 if is_builtin_fits_keyword(key):
                     continue
                 hdu.header.append((key, val, comment), end=True)
 
 
 def _save_history(hdulist, tree):
-    if 'history' not in tree:
+    if "history" not in tree:
         return
 
     # Support the older way of representing ASDF history entries
-    if isinstance(tree['history'], list):
-        history = tree['history']
+    if isinstance(tree["history"], list):
+        history = tree["history"]
     else:
-        history = tree['history'].get('entries', [])
+        history = tree["history"].get("entries", [])
 
     for i in range(len(history)):
         # There is no guarantee the user has added proper HistoryEntry records
@@ -483,8 +485,8 @@ def _save_history(hdulist, tree):
             if isinstance(history[i], dict):
                 history[i] = HistoryEntry(history[i])
             else:
-                history[i] = HistoryEntry({'description': str(history[i])})
-        hdulist[0].header['HISTORY'] = history[i]['description']
+                history[i] = HistoryEntry({"description": str(history[i])})
+        hdulist[0].header["HISTORY"] = history[i]["description"]
 
 
 def to_fits(tree, schema, hdulist=None):
@@ -530,7 +532,6 @@ def _create_asdf_hdu(tree):
 
 
 def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keywords, fits_hdu_cache):
-
     hdu_name = _get_hdu_name(schema)
     try:
         hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
@@ -542,7 +543,7 @@ def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keyword
     except KeyError:
         return None
 
-    tag = schema.get('tag')
+    tag = schema.get("tag")
     if tag is not None:
         val = tagged.tag_object(tag, val)
 
@@ -567,7 +568,7 @@ def _schema_has_fits_hdu(schema):
     has_fits_hdu = [False]
 
     for node in treeutil.iter_tree(schema):
-        if isinstance(node, dict) and 'fits_hdu' in node:
+        if isinstance(node, dict) and "fits_hdu" in node:
             has_fits_hdu[0] = True
 
     return has_fits_hdu[0]
@@ -580,10 +581,10 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
     # Check if there are any table HDU's. If not, this whole process
     # can be skipped.
     if skip_fits_update:
-        if not any(isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != 'ASDF'):
-            log.debug('Skipping FITS updating completely.')
+        if not any(isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != "ASDF"):
+            log.debug("Skipping FITS updating completely.")
             return known_keywords, known_datas
-        log.debug('Skipping FITS keyword updating except for BinTableHDU and its associated header keywords.')
+        log.debug("Skipping FITS keyword updating except for BinTableHDU and its associated header keywords.")
 
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
@@ -597,11 +598,9 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
 
     def callback(schema, path, combiner, ctx, recurse):
         result = None
-        if not skip_fits_update and 'fits_keyword' in schema:
-            fits_keyword = schema['fits_keyword']
-            result = _fits_keyword_loader(
-                hdulist, fits_keyword, schema,
-                ctx.get('hdu_index'), known_keywords, hdu_cache)
+        if not skip_fits_update and "fits_keyword" in schema:
+            fits_keyword = schema["fits_keyword"]
+            result = _fits_keyword_loader(hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -612,10 +611,8 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 else:
                     properties.put_value(path, result, tree)
 
-        elif 'fits_hdu' in schema and (
-                'max_ndim' in schema or 'ndim' in schema or 'datatype' in schema):
-            result = _fits_array_loader(
-                hdulist, schema, ctx.get('hdu_index'), known_datas, hdu_cache)
+        elif "fits_hdu" in schema and ("max_ndim" in schema or "ndim" in schema or "datatype" in schema):
+            result = _fits_array_loader(hdulist, schema, ctx.get("hdu_index"), known_datas, hdu_cache)
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -626,14 +623,11 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 else:
                     properties.put_value(path, result, tree)
 
-        if schema.get('type') == 'array':
+        if schema.get("type") == "array":
             has_fits_hdu = _schema_has_fits_hdu(schema)
             if has_fits_hdu:
                 for i in range(max_extver):
-                    recurse(schema['items'],
-                            path + [i],
-                            combiner,
-                            {'hdu_index': i})
+                    recurse(schema["items"], path + [i], combiner, {"hdu_index": i})
                 return True
 
     mschema.walk_schema(schema, callback)
@@ -642,8 +636,8 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
 
 def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
     # Remove any extra_fits from tree
-    if 'extra_fits' in tree:
-        del tree['extra_fits']
+    if "extra_fits" in tree:
+        del tree["extra_fits"]
 
     # Add header keywords and data not in schema to extra_fits
     for hdu in hdulist:
@@ -653,18 +647,15 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
 
             cards = []
             for key, val, comment in hdu.header.cards:
-                if not (is_builtin_fits_keyword(key) or
-                        key in known):
+                if not (is_builtin_fits_keyword(key) or key in known):
                     cards.append([key, val, comment])
 
             if len(cards):
-                properties.put_value(
-                    ['extra_fits', hdu.name, 'header'], cards, tree)
+                properties.put_value(["extra_fits", hdu.name, "header"], cards, tree)
 
             if hdu not in known_datas:
                 if hdu.data is not None:
-                    properties.put_value(
-                        ['extra_fits', hdu.name, 'data'], hdu.data, tree)
+                    properties.put_value(["extra_fits", hdu.name, "data"], hdu.data, tree)
 
 
 def _load_history(hdulist, tree):
@@ -674,13 +665,13 @@ def _load_history(hdulist, tree):
         return
 
     header = hdu.header
-    if 'HISTORY' not in header:
+    if "HISTORY" not in header:
         return
 
-    history = tree['history'] = {'entries': []}
+    history = tree["history"] = {"entries": []}
 
-    for entry in header['HISTORY']:
-        history['entries'].append(HistoryEntry({'description': entry}))
+    for entry in header["HISTORY"]:
+        history["entries"].append(HistoryEntry({"description": entry}))
 
 
 def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
@@ -713,13 +704,9 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         raise exc.__class__("ERROR loading embedded ASDF: " + str(exc)) from exc
 
     # Determine whether skipping the FITS loading can be done.
-    skip_fits_update = _verify_skip_fits_update(
-        skip_fits_update, hdulist, ff, context
-    )
+    skip_fits_update = _verify_skip_fits_update(skip_fits_update, hdulist, ff, context)
 
-    known_keywords, known_datas = _load_from_schema(
-        hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update
-    )
+    known_keywords, known_datas = _load_from_schema(hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update)
     if not skip_fits_update:
         _load_extra_fits(hdulist, known_keywords, known_datas, ff.tree)
 
@@ -728,13 +715,11 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
     return ff
 
 
-def from_fits_asdf(hdulist,
-                   ignore_unrecognized_tag=False,
-                   **kwargs):
+def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     """
     Wrap asdf call to extract optional arguments
     """
-    ignore_missing_extensions = kwargs.pop('ignore_missing_extensions')
+    ignore_missing_extensions = kwargs.pop("ignore_missing_extensions")
 
     try:
         asdf_extension = hdulist[_ASDF_EXTENSION_NAME]
@@ -746,15 +731,12 @@ def from_fits_asdf(hdulist,
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
     # get kwargs supported by asdf, this will not pass along arbitrary kwargs
-    akwargs = {
-        k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args
-        if k[0] != '_' and k in kwargs
-    }
+    akwargs = {k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args if k[0] != "_" and k in kwargs}
     af = asdf.open(
         generic_file,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        **akwargs
+        **akwargs,
     )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)
@@ -763,11 +745,7 @@ def from_fits_asdf(hdulist,
 
 def _map_hdulist_to_arrays(hdulist, af):
     def callback(node):
-        if (
-                isinstance(node, NDArrayType) and
-                isinstance(node._source, str) and
-                node._source.startswith(_FITS_SOURCE_PREFIX)
-                ):
+        if isinstance(node, NDArrayType) and isinstance(node._source, str) and node._source.startswith(_FITS_SOURCE_PREFIX):
             # read the array data from the hdulist
             source = node._source
             parts = re.match(
@@ -784,6 +762,7 @@ def _map_hdulist_to_arrays(hdulist, af):
             data = hdulist[pair].data
             return data
         return node
+
     # don't assign to af.tree to avoid an extra validation
     af._tree = treeutil.walk_and_modify(af.tree, callback)
 
@@ -795,7 +774,7 @@ def from_fits_hdu(hdu, schema):
     data = hdu.data
 
     # Save the column listeners for possible restoration
-    if hasattr(data, '_coldefs'):
+    if hasattr(data, "_coldefs"):
         listeners = data._coldefs._listeners
     else:
         listeners = None
@@ -836,7 +815,7 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
         All conditions are satisfied for skipping FITS updating.
     """
     if skip_fits_update is None:
-        skip_fits_update = util.get_envar_as_boolean('SKIP_FITS_UPDATE', None)
+        skip_fits_update = util.get_envar_as_boolean("SKIP_FITS_UPDATE", None)
     if skip_fits_update is not None:
         # warn if the value was not None (defined by the user)
         warnings.warn("skip_fits_update is deprecated and will be removed", DeprecationWarning)
@@ -850,21 +829,23 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
 
     # Need an already existing ASDF. If not, cannot skip.
     if not len(asdf_struct.tree):
-        log.debug('No ASDF information found. Cannot skip updating from FITS headers.')
+        log.debug("No ASDF information found. Cannot skip updating from FITS headers.")
         return False
 
     # Ensure model types match
     hdulist_model_type = util.get_model_type(hdulist)
     if hdulist_model_type != context.__class__.__name__:
-        log.debug(f'Input model type {hdulist_model_type} does not match the'
-                  f' requested model {type(context)}.'
-                  ' Cannot skip updating from FITS headers.')
+        log.debug(
+            f"Input model type {hdulist_model_type} does not match the"
+            f" requested model {type(context)}."
+            " Cannot skip updating from FITS headers."
+        )
         return False
 
     # Check for FITS hash and compare to current. If equal, automatically skip.
     if asdf_struct.tree.get(FITS_HASH_KEY, None) is not None:
         if asdf_struct.tree[FITS_HASH_KEY] == fits_hash(hdulist):
-            log.debug('FITS hash matches. Skipping FITS updating.')
+            log.debug("FITS hash matches. Skipping FITS updating.")
             return True
 
     # If skip only if explicitly requested.
@@ -891,24 +872,20 @@ def fits_hash(hdulist):
     # Ignore FITS header warnings, such as "Card is too long".
     # Such issues are inconsequential to hash calculation.
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore', AstropyWarning)
-        fits_hash.update(''.join(
-            str(hdu.header)
-            for hdu in hdulist
-            if hdu.name != 'ASDF').encode()
-        )
+        warnings.simplefilter("ignore", AstropyWarning)
+        fits_hash.update("".join(str(hdu.header) for hdu in hdulist if hdu.name != "ASDF").encode())
     return fits_hash.hexdigest()
 
 
 def get_short_doc(schema):
-    title = schema.get('title', None)
-    description = schema.get('description', None)
+    title = schema.get("title", None)
+    description = schema.get("description", None)
     if description is None:
-        description = title or ''
+        description = title or ""
     else:
         if title is not None:
-            description = title + '\n\n' + description
-    return description.partition('\n')[0]
+            description = title + "\n\n" + description
+    return description.partition("\n")[0]
 
 
 def ensure_ascii(s):
@@ -917,5 +894,5 @@ def ensure_ascii(s):
     # characters in the string fall within the valid
     # range for FITS headers.
     if isinstance(s, bytes):
-        s = s.decode('ascii')
+        s = s.decode("ascii")
     return s

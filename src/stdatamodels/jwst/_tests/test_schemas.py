@@ -72,7 +72,6 @@ def test_schema_contains_only_known_keywords(schema_id, valid_keywords):
     # verify that asdf knows about the schema
     schema = asdf.schema.load_schema(schema_id)
 
-
     def callback(schema, path, combiner, ctx, recurse):
         extra = schema.keys() - ctx["valid_keywords"]
         assert not extra, f"{extra} found at {path} in {schema_id}"

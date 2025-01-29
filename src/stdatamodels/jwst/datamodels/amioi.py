@@ -1,6 +1,6 @@
 from .model_base import JwstDataModel
 
-__all__ = ['AmiOIModel']
+__all__ = ["AmiOIModel"]
 
 
 class AmiOIModel(JwstDataModel):
@@ -11,11 +11,12 @@ class AmiOIModel(JwstDataModel):
     __________
     TODO
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 
     def get_primary_array_name(self):
         # for the example file OI_T3 is the largest array
-        return 't3'
+        return "t3"
 
     def _map_oifits_keywords(self):
         # OIFITS requires specific keyword names for some data that already
@@ -27,7 +28,7 @@ class AmiOIModel(JwstDataModel):
         self.meta.oifits.derived.object = self.meta.target.proposer_name or self.meta.target.catalog_name
 
         # This file contains OIFITS2 content
-        self.meta.oifits.derived.content = 'OIFITS2'
+        self.meta.oifits.derived.content = "OIFITS2"
 
         # each OIFITS data table needs specific cross-referencing keywords
         array_name = self.meta.oifits.array_name
@@ -64,7 +65,7 @@ class AmiOIModel(JwstDataModel):
 
         # fill in possibly missing OI_ARRAY meta data
         if self.meta.oifits.derived.array.frame is None:
-            self.meta.oifits.derived.array.frame = 'SKY'
+            self.meta.oifits.derived.array.frame = "SKY"
         if self.meta.oifits.derived.array.x is None:
             self.meta.oifits.derived.array.x = 0.0
         if self.meta.oifits.derived.array.y is None:

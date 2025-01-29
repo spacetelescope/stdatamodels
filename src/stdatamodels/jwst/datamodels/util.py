@@ -17,7 +17,7 @@ from stdatamodels import filetype
 from stdatamodels.model_base import _FileReference
 
 
-__all__ = ['open', 'NoTypeWarning', 'can_broadcast', 'to_camelcase', 'is_association']
+__all__ = ["open", "NoTypeWarning", "can_broadcast", "to_camelcase", "is_association"]
 
 
 log = logging.getLogger(__name__)
@@ -168,14 +168,14 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         init = hdulist
         info = init.fileinfo(0)
         if info is not None:
-            file_name = info.get('filename')
+            file_name = info.get("filename")
 
         try:
-            hdu = hdulist[('SCI', 1)]
+            hdu = hdulist[("SCI", 1)]
         except (KeyError, NameError):
             shape = ()
         else:
-            if hasattr(hdu, 'shape'):
+            if hasattr(hdu, "shape"):
                 shape = hdu.shape
             else:
                 shape = ()
@@ -186,7 +186,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):
     if not guess and not has_model_type:
         if file_to_close is not None:
             file_to_close.close()
-        raise TypeError('Model type is not specifically defined and guessing has been disabled.')
+        raise TypeError("Model type is not specifically defined and guessing has been disabled.")
 
     # Special handling for ramp files for backwards compatibility
     if new_class is None:
@@ -206,9 +206,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):
 
     # Log a message about how the model was opened
     if file_name:
-        log.debug(f'Opening {file_name} as {new_class}')
+        log.debug(f"Opening {file_name} as {new_class}")
     else:
-        log.debug(f'Opening as {new_class}')
+        log.debug(f"Opening as {new_class}")
 
     # Actually open the model
     try:
@@ -232,11 +232,10 @@ def open(init=None, guess=True, memmap=False, **kwargs):
 
 def _handle_missing_model_type(model, file_name):
     if file_name:
-        class_name = model.__class__.__name__.split('.')[-1]
-        warnings.warn(f"model_type not found. Opening {file_name} as a {class_name}",
-                      NoTypeWarning)
+        class_name = model.__class__.__name__.split(".")[-1]
+        warnings.warn(f"model_type not found. Opening {file_name} as a {class_name}", NoTypeWarning)
     try:
-        delattr(model.meta, 'model_type')
+        delattr(model.meta, "model_type")
     except AttributeError:
         pass
 
@@ -258,10 +257,10 @@ def _class_from_model_type(init):
     if init:
         if isinstance(init, fits.hdu.hdulist.HDUList):
             primary = init[0]
-            model_type = primary.header.get('DATAMODL')
+            model_type = primary.header.get("DATAMODL")
         elif isinstance(init, asdf.AsdfFile):
             try:
-                model_type = init.tree['meta']['model_type']
+                model_type = init.tree["meta"]["model_type"]
             except KeyError:
                 model_type = None
 
@@ -284,9 +283,10 @@ def _class_from_ramp_type(hdulist, shape):
     else:
         if len(shape) == 4:
             try:
-                hdulist['DQ']
+                hdulist["DQ"]
             except KeyError:
                 from . import ramp
+
                 new_class = ramp.RampModel
             else:
                 new_class = None
@@ -305,12 +305,13 @@ def _class_from_reftype(hdulist, shape):
 
     else:
         primary = hdulist[0]
-        reftype = primary.header.get('REFTYPE')
+        reftype = primary.header.get("REFTYPE")
         if reftype is None:
             new_class = None
 
         else:
             from . import reference
+
             if len(shape) == 0:
                 new_class = reference.ReferenceFileModel
             elif len(shape) == 2:
@@ -331,23 +332,28 @@ def _class_from_shape(hdulist, shape):
     """
     if len(shape) == 0:
         from . import model_base
+
         new_class = model_base.JwstDataModel
     elif len(shape) == 4:
         from . import quad
+
         new_class = quad.QuadModel
     elif len(shape) == 3:
         from . import cube
+
         new_class = cube.CubeModel
     elif len(shape) == 2:
         try:
-            hdulist[('SCI', 2)]
+            hdulist[("SCI", 2)]
         except (KeyError, NameError):
             # It's an ImageModel
             from . import image
+
             new_class = image.ImageModel
         else:
             # It's a MultiSlitModel
             from . import multislit
+
             new_class = multislit.MultiSlitModel
     else:
         new_class = None
@@ -370,7 +376,7 @@ def can_broadcast(a, b):
 
 
 def to_camelcase(token):
-    return ''.join(x.capitalize() for x in token.split('_-'))
+    return "".join(x.capitalize() for x in token.split("_-"))
 
 
 def is_association(asn_data):
@@ -378,6 +384,6 @@ def is_association(asn_data):
     Test if an object is an association by checking for required fields
     """
     if isinstance(asn_data, dict):
-        if 'asn_id' in asn_data and 'asn_pool' in asn_data:
+        if "asn_id" in asn_data and "asn_pool" in asn_data:
             return True
     return False

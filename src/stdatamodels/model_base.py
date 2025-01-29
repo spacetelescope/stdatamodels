@@ -61,10 +61,18 @@ class DataModel(properties.ObjectNode):
     properties (filename, model_type) will occur.
     """
 
-    def __init__(self, init=None, schema=None, memmap=False,
-                 pass_invalid_values=None, strict_validation=None,
-                 validate_on_assignment=None,
-                 validate_arrays=False, ignore_missing_extensions=True, **kwargs):
+    def __init__(
+        self,
+        init=None,
+        schema=None,
+        memmap=False,
+        pass_invalid_values=None,
+        strict_validation=None,
+        validate_on_assignment=None,
+        validate_arrays=False,
+        ignore_missing_extensions=True,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -141,21 +149,18 @@ class DataModel(properties.ObjectNode):
 
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
-            pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES",
-                                                            False)
+            pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
         self._pass_invalid_values = pass_invalid_values
         if strict_validation is None:
-            strict_validation = get_envar_as_boolean("STRICT_VALIDATION",
-                                                          False)
+            strict_validation = get_envar_as_boolean("STRICT_VALIDATION", False)
         if validate_on_assignment is None:
-            validate_on_assignment = get_envar_as_boolean("VALIDATE_ON_ASSIGNMENT",
-                                                          True)
+            validate_on_assignment = get_envar_as_boolean("VALIDATE_ON_ASSIGNMENT", True)
         self._strict_validation = strict_validation
         self._ignore_missing_extensions = ignore_missing_extensions
         self._validate_on_assignment = validate_on_assignment
         self._validate_arrays = validate_arrays
 
-        kwargs.update({'ignore_missing_extensions': ignore_missing_extensions})
+        kwargs.update({"ignore_missing_extensions": ignore_missing_extensions})
 
         # Load the schema files
         if schema is None:
@@ -215,8 +220,7 @@ class DataModel(properties.ObjectNode):
 
         elif isinstance(init, fits.HDUList):
             init = self._migrate_hdulist(init)
-            asdffile = fits_support.from_fits(init, self._schema, self._ctx,
-                                              **kwargs)
+            asdffile = fits_support.from_fits(init, self._schema, self._ctx, **kwargs)
 
         elif isinstance(init, (str, bytes, PurePath)):
             if isinstance(init, PurePath):
@@ -229,21 +233,17 @@ class DataModel(properties.ObjectNode):
                 hdulist = fits.open(init, memmap=memmap)
                 self._file_references.append(_FileReference(hdulist))
                 hdulist = self._migrate_hdulist(hdulist)
-                asdffile = fits_support.from_fits(
-                    hdulist, self._schema, self._ctx, **kwargs
-                )
+                asdffile = fits_support.from_fits(hdulist, self._schema, self._ctx, **kwargs)
 
             elif file_type == "asdf":
                 asdffile = self.open_asdf(init=init, memmap=memmap, **kwargs)
 
             else:
                 # TODO handle json files as well
-                raise IOError(
-                        "File does not appear to be a FITS or ASDF file.")
+                raise IOError("File does not appear to be a FITS or ASDF file.")
 
         else:
-            raise ValueError(
-                "Can't initialize datamodel using {0}".format(str(type(init))))
+            raise ValueError("Can't initialize datamodel using {0}".format(str(type(init))))
 
         self._file_references.append(_FileReference(asdffile))
 
@@ -259,18 +259,14 @@ class DataModel(properties.ObjectNode):
         if is_array:
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
-                raise TypeError(
-                    "Array passed to DataModel.__init__, but model has "
-                    "no primary array in its schema")
+                raise TypeError("Array passed to DataModel.__init__, but model has no primary array in its schema")
             setattr(self, primary_array_name, init)
 
         # If a shape has been given, initialize the primary array.
         if is_shape:
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
-                raise TypeError(
-                    "Shape passed to DataModel.__init__, but model has "
-                    "no primary array in its schema")
+                raise TypeError("Shape passed to DataModel.__init__, but model has no primary array in its schema")
 
             # Initialization occurs when the primary array is first
             # referenced. Do so now.
@@ -280,9 +276,8 @@ class DataModel(properties.ObjectNode):
 
         for attr, value in kwargs.items():
             if value is not None:
-                subschema = properties._get_schema_for_property(self._schema,
-                                                                attr)
-                if 'datatype' in subschema:
+                subschema = properties._get_schema_for_property(self._schema, attr)
+                if "datatype" in subschema:
                     setattr(self, attr, value)
 
         # Call hook that sets model properties
@@ -351,7 +346,7 @@ class DataModel(properties.ObjectNode):
         return self.__class__.__name__
 
     def __repr__(self):
-        buf = ['<']
+        buf = ["<"]
         buf.append(self._model_type)
 
         if self.shape:
@@ -364,7 +359,7 @@ class DataModel(properties.ObjectNode):
         if filename:
             buf.append(" from ")
             buf.append(filename)
-        buf.append('>')
+        buf.append(">")
 
         return "".join(buf)
 
@@ -419,9 +414,9 @@ class DataModel(properties.ObjectNode):
         """
         Returns a deep copy of this model.
         """
-        result = self.__class__(init=None,
-                                pass_invalid_values=self._pass_invalid_values,
-                                strict_validation=self._strict_validation)
+        result = self.__class__(
+            init=None, pass_invalid_values=self._pass_invalid_values, strict_validation=self._strict_validation
+        )
         self.clone(result, self, deepcopy=True, memo=memo)
         return result
 
@@ -452,10 +447,10 @@ class DataModel(properties.ObjectNode):
         This is intended to be overridden in the subclasses if the
         primary array's name is not "data".
         """
-        if properties._find_property(self._schema, 'data'):
-            primary_array_name = 'data'
+        if properties._find_property(self._schema, "data"):
+            primary_array_name = "data"
         else:
-            primary_array_name = ''
+            primary_array_name = ""
         return primary_array_name
 
     def on_init(self, init):
@@ -473,14 +468,14 @@ class DataModel(properties.ObjectNode):
         elif isinstance(init, fits.HDUList):
             info = init.fileinfo(0)
             if info is not None:
-                filename = info.get('filename')
+                filename = info.get("filename")
                 if filename is not None:
                     self.meta.filename = os.path.basename(filename)
 
         # store the data model type, if not already set
         klass = self.__class__.__name__
-        if klass != 'DataModel':
-            if not self.meta.hasattr('model_type'):
+        if klass != "DataModel":
+            if not self.meta.hasattr("model_type"):
                 self.meta.model_type = klass
 
     def on_save(self, path=None):
@@ -542,12 +537,12 @@ class DataModel(properties.ObjectNode):
         output_path = os.path.join(path_head, path_tail)
 
         # TODO: Support gzip-compressed fits
-        if ext == '.fits':
+        if ext == ".fits":
             # TODO: remove 'clobber' check once depreciated fully in astropy
-            if 'clobber' not in kwargs:
-                kwargs.setdefault('overwrite', True)
+            if "clobber" not in kwargs:
+                kwargs.setdefault("overwrite", True)
             self.to_fits(output_path, *args, **kwargs)
-        elif ext == '.asdf':
+        elif ext == ".asdf":
             self.to_asdf(output_path, *args, **kwargs)
         else:
             raise ValueError("unknown filetype {0}".format(ext))
@@ -555,26 +550,18 @@ class DataModel(properties.ObjectNode):
         return output_path
 
     @staticmethod
-    def open_asdf(init=None,
-                  ignore_unrecognized_tag=False,
-                  **kwargs):
+    def open_asdf(init=None, ignore_unrecognized_tag=False, **kwargs):
         """
         Open an asdf object from a filename or create a new asdf object
         """
         if isinstance(init, str):
-            asdffile = asdf.open(init,
-                                 ignore_unrecognized_tag=ignore_unrecognized_tag,
-                                 **kwargs)
+            asdffile = asdf.open(init, ignore_unrecognized_tag=ignore_unrecognized_tag, **kwargs)
 
         elif isinstance(init, dict):
-            asdffile = AsdfFile(None,
-                            ignore_unrecognized_tag=ignore_unrecognized_tag
-                            )
+            asdffile = AsdfFile(None, ignore_unrecognized_tag=ignore_unrecognized_tag)
             asdffile._tree = init
         else:
-            asdffile = AsdfFile(init,
-                            ignore_unrecognized_tag=ignore_unrecognized_tag
-                            )
+            asdffile = AsdfFile(init, ignore_unrecognized_tag=ignore_unrecognized_tag)
         return asdffile
 
     @classmethod
@@ -600,7 +587,6 @@ class DataModel(properties.ObjectNode):
         """
         return cls(init, schema=schema, **kwargs)
 
-
     def to_asdf(self, init, *args, **kwargs):
         """
         Write a data model to an ASDF file.
@@ -622,7 +608,6 @@ class DataModel(properties.ObjectNode):
         asdffile = self.open_asdf(None, **kwargs)
         asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
-
 
     @classmethod
     def from_fits(cls, init, schema=None, **kwargs):
@@ -666,7 +651,7 @@ class DataModel(properties.ObjectNode):
 
         hdulist = fits_support.to_fits(self._instance, self._schema)
         with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', message='Card is too long')
+            warnings.filterwarnings("ignore", message="Card is too long")
             if self._no_asdf_extension:
                 # For some old files that were written out before the
                 # _no_asdf_extension existed, these will have an ASDF
@@ -701,7 +686,7 @@ class DataModel(properties.ObjectNode):
         new_schema : dict
             Schema tree.
         """
-        schema = {'allOf': [self._schema, new_schema]}
+        schema = {"allOf": [self._schema, new_schema]}
         self._schema = mschema.merge_property_trees(schema)
         self.validate()
         return self
@@ -718,10 +703,10 @@ class DataModel(properties.ObjectNode):
         new_schema : dict
             Schema tree.
         """
-        parts = position.split('.')
+        parts = position.split(".")
         schema = new_schema
         for part in parts[::-1]:
-            schema = {'type': 'object', 'properties': {part: schema}}
+            schema = {"type": "object", "properties": {part: schema}}
         return self.extend_schema(schema)
 
     # return_result retained for backward compatibility
@@ -744,6 +729,7 @@ class DataModel(properties.ObjectNode):
             is a dot-separated path.
         """
         from . import schema
+
         return schema.find_fits_keyword(self.schema, keyword)
 
     def search_schema(self, substring):
@@ -766,6 +752,7 @@ class DataModel(properties.ObjectNode):
         locations : list of tuples
         """
         from . import schema
+
         return schema.search_schema(self.schema, substring)
 
     def __getitem__(self, key):
@@ -774,7 +761,7 @@ class DataModel(properties.ObjectNode):
         """
         assert isinstance(key, str)
         meta = self
-        for part in key.split('.'):
+        for part in key.split("."):
             try:
                 meta = getattr(meta, part)
             except AttributeError:
@@ -787,7 +774,7 @@ class DataModel(properties.ObjectNode):
         """
         assert isinstance(key, str)
         meta = self
-        parts = key.split('.')
+        parts = key.split(".")
         for part in parts[:-1]:
             try:
                 part = int(part)
@@ -817,6 +804,7 @@ class DataModel(properties.ObjectNode):
 
             ("meta.observation.date": "2012-04-22T03:22:05.432")
         """
+
         def recurse(tree, path=[]):
             if isinstance(tree, dict):
                 for key, val in tree.items():
@@ -827,7 +815,7 @@ class DataModel(properties.ObjectNode):
                     for x in recurse(val, path + [i]):
                         yield x
             elif tree is not None:
-                yield ('.'.join(str(x) for x in path), tree)
+                yield (".".join(str(x) for x in path), tree)
 
         for x in recurse(self._instance):
             yield x
@@ -868,11 +856,12 @@ class DataModel(properties.ObjectNode):
         extra_fits : boolean
             Update from ``extra_fits``.  Default is False.
         """
+
         def hdu_keywords_from_data(d, path, hdu_keywords):
             # Walk tree and add paths to keywords to hdu keywords
             if isinstance(d, dict):
                 for key, val in d.items():
-                    if len(path) > 0 or key != 'extra_fits':
+                    if len(path) > 0 or key != "extra_fits":
                         hdu_keywords_from_data(val, path + [key], hdu_keywords)
             elif isinstance(d, list):
                 for key, val in enumerate(d):
@@ -885,14 +874,14 @@ class DataModel(properties.ObjectNode):
 
         def hdu_keywords_from_schema(subschema, path, combiner, ctx, recurse):
             # Add path to keyword to hdu_keywords if in list of hdu names
-            if 'fits_keyword' in subschema:
-                fits_hdu = subschema.get('fits_hdu', 'PRIMARY')
+            if "fits_keyword" in subschema:
+                fits_hdu = subschema.get("fits_hdu", "PRIMARY")
                 if fits_hdu in hdu_names:
                     ctx.append(path)
 
         def hdu_names_from_schema(subschema, path, combiner, ctx, recurse):
             # Build a set of hdu names from the schema
-            hdu_name = subschema.get('fits_hdu')
+            hdu_name = subschema.get("fits_hdu")
             if hdu_name:
                 hdu_names.add(hdu_name)
 
@@ -932,10 +921,11 @@ class DataModel(properties.ObjectNode):
             # Some keywords are protected and
             # should not be copied frpm the other image
             if len(path) == 2:
-                if path[0] == 'meta':
-                    if path[1] in ('date', 'model_type'):
+                if path[0] == "meta":
+                    if path[1] in ("date", "model_type"):
                         return True
             return False
+
         # Get the list of hdu names from the model so that updates
         # are limited to those hdus
 
@@ -945,7 +935,7 @@ class DataModel(properties.ObjectNode):
             else:
                 hdu_names = set(list(only))
         else:
-            hdu_names = set(['PRIMARY'])
+            hdu_names = set(["PRIMARY"])
             mschema.walk_schema(self._schema, hdu_names_from_schema, hdu_names)
 
         # Get the paths to all the keywords that will be updated from
@@ -967,7 +957,7 @@ class DataModel(properties.ObjectNode):
         # Update from extra_fits as well, if indicated
         if extra_fits:
             for hdu_name in hdu_names:
-                path = ['extra_fits', hdu_name, 'header']
+                path = ["extra_fits", hdu_name, "header"]
                 set_hdu_keyword(self._instance, d, path)
 
         self.validate()
@@ -980,9 +970,10 @@ class DataModel(properties.ObjectNode):
         schema element `meta.observation.date` will end up in the
         dictionary as::
 
-            { "meta.observation.date": "2012-04-22T03:22:05.432" }
+            {"meta.observation.date": "2012-04-22T03:22:05.432"}
 
         """
+
         def convert_val(val):
             if isinstance(val, datetime.datetime):
                 return val.isoformat()
@@ -993,19 +984,15 @@ class DataModel(properties.ObjectNode):
         if include_arrays:
             return dict((key, convert_val(val)) for (key, val) in self.items())
         else:
-            return dict((key, convert_val(val)) for (key, val) in self.items()
-                        if not isinstance(val, (np.ndarray, NDArrayType)))
+            return dict((key, convert_val(val)) for (key, val) in self.items() if not isinstance(val, (np.ndarray, NDArrayType)))
 
     @property
     def schema(self):
         return self._schema
 
     def get_fileext(self):
-        warnings.warn(
-            "get_fileext always returns 'fits' and will be removed in an upcoming release",
-            DeprecationWarning
-        )
-        return 'fits'
+        warnings.warn("get_fileext always returns 'fits' and will be removed in an upcoming release", DeprecationWarning)
+        return "fits"
 
     @property
     def history(self):
@@ -1031,7 +1018,7 @@ class DataModel(properties.ObjectNode):
         entries.clear()
         entries.extend(values)
 
-    def get_fits_wcs(self, hdu_name='SCI', hdu_ver=1, key=' '):
+    def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
         """
         Get a `astropy.wcs.WCS` object created from the FITS WCS
         information in the model.
@@ -1064,11 +1051,11 @@ class DataModel(properties.ObjectNode):
             this system.
         """
         hdulist = fits_support.to_fits(self._instance, self._schema)
-        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver-1)
+        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver - 1)
         header = hdu.header
         return WCS(header, key=key, relax=True, fix=True)
 
-    def set_fits_wcs(self, wcs, hdu_name='SCI'):
+    def set_fits_wcs(self, wcs, hdu_name="SCI"):
         """
         Sets the FITS WCS information on the model using the given
         `astropy.wcs.WCS` object.
@@ -1087,14 +1074,13 @@ class DataModel(properties.ObjectNode):
             HDU, pass ``'PRIMARY'``.
         """
         header = wcs.to_header()
-        if hdu_name == 'PRIMARY':
+        if hdu_name == "PRIMARY":
             hdu = fits.PrimaryHDU(header=header)
         else:
             hdu = fits.ImageHDU(name=hdu_name, header=header)
         hdulist = fits.HDUList([hdu])
 
-        ff = fits_support.from_fits(hdulist, self._schema, self._ctx,
-                                    ignore_missing_extensions=self._ignore_missing_extensions)
+        ff = fits_support.from_fits(hdulist, self._schema, self._ctx, ignore_missing_extensions=self._ignore_missing_extensions)
 
         self._instance = properties.merge_tree(self._instance, ff.tree)
 

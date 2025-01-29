@@ -19,6 +19,7 @@ except ImportError:
     RemoveNode = None
 
 import logging
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -61,7 +62,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
 
     # Non-table array
     if in_dtype.fields is None and out_dtype.fields is None:
-        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+        if np.can_cast(in_dtype, out_dtype, "equiv"):
             return a
         else:
             return _safe_asanyarray(a, out_dtype)
@@ -123,10 +124,11 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     if not allow_extra_columns or (not set(out_lower_names).issubset(in_lower_names)):
         # try to match the old error message
         raise ValueError(
-            "Column names don't match schema. "
-            "Schema has {0}. Data has {1}".format(
+            "Column names don't match schema. Schema has {0}. Data has {1}".format(
                 str(set(out_lower_names).difference(set(in_lower_names))),
-                str(set(in_lower_names).difference(set(out_lower_names)))))
+                str(set(in_lower_names).difference(set(out_lower_names))),
+            )
+        )
 
     # construct new dtype with required columns at start
     # in_dtype vs out_dtype
@@ -147,7 +149,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         if in_subdtypes[:n_required] == out_subdtypes:
             return a.view(dtype=new_dtype)
         else:
-            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr):])
+            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr) :])
             return _safe_asanyarray(a, new_dtype)
 
     # reorder columns so required columns are first
@@ -228,13 +230,10 @@ def create_history_entry(description, software=None):
         software = Software(software)
 
     dt = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-    entry = HistoryEntry({
-        'description': description,
-        'time': dt
-    })
+    entry = HistoryEntry({"description": description, "time": dt})
 
     if software is not None:
-        entry['software'] = software
+        entry["software"] = software
     return entry
 
 
@@ -254,8 +253,8 @@ def get_envar_as_boolean(name, default=False):
     default : bool
         If the environmental variable cannot be accessed, use as the default.
     """
-    truths = ('true', 't', 'yes', 'y')
-    falses = ('false', 'f', 'no', 'n')
+    truths = ("true", "t", "yes", "y")
+    falses = ("false", "f", "no", "n")
     if name in os.environ:
         value = os.environ[name]
         try:
@@ -325,6 +324,7 @@ def convert_fitsrec_to_array_in_tree(tree):
             return _fits_rec_to_array(node)
         else:
             return node
+
     return treeutil.walk_and_modify(tree, _convert_fitsrec)
 
 

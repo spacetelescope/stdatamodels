@@ -14,14 +14,18 @@ def fetch_keyword_dictionary():
     # Fetch the latest versioned keyword dictionary from MAST
     # This uses an "unofficial" service as there is no
     # officially supported way to query the keyword dictionary.
-    request_data = urlencode(json.dumps({
-        "service": "Mast.Jwst.Keywords",
-        "timeout": 10,
-        "params": {},
-        "format": "json",
-        "page": 1,
-        "pagesize": 1000,
-    }))
+    request_data = urlencode(
+        json.dumps(
+            {
+                "service": "Mast.Jwst.Keywords",
+                "timeout": 10,
+                "params": {},
+                "format": "json",
+                "page": 1,
+                "pagesize": 1000,
+            }
+        )
+    )
     response = requests.post(
         "https://mast.stsci.edu/api/v0/invoke",
         data=f"request={request_data}",

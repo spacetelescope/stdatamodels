@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['EmiModel']
+__all__ = ["EmiModel"]
 
 
 class EmiModel(ReferenceFileModel):
@@ -21,6 +21,7 @@ class EmiModel(ReferenceFileModel):
         - Hz164: float32 1D array
         - Hz10: float32 1D array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/emi.schema"
     reftype = "emicorr"
 

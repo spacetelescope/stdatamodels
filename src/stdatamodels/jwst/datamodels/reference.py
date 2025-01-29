@@ -7,8 +7,7 @@ from .model_base import JwstDataModel
 from .dqflags import pixel
 
 
-__all__ = ['ReferenceFileModel', "ReferenceImageModel", "ReferenceCubeModel",
-           "ReferenceQuadModel"]
+__all__ = ["ReferenceFileModel", "ReferenceImageModel", "ReferenceCubeModel", "ReferenceQuadModel"]
 
 
 class ReferenceFileModel(JwstDataModel):
@@ -16,6 +15,7 @@ class ReferenceFileModel(JwstDataModel):
     A data model for reference tables
 
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema"
 
     def __init__(self, init=None, **kwargs):
@@ -29,16 +29,16 @@ class ReferenceFileModel(JwstDataModel):
         Checks that required reference file keywords are set.
         """
         to_fix = []
-        to_check = ['description', 'reftype', 'author', 'pedigree', 'useafter']
+        to_check = ["description", "reftype", "author", "pedigree", "useafter"]
         for field in to_check:
             if getattr(self.meta, field) is None:
                 to_fix.append(field)
         if self.meta.instrument.name is None:
-            to_fix.append('instrument.name')
-        if self.meta.telescope != 'JWST':
-            to_fix.append('telescope')
+            to_fix.append("instrument.name")
+        if self.meta.telescope != "JWST":
+            to_fix.append("telescope")
         if to_fix:
-            self.print_err(f'Model.meta is missing values for {to_fix}')
+            self.print_err(f"Model.meta is missing values for {to_fix}")
         super().validate()
 
     def save(self, path, dir_path=None, *args, **kwargs):
@@ -46,8 +46,7 @@ class ReferenceFileModel(JwstDataModel):
         Save data model.  If the 'dq' and 'dq_def' exist they need special
         handling.
         """
-        if (self.hasattr('dq_def') and self.hasattr("dq")
-           and self.dq is not None and self.dq_def is not None):
+        if self.hasattr("dq_def") and self.hasattr("dq") and self.dq is not None and self.dq_def is not None:
             # Save off uncompressed DQ array.  Compress DQ array
             # according to 'dq_def' for save.  Then restore
             # uncompressed DQ array.
@@ -83,6 +82,7 @@ class ReferenceImageModel(ReferenceFileModel):
     err : numpy float32 array
          Error array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referenceimage.schema"
 
     def __init__(self, init=None, **kwargs):
@@ -92,7 +92,7 @@ class ReferenceImageModel(ReferenceFileModel):
         self.dq = self.dq
         self.err = self.err
 
-        if self.hasattr('dq_def'):
+        if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
 
 
@@ -111,6 +111,7 @@ class ReferenceCubeModel(ReferenceFileModel):
     err : numpy float32 array
          Error array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencecube.schema"
 
     def __init__(self, init=None, **kwargs):
@@ -136,6 +137,7 @@ class ReferenceQuadModel(ReferenceFileModel):
     err : numpy float32 array
          Error array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencequad.schema"
 
     def __init__(self, init=None, **kwargs):

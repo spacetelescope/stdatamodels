@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['PastasossModel']
+__all__ = ["PastasossModel"]
 
 
 class PastasossModel(ReferenceFileModel):
@@ -15,4 +15,5 @@ class PastasossModel(ReferenceFileModel):
     wavegrid : numpy float32 array
         1-D array of the wavelengths corresponding to the ATOCA fit.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/pastasossmodel.schema"

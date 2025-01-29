@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['SpecPsfModel']
+__all__ = ["SpecPsfModel"]
 
 
 class SpecPsfModel(ReferenceFileModel):
@@ -17,6 +17,7 @@ class SpecPsfModel(ReferenceFileModel):
          Wavelength image
 
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specpsf.schema"
 
     def __init__(self, init=None, **kwargs):

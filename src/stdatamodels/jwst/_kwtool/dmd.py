@@ -7,7 +7,6 @@ import stdatamodels.schema
 __all__ = ["load"]
 
 
-
 def _get_subclasses(klass, skip_models=None):
     if skip_models is None:
         skip_models = set()
@@ -19,7 +18,7 @@ def _get_subclasses(klass, skip_models=None):
 
 
 def _get_schema_keywords_callback(ss, path, combiner, ctx, r):
-    if isinstance(ss, dict) and 'fits_keyword' in ss:
+    if isinstance(ss, dict) and "fits_keyword" in ss:
         ctx.append((path, ss))
 
 
@@ -32,7 +31,7 @@ def load(skip_models=None):
         if klass.schema_url:
             schema = asdf.schema.load_schema(klass.schema_url, resolve_references=True)
             stdatamodels.schema.walk_schema(schema, _get_schema_keywords_callback, keywords)
-        class_path = '.'.join([klass.__module__, klass.__name__])
+        class_path = ".".join([klass.__module__, klass.__name__])
         keywords_by_datamodel[class_path] = keywords
 
     # consolidate results organizing them by fits_hdu and fits_keyword
@@ -47,9 +46,11 @@ def load(skip_models=None):
             key = (fits_hdu.upper(), fits_keyword.upper())
             if key not in dmd:
                 dmd[key] = []
-            dmd[key].append({
-                "scope": klass,
-                "path": path,
-                "keyword": keyword,
-            })
+            dmd[key].append(
+                {
+                    "scope": klass,
+                    "path": path,
+                    "keyword": keyword,
+                }
+            )
     return dmd

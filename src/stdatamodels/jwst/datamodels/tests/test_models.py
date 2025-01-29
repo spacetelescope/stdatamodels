@@ -13,18 +13,27 @@ import numpy as np
 from numpy.lib.recfunctions import drop_fields
 import pytest
 
-from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel, MaskModel, AsnModel,
-                                          MultiSlitModel, SlitModel,
-                                          NirspecFlatModel, NirspecQuadFlatModel,
-                                          SlitDataModel, IFUImageModel, ABVegaOffsetModel,
-                                          Level1bModel)
+from stdatamodels.jwst.datamodels import (
+    JwstDataModel,
+    ImageModel,
+    MaskModel,
+    AsnModel,
+    MultiSlitModel,
+    SlitModel,
+    NirspecFlatModel,
+    NirspecQuadFlatModel,
+    SlitDataModel,
+    IFUImageModel,
+    ABVegaOffsetModel,
+    Level1bModel,
+)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
 
-ROOT_DIR = os.path.join(os.path.dirname(__file__), 'data')
-FITS_FILE = os.path.join(ROOT_DIR, 'test.fits')
-ASN_FILE = os.path.join(ROOT_DIR, 'association.json')
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "data")
+FITS_FILE = os.path.join(ROOT_DIR, "test.fits")
+ASN_FILE = os.path.join(ROOT_DIR, "association.json")
 
 
 @pytest.fixture
@@ -37,19 +46,16 @@ def make_models(tmp_path):
         `path_just_fits` is a FITS file of `JwstDataModel` without the ASDF extension.
         `path_model` is a FITS file of `JwstDataModel` with the ASDF extension.
     """
-    path_just_fits = tmp_path / 'just_fits.fits'
-    path_model = tmp_path / 'model.fits'
+    path_just_fits = tmp_path / "just_fits.fits"
+    path_model = tmp_path / "model.fits"
     primary_hdu = fits.PrimaryHDU()
-    primary_hdu.header['EXP_TYPE'] = 'NRC_IMAGE'
-    primary_hdu.header['DATAMODL'] = "JwstDataModel"
+    primary_hdu.header["EXP_TYPE"] = "NRC_IMAGE"
+    primary_hdu.header["DATAMODL"] = "JwstDataModel"
     hduls = fits.HDUList([primary_hdu])
     hduls.writeto(path_just_fits)
     model = JwstDataModel(hduls)
     model.save(path_model)
-    return {
-        'just_fits': path_just_fits,
-        'model': path_model
-    }
+    return {"just_fits": path_just_fits, "model": path_model}
 
 
 def test_init_from_pathlib(tmp_path):
@@ -62,33 +68,29 @@ def test_init_from_pathlib(tmp_path):
         assert isinstance(model, ImageModel)
 
 
-@pytest.mark.parametrize('which_file, skip_fits_update, expected_exp_type',
-                         [
-                             ('just_fits', None, 'FGS_DARK'),
-                             ('just_fits', False, 'FGS_DARK'),
-                             ('just_fits', True, 'FGS_DARK'),
-                             ('model', None, 'FGS_DARK'),
-                             ('model', False, 'FGS_DARK'),
-                             ('model', True, 'NRC_IMAGE')
-                         ]
-                         )
-@pytest.mark.parametrize('use_env', [False, True])
-def test_skip_fits_update(jail_environ,
-                          use_env,
-                          make_models,
-                          which_file,
-                          skip_fits_update,
-                          expected_exp_type):
+@pytest.mark.parametrize(
+    "which_file, skip_fits_update, expected_exp_type",
+    [
+        ("just_fits", None, "FGS_DARK"),
+        ("just_fits", False, "FGS_DARK"),
+        ("just_fits", True, "FGS_DARK"),
+        ("model", None, "FGS_DARK"),
+        ("model", False, "FGS_DARK"),
+        ("model", True, "NRC_IMAGE"),
+    ],
+)
+@pytest.mark.parametrize("use_env", [False, True])
+def test_skip_fits_update(jail_environ, use_env, make_models, which_file, skip_fits_update, expected_exp_type):
     """Test skip_fits_update setting"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
     with fits.open(path) as hduls:
-        hduls[0].header['exp_type'] = 'FGS_DARK'
+        hduls[0].header["exp_type"] = "FGS_DARK"
 
         # Decide how to skip. If using the environmental,
         # set that and pass None to the open function.
         try:
-            del os.environ['SKIP_FITS_UPDATE']
+            del os.environ["SKIP_FITS_UPDATE"]
         except KeyError:
             # No need to worry, environmental doesn't exist anyways
             pass
@@ -100,7 +102,7 @@ def test_skip_fits_update(jail_environ,
 
         if use_env:
             if skip_fits_update is not None:
-                os.environ['SKIP_FITS_UPDATE'] = str(skip_fits_update)
+                os.environ["SKIP_FITS_UPDATE"] = str(skip_fits_update)
                 skip_fits_update = None
 
         with ctx:
@@ -135,10 +137,10 @@ def test_model_with_nonstandard_primary_array():
         # The wavelength array is the primary array.
         # Try commenting this function out and the problem goes away.
         def get_primary_array_name(self):
-            return 'wavelength'
+            return "wavelength"
 
     m = _NonstandardPrimaryArrayModel((10,))
-    assert 'wavelength' in list(m.keys())
+    assert "wavelength" in list(m.keys())
     assert m.wavelength.sum() == 0
 
 
@@ -149,8 +151,9 @@ def test_image_with_extra_keyword_to_multislit(tmp_path):
         im.save(path)
 
     from astropy.io import fits
+
     with fits.open(path, mode="update", memmap=False) as hdulist:
-        hdulist[1].header['BUNIT'] = 'x'
+        hdulist[1].header["BUNIT"] = "x"
 
     with ImageModel(path) as im:
         with MultiSlitModel() as ms:
@@ -193,12 +196,11 @@ def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits)
     path = tmp_path / "new.fits"
     with ImageModel((5, 5)) as newim:
         with ImageModel(datamodel_for_update) as oldim:
-
             # Verify the fixture returns keywords we expect
             assert oldim.meta.telescope == "JWST"
             assert oldim.meta.wcsinfo.crval1 == 5
-            assert oldim.extra_fits.PRIMARY.header == [['FOO', 'BAR', '']]
-            assert oldim.extra_fits.SCI.header == [['BAZ', 'BUZ', '']]
+            assert oldim.extra_fits.PRIMARY.header == [["FOO", "BAR", ""]]
+            assert oldim.extra_fits.SCI.header == [["BAZ", "BUZ", ""]]
 
             newim.update(oldim, only=only, extra_fits=extra_fits)
         newim.save(path)
@@ -265,12 +267,12 @@ def test_multislit_model():
     ms = MultiSlitModel()
     ms.slits.append(s0)
     ms.slits.append(s1)
-    ms.meta.instrument.name = 'NIRSPEC'
-    ms.meta.exposure.type = 'NRS_IMAGE'
+    ms.meta.instrument.name = "NIRSPEC"
+    ms.meta.exposure.type = "NRS_IMAGE"
     slit1 = ms[1]
     assert isinstance(slit1, SlitModel)
-    assert slit1.meta.instrument.name == 'NIRSPEC'
-    assert slit1.meta.exposure.type == 'NRS_IMAGE'
+    assert slit1.meta.instrument.name == "NIRSPEC"
+    assert slit1.meta.exposure.type == "NRS_IMAGE"
     assert_allclose(slit1.data, data + 1)
 
 
@@ -280,14 +282,14 @@ def test_slit_from_image():
     im.meta.instrument.name = "MIRI"
     slit_dm = SlitDataModel(im)
     assert_allclose(im.data, slit_dm.data)
-    assert hasattr(slit_dm, 'wavelength')
+    assert hasattr(slit_dm, "wavelength")
     # this should be enabled after gwcs starts using non-coordinate inputs
     # assert not hasattr(slit_dm, 'meta')
 
     slit = SlitModel(im)
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
-    assert hasattr(slit, 'wavelength')
+    assert hasattr(slit, "wavelength")
     assert slit.meta.instrument.name == "MIRI"
 
     im = ImageModel(slit)
@@ -310,12 +312,12 @@ def test_ifuimage():
 
 
 def test_abvega_offset_model():
-    path = os.path.join(ROOT_DIR, 'nircam_abvega_offset.asdf')
+    path = os.path.join(ROOT_DIR, "nircam_abvega_offset.asdf")
     with ABVegaOffsetModel(path) as model:
         assert isinstance(model, ABVegaOffsetModel)
-        assert hasattr(model, 'abvega_offset')
+        assert hasattr(model, "abvega_offset")
         assert isinstance(model.abvega_offset, Table)
-        assert model.abvega_offset.colnames == ['filter', 'pupil', 'abvega_offset']
+        assert model.abvega_offset.colnames == ["filter", "pupil", "abvega_offset"]
         model.validate()
 
 
@@ -323,6 +325,7 @@ def test_defined_models_up_to_date():
     """
     Test that defined_models contains all JwstDataModel classes
     """
+
     def get_classes(klass, classes=None):
         if classes is None:
             classes = set()
@@ -333,11 +336,7 @@ def test_defined_models_up_to_date():
 
     # get all datamodel classes including JwstDataModel
     # and all subclasses (ignoring any that start with "_")
-    all_classes = {
-        klass for
-        klass in get_classes(JwstDataModel)
-        if klass.__name__[0] != "_"
-    }
+    all_classes = {klass for klass in get_classes(JwstDataModel) if klass.__name__[0] != "_"}
     assert set(defined_models.values()) == all_classes
 
 
@@ -369,14 +368,14 @@ def test_reference_model_schema_inheritance(model):
     def cb(subschema, path, combiner, ctx, recurse):
         if not isinstance(subschema, dict):
             return
-        if 'id' not in subschema:
+        if "id" not in subschema:
             return
         if subschema["id"] == "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema":
-            ctx['has_ref'] = True
+            ctx["has_ref"] = True
 
-    ctx = {'has_ref': False}
+    ctx = {"has_ref": False}
     walk_schema(schema, cb, ctx=ctx)
-    refs_referencefile_schema = ctx['has_ref']
+    refs_referencefile_schema = ctx["has_ref"]
     if is_ref_model:
         assert refs_referencefile_schema, f"Reference model {model} does not ref referencefile.schema"
     else:
@@ -401,8 +400,8 @@ def test_ramp_model_zero_frame_open_file(tmpdir):
     dims = nints, ngroups, nrows, ncols
     zdims = (nints, nrows, ncols)
 
-    dbase = 1000.
-    zbase = dbase * .75
+    dbase = 1000.0
+    zbase = dbase * 0.75
 
     data = np.ones(dims, dtype=float) * dbase
     err = np.zeros(dims, dtype=float)
@@ -424,7 +423,7 @@ def test_ramp_model_zero_frame_open_file(tmpdir):
         assert ramp1.zeroframe.shape == ramp.zeroframe.shape
         zframe0 = ramp.zeroframe
         zframe1 = ramp1.zeroframe
-        np.testing.assert_allclose(zframe0, zframe1, 1.e-5)
+        np.testing.assert_allclose(zframe0, zframe1, 1.0e-5)
 
 
 def test_ramp_model_zero_frame_by_dimensions():
@@ -443,54 +442,66 @@ def test_ramp_model_zero_frame_by_dimensions():
 @pytest.fixture
 def oifits_ami_model():
     m = datamodels.AmiOIModel()
-    m.meta.telescope = 'JWST'
-    m.meta.origin = 'STScI'
-    m.meta.instrument.name = 'NIRISS'
-    m.meta.program.pi_name = 'UNKNOWN'
-    m.meta.target.proposer_name = 'AB DOR'
-    m.meta.observation.date = '2022-06-05'
-    m.meta.oifits.array_name = 'g7s6'
-    m.meta.oifits.instrument_mode = 'NRM'
+    m.meta.telescope = "JWST"
+    m.meta.origin = "STScI"
+    m.meta.instrument.name = "NIRISS"
+    m.meta.program.pi_name = "UNKNOWN"
+    m.meta.target.proposer_name = "AB DOR"
+    m.meta.observation.date = "2022-06-05"
+    m.meta.oifits.array_name = "g7s6"
+    m.meta.oifits.instrument_mode = "NRM"
 
     m.array = [
+        ("A1", "A1", 1, 0.0, [2.64000000e00, -1.61653377e-16, 0.00000000e00], 5.04539835, "RADIUS", [2.60973996, -0.39856915]),
+        ("A2", "A2", 2, 0.0, [1.39996111e-16, 2.28631000e00, 0.00000000e00], 5.04539835, "RADIUS", [-0.34517145, -2.260104]),
+        ("A3", "A3", 3, 0.0, [1.32000010e00, -2.28631000e00, 0.00000000e00], 5.04539835, "RADIUS", [1.65004153, 2.06081941]),
+    ]
+    m.target = [
         (
-            'A1', 'A1', 1, 0.,
-            [ 2.64000000e+00, -1.61653377e-16,  0.00000000e+00], 5.04539835,
-            'RADIUS', [ 2.60973996, -0.39856915]
-        ),
-        (
-            'A2', 'A2', 2, 0.,
-            [ 1.39996111e-16,  2.28631000e+00,  0.00000000e+00], 5.04539835,
-            'RADIUS', [-0.34517145, -2.260104  ]
-        ),
-        (
-            'A3', 'A3', 3, 0.,
-            [ 1.32000010e+00, -2.28631000e+00,  0.00000000e+00], 5.04539835,
-            'RADIUS', [ 1.65004153,  2.06081941]
+            1,
+            "AB DOR",
+            82.18704833,
+            -65.44869139,
+            2000.0,
+            0.0,
+            0.0,
+            0.0,
+            "UNKNOWN",
+            "OPTICAL",
+            29.15,
+            164.421,
+            0.0,
+            0.0,
+            65.3199,
+            0.0,
+            "K0V",
         )
     ]
-    m.target = [(
-        1, 'AB DOR', 82.18704833, -65.44869139, 2000., 0., 0., 0., 'UNKNOWN',
-        'OPTICAL', 29.15, 164.421, 0., 0., 65.3199, 0., 'K0V')]
     m.t3 = [
         (
-            1, 0., 59735., 0.3772, 0.71125417, 0.73752607, -1.81575411, 0.73752607,
-            1.86153485, 2.9549114, -4.32092341, -1.99521297, [1, 2, 3],  0
+            1,
+            0.0,
+            59735.0,
+            0.3772,
+            0.71125417,
+            0.73752607,
+            -1.81575411,
+            0.73752607,
+            1.86153485,
+            2.9549114,
+            -4.32092341,
+            -1.99521297,
+            [1, 2, 3],
+            0,
         ),
     ]
     m.vis = [
-        (
-            1, 0., 59735., 0.3772, 0.84231787, 0.00669874, -10.57082496, 1.89098664,
-            1.86153485,  2.9549114 , [1, 2],  0
-        ),
-        (
-            1, 0., 59735., 0.3772, 0.91448467, 0.00621287, -22.26334374, 1.27637574,
-            -2.45938856,  0.95969843, [1, 3],  0
-        )
+        (1, 0.0, 59735.0, 0.3772, 0.84231787, 0.00669874, -10.57082496, 1.89098664, 1.86153485, 2.9549114, [1, 2], 0),
+        (1, 0.0, 59735.0, 0.3772, 0.91448467, 0.00621287, -22.26334374, 1.27637574, -2.45938856, 0.95969843, [1, 3], 0),
     ]
     m.vis2 = [
-        (1, 0., 59735., 0.3772, 0.70949939, 0.01131277,  1.86153485, 2.9549114 , [1, 2],  0),
-        (1, 0., 59735., 0.3772, 0.8362822 , 0.0113618 , -2.45938856, 0.95969843, [1, 3],  0)
+        (1, 0.0, 59735.0, 0.3772, 0.70949939, 0.01131277, 1.86153485, 2.9549114, [1, 2], 0),
+        (1, 0.0, 59735.0, 0.3772, 0.8362822, 0.0113618, -2.45938856, 0.95969843, [1, 3], 0),
     ]
     m.wavelength = [(4.817e-06, 2.98e-07)]
     return m
@@ -514,20 +525,22 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize('attr',
-                         [
-                             'meta.telescope',
-                             'meta.origin',
-                             'meta.instrument.name',
-                             'meta.program.pi_name',
-                             'meta.target.proposer_name',
-                             'meta.observation.date',
-                             'meta.oifits.array_name',
-                             'meta.oifits.instrument_mode',
-                             'array',
-                             'target',
-                             'wavelength',
-                         ])
+@pytest.mark.parametrize(
+    "attr",
+    [
+        "meta.telescope",
+        "meta.origin",
+        "meta.instrument.name",
+        "meta.program.pi_name",
+        "meta.target.proposer_name",
+        "meta.observation.date",
+        "meta.oifits.array_name",
+        "meta.oifits.instrument_mode",
+        "array",
+        "target",
+        "wavelength",
+    ],
+)
 def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr):
     """
     Remove some critical keywords or tables and make sure the model fails to
@@ -538,7 +551,7 @@ def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr)
     fn = tmp_path / "test.fits"
 
     node = oifits_ami_model
-    *branches, leaf = attr.split('.')
+    *branches, leaf = attr.split(".")
     for branch in branches:
         node = getattr(node, branch)
     delattr(node, leaf)
@@ -547,10 +560,10 @@ def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr)
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize('keep', ['vis', 'vis2', 't3'])
+@pytest.mark.parametrize("keep", ["vis", "vis2", "t3"])
 def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
     fn = tmp_path / "test.fits"
-    for table in ('vis', 'vis2', 't3'):
+    for table in ("vis", "vis2", "t3"):
         if table == keep:
             continue
         delattr(oifits_ami_model, table)
@@ -564,10 +577,10 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize('table_name', ['array', 'target', 'vis', 'vis2', 't3', 'wavelength'])
+@pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "wavelength"])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
-    new_table_data = merge_arrays([table_data, np.zeros(table_data.size, dtype=[('extra', 'f8')])], flatten=True)
+    new_table_data = merge_arrays([table_data, np.zeros(table_data.size, dtype=[("extra", "f8")])], flatten=True)
     setattr(oifits_ami_model, table_name, new_table_data)
     fn = tmp_path / "test.fits"
     oifits_ami_model.save(fn)
@@ -618,14 +631,14 @@ def test_dq_def_roundtrip(tmp_path):
 @pytest.mark.parametrize("shape", [None, 10])
 @pytest.mark.parametrize("model", [NirspecFlatModel, NirspecQuadFlatModel])
 def test_nirspec_flat_table_migration(tmp_path, model, shape):
-    fn = tmp_path / 'test.fits'
+    fn = tmp_path / "test.fits"
 
     def make_data(table_dtype):
         if shape:
-            fake_data = [('ABC', shape, [0.1] * shape, [2.0] * shape, [3.0] * shape)]
-            dtype = [(n, table_dtype[n], shape if n != 'slit_name' else ()) for n in table_dtype.fields]
+            fake_data = [("ABC", shape, [0.1] * shape, [2.0] * shape, [3.0] * shape)]
+            dtype = [(n, table_dtype[n], shape if n != "slit_name" else ()) for n in table_dtype.fields]
         else:
-            fake_data = [('ABC', 1, 0.1, 2.0, 3.0)]
+            fake_data = [("ABC", 1, 0.1, 2.0, 3.0)]
             dtype = table_dtype
         return np.array(fake_data, dtype=dtype)
 
@@ -638,10 +651,10 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     m.save(fn)
     with fits.open(fn) as ff:
         for ext in ff:
-            if ext.name != 'FAST_VARIATION':
+            if ext.name != "FAST_VARIATION":
                 continue
             # drop the error column
-            ext.data = drop_fields(ext.data, 'error')
+            ext.data = drop_fields(ext.data, "error")
         ff.writeto(fn, overwrite=True)
 
     def check_error_column(model):
@@ -649,7 +662,7 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
             table = model.quadrants[0].flat_table
         else:
             table = model.flat_table
-        assert np.all(np.isnan(table['error']))
+        assert np.all(np.isnan(table["error"]))
 
     # check that migration works with datamodels.open
     with datamodels.open(fn) as dm:
@@ -660,11 +673,11 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
 
 
 def test_moving_target_table_migration(tmp_path):
-    fn = tmp_path / 'test_mt.fits'
+    fn = tmp_path / "test_mt.fits"
 
     def make_data(table_dtype):
         shape = 10
-        fake_data = [(['0' * 23] * shape,) + ([0.1] * shape,) * (len(table_dtype) - 1)]
+        fake_data = [(["0" * 23] * shape,) + ([0.1] * shape,) * (len(table_dtype) - 1)]
         dtype = [(n, table_dtype[n], shape) for n in table_dtype.fields]
         return np.array(fake_data, dtype=dtype)
 
@@ -673,16 +686,16 @@ def test_moving_target_table_migration(tmp_path):
     m.save(fn)
     with fits.open(fn) as ff:
         for ext in ff:
-            if ext.name != 'MOVING_TARGET_POSITION':
+            if ext.name != "MOVING_TARGET_POSITION":
                 continue
             # drop the error column
-            ext.data = drop_fields(ext.data, ('mt_v2', 'mt_v3'))
+            ext.data = drop_fields(ext.data, ("mt_v2", "mt_v3"))
         ff.writeto(fn, overwrite=True)
 
     def check_error_column(model):
         table = model.moving_target
-        assert np.all(np.isnan(table['mt_v2']))
-        assert np.all(np.isnan(table['mt_v3']))
+        assert np.all(np.isnan(table["mt_v2"]))
+        assert np.all(np.isnan(table["mt_v3"]))
 
     # check that migration works with datamodels.open
     with datamodels.open(fn) as dm:
