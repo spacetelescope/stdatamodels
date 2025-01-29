@@ -32,7 +32,7 @@ def _walk_kwd(kwd_path, root, path=None, keywords=None):
         path = ()
     if not isinstance(root, (dict, list)):
         if not isinstance(root, (int, float, str)):
-            raise ValueError(f"Unknown type {type(root)} in keyword dictionary")
+            raise ValueError(f"Unknown type {type(root)} in keyword dictionary")  # noqa: TRY004
         return root
     if isinstance(root, list):
         # ignoring list item index path

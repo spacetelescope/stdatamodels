@@ -146,7 +146,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     elif isinstance(init, tuple):
         for item in init:
             if not isinstance(item, int):
-                raise ValueError("shape must be a tuple of ints")
+                raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
         shape = init
 
     elif isinstance(init, np.ndarray):
