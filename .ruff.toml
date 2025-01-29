@@ -54,9 +54,8 @@ ignore = [
     # longer term fix
     "B028", # warnings need stack level, this is non-trivial to determine
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
+    "NPY002",  # numpy rng, will require finding the right replacements
     # to fix
-    "NPY002",
-    "PTH101",
     "PTH110",
     "PTH118",
     "PTH119",
