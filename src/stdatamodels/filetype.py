@@ -18,14 +18,14 @@ def check(init):
     supported = ("asdf", "fits", "json")
 
     if isinstance(init, str):
-        path, ext = os.path.splitext(init)
+        path, ext = os.path.splitext(init)  # noqa: PTH122
         ext = ext.strip(".")
 
         if not ext:
             raise ValueError(f"Input file path does not have an extension: {init}")
 
         if ext not in supported:  # Could be the file is zipped; try splitting again
-            path, ext = os.path.splitext(path)
+            path, ext = os.path.splitext(path)  # noqa: PTH122
             ext = ext.strip(".")
 
             if ext not in supported:

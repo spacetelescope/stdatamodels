@@ -540,7 +540,7 @@ class DataModel(properties.ObjectNode):
             path_head, path_tail = os.path.split(path(self.meta.filename))
         else:
             path_head, path_tail = os.path.split(path)
-        base, ext = os.path.splitext(path_tail)
+        ext = Path(path_tail).suffix
         if isinstance(ext, bytes):
             ext = ext.decode(sys.getfilesystemencoding())
 
