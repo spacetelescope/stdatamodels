@@ -960,7 +960,7 @@ class WaveCorrModel(ReferenceFileModel):
 
     @property
     def aperture_names(self):
-        return [getattr(ap, "aperture_name") for ap in self.apertures]
+        return [getattr(ap, "aperture_name") for ap in self.apertures]  # noqa: B009
 
     def populate_meta(self):
         self.meta.instrument.name = "NIRSPEC"
