@@ -286,8 +286,8 @@ def test_on_save_hook(tmp_path):
     assert model.meta.foo == "bar"
 
 
-@pytest.mark.parametrize("ModelType", [DataModel, BasicModel, TableModel, TransformModel])
-def test_garbage_collectable(ModelType, tmp_path):
+@pytest.mark.parametrize("ModelType", [DataModel, BasicModel, TableModel, TransformModel])  # noqa: N803
+def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
     # This is a regression test to attempt to avoid future changes that might
     # reintroduce the 'difficult to garbage collect' bugs fixed in PR:
     # https://github.com/spacetelescope/stdatamodels/pull/109
