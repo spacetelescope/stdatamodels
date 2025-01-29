@@ -510,7 +510,7 @@ class WavelengthrangeModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning)
 
-    def get_wfss_wavelength_range(self, filter, orders):
+    def get_wfss_wavelength_range(self, filter, orders):  # noqa: A002
         """Retrieve the wavelength range for a WFSS observation.
 
         Parameters
