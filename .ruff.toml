@@ -55,7 +55,6 @@ ignore = [
     "B028", # warnings need stack level, this is non-trivial to determine
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
     # to fix
-    "N999",
     "NPY002",
     "PTH101",
     "PTH110",
@@ -88,3 +87,4 @@ ignore-fully-untyped = true  # Turn of annotation checking for fully untyped cod
 [lint.per-file-ignores]
 "**/test_*.py" = ["S101"]
 "tests/**" = ["INP001"]
+"src/stdatamodels/jwst/datamodels/darkMIRI.py" = ["N999"]
