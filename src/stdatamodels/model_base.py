@@ -843,14 +843,14 @@ class DataModel(properties.ObjectNode):
         `meta.observation.date` will end up in the result as the
         string `"meta.observation.date"`.
         """
-        for key, val in self.items():
+        for key, _ in self.items():
             yield key
 
     def values(self):
         """
         Iterates over all of the schema values in a flat way.
         """
-        for key, val in self.items():
+        for _, val in self.items():
             yield val
 
     def update(self, d, only=None, extra_fits=False):

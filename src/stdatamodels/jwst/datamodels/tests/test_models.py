@@ -160,7 +160,7 @@ def test_image_with_extra_keyword_to_multislit(tmp_path):
     with ImageModel(path) as im:
         with MultiSlitModel() as ms:
             ms.update(im)
-            for i in range(3):
+            for _ in range(3):
                 ms.slits.append(ImageModel((4, 4)))
             assert len(ms.slits) == 3
 

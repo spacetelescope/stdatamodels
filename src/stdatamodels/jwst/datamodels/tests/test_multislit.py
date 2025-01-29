@@ -105,14 +105,14 @@ def test_multislit_metadata():
 def test_multislit_metadata2():
     with MultiSlitModel() as ms:
         ms.slits.append(ms.slits.item())
-        for key, val in ms.items():
+        for _, val in ms.items():
             assert isinstance(val, (bytes, str, int, float, bool, Time))
 
 
 def test_multislit_copy(tmp_path):
     path = tmp_path / "multislit.fits"
     with MultiSlitModel() as input_file:
-        for i in range(4):
+        for _ in range(4):
             input_file.slits.append(input_file.slits.item(data=np.empty((50, 50))))
 
         assert len(input_file.slits) == 4
@@ -125,7 +125,7 @@ def test_multislit_copy(tmp_path):
         assert len(hdulist) == 6
 
     with MultiSlitModel(path) as model:
-        for i, slit in enumerate(model.slits):
+        for i, _ in enumerate(model.slits):  # noqa: B007
             pass
         assert i + 1 == 4
 

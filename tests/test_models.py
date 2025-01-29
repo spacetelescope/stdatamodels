@@ -302,7 +302,7 @@ def test_garbage_collectable(ModelType, tmp_path):
     # make a bunch of models, keep track of where they are in memory
     ofn = tmp_path / "test.fits"
     mids = set()
-    for i in range(30):
+    for _ in range(30):
         m = ModelType()
         mid = id(m)
         # python might reuse memory for models, this is OK and

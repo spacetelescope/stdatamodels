@@ -129,7 +129,7 @@ def walk_schema(schema, callback, ctx=None):
                 recurse(sub, path, c, ctx)  # noqa: F821
 
         for c in ["anyOf", "oneOf"]:
-            for i, sub in enumerate(schema.get(c, [])):
+            for _, sub in enumerate(schema.get(c, [])):
                 recurse(sub, path + [c], c, ctx)  # noqa: F821
 
         if schema.get("type") == "object":
