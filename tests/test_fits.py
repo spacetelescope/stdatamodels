@@ -413,7 +413,7 @@ def test_get_short_doc():
 
 def test_ensure_ascii():
     for inp in [b"ABCDEFG", "ABCDEFG"]:
-        fits_support.ensure_ascii(inp) == "ABCDEFG"
+        assert fits_support.ensure_ascii(inp) == "ABCDEFG"
 
 
 @pytest.mark.parametrize(

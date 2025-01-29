@@ -276,7 +276,7 @@ def test_gentle_asarray_structured_dtype_configurations(
         assert new_array.dtype.descr[:n_required] == target_dtype.descr
         # for the extra columns, the dtype should match the input
         for extra_name in new_array.dtype.names[n_required:]:
-            new_array.dtype[extra_name] == input_dtype[extra_name]
+            assert new_array.dtype[extra_name] == input_dtype[extra_name]
 
 
 def test_gentle_asarray_nested_structured_dtype():

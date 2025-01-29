@@ -70,7 +70,7 @@ def test_wcs_ref_models():
         {"name": "F070W", "row_offset": 2, "column_offset": 2},
     ]
     with FilteroffsetModel(filters=filters, instrument="NIRCAM", strict_validation=True) as fo:
-        fo.filters == filters
+        assert fo.filters == filters
         with pytest.raises(
             ValueError,
             match="Model.meta is missing values for['description', "
@@ -83,7 +83,7 @@ def test_wcs_ref_models():
         {"filter": "F070W", "pupil": "GRISMC", "row_offset": 2, "column_offset": 2},
     ]
     with FilteroffsetModel(filters=filters, instrument="NIRCAM", strict_validation=True) as fo:
-        fo.filters == filters
+        assert fo.filters == filters
         fo.meta.description = "Filter offsets"
         fo.meta.reftype = "filteroffset"
         fo.meta.author = "Unknown"
