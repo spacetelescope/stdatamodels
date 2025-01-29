@@ -342,7 +342,7 @@ def test_defined_models_up_to_date():
     assert set(defined_models.values()) == all_classes
 
 
-@pytest.mark.parametrize("model", [v for v in defined_models.values()])
+@pytest.mark.parametrize("model", list(defined_models.values()))
 def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
@@ -350,7 +350,7 @@ def test_all_datamodels_init(model):
     model()
 
 
-@pytest.mark.parametrize("model", [v for v in defined_models.values()])
+@pytest.mark.parametrize("model", list(defined_models.values()))
 def test_reference_model_schema_inheritance(model):
     """
     Test that models that inherit from ReferenceFileModel use
