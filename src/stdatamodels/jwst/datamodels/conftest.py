@@ -9,4 +9,4 @@ def jail_environ():
     try:
         yield
     finally:
-        os.environ = original
+        os.environ = original  # noqa: B003
