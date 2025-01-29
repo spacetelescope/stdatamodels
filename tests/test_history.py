@@ -47,8 +47,16 @@ def test_historylist_methods():
 def test_history_from_model_to_fits(tmpdir):
     tmpfits = str(tmpdir.join("tmp.fits"))
     m = DataModel()
-    m.history = [HistoryEntry({"description": "First entry", "time": Time(datetime.datetime.now().isoformat())})]
-    m.history.append(HistoryEntry({"description": "Second entry", "time": Time(datetime.datetime.now().isoformat())}))
+    m.history = [
+        HistoryEntry(
+            {"description": "First entry", "time": Time(datetime.datetime.now().isoformat())}
+        )
+    ]
+    m.history.append(
+        HistoryEntry(
+            {"description": "Second entry", "time": Time(datetime.datetime.now().isoformat())}
+        )
+    )
     m.save(tmpfits)
 
     with fits.open(tmpfits, memmap=False) as hdulist:

@@ -2,6 +2,7 @@
 monkeypatch _get_subclasses to only return 1 datamodel (to make things easier)
 separately test _get_subclasses
 """
+
 import pytest
 
 from stdatamodels.jwst.datamodels import DarkModel, JwstDataModel, ReferenceFileModel

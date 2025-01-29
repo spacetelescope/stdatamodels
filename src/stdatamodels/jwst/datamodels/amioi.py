@@ -25,7 +25,9 @@ class AmiOIModel(JwstDataModel):
         # locations
 
         self.meta.oifits.derived.observer = self.meta.program.pi_name
-        self.meta.oifits.derived.object = self.meta.target.proposer_name or self.meta.target.catalog_name
+        self.meta.oifits.derived.object = (
+            self.meta.target.proposer_name or self.meta.target.catalog_name
+        )
 
         # This file contains OIFITS2 content
         self.meta.oifits.derived.content = "OIFITS2"

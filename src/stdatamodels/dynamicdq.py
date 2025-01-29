@@ -45,7 +45,10 @@ def dynamic_mask(input_model, mnemonic_map, inv=False):
             try:
                 standard_bitvalue = mnemonic_map[dqname]
             except KeyError:
-                log.warning("Keyword %s does not correspond to an existing DQ mnemonic, so will be ignored" % (dqname))
+                log.warning(
+                    "Keyword %s does not correspond to an existing DQ mnemonic, so will be ignored"
+                    % (dqname)
+                )
                 continue
 
             if not inv:

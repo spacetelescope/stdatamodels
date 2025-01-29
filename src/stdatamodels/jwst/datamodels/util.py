@@ -124,7 +124,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):
             try:
                 from jwst.datamodels import ModelContainer
             except ImportError as err:
-                raise ValueError("Cannot open an association file without the jwst package installed") from err
+                raise ValueError(
+                    "Cannot open an association file without the jwst package installed"
+                ) from err
 
             return ModelContainer(init, **kwargs)
 
@@ -158,7 +160,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
-            raise ValueError("Cannot open an association without the jwst package installed") from err
+            raise ValueError(
+                "Cannot open an association without the jwst package installed"
+            ) from err
 
         return ModelContainer(init, **kwargs)
 

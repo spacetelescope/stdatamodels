@@ -70,7 +70,14 @@ class _SimpleModel(ReferenceFileModel):
         super().validate()
         try:
             assert isinstance(self.model, Model) or all([isinstance(m, Model) for m in self.model])
-            assert self.meta.instrument.name in ["NIRCAM", "NIRSPEC", "MIRI", "TFI", "FGS", "NIRISS"]
+            assert self.meta.instrument.name in [
+                "NIRCAM",
+                "NIRSPEC",
+                "MIRI",
+                "TFI",
+                "FGS",
+                "NIRISS",
+            ]
         except AssertionError:
             if self._strict_validation:
                 raise
@@ -211,7 +218,14 @@ class SpecwcsModel(_SimpleModel):
         try:
             assert isinstance(self.meta.input_units, (str, u.NamedUnit))
             assert isinstance(self.meta.output_units, (str, u.NamedUnit))
-            assert self.meta.instrument.name in ["NIRCAM", "NIRSPEC", "MIRI", "TFI", "FGS", "NIRISS"]
+            assert self.meta.instrument.name in [
+                "NIRCAM",
+                "NIRSPEC",
+                "MIRI",
+                "TFI",
+                "FGS",
+                "NIRISS",
+            ]
         except AssertionError:
             if self._strict_validation:
                 raise
@@ -250,7 +264,16 @@ class NIRCAMGrismModel(ReferenceFileModel):
     reftype = "specwcs"
 
     def __init__(
-        self, init=None, displ=None, dispx=None, dispy=None, invdispl=None, invdispx=None, invdispy=None, orders=None, **kwargs
+        self,
+        init=None,
+        displ=None,
+        dispx=None,
+        dispy=None,
+        invdispl=None,
+        invdispx=None,
+        invdispy=None,
+        orders=None,
+        **kwargs,
     ):
         super().__init__(init=init, **kwargs)
 
@@ -322,7 +345,17 @@ class NIRISSGrismModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_niriss_grism.schema"
     reftype = "specwcs"
 
-    def __init__(self, init=None, displ=None, dispx=None, dispy=None, invdispl=None, orders=None, fwcpos_ref=None, **kwargs):
+    def __init__(
+        self,
+        init=None,
+        displ=None,
+        dispx=None,
+        dispy=None,
+        invdispl=None,
+        orders=None,
+        fwcpos_ref=None,
+        **kwargs,
+    ):
         super().__init__(init=init, **kwargs)
 
         if init is None:
@@ -439,7 +472,16 @@ class WavelengthrangeModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wavelengthrange.schema"
     reftype = "wavelengthrange"
 
-    def __init__(self, init=None, wrange_selector=None, wrange=None, order=None, extract_orders=None, wunits=None, **kwargs):
+    def __init__(
+        self,
+        init=None,
+        wrange_selector=None,
+        wrange=None,
+        order=None,
+        extract_orders=None,
+        wunits=None,
+        **kwargs,
+    ):
         super().__init__(init=init, **kwargs)
         if wrange_selector is not None:
             self.waverange_selector = wrange_selector
@@ -485,7 +527,9 @@ class WavelengthrangeModel(ReferenceFileModel):
         """
         wave_range = {}
         for order in orders:
-            range_select = [(x[2], x[3]) for x in self.wavelengthrange if (x[0] == order and x[1] == filter)]
+            range_select = [
+                (x[2], x[3]) for x in self.wavelengthrange if (x[0] == order and x[1] == filter)
+            ]
             wave_range[order] = range_select[0]
         return wave_range
 
@@ -726,7 +770,16 @@ class DisperserModel(ReferenceFileModel):
     def validate(self):
         super().validate()
         try:
-            assert self.meta.instrument.grating in ["G140H", "G140M", "G235H", "G235M", "G395H", "G395M", "MIRROR", "PRISM"]
+            assert self.meta.instrument.grating in [
+                "G140H",
+                "G140M",
+                "G235H",
+                "G235M",
+                "G395H",
+                "G395M",
+                "MIRROR",
+                "PRISM",
+            ]
         except AssertionError:
             if self._strict_validation:
                 raise
@@ -772,14 +825,22 @@ class FilteroffsetModel(ReferenceFileModel):
         nircam_channels = ["SHORT", "LONG"]
         nircam_module = ["A", "B"]
         if instrument_name not in ["MIRI", "NIRCAM", "NIRISS"]:
-            self.print_err('Expected "meta.instrument.name" to be one of "NIRCAM, "MIRI" or "NIRISS"')
+            self.print_err(
+                'Expected "meta.instrument.name" to be one of "NIRCAM, "MIRI" or "NIRISS"'
+            )
         if instrument_name == "MIRI" and self.meta.instrument.detector != "MIRIMAGE":
             self.print_err("Expected detector to be MIRIMAGE for instrument MIRI")
         elif instrument_name == "NIRCAM":
             if self.meta.instrument.channel not in nircam_channels:
-                self.print_err(f"Expected meta.instrument.channel for instrument NIRCAM to be one of {nircam_channels}")
+                self.print_err(
+                    "Expected meta.instrument.channel for instrument "
+                    f"NIRCAM to be one of {nircam_channels}"
+                )
             if self.meta.instrument.module not in nircam_module:
-                self.print_err(f"Expected meta.instrument.module for instrument NIRCAM to be one of {nircam_module}")
+                self.print_err(
+                    "Expected meta.instrument.module for instrument "
+                    f"NIRCAM to be one of {nircam_module}"
+                )
 
 
 class IFUFOREModel(_SimpleModel):
@@ -870,7 +931,15 @@ class FOREModel(_SimpleModel):
     def validate(self):
         super().validate()
         try:
-            assert self.meta.instrument.filter in ["CLEAR", "F070LP", "F100LP", "F110W", "F140X", "F170LP", "F290LP"]
+            assert self.meta.instrument.filter in [
+                "CLEAR",
+                "F070LP",
+                "F100LP",
+                "F110W",
+                "F140X",
+                "F170LP",
+                "F290LP",
+            ]
         except AssertionError:
             if self._strict_validation:
                 raise

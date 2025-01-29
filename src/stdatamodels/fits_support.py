@@ -87,7 +87,12 @@ def is_builtin_fits_keyword(key):
     return _builtin_regex.match(key) is not None
 
 
-_keyword_indices = [("nnn", 1000, None), ("nn", 100, None), ("n", 10, None), ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
+_keyword_indices = [
+    ("nnn", 1000, None),
+    ("nn", 100, None),
+    ("n", 10, None),
+    ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+]
 
 # Key where the FITS hash is stored in the ASDF tree
 FITS_HASH_KEY = "_fits_hash"
@@ -163,7 +168,9 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
             else:
                 raise
         except (KeyError, IndexError, AttributeError):
-            raise AttributeError("Property missing because FITS file has no '{0!r}' HDU".format(pair))
+            raise AttributeError(
+                "Property missing because FITS file has no '{0!r}' HDU".format(pair)
+            )
 
     if index is not None:
         if hdu.header.get("EXTVER", 1) != index + 1:
@@ -422,7 +429,9 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
     # astropy.io.fits always writes arrays C-contiguous with big-endian
     # byte order, whereas asdf preserves the "contiguousity" and byte order
     # of the base array.
-    dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(hdu.data.dtype, include_byteorder=True, override_byteorder="big")
+    dtype, byteorder = ndarray.numpy_dtype_to_asdf_datatype(
+        hdu.data.dtype, include_byteorder=True, override_byteorder="big"
+    )
 
     if hdu.name == "":
         source = f"{_FITS_SOURCE_PREFIX}{hdu_index}"
@@ -430,7 +439,13 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
         source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
 
     return tagged.TaggedDict(
-        data={"source": source, "shape": list(hdu.data.shape), "datatype": dtype, "byteorder": byteorder}, tag=_NDARRAY_TAG
+        data={
+            "source": source,
+            "shape": list(hdu.data.shape),
+            "datatype": dtype,
+            "byteorder": byteorder,
+        },
+        tag=_NDARRAY_TAG,
     )
 
 
@@ -584,7 +599,10 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
         if not any(isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != "ASDF"):
             log.debug("Skipping FITS updating completely.")
             return known_keywords, known_datas
-        log.debug("Skipping FITS keyword updating except for BinTableHDU and its associated header keywords.")
+        log.debug(
+            "Skipping FITS keyword updating except for "
+            "BinTableHDU and its associated header keywords."
+        )
 
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
@@ -600,7 +618,9 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
         result = None
         if not skip_fits_update and "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
-            result = _fits_keyword_loader(hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache)
+            result = _fits_keyword_loader(
+                hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
+            )
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -611,8 +631,12 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 else:
                     properties.put_value(path, result, tree)
 
-        elif "fits_hdu" in schema and ("max_ndim" in schema or "ndim" in schema or "datatype" in schema):
-            result = _fits_array_loader(hdulist, schema, ctx.get("hdu_index"), known_datas, hdu_cache)
+        elif "fits_hdu" in schema and (
+            "max_ndim" in schema or "ndim" in schema or "datatype" in schema
+        ):
+            result = _fits_array_loader(
+                hdulist, schema, ctx.get("hdu_index"), known_datas, hdu_cache
+            )
 
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
@@ -706,7 +730,9 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
     # Determine whether skipping the FITS loading can be done.
     skip_fits_update = _verify_skip_fits_update(skip_fits_update, hdulist, ff, context)
 
-    known_keywords, known_datas = _load_from_schema(hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update)
+    known_keywords, known_datas = _load_from_schema(
+        hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update
+    )
     if not skip_fits_update:
         _load_extra_fits(hdulist, known_keywords, known_datas, ff.tree)
 
@@ -731,7 +757,9 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
     # get kwargs supported by asdf, this will not pass along arbitrary kwargs
-    akwargs = {k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args if k[0] != "_" and k in kwargs}
+    akwargs = {
+        k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args if k[0] != "_" and k in kwargs
+    }
     af = asdf.open(
         generic_file,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
@@ -745,7 +773,11 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
 
 def _map_hdulist_to_arrays(hdulist, af):
     def callback(node):
-        if isinstance(node, NDArrayType) and isinstance(node._source, str) and node._source.startswith(_FITS_SOURCE_PREFIX):
+        if (
+            isinstance(node, NDArrayType)
+            and isinstance(node._source, str)
+            and node._source.startswith(_FITS_SOURCE_PREFIX)
+        ):
             # read the array data from the hdulist
             source = node._source
             parts = re.match(

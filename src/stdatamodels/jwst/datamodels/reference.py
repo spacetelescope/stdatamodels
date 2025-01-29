@@ -46,7 +46,12 @@ class ReferenceFileModel(JwstDataModel):
         Save data model.  If the 'dq' and 'dq_def' exist they need special
         handling.
         """
-        if self.hasattr("dq_def") and self.hasattr("dq") and self.dq is not None and self.dq_def is not None:
+        if (
+            self.hasattr("dq_def")
+            and self.hasattr("dq")
+            and self.dq is not None
+            and self.dq_def is not None
+        ):
             # Save off uncompressed DQ array.  Compress DQ array
             # according to 'dq_def' for save.  Then restore
             # uncompressed DQ array.

@@ -96,7 +96,8 @@ def generate_report(kwd_path):
 def _configure_cmdline_parser():
     parser = argparse.ArgumentParser(
         prog="kwtool",
-        description="Generate a report of FITS keyword differences between datamodel schemas and the keyword dictionary",
+        description="Generate a report of FITS keyword differences between "
+        "datamodel schemas and the keyword dictionary",
     )
     parser.add_argument(
         "keyword_dictionary_path",

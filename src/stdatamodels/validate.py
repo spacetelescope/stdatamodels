@@ -74,17 +74,26 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
 
     if not schema_dtype.fields:
         if instance_dtype.fields:
-            yield ValidationError(f"Expected scalar datatype '{schema_datatype}', got '{instance_datatype}'")
+            yield ValidationError(
+                f"Expected scalar datatype '{schema_datatype}', got '{instance_datatype}'"
+            )
 
         # Using 'equiv' so that we can be flexible on byte order:
         if not np.can_cast(instance_dtype, schema_dtype, "equiv"):
-            yield ValidationError(f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}'")
+            yield ValidationError(
+                f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}'"
+            )
     else:
         if not instance_dtype.fields:
-            yield ValidationError(f"Expected structured datatype '{schema_datatype}', got '{instance_datatype}'")
+            yield ValidationError(
+                f"Expected structured datatype '{schema_datatype}', got '{instance_datatype}'"
+            )
 
         if len(instance_dtype.fields) != len(schema_dtype.fields):
-            yield ValidationError(f"Mismatch in number of fields: Expected {len(schema_datatype)}, got {len(instance_datatype)}")
+            yield ValidationError(
+                f"Mismatch in number of fields: Expected {len(schema_datatype)}, "
+                f"got {len(instance_datatype)}"
+            )
 
         for i in range(len(schema_dtype.fields)):
             instance_type = instance_dtype[i]
@@ -95,11 +104,14 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             schema_name = schema_dtype.names[i]
 
             if instance_name != schema_name:
-                yield ValidationError(f"Wrong name in field {i}: Expected {instance_name}, got {schema_name}")
+                yield ValidationError(
+                    f"Wrong name in field {i}: Expected {instance_name}, got {schema_name}"
+                )
 
             if "ndim" in field_schema and instance_ndim != field_schema["ndim"]:
                 yield ValidationError(
-                    f"Wrong number of dimensions in field {i}: Expected {field_schema['ndim']}, got {instance_ndim}"
+                    f"Wrong number of dimensions in field {i}: "
+                    f"Expected {field_schema['ndim']}, got {instance_ndim}"
                 )
 
             if "max_ndim" in field_schema and instance_ndim > field_schema["max_ndim"]:
@@ -120,7 +132,8 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             # Using 'equiv' so that we can be flexible on byte order:
             if not np.can_cast(compare_instance_type, compare_schema_type, "equiv"):
                 yield ValidationError(
-                    f"Array datatype '{instance_datatype}' is not compatible with '{schema_datatype}' at field {i}"
+                    f"Array datatype '{instance_datatype}' is not "
+                    f"compatible with '{schema_datatype}' at field {i}"
                 )
 
 

@@ -259,14 +259,20 @@ class DataModel(properties.ObjectNode):
         if is_array:
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
-                raise TypeError("Array passed to DataModel.__init__, but model has no primary array in its schema")
+                raise TypeError(
+                    "Array passed to DataModel.__init__, but model "
+                    "has no primary array in its schema"
+                )
             setattr(self, primary_array_name, init)
 
         # If a shape has been given, initialize the primary array.
         if is_shape:
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
-                raise TypeError("Shape passed to DataModel.__init__, but model has no primary array in its schema")
+                raise TypeError(
+                    "Shape passed to DataModel.__init__, but model "
+                    "has no primary array in its schema"
+                )
 
             # Initialization occurs when the primary array is first
             # referenced. Do so now.
@@ -329,7 +335,9 @@ class DataModel(properties.ObjectNode):
         -------
         str
         """
-        raise NotImplementedError("The base DataModel class cannot be used to select best references")
+        raise NotImplementedError(
+            "The base DataModel class cannot be used to select best references"
+        )
 
     def get_crds_parameters(self):
         """
@@ -339,7 +347,9 @@ class DataModel(properties.ObjectNode):
         -------
         dict
         """
-        raise NotImplementedError("The base DataModel class cannot be used to select best references")
+        raise NotImplementedError(
+            "The base DataModel class cannot be used to select best references"
+        )
 
     @property
     def _model_type(self):
@@ -415,7 +425,9 @@ class DataModel(properties.ObjectNode):
         Returns a deep copy of this model.
         """
         result = self.__class__(
-            init=None, pass_invalid_values=self._pass_invalid_values, strict_validation=self._strict_validation
+            init=None,
+            pass_invalid_values=self._pass_invalid_values,
+            strict_validation=self._strict_validation,
         )
         self.clone(result, self, deepcopy=True, memo=memo)
         return result
@@ -984,14 +996,21 @@ class DataModel(properties.ObjectNode):
         if include_arrays:
             return dict((key, convert_val(val)) for (key, val) in self.items())
         else:
-            return dict((key, convert_val(val)) for (key, val) in self.items() if not isinstance(val, (np.ndarray, NDArrayType)))
+            return dict(
+                (key, convert_val(val))
+                for (key, val) in self.items()
+                if not isinstance(val, (np.ndarray, NDArrayType))
+            )
 
     @property
     def schema(self):
         return self._schema
 
     def get_fileext(self):
-        warnings.warn("get_fileext always returns 'fits' and will be removed in an upcoming release", DeprecationWarning)
+        warnings.warn(
+            "get_fileext always returns 'fits' and will be removed in an upcoming release",
+            DeprecationWarning,
+        )
         return "fits"
 
     @property
@@ -1080,7 +1099,12 @@ class DataModel(properties.ObjectNode):
             hdu = fits.ImageHDU(name=hdu_name, header=header)
         hdulist = fits.HDUList([hdu])
 
-        ff = fits_support.from_fits(hdulist, self._schema, self._ctx, ignore_missing_extensions=self._ignore_missing_extensions)
+        ff = fits_support.from_fits(
+            hdulist,
+            self._schema,
+            self._ctx,
+            ignore_missing_extensions=self._ignore_missing_extensions,
+        )
 
         self._instance = properties.merge_tree(self._instance, ff.tree)
 

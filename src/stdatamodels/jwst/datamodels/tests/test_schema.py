@@ -10,7 +10,9 @@ def test_data_array(tmp_path):
     path = str(tmp_path / "data_array.fits")
     data_array_schema = {
         "allOf": [
-            mschema.load_schema("http://stsci.edu/schemas/jwst_datamodel/core.schema", resolve_references=True),
+            mschema.load_schema(
+                "http://stsci.edu/schemas/jwst_datamodel/core.schema", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -22,7 +24,12 @@ def test_data_array(tmp_path):
                             "title": "entry",
                             "type": "object",
                             "properties": {
-                                "data": {"fits_hdu": "FOO", "default": 0.0, "max_ndim": 2, "datatype": "float64"},
+                                "data": {
+                                    "fits_hdu": "FOO",
+                                    "default": 0.0,
+                                    "max_ndim": 2,
+                                    "datatype": "float64",
+                                },
                                 "dq": {"fits_hdu": "DQ", "default": 1, "datatype": "uint8"},
                             },
                         },
@@ -61,7 +68,12 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 0
         x.arr.append({"data": np.empty((5, 5))})
         assert len(x.arr) == 1
-        x.arr.extend([x.arr.item(data=np.empty((5, 5))), x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8))])
+        x.arr.extend(
+            [
+                x.arr.item(data=np.empty((5, 5))),
+                x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8)),
+            ]
+        )
         assert len(x.arr) == 3
         del x.arr[1]
         assert len(x.arr) == 2

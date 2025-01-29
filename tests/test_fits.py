@@ -117,7 +117,11 @@ def test_fits_comments(tmp_path):
     from astropy.io import fits
 
     with fits.open(file_path, memmap=False) as hdulist:
-        assert any(c for c in hdulist[0].header.cards if c[-1] == "Organization responsible for creating file")
+        assert any(
+            c
+            for c in hdulist[0].header.cards
+            if c[-1] == "Organization responsible for creating file"
+        )
 
 
 def test_metadata_doesnt_override(tmp_path):
@@ -156,7 +160,9 @@ def test_table_with_metadata(tmp_path):
 
     schema = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -222,7 +228,9 @@ def test_replace_table(tmp_path):
 
     schema_narrow = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -244,7 +252,9 @@ def test_replace_table(tmp_path):
 
     schema_wide = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -305,7 +315,10 @@ def test_table_with_unsigned_int(tmp_path):
             "test_table": {
                 "title": "Test table",
                 "fits_hdu": "TESTTABL",
-                "datatype": [{"name": "FLOAT64_COL", "datatype": "float64"}, {"name": "UINT32_COL", "datatype": "uint32"}],
+                "datatype": [
+                    {"name": "FLOAT64_COL", "datatype": "float64"},
+                    {"name": "UINT32_COL", "datatype": "uint32"},
+                ],
             },
         },
     }
@@ -317,14 +330,18 @@ def test_table_with_unsigned_int(tmp_path):
         float64_arr[-1] = float64_info.max
 
         uint32_info = np.iinfo(np.uint32)
-        uint32_arr = np.random.randint(uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32)
+        uint32_arr = np.random.randint(
+            uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32
+        )
         uint32_arr[0] = uint32_info.min
         uint32_arr[-1] = uint32_info.max
 
         test_table = np.array(list(zip(float64_arr, uint32_arr)), dtype=dm.test_table.dtype)
 
         def assert_table_correct(model):
-            for idx, (col_name, col_data) in enumerate([("float64_col", float64_arr), ("uint32_col", uint32_arr)]):
+            for idx, (col_name, col_data) in enumerate(
+                [("float64_col", float64_arr), ("uint32_col", uint32_arr)]
+            ):
                 # The table dtype and field dtype are stored separately, and may not
                 # necessarily agree.
                 assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")
@@ -363,7 +380,10 @@ def test_metadata_from_fits(tmp_path):
 def test_get_short_doc():
     assert fits_support.get_short_doc({}) == ""
     assert fits_support.get_short_doc({"title": "Some schema title."}) == "Some schema title."
-    assert fits_support.get_short_doc({"title": "Some schema title.\nWhoops, another line."}) == "Some schema title."
+    assert (
+        fits_support.get_short_doc({"title": "Some schema title.\nWhoops, another line."})
+        == "Some schema title."
+    )
     assert (
         fits_support.get_short_doc(
             {
@@ -408,7 +428,9 @@ def test_ensure_ascii():
     ],
 )
 @pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(tmp_path, monkeypatch, use_env, which_file, skip_fits_update, expected_exp_type):
+def test_skip_fits_update(
+    tmp_path, monkeypatch, use_env, which_file, skip_fits_update, expected_exp_type
+):
     """Test skip_fits_update setting"""
     file_path = tmp_path / "test.fits"
 
@@ -460,7 +482,9 @@ def test_data_array(tmp_path):
 
     data_array_schema = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -472,7 +496,12 @@ def test_data_array(tmp_path):
                             "title": "entry",
                             "type": "object",
                             "properties": {
-                                "data": {"fits_hdu": "FOO", "default": 0.0, "max_ndim": 2, "datatype": "float64"},
+                                "data": {
+                                    "fits_hdu": "FOO",
+                                    "default": 0.0,
+                                    "max_ndim": 2,
+                                    "datatype": "float64",
+                                },
                                 "dq": {"fits_hdu": "DQ", "default": 1, "datatype": "uint8"},
                             },
                         },
@@ -511,7 +540,12 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 0
         x.arr.append({"data": np.empty((5, 5))})
         assert len(x.arr) == 1
-        x.arr.extend([x.arr.item(data=np.empty((5, 5))), x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8))])
+        x.arr.extend(
+            [
+                x.arr.item(data=np.empty((5, 5))),
+                x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8)),
+            ]
+        )
         assert len(x.arr) == 3
         del x.arr[1]
         assert len(x.arr) == 2
@@ -633,7 +667,10 @@ def test_table_linking(tmp_path):
             "test_table": {
                 "title": "Test table",
                 "fits_hdu": "TESTTABL",
-                "datatype": [{"name": "A_COL", "datatype": "int8"}, {"name": "B_COL", "datatype": "int8"}],
+                "datatype": [
+                    {"name": "A_COL", "datatype": "int8"},
+                    {"name": "B_COL", "datatype": "int8"},
+                ],
             },
         },
     }

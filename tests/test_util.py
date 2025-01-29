@@ -204,7 +204,9 @@ def test_gentle_asarray_invalid_conversion():
 @pytest.mark.parametrize("extra_columns", [True, False], ids=["extra_columns", "no_extra_columns"])
 @pytest.mark.parametrize("allow_extra", [True, False], ids=["allow_extra", "disallow_extra"])
 @pytest.mark.parametrize("change_case", [True, False], ids=["changed_case", "same_case"])
-def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, extra_columns, allow_extra, change_case):
+def test_gentle_asarray_structured_dtype_configurations(
+    reorder, change_dtype, extra_columns, allow_extra, change_case
+):
     """
     Test gentle_asarray with a structured array with a few combinations of:
         - misordered columns
@@ -213,7 +215,9 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
         - allowing extra columns
     """
     # start with a target dtype which should (if no error occurs) be the dtype of the result
-    target_dtype = np.dtype([("i", "i4"), ("f", "f8"), ("s", "S3"), ("b", "bool"), ("u", "uint8"), ("e", "i4")])
+    target_dtype = np.dtype(
+        [("i", "i4"), ("f", "f8"), ("s", "S3"), ("b", "bool"), ("u", "uint8"), ("e", "i4")]
+    )
     input_descr = target_dtype.descr
     if extra_columns:
         # add 3 extra columns
@@ -250,7 +254,9 @@ def test_gentle_asarray_structured_dtype_configurations(reorder, change_dtype, e
     if not allow_extra and extra_columns:
         # if we have extra columns, but don't allow them, gentle_asarray should fail
         with pytest.raises(ValueError):
-            new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)
+            new_array = util.gentle_asarray(
+                input_array, target_dtype, allow_extra_columns=allow_extra
+            )
         return
 
     new_array = util.gentle_asarray(input_array, target_dtype, allow_extra_columns=allow_extra)

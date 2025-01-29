@@ -21,7 +21,11 @@ __all__ = ["ObjectNode", "ListNode"]
 
 
 def _is_struct_array(val):
-    return isinstance(val, (np.ndarray, fits.FITS_rec)) and val.dtype.names is not None and val.dtype.fields is not None
+    return (
+        isinstance(val, (np.ndarray, fits.FITS_rec))
+        and val.dtype.names is not None
+        and val.dtype.fields is not None
+    )
 
 
 def _is_struct_array_precursor(val):
@@ -43,7 +47,11 @@ def _cast(val, schema):
             val = val._make_array()
 
         allow_extra_columns = False
-        if _is_struct_array_schema(schema) and len(val) and (_is_struct_array_precursor(val) or _is_struct_array(val)):
+        if (
+            _is_struct_array_schema(schema)
+            and len(val)
+            and (_is_struct_array_precursor(val) or _is_struct_array(val))
+        ):
             # we are dealing with a structured array. Because we may
             # modify schema (to add shape), we make a deep copy of the
             # schema here:
@@ -63,11 +71,17 @@ def _cast(val, schema):
                 # make sure that if 'ndim' is specified for a field,
                 # it matches the dimensionality of val's field:
                 if "ndim" in t and val_ndim != t["ndim"]:
-                    raise ValueError("Array has wrong number of dimensions. Expected {}, got {}".format(t["ndim"], val_ndim))
+                    raise ValueError(
+                        "Array has wrong number of dimensions. Expected {}, got {}".format(
+                            t["ndim"], val_ndim
+                        )
+                    )
 
                 if "max_ndim" in t and val_ndim > t["max_ndim"]:
                     raise ValueError(
-                        "Array has wrong number of dimensions. Expected <= {}, got {}".format(t["max_ndim"], val_ndim)
+                        "Array has wrong number of dimensions. Expected <= {}, got {}".format(
+                            t["max_ndim"], val_ndim
+                        )
                     )
 
                 # if shape of a field's value is not specified in the schema,
@@ -92,11 +106,17 @@ def _cast(val, schema):
                         val.columns[col.name].unit = col.unit
 
     if "ndim" in schema and len(val.shape) != schema["ndim"]:
-        raise ValueError("Array has wrong number of dimensions.  Expected {}, got {}".format(schema["ndim"], len(val.shape)))
+        raise ValueError(
+            "Array has wrong number of dimensions.  Expected {}, got {}".format(
+                schema["ndim"], len(val.shape)
+            )
+        )
 
     if "max_ndim" in schema and len(val.shape) > schema["max_ndim"]:
         raise ValueError(
-            "Array has wrong number of dimensions.  Expected <= {}, got {}".format(schema["max_ndim"], len(val.shape))
+            "Array has wrong number of dimensions.  Expected <= {}, got {}".format(
+                schema["max_ndim"], len(val.shape)
+            )
         )
 
     if isinstance(val, np.generic) and np.isscalar(val):
@@ -336,7 +356,10 @@ class ObjectNode(Node):
             del self.__dict__[attr]
         else:
             schema = _get_schema_for_property(self._schema, attr)
-            if validate.value_change(attr, None, schema, self._ctx) or self._ctx._pass_invalid_values:
+            if (
+                validate.value_change(attr, None, schema, self._ctx)
+                or self._ctx._pass_invalid_values
+            ):
                 try:
                     del self._instance[attr]
                 except KeyError:

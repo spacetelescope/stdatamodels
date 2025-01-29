@@ -42,7 +42,9 @@ class SearchSchemaResults(list):
         result = []
         for path, description in self:
             result.append(path)
-            result.append(textwrap.fill(description, initial_indent="    ", subsequent_indent="    "))
+            result.append(
+                textwrap.fill(description, initial_indent="    ", subsequent_indent="    ")
+            )
         return "\n".join(result)
 
 
@@ -81,7 +83,9 @@ def search_schema(schema, substring):
             matches = True
 
         if matches:
-            description = "\n\n".join([schema.get("title", ""), schema.get("description", "")]).strip()
+            description = "\n\n".join(
+                [schema.get("title", ""), schema.get("description", "")]
+            ).strip()
             results.append((".".join(path), description))
 
     results = SearchSchemaResults()

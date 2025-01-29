@@ -337,7 +337,9 @@ def rebuild_fits_rec_dtype(fits_rec):
         if shape:
             table_dtype = table_dtype.base
         field_dtype = fits_rec.field(field_name).dtype
-        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(field_dtype, np.unsignedinteger):
+        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(
+            field_dtype, np.unsignedinteger
+        ):
             new_dtype.append((field_name, field_dtype, shape))
         else:
             new_dtype.append((field_name, table_dtype, shape))
@@ -345,7 +347,9 @@ def rebuild_fits_rec_dtype(fits_rec):
 
 
 def _fits_rec_to_array(fits_rec):
-    bad_columns = [n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)]
+    bad_columns = [
+        n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)
+    ]
     if not len(bad_columns):
         return fits_rec.view(np.ndarray)
     new_dtype = rebuild_fits_rec_dtype(fits_rec)

@@ -56,7 +56,9 @@ class NIRCAMGrismDispersionConverter(TransformConverterBase):
                 list(node["ymodels"]),
             )
         else:
-            raise KeyError("YAML tree did not have expected node key of 'model_type' or 'class_name'.")
+            raise KeyError(
+                "YAML tree did not have expected node key of 'model_type' or 'class_name'."
+            )
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         # Second order modeling has list of lists of models
@@ -71,9 +73,17 @@ class NIRCAMGrismDispersionConverter(TransformConverterBase):
             yll = [list(m) for m in model.ymodels]
             lll = [list(m) for m in model.lmodels]
         else:
-            raise KeyError(f"xmodels entry is not a Model or an iterable. Type: {type(model.xmodels[0])}")
+            raise KeyError(
+                f"xmodels entry is not a Model or an iterable. Type: {type(model.xmodels[0])}"
+            )
 
-        node = {"orders": list(model.orders), "xmodels": xll, "ymodels": yll, "lmodels": lll, "model_type": type(model).name}
+        node = {
+            "orders": list(model.orders),
+            "xmodels": xll,
+            "ymodels": yll,
+            "lmodels": lll,
+            "model_type": type(model).name,
+        }
         return node
 
 
@@ -157,7 +167,10 @@ class LogicalConverter(TransformConverterBase):
 
 
 class NirissSOSSConverter(TransformConverterBase):
-    tags = ["tag:stsci.edu:jwst_pipeline/niriss-soss-*", "tag:stsci.edu:jwst_pipeline/niriss_soss-*"]
+    tags = [
+        "tag:stsci.edu:jwst_pipeline/niriss-soss-*",
+        "tag:stsci.edu:jwst_pipeline/niriss_soss-*",
+    ]
     types = ["stdatamodels.jwst.transforms.models.NirissSOSSModel"]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
@@ -194,7 +207,11 @@ class MIRI_AB2SliceConverter(TransformConverterBase):
         return MIRI_AB2Slice(node["beta_zero"], node["beta_del"], node["channel"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {"beta_zero": model.beta_zero.value, "beta_del": model.beta_del.value, "channel": model.channel.value}
+        node = {
+            "beta_zero": model.beta_zero.value,
+            "beta_del": model.beta_del.value,
+            "channel": model.channel.value,
+        }
         return node
 
 
@@ -225,7 +242,10 @@ class GratingEquationConverter(TransformConverterBase):
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import WavelengthFromGratingEquation, AngleFromGratingEquation
+        from stdatamodels.jwst.transforms.models import (
+            WavelengthFromGratingEquation,
+            AngleFromGratingEquation,
+        )
 
         groove_density = node["groove_density"]
         order = node["order"]
@@ -239,7 +259,10 @@ class GratingEquationConverter(TransformConverterBase):
         return model
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        from stdatamodels.jwst.transforms.models import WavelengthFromGratingEquation, AngleFromGratingEquation
+        from stdatamodels.jwst.transforms.models import (
+            WavelengthFromGratingEquation,
+            AngleFromGratingEquation,
+        )
 
         node = {"order": model.order.value, "groove_density": model.groove_density.value}
         if isinstance(model, AngleFromGratingEquation):
@@ -305,7 +328,10 @@ class SnellConverter(TransformConverterBase):
 class CoordsConverter(TransformConverterBase):
     tags = ["tag:stsci.edu:jwst_pipeline/coords-*"]
 
-    types = ["stdatamodels.jwst.transforms.models.Unitless2DirCos", "stdatamodels.jwst.transforms.models.DirCos2Unitless"]
+    types = [
+        "stdatamodels.jwst.transforms.models.Unitless2DirCos",
+        "stdatamodels.jwst.transforms.models.DirCos2Unitless",
+    ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
         from stdatamodels.jwst.transforms.models import Unitless2DirCos, DirCos2Unitless

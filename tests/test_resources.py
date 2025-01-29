@@ -1,4 +1,5 @@
 """Test model resource management"""
+
 import gc
 
 import pytest

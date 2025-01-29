@@ -74,7 +74,25 @@ Slit = namedtuple(
 """ Nirspec Slit structure definition"""
 
 
-Slit.__new__.__defaults__ = ("", 0, 0, 0.0, 0.0, 0.0, 0.0, 0, 0, "", "", "", 0.0, 0.0, 0.0, 0.0, 0.0)
+Slit.__new__.__defaults__ = (
+    "",
+    0,
+    0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0,
+    0,
+    "",
+    "",
+    "",
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+)
 
 
 class GrismObject(
@@ -283,7 +301,11 @@ class RefractionIndexFromPrism(Model):
         # prism_angle is always a 1 element numpy array
         sangle = math.sin(prism_angle.item())
         cangle = math.cos(prism_angle.item())
-        nsq = ((alpha_out + alpha_in * (1 - 2 * sangle**2)) / (2 * sangle * cangle)) ** 2 + alpha_in**2 + beta_in**2
+        nsq = (
+            ((alpha_out + alpha_in * (1 - 2 * sangle**2)) / (2 * sangle * cangle)) ** 2
+            + alpha_in**2
+            + beta_in**2
+        )
         return np.sqrt(nsq)
 
 
@@ -321,7 +343,9 @@ class Gwa2Slit(Model):
         self.models = models
         super(Gwa2Slit, self).__init__()
         self.inputs = ("name", "angle1", "angle2", "angle3")
-        """ Name of the slit and the three angle coordinates at the GWA going from detector to sky."""
+        """
+        Name of the slit and the three angle coordinates at
+        the GWA going from detector to sky."""
         self.outputs = ("name", "x_slit", "y_slit", "lam")
         """ Name of the slit, x and y coordinates within the virtual slit and wavelength."""
 
@@ -504,7 +528,9 @@ class IdealToV2V3(Model):
     vparity = Parameter()
 
     def __init__(self, v3idlyangle, v2ref, v3ref, vparity, name="idl2V", **kwargs):
-        super(IdealToV2V3, self).__init__(v3idlyangle=v3idlyangle, v2ref=v2ref, v3ref=v3ref, vparity=vparity, name=name, **kwargs)
+        super(IdealToV2V3, self).__init__(
+            v3idlyangle=v3idlyangle, v2ref=v2ref, v3ref=v3ref, vparity=vparity, name=name, **kwargs
+        )
         self.inputs = ("xidl", "yidl")
         """ x and y coordinates in the telescope Ideal frame."""
         self.outputs = ("v2", "v3")
@@ -559,7 +585,9 @@ class V2V3ToIdeal(Model):
     vparity = Parameter()
 
     def __init__(self, v3idlyangle, v2ref, v3ref, vparity, name="V2idl", **kwargs):
-        super(V2V3ToIdeal, self).__init__(v3idlyangle=v3idlyangle, v2ref=v2ref, v3ref=v3ref, vparity=vparity, name=name, **kwargs)
+        super(V2V3ToIdeal, self).__init__(
+            v3idlyangle=v3idlyangle, v2ref=v2ref, v3ref=v3ref, vparity=vparity, name=name, **kwargs
+        )
         self.inputs = ("v2", "v3")
         """ ('v2', 'v3'): coordinates in the telescope (V2,V3) frame."""
         self.outputs = ("xidl", "yidl")
@@ -744,7 +772,11 @@ class NIRCAMForwardRowGrismDispersion(Model):
             if len(self.xmodels[order]) == 2:
                 xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
             elif len(self.xmodels[order]) == 3:
-                xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0) + t0**2 * self.xmodels[order][2](x0, y0)
+                xr = (
+                    self.xmodels[order][0](x0, y0)
+                    + t0 * self.xmodels[order][1](x0, y0)
+                    + t0**2 * self.xmodels[order][2](x0, y0)
+                )
             elif len(self.xmodels[order][0].inputs) == 1:
                 xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
                 return xr
@@ -890,7 +922,11 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             if len(model[order]) == 2:
                 xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
             elif len(model[order]) == 3:
-                xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0) + t0**2 * model[order][2](x0, y0)
+                xr = (
+                    model[order][0](x0, y0)
+                    + t0 * model[order][1](x0, y0)
+                    + t0**2 * model[order][2](x0, y0)
+                )
             elif len(model[order][0].inputs) == 1:
                 xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
                 return xr
@@ -1018,7 +1054,11 @@ class NIRCAMBackwardGrismDispersion(Model):
         if len(model) == 2:
             xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
         elif len(model) == 3:
-            xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0)) + (t_re**2 * model[2](x0, y0))
+            xr = (
+                (np.ones_like(t_re) * model[0](x0, y0))
+                + (t_re * model[1](x0, y0))
+                + (t_re**2 * model[2](x0, y0))
+            )
         else:
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
@@ -1072,7 +1112,9 @@ class NIRISSBackwardGrismDispersion(Model):
     n_inputs = 4
     n_outputs = 5
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None):
+    def __init__(
+        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None
+    ):
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
         self.ymodels = ymodels
@@ -1175,7 +1217,9 @@ class NIRISSForwardRowGrismDispersion(Model):
     n_inputs = 5
     n_outputs = 4
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None):
+    def __init__(
+        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None
+    ):
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
         self.ymodels = ymodels
@@ -1290,7 +1334,9 @@ class NIRISSForwardColumnGrismDispersion(Model):
     n_inputs = 5
     n_outputs = 4
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=None, name=None, meta=None):
+    def __init__(
+        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=None, name=None, meta=None
+    ):
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
         self.ymodels = ymodels
@@ -1390,7 +1436,9 @@ class Rotation3DToGWA(Model):
         self.axes = ["x", "y", "z"]
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
-            raise ValueError("Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes))
+            raise ValueError(
+                "Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes)
+            )
         self.axes_order = axes_order
 
         self._func_map = {"x": self._xrot, "y": self._yrot, "z": self._zrot}
@@ -1498,11 +1546,24 @@ class Snell(Model):
         D0, D1, D2, E0, E1, lam_tk = tcoef
 
         if delt < 20:
-            n = np.sqrt(1.0 + K1 * lam**2 / (lam**2 - L1) + K2 * lam**2 / (lam**2 - L2) + K3 * lam**2 / (lam**2 - L3))
+            n = np.sqrt(
+                1.0
+                + K1 * lam**2 / (lam**2 - L1)
+                + K2 * lam**2 / (lam**2 - L2)
+                + K3 * lam**2 / (lam**2 - L3)
+            )
         else:
             # Derive the refractive index of air at the reference temperature and pressure
             # and at the operational system's temperature and pressure.
-            nref = 1.0 + (6432.8 + 2949810.0 * lam**2 / (146.0 * lam**2 - 1.0) + (5540.0 * lam**2) / (41.0 * lam**2 - 1.0)) * 1e-8
+            nref = (
+                1.0
+                + (
+                    6432.8
+                    + 2949810.0 * lam**2 / (146.0 * lam**2 - 1.0)
+                    + (5540.0 * lam**2) / (41.0 * lam**2 - 1.0)
+                )
+                * 1e-8
+            )
 
             # T should be in C, P should be in ATM
             nair_obs = 1.0 + ((nref - 1.0) * pressure) / (1.0 + (temp - 15.0) * 3.4785e-3)
@@ -1512,7 +1573,10 @@ class Snell(Model):
             lamrel = lam * nair_obs / nair_ref
 
             nrel = np.sqrt(
-                1.0 + K1 * lamrel**2 / (lamrel**2 - L1) + K2 * lamrel**2 / (lamrel**2 - L2) + K3 * lamrel**2 / (lamrel**2 - L3)
+                1.0
+                + K1 * lamrel**2 / (lamrel**2 - L1)
+                + K2 * lamrel**2 / (lamrel**2 - L2)
+                + K3 * lamrel**2 / (lamrel**2 - L3)
             )
             # Convert the relative index of refraction at the reference temperature and pressure
             # to absolute.
@@ -1520,7 +1584,10 @@ class Snell(Model):
 
             # Compute the absolute index of the glass
             delnabs = (0.5 * (nrel**2 - 1.0) / nrel) * (
-                D0 * delt + D1 * delt**2 + D2 * delt**3 + (E0 * delt + E1 * delt**2) / (lamrel**2 - lam_tk**2)
+                D0 * delt
+                + D1 * delt**2
+                + D2 * delt**3
+                + (E0 * delt + E1 * delt**2) / (lamrel**2 - lam_tk**2)
             )
             nabs_obs = nabs_ref + delnabs
 
@@ -1530,7 +1597,9 @@ class Snell(Model):
 
     def evaluate(self, lam, alpha_in, beta_in, zin):
         """Go through the prism"""
-        n = self.compute_refraction_index(lam, self.temp, self.tref, self.pref, self.pressure, self.kcoef, self.lcoef, self.tcoef)
+        n = self.compute_refraction_index(
+            lam, self.temp, self.tref, self.pref, self.pressure, self.kcoef, self.lcoef, self.tcoef
+        )
         # Apply Snell's law through front surface, eq 5.3.3 II
         xout = alpha_in / n
         yout = beta_in / n
@@ -1620,7 +1689,9 @@ class WavelengthFromGratingEquation(Model):
     def __init__(self, groove_density, order, **kwargs):
         super().__init__(groove_density=groove_density, order=order, **kwargs)
         self.inputs = ("alpha_in", "beta_in", "alpha_out")
-        """ three angle - alpha_in and beta_in going into the grating and alpha_out coming out of the grating."""
+        """
+        three angle - alpha_in and beta_in going into the grating
+        and alpha_out coming out of the grating."""
         self.outputs = ("lam",)
         """ Wavelength."""
 
@@ -1657,7 +1728,9 @@ class Rotation3D(Model):
         self.axes = ["x", "y", "z"]
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
-            raise ValueError("Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes))
+            raise ValueError(
+                "Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes)
+            )
         self.axes_order = axes_order
         if len(angles) != len(axes_order):
             raise ValueError(

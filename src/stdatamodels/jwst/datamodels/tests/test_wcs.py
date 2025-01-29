@@ -65,11 +65,16 @@ def test_get_fits_wcs(tmpdir):
 
 
 def test_wcs_ref_models():
-    filters = [{"name": "F090W", "row_offset": 1, "column_offset": 1}, {"name": "F070W", "row_offset": 2, "column_offset": 2}]
+    filters = [
+        {"name": "F090W", "row_offset": 1, "column_offset": 1},
+        {"name": "F070W", "row_offset": 2, "column_offset": 2},
+    ]
     with FilteroffsetModel(filters=filters, instrument="NIRCAM", strict_validation=True) as fo:
         fo.filters == filters
         with pytest.raises(
-            ValueError, match="Model.meta is missing values for['description', 'reftype', 'author', 'pedigree','useafter']"
+            ValueError,
+            match="Model.meta is missing values for['description', "
+            "'reftype', 'author', 'pedigree','useafter']",
         ):
             fo.validate()
 
@@ -85,7 +90,9 @@ def test_wcs_ref_models():
         fo.meta.pedigree = "GROUND"
         fo.meta.useafter = "2019-12-01"
 
-        with pytest.raises(ValueError, match="Expected meta.instrument.channel for instrument NIRCAM to be one of "):
+        with pytest.raises(
+            ValueError, match="Expected meta.instrument.channel for instrument NIRCAM to be one of "
+        ):
             fo.validate()
         fo.meta.instrument.channel = "SHORT"
         fo.meta.instrument.module = "A"

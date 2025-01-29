@@ -80,7 +80,9 @@ def test_init_from_pathlib(tmp_path):
     ],
 )
 @pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(jail_environ, use_env, make_models, which_file, skip_fits_update, expected_exp_type):
+def test_skip_fits_update(
+    jail_environ, use_env, make_models, which_file, skip_fits_update, expected_exp_type
+):
     """Test skip_fits_update setting"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
@@ -377,9 +379,13 @@ def test_reference_model_schema_inheritance(model):
     walk_schema(schema, cb, ctx=ctx)
     refs_referencefile_schema = ctx["has_ref"]
     if is_ref_model:
-        assert refs_referencefile_schema, f"Reference model {model} does not ref referencefile.schema"
+        assert refs_referencefile_schema, (
+            f"Reference model {model} does not ref referencefile.schema"
+        )
     else:
-        assert not refs_referencefile_schema, f"Model {model} does not inherit from ReferenceFileModel"
+        assert not refs_referencefile_schema, (
+            f"Model {model} does not inherit from ReferenceFileModel"
+        )
 
 
 def test_meta_date_management(tmp_path):
@@ -452,9 +458,36 @@ def oifits_ami_model():
     m.meta.oifits.instrument_mode = "NRM"
 
     m.array = [
-        ("A1", "A1", 1, 0.0, [2.64000000e00, -1.61653377e-16, 0.00000000e00], 5.04539835, "RADIUS", [2.60973996, -0.39856915]),
-        ("A2", "A2", 2, 0.0, [1.39996111e-16, 2.28631000e00, 0.00000000e00], 5.04539835, "RADIUS", [-0.34517145, -2.260104]),
-        ("A3", "A3", 3, 0.0, [1.32000010e00, -2.28631000e00, 0.00000000e00], 5.04539835, "RADIUS", [1.65004153, 2.06081941]),
+        (
+            "A1",
+            "A1",
+            1,
+            0.0,
+            [2.64000000e00, -1.61653377e-16, 0.00000000e00],
+            5.04539835,
+            "RADIUS",
+            [2.60973996, -0.39856915],
+        ),
+        (
+            "A2",
+            "A2",
+            2,
+            0.0,
+            [1.39996111e-16, 2.28631000e00, 0.00000000e00],
+            5.04539835,
+            "RADIUS",
+            [-0.34517145, -2.260104],
+        ),
+        (
+            "A3",
+            "A3",
+            3,
+            0.0,
+            [1.32000010e00, -2.28631000e00, 0.00000000e00],
+            5.04539835,
+            "RADIUS",
+            [1.65004153, 2.06081941],
+        ),
     ]
     m.target = [
         (
@@ -496,8 +529,34 @@ def oifits_ami_model():
         ),
     ]
     m.vis = [
-        (1, 0.0, 59735.0, 0.3772, 0.84231787, 0.00669874, -10.57082496, 1.89098664, 1.86153485, 2.9549114, [1, 2], 0),
-        (1, 0.0, 59735.0, 0.3772, 0.91448467, 0.00621287, -22.26334374, 1.27637574, -2.45938856, 0.95969843, [1, 3], 0),
+        (
+            1,
+            0.0,
+            59735.0,
+            0.3772,
+            0.84231787,
+            0.00669874,
+            -10.57082496,
+            1.89098664,
+            1.86153485,
+            2.9549114,
+            [1, 2],
+            0,
+        ),
+        (
+            1,
+            0.0,
+            59735.0,
+            0.3772,
+            0.91448467,
+            0.00621287,
+            -22.26334374,
+            1.27637574,
+            -2.45938856,
+            0.95969843,
+            [1, 3],
+            0,
+        ),
     ]
     m.vis2 = [
         (1, 0.0, 59735.0, 0.3772, 0.70949939, 0.01131277, 1.86153485, 2.9549114, [1, 2], 0),
@@ -580,7 +639,9 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
 @pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "wavelength"])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
-    new_table_data = merge_arrays([table_data, np.zeros(table_data.size, dtype=[("extra", "f8")])], flatten=True)
+    new_table_data = merge_arrays(
+        [table_data, np.zeros(table_data.size, dtype=[("extra", "f8")])], flatten=True
+    )
     setattr(oifits_ami_model, table_name, new_table_data)
     fn = tmp_path / "test.fits"
     oifits_ami_model.save(fn)
@@ -636,7 +697,9 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     def make_data(table_dtype):
         if shape:
             fake_data = [("ABC", shape, [0.1] * shape, [2.0] * shape, [3.0] * shape)]
-            dtype = [(n, table_dtype[n], shape if n != "slit_name" else ()) for n in table_dtype.fields]
+            dtype = [
+                (n, table_dtype[n], shape if n != "slit_name" else ()) for n in table_dtype.fields
+            ]
         else:
             fake_data = [("ABC", 1, 0.1, 2.0, 3.0)]
             dtype = table_dtype

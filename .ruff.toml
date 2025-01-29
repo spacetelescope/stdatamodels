@@ -10,7 +10,7 @@ exclude = [
     ".tox",
     ".eggs",
 ]
-line-length = 130
+line-length = 100
 target-version = "py310"
 
 [format]
