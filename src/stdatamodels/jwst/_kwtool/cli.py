@@ -51,7 +51,7 @@ def _keyword_details(kwd, dmd, k):
 
 def _set_to_list(item):
     if isinstance(item, set):
-        return _set_to_list(sorted(list(item)))
+        return _set_to_list(sorted(item))
     if isinstance(item, (list, tuple)):
         return [_set_to_list(i) for i in item]
     if isinstance(item, dict):

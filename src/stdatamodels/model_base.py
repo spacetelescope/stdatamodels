@@ -947,7 +947,7 @@ class DataModel(properties.ObjectNode):
             if isinstance(only, str):
                 hdu_names = {only}
             else:
-                hdu_names = set(list(only))
+                hdu_names = set(only)
         else:
             hdu_names = {"PRIMARY"}
             mschema.walk_schema(self._schema, hdu_names_from_schema, hdu_names)
