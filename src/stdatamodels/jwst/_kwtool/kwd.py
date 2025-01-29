@@ -29,7 +29,7 @@ def _walk_kwd(kwd_path, root, path=None, keywords=None):
     if keywords is None:
         keywords = []
     if path is None:
-        path = tuple()
+        path = ()
     if not isinstance(root, (dict, list)):
         if not isinstance(root, (int, float, str)):
             raise ValueError(f"Unknown type {type(root)} in keyword dictionary")

@@ -244,7 +244,7 @@ def test_update_from_dict(tmp_path):
     """Test update method from a dictionary"""
     path = tmp_path / "update.fits"
     with ImageModel((5, 5)) as im:
-        update_dict = dict(meta=dict(telescope="JWST", wcsinfo=dict(crval1=5)))
+        update_dict = {"meta": {"telescope": "JWST", "wcsinfo": {"crval1": 5}}}
         im.update(update_dict)
         im.save(path)
 
