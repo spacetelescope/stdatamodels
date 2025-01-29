@@ -817,7 +817,9 @@ class DataModel(properties.ObjectNode):
             ("meta.observation.date": "2012-04-22T03:22:05.432")
         """
 
-        def recurse(tree, path=[]):
+        def recurse(tree, path=None):
+            if path is None:
+                path = []
             if isinstance(tree, dict):
                 for key, val in tree.items():
                     for x in recurse(val, path + [key]):

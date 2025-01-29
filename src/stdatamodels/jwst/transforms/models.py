@@ -169,9 +169,9 @@ class GrismObject(
     def __new__(
         cls,
         sid=None,
-        order_bounding={},
+        order_bounding={},  # noqa: B006
         sky_centroid=None,
-        partial_order={},
+        partial_order={},  # noqa: B006
         waverange=None,
         sky_bbox_ll=None,
         sky_bbox_lr=None,
