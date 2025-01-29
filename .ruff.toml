@@ -26,7 +26,7 @@ select = [
     #"D",      # docstrings, see also numpydoc pre-commit action
     "N",      # pep8-naming (naming conventions)
     "A",      # flake8-builtins (prevent shadowing of builtins)
-    "ARG",    # flake8-unused-arguments (prevent unused arguments)
+    #"ARG",    # flake8-unused-arguments (prevent unused arguments)
     "B",      # flake8-bugbear (miscellaneous best practices to avoid bugs)
     "C4",     # flake8-comprehensions (best practices for comprehensions)
     "ICN",    # flake8-import-conventions (enforce import conventions)
@@ -52,9 +52,6 @@ ignore = [
     "TRY003", # prevents custom exception messages not defined in exception itself.
     "ISC001", # single line implicit string concatenation. formatter recommends ignoring this.
     # to fix
-    "ARG001",
-    "ARG002",
-    "ARG005",
     "B003",
     "B006",
     "B007",
