@@ -130,7 +130,7 @@ def _filter_non_pattern(d):
 def _compare_path(k, d):
     paths = {}
     for c, n in [(k, "kwd"), (d, "dmd")]:
-        paths[n] = set((".".join(i["path"]) for i in c))
+        paths[n] = {".".join(i["path"]) for i in c}
     if paths["kwd"] == paths["dmd"]:
         return None
 
@@ -155,7 +155,7 @@ def _compare_keyword_subitem(k, d, key):
     # be {_MISSING_VALUE} == {_MISSING_VALUE}.
     items = {}
     for c, n in [(k, "kwd"), (d, "dmd")]:
-        items[n] = set((i["keyword"].get(key, _MISSING_VALUE) for i in c))
+        items[n] = {i["keyword"].get(key, _MISSING_VALUE) for i in c}
     if items["kwd"] == items["dmd"]:
         return None
     return items
