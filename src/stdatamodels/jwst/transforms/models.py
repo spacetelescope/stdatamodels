@@ -445,7 +445,7 @@ class NirissSOSSModel(Model):
         """ RA and DEC coordinates and wavelength"""
 
         self.spectral_orders = spectral_orders
-        self.models = dict(zip(spectral_orders, models))
+        self.models = dict(zip(spectral_orders, models, strict=False))
 
     def get_model(self, spectral_order):
         return self.models[spectral_order]
@@ -1481,7 +1481,7 @@ class Rotation3DToGWA(Model):
         #  Note: If the original shape was () (an array scalar) convert to a
         #  1-element 1-D array on output for consistency with most other models
         orig_shape = x.shape or (1,)
-        for ang, ax in zip(angles[0], self.axes_order):
+        for ang, ax in zip(angles[0], self.axes_order, strict=False):
             x, y, z = self._func_map[ax](x, y, z, theta=ang)
         x.shape = y.shape = z.shape = orig_shape
 
@@ -1752,7 +1752,7 @@ class Rotation3D(Model):
         if len(angles) != len(axes_order):
             raise InputParameterError("Number of angles must equal number of axes in axes_order.")
         matrices = []
-        for angle, axis in zip(angles, axes_order):
+        for angle, axis in zip(angles, axes_order, strict=False):
             matrix = np.zeros((3, 3), dtype=float)
             if axis == "x":
                 mat = Rotation3D.rotation_matrix_from_angle(angle)

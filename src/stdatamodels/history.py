@@ -54,7 +54,7 @@ class HistoryList:
         if len(self) != len(other):
             return False
 
-        for self_entry, other_entry in zip(self._entries, other):
+        for self_entry, other_entry in zip(self._entries, other, strict=False):
             if isinstance(other_entry, str):
                 if self_entry.get("description") != other_entry:
                     return False

@@ -178,7 +178,7 @@ def _safe_asanyarray(a, dtype):
             # a FITS_rec with a pseudo-unsigned column.
             # See https://github.com/astropy/astropy/issues/12112
             result = np.zeros(a.shape, dtype=dtype)
-            for old_col, new_col in zip(a.dtype.names, result.dtype.names):
+            for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
                 result[new_col] = a[old_col]
             return result
 

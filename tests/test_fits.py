@@ -336,7 +336,9 @@ def test_table_with_unsigned_int(tmp_path):
         uint32_arr[0] = uint32_info.min
         uint32_arr[-1] = uint32_info.max
 
-        test_table = np.array(list(zip(float64_arr, uint32_arr)), dtype=dm.test_table.dtype)
+        test_table = np.array(
+            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.test_table.dtype
+        )
 
         def assert_table_correct(model):
             for idx, (col_name, col_data) in enumerate(

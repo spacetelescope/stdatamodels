@@ -335,7 +335,7 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
                 yield error
     else:
         # We don't do the index trick on "tuple validated" sequences
-        for (index, item), subschema in zip(enumerate(instance), items):
+        for (index, item), subschema in zip(enumerate(instance), items, strict=False):
             for error in validator.descend(
                 item,
                 subschema,

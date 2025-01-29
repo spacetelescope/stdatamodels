@@ -37,7 +37,7 @@ def test_historylist_methods():
     assert len(h1) == 3, "Length of extended history list"
     assert h1 == info, "Contents of extended history list"
 
-    for entry, item in zip(h1, info):
+    for entry, item in zip(h1, info, strict=False):
         assert entry["description"] == item, "Iterate over history list"
 
     h1.clear()

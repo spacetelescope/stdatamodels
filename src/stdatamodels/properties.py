@@ -60,7 +60,7 @@ def _cast(val, schema):
             if "allow_extra_columns" in schema:
                 allow_extra_columns = schema["allow_extra_columns"]
 
-            for t, v in zip(schema["datatype"], val[0]):
+            for t, v in zip(schema["datatype"], val[0], strict=False):
                 if not isinstance(t, Mapping):
                     continue
 
