@@ -27,7 +27,7 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist.writeto(filename, **kwargs)
 
 
-def open(filename_or_hdu, **kwargs):
+def open(filename_or_hdu, **kwargs):  # noqa: A001
     """Read ASDF data embedded in a fits file
 
     Parameters

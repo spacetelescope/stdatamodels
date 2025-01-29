@@ -111,14 +111,14 @@ def test_multislit_metadata2():
 
 def test_multislit_copy(tmp_path):
     path = tmp_path / "multislit.fits"
-    with MultiSlitModel() as input:
+    with MultiSlitModel() as input_file:
         for i in range(4):
-            input.slits.append(input.slits.item(data=np.empty((50, 50))))
+            input_file.slits.append(input_file.slits.item(data=np.empty((50, 50))))
 
-        assert len(input.slits) == 4
-        input.save(path)
+        assert len(input_file.slits) == 4
+        input_file.save(path)
 
-        output = input.copy()
+        output = input_file.copy()
         assert len(output.slits) == 4
 
     with fits.open(path, memmap=False) as hdulist:

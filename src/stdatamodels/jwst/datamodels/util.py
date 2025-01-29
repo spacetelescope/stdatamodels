@@ -28,7 +28,7 @@ class NoTypeWarning(Warning):
     pass
 
 
-def open(init=None, guess=True, memmap=False, **kwargs):
+def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     """
     Creates a DataModel from a number of different types
 

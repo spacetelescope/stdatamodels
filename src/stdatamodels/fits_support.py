@@ -99,9 +99,9 @@ FITS_HASH_KEY = "_fits_hash"
 
 
 def _get_indexed_keyword(keyword, i):
-    for sub, max, r in _keyword_indices:
+    for sub, max_value, r in _keyword_indices:
         if sub in keyword:
-            if i >= max:
+            if i >= max_value:
                 raise ValueError("Too many entries for given keyword '{0}'".format(keyword))
             if r is None:
                 val = str(i)
@@ -247,13 +247,13 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
         current_comment_stack = fits_context.comment_stack
         current_comment_stack.append(ensure_ascii(title))
 
-    for property, subschema in properties.items():
-        if property in instance:
+    for prop, subschema in properties.items():
+        if prop in instance:
             for error in validator.descend(
-                instance[property],
+                instance[prop],
                 subschema,
-                path=property,
-                schema_path=property,
+                path=prop,
+                schema_path=prop,
             ):
                 yield error
 
