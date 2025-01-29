@@ -2,6 +2,7 @@ import os
 import logging
 from collections.abc import Iterable
 import warnings
+from pathlib import Path
 
 import asdf
 import pytest
@@ -219,7 +220,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                         with warnings.catch_warnings():
                             warnings.simplefilter("ignore", dm.util.NoTypeWarning)
                             refs = cache_references(context, {reftype: f})
-                            if os.path.basename(refs[reftype]) == "jwst_fgs_distortion_0003.asdf":
+                            if Path(refs[reftype]).name == "jwst_fgs_distortion_0003.asdf":
                                 # jwst_fgs_distortion_0003.asdf contains an invalid set of ASDF
                                 # tags and will load with a warning for asdf >= 3.0. This is a known
                                 # issue and doesn't affect the use of the file in this test.

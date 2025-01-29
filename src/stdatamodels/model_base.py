@@ -5,7 +5,7 @@ Data model class hierarchy
 import copy
 import datetime
 import os
-from pathlib import PurePath
+from pathlib import Path, PurePath
 import sys
 import warnings
 
@@ -476,13 +476,13 @@ class DataModel(properties.ObjectNode):
         """
         # if the input is from a file, set the filename attribute
         if isinstance(init, str):
-            self.meta.filename = os.path.basename(init)
+            self.meta.filename = Path(init).name
         elif isinstance(init, fits.HDUList):
             info = init.fileinfo(0)
             if info is not None:
                 filename = info.get("filename")
                 if filename is not None:
-                    self.meta.filename = os.path.basename(filename)
+                    self.meta.filename = Path(filename).name
 
         # store the data model type, if not already set
         klass = self.__class__.__name__
@@ -506,7 +506,7 @@ class DataModel(properties.ObjectNode):
             The path to the file that we're about to save to.
         """
         if isinstance(path, str):
-            self.meta.filename = os.path.basename(path)
+            self.meta.filename = Path(path).name
 
         # Enforce model_type to be the actual type of model being saved.
         self.meta.model_type = self._model_type

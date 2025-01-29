@@ -5,7 +5,6 @@ Various utility functions and data types
 from collections.abc import Sequence
 import sys
 import warnings
-from os.path import basename
 from pathlib import Path
 import logging
 
@@ -112,7 +111,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         if isinstance(init, bytes):
             init = init.decode(sys.getfilesystemencoding())
 
-        file_name = basename(init)
+        file_name = Path(init).name
         file_type = filetype.check(init)
 
         if file_type == "fits":
