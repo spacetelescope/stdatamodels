@@ -831,8 +831,7 @@ class DataModel(properties.ObjectNode):
             elif tree is not None:
                 yield (".".join(str(x) for x in path), tree)
 
-        for x in recurse(self._instance):
-            yield x
+        yield from recurse(self._instance)
 
     def keys(self):
         """

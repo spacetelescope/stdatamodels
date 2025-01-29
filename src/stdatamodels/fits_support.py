@@ -249,13 +249,12 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
 
     for prop, subschema in properties.items():
         if prop in instance:
-            for error in validator.descend(
+            yield from validator.descend(
                 instance[prop],
                 subschema,
                 path=prop,
                 schema_path=prop,
-            ):
-                yield error
+            )
 
     if title is not None:
         current_comment_stack.pop(-1)
