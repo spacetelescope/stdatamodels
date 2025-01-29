@@ -945,11 +945,11 @@ class DataModel(properties.ObjectNode):
 
         if only is not None:
             if isinstance(only, str):
-                hdu_names = set([only])
+                hdu_names = {only}
             else:
                 hdu_names = set(list(only))
         else:
-            hdu_names = set(["PRIMARY"])
+            hdu_names = {"PRIMARY"}
             mschema.walk_schema(self._schema, hdu_names_from_schema, hdu_names)
 
         # Get the paths to all the keywords that will be updated from

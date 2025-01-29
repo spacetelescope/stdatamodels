@@ -86,7 +86,7 @@ def test_data_array(tmp_path):
         for hdu in hdulist:
             x.add((hdu.header.get("EXTNAME"), hdu.header.get("EXTVER")))
 
-        assert x == set([("FOO", 2), ("FOO", 1), ("ASDF", None), ("DQ", 2), (None, None)])
+        assert x == {("FOO", 2), ("FOO", 1), ("ASDF", None), ("DQ", 2), (None, None)}
 
 
 def test_ami_wcsinfo():
