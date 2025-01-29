@@ -57,8 +57,8 @@ ignore = [
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
     "NPY002",  # numpy rng, will require finding the right replacements
     "S101",  # asserts are used in many non-test places
+    "SLF001",  # private member access, this is overly restrictive
     # to fix
-    "SLF001",
     "TRY002",
     "TRY004",
     "UP009",
@@ -79,6 +79,6 @@ convention = "numpy"
 ignore-fully-untyped = true  # Turn of annotation checking for fully untyped code
 
 [lint.per-file-ignores]
-"**/test_*.py" = ["S101"]
+"**/test_*.py" = ["S101", "SLF001"]
 "tests/**" = ["INP001"]
 "src/stdatamodels/jwst/datamodels/darkMIRI.py" = ["N999"]
