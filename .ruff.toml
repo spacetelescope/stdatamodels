@@ -52,7 +52,6 @@ ignore = [
     "TRY003", # prevents custom exception messages not defined in exception itself.
     "ISC001", # single line implicit string concatenation. formatter recommends ignoring this.
     # to fix
-    "B011",
     "B015",
     "B018",
     "B028",

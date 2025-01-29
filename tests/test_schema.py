@@ -156,7 +156,7 @@ def test_add_schema_entry():
         except ValidationError:
             pass
         else:
-            assert False
+            assert False  # noqa: B011
 
 
 def test_validate_transform(tmp_path):
