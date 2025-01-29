@@ -1,15 +1,15 @@
-import numpy
+import numpy as np
 import pytest
 
 from stdatamodels.dynamicdq import dynamic_mask
 
 
 def _dq(init):
-    return numpy.array(init, dtype="u4")
+    return np.array(init, dtype="u4")
 
 
 def _dq_def(init):
-    return numpy.array(init, dtype=[("VALUE", "u4"), ("NAME", "S40")])
+    return np.array(init, dtype=[("VALUE", "u4"), ("NAME", "S40")])
 
 
 class FakeModel:
@@ -41,9 +41,9 @@ def test_mmap(inv):
     }
     dqmask = dynamic_mask(model, mmap, inv)
     if inv:
-        numpy.testing.assert_equal(dqmask, [0, 2, 4, 1])
+        np.testing.assert_equal(dqmask, [0, 2, 4, 1])
     else:
-        numpy.testing.assert_equal(dqmask, [0, 4, 1, 2])
+        np.testing.assert_equal(dqmask, [0, 4, 1, 2])
 
 
 @pytest.mark.parametrize("inv", [True, False])
@@ -55,5 +55,5 @@ def test_missing_map_key(caplog, inv):
         b"BAR": 2,
     }
     dqmask = dynamic_mask(model, mmap, inv)
-    numpy.testing.assert_equal(dqmask, [0, 0])
+    np.testing.assert_equal(dqmask, [0, 0])
     assert "does not correspond to an existing DQ" in caplog.text
