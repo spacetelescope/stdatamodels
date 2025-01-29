@@ -243,7 +243,7 @@ class DataModel(properties.ObjectNode):
                 raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
-            raise ValueError("Can't initialize datamodel using {0}".format(str(type(init))))
+            raise ValueError("Can't initialize datamodel using {}".format(str(type(init))))
 
         self._file_references.append(_FileReference(asdffile))
 
@@ -557,7 +557,7 @@ class DataModel(properties.ObjectNode):
         elif ext == ".asdf":
             self.to_asdf(output_path, *args, **kwargs)
         else:
-            raise ValueError("unknown filetype {0}".format(ext))
+            raise ValueError("unknown filetype {}".format(ext))
 
         return output_path
 

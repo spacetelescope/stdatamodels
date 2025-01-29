@@ -75,7 +75,7 @@ _builtin_regexes = [
 ]
 
 
-_builtin_regex = re.compile("|".join("(^{0}$)".format(x) for x in _builtin_regexes))
+_builtin_regex = re.compile("|".join("(^{}$)".format(x) for x in _builtin_regexes))
 
 
 def is_builtin_fits_keyword(key):
@@ -102,7 +102,7 @@ def _get_indexed_keyword(keyword, i):
     for sub, max_value, r in _keyword_indices:
         if sub in keyword:
             if i >= max_value:
-                raise ValueError("Too many entries for given keyword '{0}'".format(keyword))
+                raise ValueError("Too many entries for given keyword '{}'".format(keyword))
             if r is None:
                 val = str(i)
             else:
@@ -169,12 +169,12 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
                 raise
         except (KeyError, IndexError, AttributeError):
             raise AttributeError(
-                "Property missing because FITS file has no '{0!r}' HDU".format(pair)
+                "Property missing because FITS file has no '{!r}' HDU".format(pair)
             )
 
     if index is not None:
         if hdu.header.get("EXTVER", 1) != index + 1:
-            raise AttributeError("Property missing because FITS file has no {0!r} HDU".format(pair))
+            raise AttributeError("Property missing because FITS file has no {!r} HDU".format(pair))
 
     if _cache is not None:
         _cache[pair] = hdu

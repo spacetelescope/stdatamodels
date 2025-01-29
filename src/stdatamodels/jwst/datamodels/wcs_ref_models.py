@@ -603,7 +603,7 @@ class IFUPostModel(ReferenceFileModel):
         super().__init__(init=init, **kwargs)
         if slice_models is not None:
             if len(slice_models) != 30:
-                raise ValueError("Expected 30 slice models, got {0}".format(len(slice_models)))
+                raise ValueError("Expected 30 slice models, got {}".format(len(slice_models)))
             else:
                 for key, val in slice_models.items():
                     setattr(self, key, val)

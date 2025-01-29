@@ -201,19 +201,19 @@ class GrismObject(
     def __str__(self):
         """Return a pretty print for the object information."""
         return (
-            "id: {0}\n"
-            "order_bounding {1}\n"
-            "sky_centroid: {2}\n"
-            "sky_bbox_ll: {3}\n"
-            "sky_bbox_lr: {4}\n"
-            "sky_bbox_ur: {5}\n"
-            "sky_bbox_ul:{6}\n"
-            "xcentroid: {7}\n"
-            "ycentroid: {8}\n"
-            "partial_order: {9}\n"
-            "waverange: {10}\n"
-            "is_extended: {11}\n"
-            "isophotal_abmag: {12}\n".format(
+            "id: {}\n"
+            "order_bounding {}\n"
+            "sky_centroid: {}\n"
+            "sky_bbox_ll: {}\n"
+            "sky_bbox_lr: {}\n"
+            "sky_bbox_ur: {}\n"
+            "sky_bbox_ul:{}\n"
+            "xcentroid: {}\n"
+            "ycentroid: {}\n"
+            "partial_order: {}\n"
+            "waverange: {}\n"
+            "is_extended: {}\n"
+            "isophotal_abmag: {}\n".format(
                 self.sid,
                 str(self.order_bounding),
                 str(self.sky_centroid),
@@ -1436,7 +1436,7 @@ class Rotation3DToGWA(Model):
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
             raise ValueError(
-                "Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes)
+                "Unrecognized axis label {}; should be one of {} ".format(unrecognized, self.axes)
             )
         self.axes_order = axes_order
 
@@ -1728,13 +1728,13 @@ class Rotation3D(Model):
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
             raise ValueError(
-                "Unrecognized axis label {0}; should be one of {1} ".format(unrecognized, self.axes)
+                "Unrecognized axis label {}; should be one of {} ".format(unrecognized, self.axes)
             )
         self.axes_order = axes_order
         if len(angles) != len(axes_order):
             raise ValueError(
-                "The number of angles {0} should match the number \
-                              of axes {1}.".format(len(angles), len(axes_order))
+                "The number of angles {} should match the number \
+                              of axes {}.".format(len(angles), len(axes_order))
             )
         super(Rotation3D, self).__init__(angles, name=name)
         self.inputs = ("x", "y", "z")

@@ -56,7 +56,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         try:
             a = np.asarray(a, dtype=out_dtype)
         except Exception:
-            raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
+            raise ValueError("Can't convert {!s} to ndarray".format(type(a)))
         return a
     in_dtype = a.dtype
 
@@ -124,7 +124,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     if not allow_extra_columns or (not set(out_lower_names).issubset(in_lower_names)):
         # try to match the old error message
         raise ValueError(
-            "Column names don't match schema. Schema has {0}. Data has {1}".format(
+            "Column names don't match schema. Schema has {}. Data has {}".format(
                 str(set(out_lower_names).difference(set(in_lower_names))),
                 str(set(in_lower_names).difference(set(out_lower_names))),
             )
