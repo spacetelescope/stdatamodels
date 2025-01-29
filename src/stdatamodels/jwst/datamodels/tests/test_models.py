@@ -295,10 +295,10 @@ def test_slit_from_image():
     assert slit.meta.instrument.name == "MIRI"
 
     im = ImageModel(slit)
-    assert type(im) == ImageModel
+    assert type(im) is ImageModel
 
     im = ImageModel(slit_dm)
-    assert type(im) == ImageModel
+    assert type(im) is ImageModel
 
 
 def test_ifuimage():
@@ -310,7 +310,7 @@ def test_ifuimage():
     assert_array_equal(im.dq, ifuimage.dq)
 
     im = ImageModel(ifuimage)
-    assert type(im) == ImageModel
+    assert type(im) is ImageModel
 
 
 def test_abvega_offset_model():

@@ -291,7 +291,7 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
         schema["default"] = instance is not None
 
         # Extract table field names from datatype
-        if type(schema["datatype"]) == str:
+        if isinstance(schema["datatype"], str):
             schema["array"] = True
         else:
             schema["records"] = True
@@ -303,7 +303,7 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
 
         # Convert boolean fields to their field names
         for field, value in schema.items():
-            if type(value) == bool:
+            if isinstance(value, bool):
                 schema[field] = field
 
         # Apply format to schema fields
