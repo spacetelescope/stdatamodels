@@ -149,7 +149,7 @@ def test_implicit_creation_lower_dimensionality():
 def test_add_schema_entry():
     with DataModel(strict_validation=True) as dm:
         dm.add_schema_entry("meta.foo.bar", {"enum": ["foo", "bar", "baz"]})
-        dm.meta.foo.bar
+        dm.meta.foo.bar  # noqa: B018
         dm.meta.foo.bar = "bar"
         try:
             dm.meta.foo.bar = "what?"

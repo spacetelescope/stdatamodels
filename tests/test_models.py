@@ -97,7 +97,7 @@ def test_init_with_array2():
     with pytest.raises(ValueError):
         array = np.zeros((50,))
         with BasicModel(array) as dm:
-            dm.data
+            dm.data  # noqa: B018
 
 
 def test_set_array():
@@ -116,7 +116,7 @@ def test_set_array2():
 def test_base_model_has_no_arrays():
     with pytest.raises(AttributeError):
         with DataModel() as dm:
-            dm.data
+            dm.data  # noqa: B018
 
 
 def test_array_type():

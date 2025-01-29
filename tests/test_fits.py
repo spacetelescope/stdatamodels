@@ -32,7 +32,7 @@ def test_from_new_hdulist():
 
         hdulist = fits.HDUList()
         with FitsModel(hdulist) as dm:
-            dm.foo
+            dm.foo  # noqa: B018
 
 
 def test_from_new_hdulist2():
@@ -472,7 +472,7 @@ def test_from_hdulist(tmp_path):
 
     with fits.open(file_path, memmap=False) as hdulist:
         with FitsModel(hdulist) as dm:
-            dm.data
+            dm.data  # noqa: B018
         assert not hdulist.fileinfo(0)["file"].closed
 
 
@@ -609,7 +609,7 @@ def test_no_asdf_extension_extra_fits(tmp_path):
 
     with PureFitsModel(path) as m:
         with pytest.raises(AttributeError):
-            m.extra_fits
+            m.extra_fits  # noqa: B018
 
 
 def test_ndarray_validation(tmp_path):
