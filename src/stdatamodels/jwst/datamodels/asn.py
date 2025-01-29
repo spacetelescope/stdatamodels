@@ -34,14 +34,14 @@ class AsnModel(JwstDataModel):
             if "prod" in etype.lower():
                 self.output_rootname = self.asn_table.expname[i]
                 for fmt in self.supported_formats:
-                    fname = "{}.{}".format(self.output_rootname, fmt)
+                    fname = f"{self.output_rootname}.{fmt}"
                     if Path(fname).exists():
                         self.output = fname
                         break
             else:
                 rootname = self.asn_table.expname[i]
                 for fmt in self.supported_formats:
-                    fname = "{}.{}".format(rootname, fmt)
+                    fname = f"{rootname}.{fmt}"
                     if Path(fname).exists():
                         self.inputs.append(fname)
                         break

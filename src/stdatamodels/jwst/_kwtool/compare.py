@@ -18,7 +18,7 @@ _MISSING_VALUE = _MissingValue()
 # Initialize the standard in regex pattern
 _fits_standard_regex = re.compile(
     "|".join(
-        "(^{}$)".format(x)
+        f"(^{x}$)"
         for x in [
             "",
             "NAXIS[0-9]{0,3}",

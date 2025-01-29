@@ -97,7 +97,7 @@ class MultiSlitModel(JwstDataModel):
             try:
                 slit = self.slits[key]  # returns an ObjectNode instance
             except IndexError:
-                raise ("Slit {} doesn't exist".format(key))
+                raise (f"Slit {key} doesn't exist")
             kwargs = {}
             items = dict(slit.items())
             for key in items:
@@ -110,4 +110,4 @@ class MultiSlitModel(JwstDataModel):
                 s.meta.wcs = slit.meta.wcs
             return s
         else:
-            raise ValueError("Invalid key {}".format(key))
+            raise ValueError(f"Invalid key {key}")

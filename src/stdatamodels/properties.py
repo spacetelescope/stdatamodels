@@ -313,14 +313,14 @@ class ObjectNode(Node):
 
     def __getattr__(self, attr):
         if attr.startswith("_"):
-            raise AttributeError("No attribute {}".format(attr))
+            raise AttributeError(f"No attribute {attr}")
 
         schema = _get_schema_for_property(self._schema, attr)
         try:
             val = self._instance[attr]
         except KeyError:
             if schema == {}:
-                raise AttributeError("No attribute '{}'".format(attr))
+                raise AttributeError(f"No attribute '{attr}'")
 
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
@@ -363,7 +363,7 @@ class ObjectNode(Node):
                 try:
                     del self._instance[attr]
                 except KeyError:
-                    raise AttributeError("Attribute '{}' missing".format(attr))
+                    raise AttributeError(f"Attribute '{attr}' missing")
 
     def __iter__(self):
         return NodeIterator(self)

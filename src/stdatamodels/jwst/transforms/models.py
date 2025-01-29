@@ -201,33 +201,19 @@ class GrismObject(
     def __str__(self):
         """Return a pretty print for the object information."""
         return (
-            "id: {}\n"
-            "order_bounding {}\n"
-            "sky_centroid: {}\n"
-            "sky_bbox_ll: {}\n"
-            "sky_bbox_lr: {}\n"
-            "sky_bbox_ur: {}\n"
-            "sky_bbox_ul:{}\n"
-            "xcentroid: {}\n"
-            "ycentroid: {}\n"
-            "partial_order: {}\n"
-            "waverange: {}\n"
-            "is_extended: {}\n"
-            "isophotal_abmag: {}\n".format(
-                self.sid,
-                str(self.order_bounding),
-                str(self.sky_centroid),
-                str(self.sky_bbox_ll),
-                str(self.sky_bbox_lr),
-                str(self.sky_bbox_ur),
-                str(self.sky_bbox_ul),
-                self.xcentroid,
-                self.ycentroid,
-                str(self.partial_order),
-                str(self.waverange),
-                str(self.is_extended),
-                str(self.isophotal_abmag),
-            )
+            f"id: {self.sid}\n"
+            f"order_bounding {str(self.order_bounding)}\n"
+            f"sky_centroid: {str(self.sky_centroid)}\n"
+            f"sky_bbox_ll: {str(self.sky_bbox_ll)}\n"
+            f"sky_bbox_lr: {str(self.sky_bbox_lr)}\n"
+            f"sky_bbox_ur: {str(self.sky_bbox_ur)}\n"
+            f"sky_bbox_ul:{str(self.sky_bbox_ul)}\n"
+            f"xcentroid: {self.xcentroid}\n"
+            f"ycentroid: {self.ycentroid}\n"
+            f"partial_order: {str(self.partial_order)}\n"
+            f"waverange: {str(self.waverange)}\n"
+            f"is_extended: {str(self.is_extended)}\n"
+            f"isophotal_abmag: {str(self.isophotal_abmag)}\n"
         )
 
 
@@ -455,7 +441,7 @@ class NirissSOSSModel(Model):
         try:
             order_number = int(spectral_order[0])
         except Exception:
-            raise ValueError("Spectral order is not between 1 and 3, {}".format(spectral_order))
+            raise ValueError(f"Spectral order is not between 1 and 3, {spectral_order}")
 
         return self.models[order_number](x, y)
 
@@ -1436,7 +1422,7 @@ class Rotation3DToGWA(Model):
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
             raise ValueError(
-                "Unrecognized axis label {}; should be one of {} ".format(unrecognized, self.axes)
+                f"Unrecognized axis label {unrecognized}; should be one of {self.axes} "
             )
         self.axes_order = axes_order
 
@@ -1728,13 +1714,13 @@ class Rotation3D(Model):
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
             raise ValueError(
-                "Unrecognized axis label {}; should be one of {} ".format(unrecognized, self.axes)
+                f"Unrecognized axis label {unrecognized}; should be one of {self.axes} "
             )
         self.axes_order = axes_order
         if len(angles) != len(axes_order):
             raise ValueError(
-                "The number of angles {} should match the number \
-                              of axes {}.".format(len(angles), len(axes_order))
+                f"The number of angles {len(angles)} should match the number \
+                              of axes {len(axes_order)}."
             )
         super(Rotation3D, self).__init__(angles, name=name)
         self.inputs = ("x", "y", "z")

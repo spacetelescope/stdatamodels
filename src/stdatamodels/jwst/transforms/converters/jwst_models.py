@@ -255,7 +255,7 @@ class GratingEquationConverter(TransformConverterBase):
         elif output == "angle":
             model = AngleFromGratingEquation(groove_density, order)
         else:
-            raise ValueError("Can't create a GratingEquation model withoutput {}".format(output))
+            raise ValueError(f"Can't create a GratingEquation model withoutput {output}")
         return model
 
     def to_yaml_tree_transform(self, model, tag, ctx):
@@ -270,7 +270,7 @@ class GratingEquationConverter(TransformConverterBase):
         elif isinstance(model, WavelengthFromGratingEquation):
             node["output"] = "wavelength"
         else:
-            raise TypeError("Can't serialize an instance of {}".format(model.__class__.__name__))
+            raise TypeError(f"Can't serialize an instance of {model.__class__.__name__}")
         return node
 
 
@@ -352,6 +352,6 @@ class CoordsConverter(TransformConverterBase):
         elif isinstance(model, Unitless2DirCos):
             model_type = "unitless2directional"
         else:
-            raise TypeError("Model of type {} i snot supported.".format(model.__class__))
+            raise TypeError(f"Model of type {model.__class__} i snot supported.")
         node = {"model_type": model_type}
         return node
