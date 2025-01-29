@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # -*- coding: utf-8 -*-
-import numpy as np
-import os
 import warnings
-from astropy.modeling.models import Shift, Rotation2D, Const1D
+from pathlib import Path
 
+import numpy as np
+
+from astropy.modeling.models import Shift, Rotation2D, Const1D
 from astropy.utils import minversion
 
 if minversion("asdf_astropy", "0.3.0", False):
@@ -97,8 +98,8 @@ def test_niriss_soss(tmpdir):
 
 
 def test_niriss_soss_legacy():
-    data_path = os.path.join(os.path.dirname(__file__), "data")
-    data = os.path.join(data_path, "niriss_soss.asdf")
+    data_path = Path(__file__).parent / "data"
+    data = data_path / "niriss_soss.asdf"
 
     # confirm that the file contains the legacy tag
     tagged_tree = asdf.util.load_yaml(data, tagged=True)

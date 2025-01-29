@@ -1,5 +1,5 @@
-import os
 import warnings
+from pathlib import Path
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -8,7 +8,7 @@ import pytest
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
 
 
-FITS_FILE = os.path.join(os.path.dirname(__file__), "data", "sip.fits")
+FITS_FILE = Path(__file__).parent / "data" / "sip.fits"
 
 
 def test_get_fits_wcs(tmpdir):

@@ -546,7 +546,7 @@ class DataModel(properties.ObjectNode):
 
         if dir_path:
             path_head = dir_path
-        output_path = os.path.join(path_head, path_tail)
+        output_path = os.path.join(path_head, path_tail)  # noqa: PTH118
 
         # TODO: Support gzip-compressed fits
         if ext == ".fits":

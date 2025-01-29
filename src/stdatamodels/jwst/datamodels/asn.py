@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from .model_base import JwstDataModel
 
@@ -35,14 +35,14 @@ class AsnModel(JwstDataModel):
                 self.output_rootname = self.asn_table.expname[i]
                 for fmt in self.supported_formats:
                     fname = "{0}.{1}".format(self.output_rootname, fmt)
-                    if os.path.exists(fname):
+                    if Path(fname).exists():
                         self.output = fname
                         break
             else:
                 rootname = self.asn_table.expname[i]
                 for fmt in self.supported_formats:
                     fname = "{0}.{1}".format(rootname, fmt)
-                    if os.path.exists(fname):
+                    if Path(fname).exists():
                         self.inputs.append(fname)
                         break
                 self.input_rootnames.append(rootname)

@@ -56,8 +56,6 @@ ignore = [
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
     "NPY002",  # numpy rng, will require finding the right replacements
     # to fix
-    "PTH110",
-    "PTH118",
     "PTH119",
     "PTH120",
     "PTH122",

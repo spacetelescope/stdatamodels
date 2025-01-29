@@ -3,7 +3,6 @@ Test datamodel.open
 """
 
 import os
-import os.path
 from pathlib import Path, PurePath
 import warnings
 
@@ -180,8 +179,8 @@ def test_open_readonly(tmp_path, suffix):
 # Utilities
 def t_path(partial_path):
     """Construction the full path for test files"""
-    test_dir = os.path.join(os.path.dirname(__file__), "data")
-    return os.path.join(test_dir, partial_path)
+    test_dir = Path(__file__).parent / "data"
+    return test_dir / partial_path
 
 
 @pytest.mark.parametrize("suffix", ["asdf", "fits"])

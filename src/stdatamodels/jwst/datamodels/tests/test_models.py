@@ -1,6 +1,7 @@
 import contextlib
 import os
 import warnings
+from pathlib import Path
 
 from asdf.exceptions import ValidationError
 from asdf.schema import load_schema
@@ -31,9 +32,9 @@ from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
 
-ROOT_DIR = os.path.join(os.path.dirname(__file__), "data")
-FITS_FILE = os.path.join(ROOT_DIR, "test.fits")
-ASN_FILE = os.path.join(ROOT_DIR, "association.json")
+ROOT_DIR = Path(__file__).parent / "data"
+FITS_FILE = ROOT_DIR / "test.fits"
+ASN_FILE = ROOT_DIR / "association.json"
 
 
 @pytest.fixture
@@ -134,7 +135,7 @@ def test_imagemodel():
 
 def test_model_with_nonstandard_primary_array():
     class _NonstandardPrimaryArrayModel(JwstDataModel):
-        schema_url = os.path.join(ROOT_DIR, "nonstandard_primary_array.schema.yaml")
+        schema_url = ROOT_DIR / "nonstandard_primary_array.schema.yaml"
 
         # The wavelength array is the primary array.
         # Try commenting this function out and the problem goes away.
@@ -314,7 +315,7 @@ def test_ifuimage():
 
 
 def test_abvega_offset_model():
-    path = os.path.join(ROOT_DIR, "nircam_abvega_offset.asdf")
+    path = ROOT_DIR / "nircam_abvega_offset.asdf"
     with ABVegaOffsetModel(path) as model:
         assert isinstance(model, ABVegaOffsetModel)
         assert hasattr(model, "abvega_offset")
@@ -398,7 +399,7 @@ def test_meta_date_management(tmp_path):
     assert abs((Time.now() - Time(model.meta.date)).value) < 1.0
 
 
-def test_ramp_model_zero_frame_open_file(tmpdir):
+def test_ramp_model_zero_frame_open_file(tmp_path):
     """
     Ensures opening a FITS with ZEROFRAME results in a good ZEROFRAME.
     """
@@ -421,7 +422,7 @@ def test_ramp_model_zero_frame_open_file(tmpdir):
     ramp.zeroframe = np.ones(zdims, dtype=ramp.data.dtype) * zbase
 
     ofile = "my_temp_ramp.fits"
-    fname = os.path.join(tmpdir, ofile)
+    fname = tmp_path / ofile
     ramp.save(fname)
 
     # Check opening a file doesn't change the dimensions
@@ -663,8 +664,8 @@ def test_dq_def_roundtrip(tmp_path):
     bname = "jwst_nircam_mask_ref.fits"
     nbname = bname.replace("ref", "ref_dummy")
 
-    fname = os.path.join(ROOT_DIR, bname)
-    new_fname = os.path.join(tmp_path, nbname)
+    fname = ROOT_DIR / bname
+    new_fname = tmp_path / nbname
 
     diff = None
     with warnings.catch_warnings():
