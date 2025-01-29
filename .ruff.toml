@@ -56,8 +56,8 @@ ignore = [
     "B028", # warnings need stack level, this is non-trivial to determine
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
     "NPY002",  # numpy rng, will require finding the right replacements
+    "S101",  # asserts are used in many non-test places
     # to fix
-    "S101",
     "SLF001",
     "TRY002",
     "TRY004",
