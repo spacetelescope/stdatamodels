@@ -55,7 +55,6 @@ ignore = [
     "B028", # warnings need stack level, this is non-trivial to determine
     "B904", # raise ... from ?, when and where do we want to not use the default chain?
     # to fix
-    "C419",
     "E701",
     "E712",
     "E713",

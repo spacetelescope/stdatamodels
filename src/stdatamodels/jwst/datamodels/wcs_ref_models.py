@@ -69,7 +69,7 @@ class _SimpleModel(ReferenceFileModel):
     def validate(self):
         super().validate()
         try:
-            assert isinstance(self.model, Model) or all([isinstance(m, Model) for m in self.model])
+            assert isinstance(self.model, Model) or all(isinstance(m, Model) for m in self.model)
             assert self.meta.instrument.name in [
                 "NIRCAM",
                 "NIRSPEC",
@@ -186,10 +186,10 @@ class DistortionMRSModel(ReferenceFileModel):
                 "LONG-MEDIUM",
             )
             assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
-            assert all([isinstance(m, Model) for m in self.x_model])
-            assert all([isinstance(m, Model) for m in self.y_model])
-            assert all([isinstance(m, Model) for m in self.alpha_model])
-            assert all([isinstance(m, Model) for m in self.beta_model])
+            assert all(isinstance(m, Model) for m in self.x_model)
+            assert all(isinstance(m, Model) for m in self.y_model)
+            assert all(isinstance(m, Model) for m in self.alpha_model)
+            assert all(isinstance(m, Model) for m in self.beta_model)
             assert len(self.abv2v3_model.model) == 2
             assert len(self.abv2v3_model.channel_band) == 2
         except AssertionError:
