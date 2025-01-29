@@ -114,7 +114,7 @@ from .wcs_ref_models import (
     WaveCorrModel,
 )
 from .wfssbkg import WfssBkgModel
-from .util import open
+from .util import open  # noqa: A004
 
 
 __all__ = [
