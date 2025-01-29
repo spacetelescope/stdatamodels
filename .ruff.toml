@@ -59,8 +59,6 @@ ignore = [
     "NPY002",  # numpy rng, will require finding the right replacements
     "S101",  # asserts are used in many non-test places
     "SLF001",  # private member access, this is overly restrictive
-    # to fix
-    "UP039",
 ]
 
 [lint.pydocstyle]
