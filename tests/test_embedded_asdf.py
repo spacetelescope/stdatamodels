@@ -11,9 +11,10 @@ from stdatamodels.fits_support import _NDARRAY_TAG
 
 
 def create_fits_model():
-    data = np.asarray(np.random.rand(50, 50), np.float32)
-    dq = np.random.randint(np.iinfo(np.uint32).max, size=(50, 50), dtype=np.uint32)
-    err = np.asarray(np.random.rand(50, 50), np.float32)
+    rng = np.random.default_rng(42)
+    data = np.asarray(rng.random((50, 50)), np.float32)
+    dq = rng.integers(np.iinfo(np.uint32).max, size=(50, 50), dtype=np.uint32)
+    err = np.asarray(rng.random((50, 50)), np.float32)
 
     model = FitsModel((50, 50))
     model["data"] = data
@@ -112,7 +113,8 @@ def test_non_fits_array(tmp_path):
     file_path = tmp_path / "test.fits"
 
     model, _, _, _ = create_fits_model()
-    favorite_integers = np.random.randint(np.iinfo(np.uint32).max, size=(500,), dtype=np.uint32)
+    rng = np.random.default_rng(42)
+    favorite_integers = rng.integers(np.iinfo(np.uint32).max, size=(500,), dtype=np.uint32)
     model["favorite_integers"] = favorite_integers
     model.save(file_path)
 
@@ -153,7 +155,8 @@ def test_array_update_and_save_new_file(tmp_path):
     model, _, _, _ = create_fits_model()
     model.save(file_path)
 
-    new_data = np.asarray(np.random.rand(50, 50), np.float32)
+    rng = np.random.default_rng(42)
+    new_data = np.asarray(rng.random((50, 50)), np.float32)
     with FitsModel(file_path) as dm:
         dm.data = new_data
         dm.save(updated_file_path)
@@ -173,7 +176,8 @@ def test_array_update_and_save_same_file(tmp_path):
     model, _, _, _ = create_fits_model()
     model.save(file_path)
 
-    new_data = np.asarray(np.random.rand(50, 50), np.float32)
+    rng = np.random.default_rng(42)
+    new_data = np.asarray(rng.random((50, 50)), np.float32)
     with FitsModel(file_path) as dm:
         dm.data = new_data
         dm.save(file_path)

@@ -9,8 +9,9 @@ from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel, SlitModel
 
 
 def test_multislit_model():
-    array1 = np.asarray(np.random.rand(2, 2), dtype="float32")
-    array2 = np.asarray(np.random.rand(2, 2), dtype="float32")
+    rng = np.random.default_rng(42)
+    array1 = np.asarray(rng.random((2, 2)), dtype="float32")
+    array2 = np.asarray(rng.random((2, 2)), dtype="float32")
 
     with MultiSlitModel() as ms:
         assert len(ms.slits) == 0
@@ -56,12 +57,13 @@ def test_multislit_append_string():
 
 
 def test_multislit():
+    rng = np.random.default_rng(42)
     with MultiSlitModel() as dm:
         dm.slits.append(dm.slits.item())
         slit = dm.slits[-1]
-        slit.data = np.random.rand(5, 5)
-        slit.dm = np.random.rand(5, 5)
-        slit.err = np.random.rand(5, 5)
+        slit.data = rng.random((5, 5))
+        slit.dm = rng.random((5, 5))
+        slit.err = rng.random((5, 5))
         assert slit.wavelength.shape == (0, 0)
         assert slit.pathloss_point.shape == (0, 0)
         assert slit.pathloss_uniform.shape == (0, 0)

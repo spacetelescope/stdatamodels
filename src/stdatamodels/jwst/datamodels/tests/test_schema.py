@@ -39,9 +39,10 @@ def test_data_array(tmp_path):
         ]
     }
 
-    array1 = np.random.rand(5, 5)
-    array2 = np.random.rand(5, 5)
-    array3 = np.random.rand(5, 5)
+    rng = np.random.default_rng(42)
+    array1 = rng.random((5, 5))
+    array2 = rng.random((5, 5))
+    array3 = rng.random((5, 5))
 
     with JwstDataModel(schema=data_array_schema) as x:
         x.arr.append(x.arr.item())

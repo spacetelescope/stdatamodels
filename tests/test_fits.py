@@ -67,7 +67,8 @@ def test_from_scratch(tmp_path):
     file_path = tmp_path / "test.fits"
 
     with FitsModel((50, 50)) as dm:
-        data = np.asarray(np.random.rand(50, 50), np.float32)
+        rng = np.random.default_rng(42)
+        data = np.asarray(rng.random((50, 50)), np.float32)
         dm.data[...] = data
 
         dm.meta.telescope = "EYEGLASSES"
@@ -325,14 +326,13 @@ def test_table_with_unsigned_int(tmp_path):
 
     with DataModel(schema=schema) as dm:
         float64_info = np.finfo(np.float64)
-        float64_arr = np.random.uniform(size=(10,))
+        rng = np.random.default_rng(42)
+        float64_arr = rng.uniform(size=(10,))
         float64_arr[0] = float64_info.min
         float64_arr[-1] = float64_info.max
 
         uint32_info = np.iinfo(np.uint32)
-        uint32_arr = np.random.randint(
-            uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32
-        )
+        uint32_arr = rng.integers(uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32)
         uint32_arr[0] = uint32_info.min
         uint32_arr[-1] = uint32_info.max
 
@@ -513,9 +513,10 @@ def test_data_array(tmp_path):
         ]
     }
 
-    array1 = np.random.rand(5, 5)
-    array2 = np.random.rand(5, 5)
-    array3 = np.random.rand(5, 5)
+    rng = np.random.default_rng(42)
+    array1 = rng.random((5, 5))
+    array2 = rng.random((5, 5))
+    array3 = rng.random((5, 5))
 
     with DataModel(schema=data_array_schema) as x:
         x.arr.append(x.arr.item())

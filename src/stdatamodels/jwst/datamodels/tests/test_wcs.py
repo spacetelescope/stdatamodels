@@ -21,7 +21,8 @@ def test_get_fits_wcs(tmpdir):
         dm2 = dm.copy()
         wcs2 = dm2.get_fits_wcs()
 
-    x = np.random.rand(2**16, wcs1.wcs.naxis)
+    rng = np.random.default_rng(42)
+    x = rng.random((2**16, wcs1.wcs.naxis))
     world1 = wcs1.all_pix2world(x, 1)
     world2 = wcs2.all_pix2world(x, 1)
 
@@ -46,7 +47,7 @@ def test_get_fits_wcs(tmpdir):
 
     assert wcs3.wcs.crpix[0] == 42.0
 
-    x = np.random.rand(2**16, wcs1.wcs.naxis)
+    x = rng.random((2**16, wcs1.wcs.naxis))
     world1 = wcs1.all_pix2world(x, 1)
     world2 = wcs3.all_pix2world(x, 1)
 
