@@ -318,9 +318,9 @@ class ObjectNode(Node):
         schema = _get_schema_for_property(self._schema, attr)
         try:
             val = self._instance[attr]
-        except KeyError:
+        except KeyError as err:
             if schema == {}:
-                raise AttributeError(f"No attribute '{attr}'")
+                raise AttributeError(f"No attribute '{attr}'") from err
 
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
@@ -362,8 +362,8 @@ class ObjectNode(Node):
             ):
                 try:
                     del self._instance[attr]
-                except KeyError:
-                    raise AttributeError(f"Attribute '{attr}' missing")
+                except KeyError as err:
+                    raise AttributeError(f"Attribute '{attr}' missing") from err
 
     def __iter__(self):
         return NodeIterator(self)

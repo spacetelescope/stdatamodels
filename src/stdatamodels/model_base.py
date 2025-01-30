@@ -776,8 +776,8 @@ class DataModel(properties.ObjectNode):
         for part in key.split("."):
             try:
                 meta = getattr(meta, part)
-            except AttributeError:
-                raise KeyError(repr(key))
+            except AttributeError as err:
+                raise KeyError(repr(key)) from err
         return meta
 
     def __setitem__(self, key, value):
@@ -793,8 +793,8 @@ class DataModel(properties.ObjectNode):
             except ValueError:
                 try:
                     meta = getattr(meta, part)
-                except AttributeError:
-                    raise KeyError(repr(key))
+                except AttributeError as err:
+                    raise KeyError(repr(key)) from err
             else:
                 meta = meta[part]
 

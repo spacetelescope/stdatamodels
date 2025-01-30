@@ -38,7 +38,7 @@ def value_change(path, value, schema, ctx):
         if ctx._pass_invalid_values:
             update = True
         if ctx._strict_validation:
-            raise ValidationError(errmsg)
+            raise ValidationError(errmsg) from error
         else:
             warnings.warn(errmsg, ValidationWarning)
     return update

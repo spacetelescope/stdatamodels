@@ -60,6 +60,6 @@ class ABVegaOffsetModel(ReferenceFileModel):
 
         except AssertionError as errmsg:
             if self._strict_validation:
-                raise AssertionError(errmsg)
+                raise AssertionError(errmsg) from errmsg
             else:
                 warnings.warn(str(errmsg), ValidationWarning)

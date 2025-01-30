@@ -55,8 +55,8 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     if not isinstance(a, np.ndarray):
         try:
             a = np.asarray(a, dtype=out_dtype)
-        except Exception:
-            raise ValueError(f"Can't convert {type(a)!s} to ndarray")
+        except Exception as err:
+            raise ValueError(f"Can't convert {type(a)!s} to ndarray") from err
         return a
     in_dtype = a.dtype
 
@@ -258,10 +258,12 @@ def get_envar_as_boolean(name, default=False):
         value = os.environ[name]
         try:
             value = bool(int(value))
-        except ValueError:
+        except ValueError as err:
             value_lowcase = value.lower()
             if value_lowcase not in truths + falses:
-                raise ValueError(f'Cannot convert value "{value}" to boolean unambiguously.')
+                raise ValueError(
+                    f'Cannot convert value "{value}" to boolean unambiguously.'
+                ) from err
             return value_lowcase in truths
         return value
 

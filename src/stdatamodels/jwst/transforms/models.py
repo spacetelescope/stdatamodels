@@ -440,8 +440,8 @@ class NirissSOSSModel(Model):
         # So, we are going to just take the 0'th element and use that as the index.
         try:
             order_number = int(spectral_order[0])
-        except Exception:
-            raise ValueError(f"Spectral order is not between 1 and 3, {spectral_order}")
+        except Exception as err:
+            raise ValueError(f"Spectral order is not between 1 and 3, {spectral_order}") from err
 
         return self.models[order_number](x, y)
 
@@ -718,8 +718,8 @@ class NIRCAMForwardRowGrismDispersion(Model):
         """
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         if not self.inv_xmodels:
             t = self.invdisp_interp(iorder, x0, y0, (x - x0))
@@ -882,8 +882,8 @@ class NIRCAMForwardColumnGrismDispersion(Model):
 
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         lmodel = self.lmodels[iorder]
 
@@ -1014,8 +1014,8 @@ class NIRCAMBackwardGrismDispersion(Model):
         """
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         if (wavelength < 0).any():
             raise ValueError("wavelength should be greater than zero")
@@ -1147,8 +1147,8 @@ class NIRISSBackwardGrismDispersion(Model):
             raise ValueError("Wavelength should be greater than zero")
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         t = self.lmodels[iorder](wavelength)
         xmodel = self.xmodels[iorder]
@@ -1253,8 +1253,8 @@ class NIRISSForwardRowGrismDispersion(Model):
         """
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         # The next two lines are to get around the fact that
         # modeling.standard_broadcasting=False does not work.
@@ -1366,8 +1366,8 @@ class NIRISSForwardColumnGrismDispersion(Model):
         """
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError:
-            raise ValueError("Specified order is not available")
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
 
         # The next two lines are to get around the fact that
         # modeling.standard_broadcasting=False does not work.

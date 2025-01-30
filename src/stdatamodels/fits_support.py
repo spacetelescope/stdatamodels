@@ -167,8 +167,10 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
                 hdu = hdulist[pair[0]]
             else:
                 raise
-        except (KeyError, IndexError, AttributeError):
-            raise AttributeError(f"Property missing because FITS file has no '{pair!r}' HDU")
+        except (KeyError, IndexError, AttributeError) as err:
+            raise AttributeError(
+                f"Property missing because FITS file has no '{pair!r}' HDU"
+            ) from err
 
     if index is not None:
         if hdu.header.get("EXTVER", 1) != index + 1:
