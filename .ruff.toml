@@ -54,7 +54,6 @@ ignore = [
     "PTH123", # use Path.open instead of open
     "UP038", # isinstance with | instead of ,
     # longer term fix
-    "B028", # warnings need stack level, this is non-trivial to determine
     "S101",  # asserts are used in many non-test places
     "SLF001",  # private member access, this is overly restrictive
 ]

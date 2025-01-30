@@ -849,7 +849,9 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
         skip_fits_update = util.get_envar_as_boolean("SKIP_FITS_UPDATE", None)
     if skip_fits_update is not None:
         # warn if the value was not None (defined by the user)
-        warnings.warn("skip_fits_update is deprecated and will be removed", DeprecationWarning)
+        warnings.warn(
+            "skip_fits_update is deprecated and will be removed", DeprecationWarning, stacklevel=2
+        )
 
     # If skipping has been explicitly disallowed, indicate as such.
     if skip_fits_update is False:

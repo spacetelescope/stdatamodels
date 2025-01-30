@@ -236,7 +236,11 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
 def _handle_missing_model_type(model, file_name):
     if file_name:
         class_name = model.__class__.__name__.split(".")[-1]
-        warnings.warn(f"model_type not found. Opening {file_name} as a {class_name}", NoTypeWarning)
+        warnings.warn(
+            f"model_type not found. Opening {file_name} as a {class_name}",
+            NoTypeWarning,
+            stacklevel=2,
+        )
     try:
         delattr(model.meta, "model_type")
     except AttributeError:

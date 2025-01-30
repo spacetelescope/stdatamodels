@@ -67,7 +67,7 @@ class ReferenceFileModel(JwstDataModel):
         if self._strict_validation:
             raise ValueError(message)
         else:
-            warnings.warn(message, ValidationWarning)
+            warnings.warn(message, ValidationWarning, stacklevel=2)
 
 
 class ReferenceImageModel(ReferenceFileModel):

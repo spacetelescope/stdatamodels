@@ -1011,6 +1011,7 @@ class DataModel(properties.ObjectNode):
         warnings.warn(
             "get_fileext always returns 'fits' and will be removed in an upcoming release",
             DeprecationWarning,
+            stacklevel=2,
         )
         return "fits"
 

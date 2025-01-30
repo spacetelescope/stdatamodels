@@ -42,4 +42,4 @@ class TsoPhotModel(ReferenceFileModel):
                 tb = sys.exc_info()[-1]
                 tb_info = traceback.extract_tb(tb)
                 text = tb_info[-1][-1]
-                warnings.warn(text, ValidationWarning)
+                warnings.warn(text, ValidationWarning, stacklevel=2)

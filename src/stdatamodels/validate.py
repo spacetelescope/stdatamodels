@@ -40,7 +40,7 @@ def value_change(path, value, schema, ctx):
         if ctx._strict_validation:
             raise ValidationError(errmsg) from error
         else:
-            warnings.warn(errmsg, ValidationWarning)
+            warnings.warn(errmsg, ValidationWarning, stacklevel=2)
     return update
 
 

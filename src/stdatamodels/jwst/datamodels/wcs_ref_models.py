@@ -82,7 +82,7 @@ class _SimpleModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class DistortionModel(_SimpleModel):
@@ -106,7 +106,7 @@ class DistortionModel(_SimpleModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class DistortionMRSModel(ReferenceFileModel):
@@ -196,7 +196,7 @@ class DistortionMRSModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class SpecwcsModel(_SimpleModel):
@@ -230,7 +230,7 @@ class SpecwcsModel(_SimpleModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class NIRCAMGrismModel(ReferenceFileModel):
@@ -311,7 +311,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
@@ -392,7 +392,7 @@ class NIRISSGrismModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
@@ -446,7 +446,7 @@ class RegionsModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class WavelengthrangeModel(ReferenceFileModel):
@@ -508,7 +508,7 @@ class WavelengthrangeModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
     def get_wfss_wavelength_range(self, filter, orders):  # noqa: A002
         """Retrieve the wavelength range for a WFSS observation.
@@ -574,7 +574,7 @@ class FPAModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class IFUPostModel(ReferenceFileModel):
@@ -784,7 +784,7 @@ class DisperserModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class FilteroffsetModel(ReferenceFileModel):
@@ -944,7 +944,7 @@ class FOREModel(_SimpleModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class WaveCorrModel(ReferenceFileModel):
@@ -977,4 +977,4 @@ class WaveCorrModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
