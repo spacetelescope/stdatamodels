@@ -510,12 +510,12 @@ class WavelengthrangeModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
-    def get_wfss_wavelength_range(self, filter, orders):  # noqa: A002
+    def get_wfss_wavelength_range(self, filter_name, orders):
         """Retrieve the wavelength range for a WFSS observation.
 
         Parameters
         ----------
-        filter : str
+        filter_name : str
             Filter for which to retrieve the wavelength range.
         orders : list
             List of spectral orders
@@ -528,7 +528,9 @@ class WavelengthrangeModel(ReferenceFileModel):
         wave_range = {}
         for order in orders:
             range_select = [
-                (x[2], x[3]) for x in self.wavelengthrange if (x[0] == order and x[1] == filter)
+                (x[2], x[3])
+                for x in self.wavelengthrange
+                if (x[0] == order and x[1] == filter_name)
             ]
             wave_range[order] = range_select[0]
         return wave_range
