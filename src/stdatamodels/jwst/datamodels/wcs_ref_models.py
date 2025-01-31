@@ -346,7 +346,7 @@ class NIRISSGrismModel(ReferenceFileModel):
 class MIRILrsModel(ReferenceFileModel):
     """
     A model for a reference file of type "specwcs" for MIRI LRS Slit.
-
+    The model is for the specwcs for LRS Fixed Slit and LRSSlitless
     Parameters
     ----------
     x_ref : float
@@ -379,6 +379,69 @@ class MIRILrsModel(ReferenceFileModel):
     """
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
     reftype = "specwcs"
+
+    def __init__(self, init=None,
+                 wavetable=None,
+                 x_ref=None,
+                 y_ref=None,
+                 x_ref_slitless=None,
+                 y_ref_slitless=None,
+                 v2_vert1=None,
+                 v2_vert2=None,
+                 v2_vert3=None,
+                 v2_vert4=None,
+                 v3_vert1=None,
+                 v3_vert2=None,
+                 v3_vert3=None,
+                 v3_vert4=None,
+                 **kwargs):
+        super().__init__(init=init, **kwargs)
+
+        if init is None:
+            self.populate_meta()
+        if wavetable is not None:
+            self.wavetable = wavetable
+        if x_ref is not None:
+            self.meta.x_ref = x_ref
+        if y_ref is not None:
+            self.meta.y_ref = y_ref
+        if x_ref_slitless is not None:
+            self.meta.x_ref_slitless = x_ref_slitless
+        if y_ref_slitless is not None:
+            self.meta.y_ref_slitless = y_ref_slitless
+        if v2_vert1 is not None:
+            self.meta.v2_vert1 = v2_vert1
+        if v2_vert2 is not None:
+            self.meta.v2_vert2 = v2_vert2
+        if v2_vert3 is not None:
+            self.meta.v2_vert3 = v2_vert3
+        if v2_vert4 is not None:
+            self.meta.v2_vert4 = v2_vert4
+        if v3_vert1 is not None:
+            self.meta.v3_vert1 = v3_vert1
+        if v3_vert2 is not None:
+            self.meta.v3_vert2 = v3_vert2
+        if v3_vert3 is not None:
+            self.meta.v3_vert3 = v3_vert3
+        if v3_vert4 is not None:
+            self.meta.v3_vert4 = v3_vert4
+
+    def populate_meta(self):
+        self.meta.instrument.name = "MIRI"
+        self.meta.instrument.detector = "MIRIMAGE"
+        self.meta.reftype = self.reftype
+
+    def validate(self):
+        super(MIRILrsModel, self).validate()
+        try:
+            assert self.meta.instrument.name == "MIRI"
+            assert self.meta.instrument.detector == "MIRIMAGE"
+            assert self.meta.reftype == self.reftype
+        except AssertionError:
+            if self._strict_validation:
+                raise
+            else:
+                warnings.warn(traceback.format_exc(), ValidationWarning)
        
 class RegionsModel(ReferenceFileModel):
     """

@@ -20,36 +20,47 @@ allOf:
       - name: x_center
         datatype: float32
         unit: pixels
+        title: x location of the center of a given wavelength element
       - name: y_center
         datatype: float32
         unit: pixels
+        title: y location of the center of a given wavelength element
       - name: wavelength
         datatype: float32
         unit: microns
+        title: central wavelength of the wavelength element at x_center, y_center
       - name: x0
         datatype: float32
         unit: pixels
+        title: x location of the upper left corner of a given wavelength element
       - name: y0
         datatype: float32
         unit: pixels
+        title: y location of the upper left corner of a given wavelength element
       - name: x1
         datatype: float32
         unit: pixels
+        title: x location of the upper right corner of a given wavelength element
       - name: y1
         datatype: float32
         unit: pixels
+        title: y location of the upper right corner of a given wavelength element
       - name: x2
         datatype: float32
         unit: pixels
+        title: x location of the lower right corner of a given wavelength element
       - name: y2
         datatype: float32
         unit: pixels
+        title: y location of the lower right corner of a given wavelength element
       - name: x3
         datatype: float32
         unit: pixels
+        title: x location of the lower left corner of a given wavelength element 
       - name: y3
         datatype: float32
         unit: pixels
+        title: y location of the lower left corner of a given wavelength element
 - type: object
   properties:
     meta:
