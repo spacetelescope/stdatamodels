@@ -109,4 +109,4 @@ def test_schema_refs_base(datamodel_schema_file):
     elif "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema" in seen_ids:
         assert "http://stsci.edu/schemas/jwst_datamodel/core.schema" not in seen_ids
     else:
-        assert False  # noqa: B011
+        assert False
