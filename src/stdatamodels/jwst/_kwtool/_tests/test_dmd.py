@@ -30,7 +30,7 @@ def keyword_list(request, fake_dmd):
 @pytest.fixture()
 def keyword(keyword_list):
     """
-    The real datamodel dictionary will contain multiple entires for 1 "keyword"
+    The real datamodel dictionary will contain multiple entries for 1 "keyword"
     (a FITS_HDU, FITS_KEYWORD pair). The test dictionary does not, this
     fixture helps to test just the first found entry.
     """

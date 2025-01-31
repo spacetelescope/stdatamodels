@@ -43,7 +43,7 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
     Returns
     -------
     af : :obj:`asdf.AsdfFile`
-        :obj:`asdf.AsdfFile` created from ASDF data embeded in the opened
+        :obj:`asdf.AsdfFile` created from ASDF data embedded in the opened
         fits file.
     """
 

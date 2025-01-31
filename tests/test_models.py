@@ -222,7 +222,7 @@ def test_getarray_noinit_raises():
 
 
 def test_getarray_noinit_noinit():
-    """Test that calling on a non-existant array does not initialize that array"""
+    """Test that calling on a non-existent array does not initialize that array"""
     arr = np.ones((5, 5))
     model = BasicModel(data=arr)
     try:

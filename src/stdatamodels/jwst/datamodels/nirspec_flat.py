@@ -17,7 +17,7 @@ def _migrate_fast_variation_table(hdulist):
     # that do not have an "error" column
     # To allow these older files to load, this function
     # fills in the missing error column.
-    # We have to iterate over the extensions as the tabl
+    # We have to iterate over the extensions as the table
     for ext in hdulist:
         if ext.name != "FAST_VARIATION":
             continue

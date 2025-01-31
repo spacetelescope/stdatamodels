@@ -148,7 +148,7 @@ def walk_schema(schema, callback, ctx=None):
         ctx = {}
     recurse(schema, [], None, ctx)
     # testing memory usage and garbage collection revealed that recurse
-    # was diffcult to garbage collect (often resulting in models and associated
+    # was difficult to garbage collect (often resulting in models and associated
     # data ending up in generation 2 for the garbage collector).
     # calling del here seems to improve the situation (one test used 1/2 the memory
     # with this del)

@@ -476,7 +476,7 @@ class ListNode(Node):
 
 class NodeIterator:
     """
-    An iterator for a node which flattens the hierachical structure
+    An iterator for a node which flattens the hierarchical structure
     """
 
     def __init__(self, node):

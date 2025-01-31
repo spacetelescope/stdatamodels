@@ -181,7 +181,7 @@ class DataModel(properties.ObjectNode):
         self._asdf = AsdfFile()
 
         # Determine what kind of input we have (init) and execute the
-        # proper code to intiailize the model
+        # proper code to initialize the model
         self._file_references = []
         is_array = False
         is_shape = False
@@ -252,7 +252,7 @@ class DataModel(properties.ObjectNode):
         self._instance = asdffile.tree
         self._asdf = asdffile
 
-        # Initalize class dependent hidden fields
+        # Initialize class dependent hidden fields
         self._no_asdf_extension = False
 
         # Instantiate the primary array of the image
@@ -1121,7 +1121,7 @@ class DataModel(properties.ObjectNode):
         self.save(path, *args, **kwargs)
 
     def getarray_noinit(self, attribute):
-        """Retrieve array but without initilization
+        """Retrieve array but without initialization
 
         Arrays initialize when directly referenced if they had
         not previously been initialized. This circumvents the

@@ -48,7 +48,7 @@ def test_compare_path_no_destination():
 
 
 def test_compare_path():
-    # make sure k has a desintation so the difference isn't ignored
+    # make sure k has a destination so the difference isn't ignored
     k = [{"path": "a.b.c".split("."), "keyword": {"destination": "somewhere"}}]
     d = [{"path": "d.e.f".split(".")}]
     assert compare._compare_path(k, d) == {"kwd": {"a.b.c"}, "dmd": {"d.e.f"}}

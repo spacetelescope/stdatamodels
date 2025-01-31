@@ -26,3 +26,10 @@ repos:
   #   rev: v1.8.0
   #   hooks:
   #     - id: numpydoc-validation
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.0
+    hooks:
+    - id: codespell
+      args: ["--write-changes"]
+      additional_dependencies:
+        - tomli

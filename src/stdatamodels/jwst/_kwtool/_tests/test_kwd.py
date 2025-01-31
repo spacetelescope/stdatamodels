@@ -13,7 +13,7 @@ def keyword_list(request, fake_kwd):
 @pytest.fixture()
 def keyword(keyword_list):
     """
-    The real keyword dictionary will contain multiple entires for 1 "keyword"
+    The real keyword dictionary will contain multiple entries for 1 "keyword"
     (a FITS_HDU, FITS_KEYWORD pair). The test dictionary does not, this
     fixture helps to test just the first found entry.
     """

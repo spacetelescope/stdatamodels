@@ -78,4 +78,4 @@ Finally providing the tree and hdulist to
 
 When read back with :func:`stdatamodels.asdf_in_fits.open` the data for
 ``sci`` and ``dq`` will be read from the HDUList instead of from the
-ASDF data embeded in the HDUList.
+ASDF data embedded in the HDUList.

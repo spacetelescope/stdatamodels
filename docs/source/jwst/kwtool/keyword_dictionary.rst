@@ -100,7 +100,7 @@ keyword definitions in the keyword dictionary:
 
 - fits_keyword: the FITS keyword name
 - fits_hdu: the FITS hdu name
-- title: the title of the keyword defintion
+- title: the title of the keyword definition
 - type: one of "float", "integer", "string", "boolean"
 - enum (optional): list of valid values
 
