@@ -13,7 +13,8 @@ __all__ = ['DistortionModel', 'DistortionMRSModel', 'SpecwcsModel', 'RegionsMode
            'WavelengthrangeModel', 'CameraModel', 'CollimatorModel', 'OTEModel',
            'FOREModel', "FPAModel", 'IFUPostModel', 'IFUFOREModel', 'IFUSlicerModel',
            'MSAModel', 'FilteroffsetModel', 'DisperserModel',
-           'NIRCAMGrismModel', 'NIRISSGrismModel', 'WaveCorrModel', 'MIRILrsModel']
+           'NIRCAMGrismModel', 'NIRISSGrismModel', 'WaveCorrModel',
+           'MiriLRSSpecwcsModel']
 
 
 class _SimpleModel(ReferenceFileModel):
@@ -343,7 +344,7 @@ class NIRISSGrismModel(ReferenceFileModel):
         raise NotImplementedError("FITS format is not supported for this file.")
 
 
-class MIRILrsModel(ReferenceFileModel):
+class MiriLRSSpecwcsModel(ReferenceFileModel):
     """
     A model for a reference file of type "specwcs" for MIRI LRS Slit.
     The model is for the specwcs for LRS Fixed Slit and LRSSlitless
@@ -432,7 +433,7 @@ class MIRILrsModel(ReferenceFileModel):
         self.meta.reftype = self.reftype
 
     def validate(self):
-        super(MIRILrsModel, self).validate()
+        super(MiriLRSSpecwcsModel, self).validate()
         try:
             assert self.meta.instrument.name == "MIRI"
             assert self.meta.instrument.detector == "MIRIMAGE"

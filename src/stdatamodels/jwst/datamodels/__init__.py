@@ -86,7 +86,7 @@ from .wcs_ref_models import (DistortionModel, DistortionMRSModel, SpecwcsModel,
                              RegionsModel, WavelengthrangeModel, CameraModel, CollimatorModel, OTEModel,
                              FOREModel, FPAModel, IFUPostModel, IFUFOREModel, IFUSlicerModel, MSAModel,
                              FilteroffsetModel, DisperserModel, NIRCAMGrismModel, NIRISSGrismModel,
-                             WaveCorrModel, MIRILrsModel)
+                             WaveCorrModel, MiriLRSSpecwcsModel)
 from .wfssbkg import WfssBkgModel
 from .util import open
 
@@ -132,6 +132,7 @@ __all__ = [
     'PixelAreaModel', 'NirspecSlitAreaModel', 'NirspecMosAreaModel', 'NirspecIfuAreaModel',
     'FgsImgPhotomModel',
     'MirImgPhotomModel', 'MirLrsPhotomModel', 'MirMrsPhotomModel',
+    'MiriLRSSpecwcsModel',
     'NrcImgPhotomModel', 'NrcWfssPhotomModel',
     'NisImgPhotomModel', 'NisSossPhotomModel', 'NisWfssPhotomModel',
     'NrsFsPhotomModel', 'NrsMosPhotomModel',

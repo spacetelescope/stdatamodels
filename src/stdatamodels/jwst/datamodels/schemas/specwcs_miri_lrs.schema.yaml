@@ -13,7 +13,7 @@ allOf:
 - $ref: subarray.schema
 - type: object
   properties:
-    wave_table:
+    wavetable:
       title: Wavelengths and x, y locations of wavelengths
       fits_hdu: WAVETABLE
       datatype:
