@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ['AmiLgFitModel']
+__all__ = ["AmiLgFitModel"]
 
 
 class AmiLgFitModel(JwstDataModel):
@@ -26,6 +26,7 @@ class AmiLgFitModel(JwstDataModel):
     solns_table : numpy table
         Solutions table
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amilgfitmodel.schema"
 
     def get_primary_array_name(self):
@@ -35,4 +36,4 @@ class AmiLgFitModel(JwstDataModel):
         This is intended to be overridden in the subclasses if the
         primary array's name is not "data".
         """
-        return 'fit_image'
+        return "fit_image"

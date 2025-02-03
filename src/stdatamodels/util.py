@@ -19,6 +19,7 @@ except ImportError:
     RemoveNode = None
 
 import logging
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -54,14 +55,14 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     if not isinstance(a, np.ndarray):
         try:
             a = np.asarray(a, dtype=out_dtype)
-        except Exception:
-            raise ValueError("Can't convert {0!s} to ndarray".format(type(a)))
+        except Exception as err:
+            raise ValueError(f"Can't convert {type(a)!s} to ndarray") from err
         return a
     in_dtype = a.dtype
 
     # Non-table array
     if in_dtype.fields is None and out_dtype.fields is None:
-        if np.can_cast(in_dtype, out_dtype, 'equiv'):
+        if np.can_cast(in_dtype, out_dtype, "equiv"):
             return a
         else:
             return _safe_asanyarray(a, out_dtype)
@@ -123,10 +124,10 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     if not allow_extra_columns or (not set(out_lower_names).issubset(in_lower_names)):
         # try to match the old error message
         raise ValueError(
-            "Column names don't match schema. "
-            "Schema has {0}. Data has {1}".format(
-                str(set(out_lower_names).difference(set(in_lower_names))),
-                str(set(in_lower_names).difference(set(out_lower_names)))))
+            "Column names don't match schema. Schema has "
+            f"{str(set(out_lower_names).difference(set(in_lower_names)))}. "
+            f"Data has {str(set(in_lower_names).difference(set(out_lower_names)))}"
+        )
 
     # construct new dtype with required columns at start
     # in_dtype vs out_dtype
@@ -147,7 +148,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         if in_subdtypes[:n_required] == out_subdtypes:
             return a.view(dtype=new_dtype)
         else:
-            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr):])
+            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr) :])
             return _safe_asanyarray(a, new_dtype)
 
     # reorder columns so required columns are first
@@ -176,7 +177,7 @@ def _safe_asanyarray(a, dtype):
             # a FITS_rec with a pseudo-unsigned column.
             # See https://github.com/astropy/astropy/issues/12112
             result = np.zeros(a.shape, dtype=dtype)
-            for old_col, new_col in zip(a.dtype.names, result.dtype.names):
+            for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
                 result[new_col] = a[old_col]
             return result
 
@@ -228,13 +229,10 @@ def create_history_entry(description, software=None):
         software = Software(software)
 
     dt = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
-    entry = HistoryEntry({
-        'description': description,
-        'time': dt
-    })
+    entry = HistoryEntry({"description": description, "time": dt})
 
     if software is not None:
-        entry['software'] = software
+        entry["software"] = software
     return entry
 
 
@@ -254,16 +252,18 @@ def get_envar_as_boolean(name, default=False):
     default : bool
         If the environmental variable cannot be accessed, use as the default.
     """
-    truths = ('true', 't', 'yes', 'y')
-    falses = ('false', 'f', 'no', 'n')
+    truths = ("true", "t", "yes", "y")
+    falses = ("false", "f", "no", "n")
     if name in os.environ:
         value = os.environ[name]
         try:
             value = bool(int(value))
-        except ValueError:
+        except ValueError as err:
             value_lowcase = value.lower()
             if value_lowcase not in truths + falses:
-                raise ValueError(f'Cannot convert value "{value}" to boolean unambiguously.')
+                raise ValueError(
+                    f'Cannot convert value "{value}" to boolean unambiguously.'
+                ) from err
             return value_lowcase in truths
         return value
 
@@ -325,6 +325,7 @@ def convert_fitsrec_to_array_in_tree(tree):
             return _fits_rec_to_array(node)
         else:
             return node
+
     return treeutil.walk_and_modify(tree, _convert_fitsrec)
 
 
@@ -337,7 +338,9 @@ def rebuild_fits_rec_dtype(fits_rec):
         if shape:
             table_dtype = table_dtype.base
         field_dtype = fits_rec.field(field_name).dtype
-        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(field_dtype, np.unsignedinteger):
+        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(
+            field_dtype, np.unsignedinteger
+        ):
             new_dtype.append((field_name, field_dtype, shape))
         else:
             new_dtype.append((field_name, table_dtype, shape))
@@ -345,7 +348,9 @@ def rebuild_fits_rec_dtype(fits_rec):
 
 
 def _fits_rec_to_array(fits_rec):
-    bad_columns = [n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)]
+    bad_columns = [
+        n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)
+    ]
     if not len(bad_columns):
         return fits_rec.view(np.ndarray)
     new_dtype = rebuild_fits_rec_dtype(fits_rec)

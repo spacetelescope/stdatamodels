@@ -15,6 +15,7 @@ class _DoesNotRaiseContext:
     """
     Dummy context manager for use in parametrized tests, for non-raising cases.
     """
+
     def __enter__(self):
         pass
 
@@ -23,6 +24,7 @@ class _DoesNotRaiseContext:
 
     def __repr__(self):
         return "does_not_raise"
+
 
 # Define a singleton to use
 does_not_raise = _DoesNotRaiseContext()
@@ -143,8 +145,7 @@ def test_validation_on_delete():
         (None, "false", False),
     ],
 )
-def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value,
-                                                  env_value, passed):
+def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_value, passed):
     if env_value is not None:
         monkeypatch.setenv("PASS_INVALID_VALUES", env_value)
 
@@ -159,12 +160,18 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value,
         assert model.meta.string_attribute is None
 
 
-@pytest.mark.parametrize("suffix",
+@pytest.mark.parametrize(
+    "suffix",
     [
         "asdf",
-        pytest.param("fits",
-            marks=pytest.mark.xfail(reason="save to FITS raises error, not just warning", strict=True))
-    ])
+        pytest.param(
+            "fits",
+            marks=pytest.mark.xfail(
+                reason="save to FITS raises error, not just warning", strict=True
+            ),
+        ),
+    ],
+)
 def test_pass_invalid_values_on_write(tmp_path, suffix):
     file_path = tmp_path / f"test.{suffix}"
     model = ValidationModel(pass_invalid_values=True)
@@ -187,8 +194,9 @@ def test_pass_invalid_values_on_write(tmp_path, suffix):
         (None, "false", pytest.warns(ValidationWarning)),
     ],
 )
-def test_strict_validation_attribute_assignment(monkeypatch, init_value, env_value,
-                                                expected_context_manager):
+def test_strict_validation_attribute_assignment(
+    monkeypatch, init_value, env_value, expected_context_manager
+):
     if env_value is not None:
         monkeypatch.setenv("STRICT_VALIDATION", env_value)
 
@@ -229,12 +237,18 @@ def test_validation_on_init(tmp_path):
             ValidationModel(af)
 
 
-@pytest.mark.parametrize("suffix",
+@pytest.mark.parametrize(
+    "suffix",
     [
         "asdf",
-        pytest.param("fits",
-            marks=pytest.mark.xfail(reason="save to FITS raises error, not just warning", strict=True))
-    ])
+        pytest.param(
+            "fits",
+            marks=pytest.mark.xfail(
+                reason="save to FITS raises error, not just warning", strict=True
+            ),
+        ),
+    ],
+)
 def test_validation_on_write(tmp_path, suffix):
     file_path = tmp_path / f"test.{suffix}"
     model = ValidationModel(pass_invalid_values=True)
@@ -255,8 +269,9 @@ def test_validation_on_write(tmp_path, suffix):
         (None, "false", does_not_raise, 42),
     ],
 )
-def test_validate_on_assignment(monkeypatch, init_value, env_value,
-                                expected_context_manager, string_attribute_value):
+def test_validate_on_assignment(
+    monkeypatch, init_value, env_value, expected_context_manager, string_attribute_value
+):
     if env_value is not None:
         monkeypatch.setenv("VALIDATE_ON_ASSIGNMENT", env_value)
     model = ValidationModel(validate_on_assignment=init_value)
@@ -273,8 +288,7 @@ def test_validate_on_assignment(monkeypatch, init_value, env_value,
         (False, None, 42),
     ],
 )
-def test_validate_on_assignment_setitem(init_value, warning_class,
-                                        string_attribute_value):
+def test_validate_on_assignment_setitem(init_value, warning_class, string_attribute_value):
     model = ValidationModel(validate_on_assignment=init_value)
 
     # Check values assigned that are valid
@@ -307,8 +321,9 @@ def test_validate_on_assignment_setitem(init_value, warning_class,
         (False, None, 42),
     ],
 )
-def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
-                                       string_attribute_value):
+def test_validate_on_assignment_insert(
+    validate_on_assignment, warning_class, string_attribute_value
+):
     model = ValidationModel(validate_on_assignment=validate_on_assignment)
 
     model.meta.list_attribute.insert(0, {"string_attribute": "bar"})
@@ -330,6 +345,7 @@ def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
 # This test is the same as one above, but with strict_validation=True.
 # This ensures strict_validation=True doesn't effect this test.
 
+
 @pytest.mark.parametrize(
     "validate_on_assignment, strict_validation, expected_context_manager, value",
     [
@@ -339,11 +355,12 @@ def test_validate_on_assignment_insert(validate_on_assignment, warning_class,
         (False, True, does_not_raise, 42),
     ],
 )
-def test_validate_on_assignment_strict_validation(tmp_path, validate_on_assignment,
-                                                  strict_validation,
-                                                  expected_context_manager, value):
-    model = ValidationModel(validate_on_assignment=validate_on_assignment,
-                            strict_validation=strict_validation)
+def test_validate_on_assignment_strict_validation(
+    tmp_path, validate_on_assignment, strict_validation, expected_context_manager, value
+):
+    model = ValidationModel(
+        validate_on_assignment=validate_on_assignment, strict_validation=strict_validation
+    )
 
     with expected_context_manager:
         model.meta.string_attribute = 42
@@ -359,12 +376,12 @@ def test_validate_on_assignment_strict_validation(tmp_path, validate_on_assignme
         (False, True, does_not_raise, 42),
     ],
 )
-def test_validate_on_assignment_pass_invalid_values(validate_on_assignment,
-                                                    pass_invalid_values,
-                                                    expected_context_manager,
-                                                    value):
-    model = ValidationModel(validate_on_assignment=validate_on_assignment,
-                            pass_invalid_values=pass_invalid_values)
+def test_validate_on_assignment_pass_invalid_values(
+    validate_on_assignment, pass_invalid_values, expected_context_manager, value
+):
+    model = ValidationModel(
+        validate_on_assignment=validate_on_assignment, pass_invalid_values=pass_invalid_values
+    )
 
     # pass_invalid_values=True allows for assignment,
     # even with validate_on_assignment=True
@@ -381,7 +398,9 @@ def test_ndarray_validation(tmp_path):
         af["data"] = np.ones((4, 4), dtype=np.float64)
         af.write_to(file_path)
 
-    with pytest.raises(ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"):
+    with pytest.raises(
+        ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"
+    ):
         with BasicModel(file_path, strict_validation=True, validate_arrays=True) as model:
             model.validate()
 

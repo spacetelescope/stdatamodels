@@ -4,10 +4,7 @@ from astropy.io import fits
 from . import fits_support
 
 
-__all__ = [
-    'write',
-    'open'
-]
+__all__ = ["write", "open"]
 
 
 def write(filename, tree, hdulist=None, **kwargs):
@@ -30,7 +27,7 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist.writeto(filename, **kwargs)
 
 
-def open(filename_or_hdu, **kwargs):
+def open(filename_or_hdu, **kwargs):  # noqa: A001
     """Read ASDF data embedded in a fits file
 
     Parameters
@@ -46,14 +43,14 @@ def open(filename_or_hdu, **kwargs):
     Returns
     -------
     af : :obj:`asdf.AsdfFile`
-        :obj:`asdf.AsdfFile` created from ASDF data embeded in the opened
+        :obj:`asdf.AsdfFile` created from ASDF data embedded in the opened
         fits file.
     """
 
     is_hdu = isinstance(filename_or_hdu, fits.HDUList)
     hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
-    if 'ignore_missing_extensions' not in kwargs:
-        kwargs['ignore_missing_extensions'] = False
+    if "ignore_missing_extensions" not in kwargs:
+        kwargs["ignore_missing_extensions"] = False
     af = fits_support.from_fits_asdf(hdulist, **kwargs)
 
     if is_hdu:
@@ -65,6 +62,7 @@ def open(filename_or_hdu, **kwargs):
         def close():
             asdf.AsdfFile.close(af)
             hdulist.close()
+
         return close
 
     af.close = wrap_close(af, hdulist)

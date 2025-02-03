@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['NRMModel']
+__all__ = ["NRMModel"]
 
 
 class NRMModel(ReferenceFileModel):
@@ -13,4 +13,5 @@ class NRMModel(ReferenceFileModel):
     nrm : numpy float32 array
          Non-Redundant Mask
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrm.schema"

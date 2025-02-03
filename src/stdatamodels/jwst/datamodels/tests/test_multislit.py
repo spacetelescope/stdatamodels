@@ -9,8 +9,9 @@ from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel, SlitModel
 
 
 def test_multislit_model():
-    array1 = np.asarray(np.random.rand(2, 2), dtype='float32')
-    array2 = np.asarray(np.random.rand(2, 2), dtype='float32')
+    rng = np.random.default_rng(42)
+    array1 = np.asarray(rng.random((2, 2)), dtype="float32")
+    array2 = np.asarray(rng.random((2, 2)), dtype="float32")
 
     with MultiSlitModel() as ms:
         assert len(ms.slits) == 0
@@ -36,7 +37,7 @@ def test_multislit_move_from_fits(tmp_path):
     hdulist = fits.HDUList()
     hdulist.append(fits.PrimaryHDU())
     for i in range(5):
-        hdu = fits.ImageHDU(data=np.zeros((64, 64)), name='SCI')
+        hdu = fits.ImageHDU(data=np.zeros((64, 64)), name="SCI")
         hdu.ver = i + 1
         hdulist.append(hdu)
 
@@ -52,16 +53,17 @@ def test_multislit_move_from_fits(tmp_path):
 def test_multislit_append_string():
     with pytest.raises(ValidationError):
         m = MultiSlitModel(strict_validation=True)
-        m.slits.append('junk')
+        m.slits.append("junk")
 
 
 def test_multislit():
+    rng = np.random.default_rng(42)
     with MultiSlitModel() as dm:
         dm.slits.append(dm.slits.item())
         slit = dm.slits[-1]
-        slit.data = np.random.rand(5, 5)
-        slit.dm = np.random.rand(5, 5)
-        slit.err = np.random.rand(5, 5)
+        slit.data = rng.random((5, 5))
+        slit.dm = rng.random((5, 5))
+        slit.err = rng.random((5, 5))
         assert slit.wavelength.shape == (0, 0)
         assert slit.pathloss_point.shape == (0, 0)
         assert slit.pathloss_uniform.shape == (0, 0)
@@ -105,27 +107,27 @@ def test_multislit_metadata():
 def test_multislit_metadata2():
     with MultiSlitModel() as ms:
         ms.slits.append(ms.slits.item())
-        for key, val in ms.items():
+        for _, val in ms.items():
             assert isinstance(val, (bytes, str, int, float, bool, Time))
 
 
 def test_multislit_copy(tmp_path):
     path = tmp_path / "multislit.fits"
-    with MultiSlitModel() as input:
-        for i in range(4):
-            input.slits.append(input.slits.item(data=np.empty((50, 50))))
+    with MultiSlitModel() as input_file:
+        for _ in range(4):
+            input_file.slits.append(input_file.slits.item(data=np.empty((50, 50))))
 
-        assert len(input.slits) == 4
-        input.save(path)
+        assert len(input_file.slits) == 4
+        input_file.save(path)
 
-        output = input.copy()
+        output = input_file.copy()
         assert len(output.slits) == 4
 
     with fits.open(path, memmap=False) as hdulist:
         assert len(hdulist) == 6
 
     with MultiSlitModel(path) as model:
-        for i, slit in enumerate(model.slits):
+        for i, _ in enumerate(model.slits):  # noqa: B007
             pass
         assert i + 1 == 4
 

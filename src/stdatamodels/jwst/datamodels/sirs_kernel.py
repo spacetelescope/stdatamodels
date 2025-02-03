@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['SIRSKernelModel']
+__all__ = ["SIRSKernelModel"]
 
 
 class SIRSKernelModel(ReferenceFileModel):
@@ -19,6 +19,7 @@ class SIRSKernelModel(ReferenceFileModel):
         - gamma: float32 1D array
         - zeta: float32 1D array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/sirs_kernel.schema"
     reftype = "sirskernel"
 

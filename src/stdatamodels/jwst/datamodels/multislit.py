@@ -3,7 +3,7 @@ from .image import ImageModel
 from .slit import SlitModel, SlitDataModel
 
 
-__all__ = ['MultiSlitModel']
+__all__ = ["MultiSlitModel"]
 
 
 class MultiSlitModel(JwstDataModel):
@@ -69,6 +69,7 @@ class MultiSlitModel(JwstDataModel):
     slits.items.area : numpy float32 array
          Pixel area map array
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/multislit.schema"
 
     def __init__(self, init=None, **kwargs):
@@ -86,7 +87,7 @@ class MultiSlitModel(JwstDataModel):
         Returns a metadata value using a dotted name or
         a ``SlitModel``.
         """
-        if isinstance(key, str) and key.split('.')[0] == 'meta':
+        if isinstance(key, str) and key.split(".")[0] == "meta":
             res = super(MultiSlitModel, self).__getitem__(key)
             return res
         elif isinstance(key, int):
@@ -95,18 +96,18 @@ class MultiSlitModel(JwstDataModel):
             # is called: object[1].key not object.slits[key]
             try:
                 slit = self.slits[key]  # returns an ObjectNode instance
-            except IndexError:
-                raise ("Slit {0} doesn't exist".format(key))
+            except IndexError as err:
+                raise (f"Slit {key} doesn't exist") from err
             kwargs = {}
             items = dict(slit.items())
             for key in items:
-                if not key.startswith(('meta', 'extra_fits')):
+                if not key.startswith(("meta", "extra_fits")):
                     kwargs[key] = items[key]
             s = SlitModel(**kwargs)
             s.update(self)
 
-            if slit.meta.hasattr('wcs'):
+            if slit.meta.hasattr("wcs"):
                 s.meta.wcs = slit.meta.wcs
             return s
         else:
-            raise ValueError("Invalid key {0}".format(key))
+            raise ValueError(f"Invalid key {key}")

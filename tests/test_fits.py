@@ -20,7 +20,8 @@ def records_equal(a, b):
     b_size = len(b)
     equal = a_size == b_size
     for i in range(a_size):
-        if not equal: break
+        if not equal:
+            break
         equal = a[i] == b[i]
     return equal
 
@@ -28,18 +29,20 @@ def records_equal(a, b):
 def test_from_new_hdulist():
     with pytest.raises(AttributeError):
         from astropy.io import fits
+
         hdulist = fits.HDUList()
         with FitsModel(hdulist) as dm:
-            dm.foo
+            dm.foo  # noqa: B018
 
 
 def test_from_new_hdulist2():
     from astropy.io import fits
+
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
     hdulist.append(primary)
-    science = fits.ImageHDU(data=data, name='SCI')
+    science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
         dq = dm.dq
@@ -48,11 +51,12 @@ def test_from_new_hdulist2():
 
 def test_setting_arrays_on_fits():
     from astropy.io import fits
+
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
     hdulist.append(primary)
-    science = fits.ImageHDU(data=data, name='SCI')
+    science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
         dm.data = np.empty((50, 50), dtype=np.float32)
@@ -60,10 +64,11 @@ def test_setting_arrays_on_fits():
 
 
 def test_from_scratch(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     with FitsModel((50, 50)) as dm:
-        data = np.asarray(np.random.rand(50, 50), np.float32)
+        rng = np.random.default_rng(42)
+        data = np.asarray(rng.random((50, 50)), np.float32)
         dm.data[...] = data
 
         dm.meta.telescope = "EYEGLASSES"
@@ -73,12 +78,12 @@ def test_from_scratch(tmp_path):
         with FitsModel.from_fits(file_path) as dm2:
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
-            assert dm2.dq.dtype.name == 'uint32'
+            assert dm2.dq.dtype.name == "uint32"
             assert np.all(dm2.data == data)
 
 
 def test_extra_fits(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     with FitsModel() as dm:
         dm.save(file_path)
@@ -92,47 +97,51 @@ def test_extra_fits(tmp_path):
 
 
 def test_hdu_order(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
-    with FitsModel(data=np.array([[0.0]]),
-                   dq=np.array([[0.0]]),
-                   err=np.array([[0.0]])) as dm:
+    with FitsModel(data=np.array([[0.0]]), dq=np.array([[0.0]]), err=np.array([[0.0]])) as dm:
         dm.save(file_path)
 
     with fits.open(file_path, memmap=False) as hdulist:
-        assert hdulist[1].header['EXTNAME'] == 'SCI'
-        assert hdulist[2].header['EXTNAME'] == 'DQ'
-        assert hdulist[3].header['EXTNAME'] == 'ERR'
+        assert hdulist[1].header["EXTNAME"] == "SCI"
+        assert hdulist[2].header["EXTNAME"] == "DQ"
+        assert hdulist[3].header["EXTNAME"] == "ERR"
 
 
 def test_fits_comments(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     with FitsModel() as dm:
         dm.meta.origin = "STScI"
         dm.save(file_path)
 
     from astropy.io import fits
+
     with fits.open(file_path, memmap=False) as hdulist:
-        assert any(c for c in hdulist[0].header.cards if c[-1] == "Organization responsible for creating file")
+        assert any(
+            c
+            for c in hdulist[0].header.cards
+            if c[-1] == "Organization responsible for creating file"
+        )
 
 
 def test_metadata_doesnt_override(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     with FitsModel() as dm:
         dm.save(file_path)
 
     from astropy.io import fits
-    with fits.open(file_path, mode='update', memmap=False) as hdulist:
-        hdulist[0].header['ORIGIN'] = 'UNDER THE COUCH'
+
+    with fits.open(file_path, mode="update", memmap=False) as hdulist:
+        hdulist[0].header["ORIGIN"] = "UNDER THE COUCH"
 
     with FitsModel(file_path) as dm:
-        assert dm.meta.origin == 'UNDER THE COUCH'
+        assert dm.meta.origin == "UNDER THE COUCH"
 
 
 def test_non_contiguous_array(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     data = np.arange(60, dtype=np.float32).reshape(5, 12)
     err = data[::-1, ::2]
@@ -148,42 +157,44 @@ def test_non_contiguous_array(tmp_path):
 
 
 def test_table_with_metadata(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     schema = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
-            {"type": "object",
-            "properties": {
-                "flux_table": {
-                    "title": "Photometric flux conversion table",
-                    "fits_hdu": "FLUX",
-                    "datatype":
-                    [
-                        {"name": "parameter", "datatype": ['ascii', 7]},
-                        {"name": "factor", "datatype": "float64"},
-                        {"name": "uncertainty", "datatype": "float64"}
-                    ]
-                },
-                "meta": {
-                    "type": "object",
-                    "properties": {
-                        "fluxinfo": {
-                            "title": "Information about the flux conversion",
-                            "type": "object",
-                            "properties": {
-                                "exposure": {
-                                    "title": "Description of exposure analyzed",
-                                    "type": "string",
-                                    "fits_hdu": "FLUX",
-                                    "fits_keyword": "FLUXEXP"
-                                }
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
+            {
+                "type": "object",
+                "properties": {
+                    "flux_table": {
+                        "title": "Photometric flux conversion table",
+                        "fits_hdu": "FLUX",
+                        "datatype": [
+                            {"name": "parameter", "datatype": ["ascii", 7]},
+                            {"name": "factor", "datatype": "float64"},
+                            {"name": "uncertainty", "datatype": "float64"},
+                        ],
+                    },
+                    "meta": {
+                        "type": "object",
+                        "properties": {
+                            "fluxinfo": {
+                                "title": "Information about the flux conversion",
+                                "type": "object",
+                                "properties": {
+                                    "exposure": {
+                                        "title": "Description of exposure analyzed",
+                                        "type": "string",
+                                        "fits_hdu": "FLUX",
+                                        "fits_keyword": "FLUXEXP",
+                                    }
+                                },
                             }
-                        }
-                    }
-                }
-            }
-         }
+                        },
+                    },
+                },
+            },
         ]
     }
 
@@ -195,29 +206,32 @@ def test_table_with_metadata(tmp_path):
                 self.flux_table = flux_table
 
     flux_im = [
-        ('F560W', 1.0e-5, 1.0e-7),
-        ('F770W', 1.1e-5, 1.6e-7),
-        ]
+        ("F560W", 1.0e-5, 1.0e-7),
+        ("F770W", 1.1e-5, 1.6e-7),
+    ]
     with FluxModel(flux_table=flux_im) as datamodel:
-        datamodel.meta.fluxinfo.exposure = 'Exposure info'
+        datamodel.meta.fluxinfo.exposure = "Exposure info"
         datamodel.save(file_path, overwrite=True)
         del datamodel
 
     from astropy.io import fits
+
     with fits.open(file_path, memmap=False) as hdulist:
         assert len(hdulist) == 3
         assert isinstance(hdulist[1], fits.BinTableHDU)
-        assert hdulist[1].name == 'FLUX'
-        assert hdulist[2].name == 'ASDF'
+        assert hdulist[1].name == "FLUX"
+        assert hdulist[2].name == "ASDF"
 
 
 def test_replace_table(tmp_path):
-    file_path = tmp_path/"test.fits"
-    file_path2 = tmp_path/"test2.fits"
+    file_path = tmp_path / "test.fits"
+    file_path2 = tmp_path / "test2.fits"
 
     schema_narrow = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -229,17 +243,19 @@ def test_replace_table(tmp_path):
                             {"name": "T_OFFSET", "datatype": "float32"},
                             {"name": "DECAY_PEAK", "datatype": "float32"},
                             {"name": "DECAY_FREQ", "datatype": "float32"},
-                            {"name": "TAU", "datatype": "float32"}
-                        ]
+                            {"name": "TAU", "datatype": "float32"},
+                        ],
                     }
-                }
-            }
+                },
+            },
         ]
     }
 
     schema_wide = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
@@ -251,20 +267,24 @@ def test_replace_table(tmp_path):
                             {"name": "T_OFFSET", "datatype": "float64"},
                             {"name": "DECAY_PEAK", "datatype": "float64"},
                             {"name": "DECAY_FREQ", "datatype": "float64"},
-                            {"name": "TAU", "datatype": "float64"}
-                        ]
+                            {"name": "TAU", "datatype": "float64"},
+                        ],
                     }
-                }
-            }
+                },
+            },
         ]
     }
 
-    x = np.array([("string", 1., 2., 3., 4.)],
-                 dtype=[('TYPE', 'S16'),
-                        ('T_OFFSET', np.float32),
-                        ('DECAY_PEAK', np.float32),
-                        ('DECAY_FREQ', np.float32),
-                        ('TAU', np.float32)])
+    x = np.array(
+        [("string", 1.0, 2.0, 3.0, 4.0)],
+        dtype=[
+            ("TYPE", "S16"),
+            ("T_OFFSET", np.float32),
+            ("DECAY_PEAK", np.float32),
+            ("DECAY_FREQ", np.float32),
+            ("TAU", np.float32),
+        ],
+    )
 
     m = DataModel(schema=schema_narrow)
     m.data = x
@@ -272,61 +292,62 @@ def test_replace_table(tmp_path):
 
     with fits.open(file_path, memmap=False) as hdulist:
         assert records_equal(x, np.asarray(hdulist[1].data))
-        assert hdulist[1].data.dtype[1].str == '>f4'
-        assert hdulist[1].header['TFORM2'] == 'E'
+        assert hdulist[1].data.dtype[1].str == ">f4"
+        assert hdulist[1].header["TFORM2"] == "E"
 
     with DataModel(file_path, schema=schema_wide) as m:
         m.to_fits(file_path2, overwrite=True)
 
     with fits.open(file_path2, memmap=False) as hdulist:
         assert records_equal(x, np.asarray(hdulist[1].data))
-        assert hdulist[1].data.dtype[1].str == '>f8'
-        assert hdulist[1].header['TFORM2'] == 'D'
+        assert hdulist[1].data.dtype[1].str == ">f8"
+        assert hdulist[1].header["TFORM2"] == "D"
 
 
 def test_table_with_unsigned_int(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     schema = {
-        'title': 'Test data model',
-        '$schema': 'http://stsci.edu/schemas/asdf/asdf-schema-1.1.0',
-        'type': 'object',
-        'properties': {
-            'meta': {
-                'type': 'object',
-                'properties': {}
+        "title": "Test data model",
+        "$schema": "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0",
+        "type": "object",
+        "properties": {
+            "meta": {"type": "object", "properties": {}},
+            "test_table": {
+                "title": "Test table",
+                "fits_hdu": "TESTTABL",
+                "datatype": [
+                    {"name": "FLOAT64_COL", "datatype": "float64"},
+                    {"name": "UINT32_COL", "datatype": "uint32"},
+                ],
             },
-            'test_table': {
-                'title': 'Test table',
-                'fits_hdu': 'TESTTABL',
-                'datatype': [
-                    {'name': 'FLOAT64_COL', 'datatype': 'float64'},
-                    {'name': 'UINT32_COL', 'datatype': 'uint32'}
-                ]
-            }
-        }
+        },
     }
 
     with DataModel(schema=schema) as dm:
-
         float64_info = np.finfo(np.float64)
-        float64_arr = np.random.uniform(size=(10,))
+        rng = np.random.default_rng(42)
+        float64_arr = rng.uniform(size=(10,))
         float64_arr[0] = float64_info.min
         float64_arr[-1] = float64_info.max
 
         uint32_info = np.iinfo(np.uint32)
-        uint32_arr = np.random.randint(uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32)
+        uint32_arr = rng.integers(uint32_info.min, uint32_info.max + 1, size=(10,), dtype=np.uint32)
         uint32_arr[0] = uint32_info.min
         uint32_arr[-1] = uint32_info.max
 
-        test_table = np.array(list(zip(float64_arr, uint32_arr)), dtype=dm.test_table.dtype)
+        test_table = np.array(
+            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.test_table.dtype
+        )
 
         def assert_table_correct(model):
-            for idx, (col_name, col_data) in enumerate([('float64_col', float64_arr), ('uint32_col', uint32_arr)]):
+            for idx, (col_name, col_data) in enumerate(
+                [("float64_col", float64_arr), ("uint32_col", uint32_arr)]
+            ):
                 # The table dtype and field dtype are stored separately, and may not
                 # necessarily agree.
-                assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, 'equiv')
-                assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, 'equiv')
+                assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")
+                assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, "equiv")
                 assert np.array_equal(model.test_table.field(col_name), col_data)
 
         # The datamodel casts our array to FITS_rec on assignment, so here we're
@@ -346,79 +367,89 @@ def test_table_with_unsigned_int(tmp_path):
 
 
 def test_metadata_from_fits(tmp_path):
-    file_path = tmp_path/"test.fits"
-    file_path2 = tmp_path/"test2.fits"
+    file_path = tmp_path / "test.fits"
+    file_path2 = tmp_path / "test2.fits"
 
     mask = np.array([[0, 1], [2, 3]])
-    fits.ImageHDU(data=mask, name='DQ').writeto(file_path)
+    fits.ImageHDU(data=mask, name="DQ").writeto(file_path)
     with FitsModel(file_path) as dm:
         dm.save(file_path2)
 
     with fits.open(file_path2, memmap=False) as hdulist:
-        assert hdulist[2].name == 'ASDF'
+        assert hdulist[2].name == "ASDF"
 
 
 def test_get_short_doc():
     assert fits_support.get_short_doc({}) == ""
     assert fits_support.get_short_doc({"title": "Some schema title."}) == "Some schema title."
-    assert fits_support.get_short_doc({
-        "title": "Some schema title.\nWhoops, another line."
-    }) == "Some schema title."
-    assert fits_support.get_short_doc({
-        "title": "Some schema title.",
-        "description": "Some schema description.",
-    }) == "Some schema title."
-    assert fits_support.get_short_doc({
-        "description": "Some schema description.",
-    }) == "Some schema description."
-    assert fits_support.get_short_doc({
-        "description": "Some schema description.\nWhoops, another line.",
-    }) == "Some schema description."
+    assert (
+        fits_support.get_short_doc({"title": "Some schema title.\nWhoops, another line."})
+        == "Some schema title."
+    )
+    assert (
+        fits_support.get_short_doc(
+            {
+                "title": "Some schema title.",
+                "description": "Some schema description.",
+            }
+        )
+        == "Some schema title."
+    )
+    assert (
+        fits_support.get_short_doc(
+            {
+                "description": "Some schema description.",
+            }
+        )
+        == "Some schema description."
+    )
+    assert (
+        fits_support.get_short_doc(
+            {
+                "description": "Some schema description.\nWhoops, another line.",
+            }
+        )
+        == "Some schema description."
+    )
 
 
 def test_ensure_ascii():
     for inp in [b"ABCDEFG", "ABCDEFG"]:
-        fits_support.ensure_ascii(inp) == "ABCDEFG"
+        assert fits_support.ensure_ascii(inp) == "ABCDEFG"
 
 
 @pytest.mark.parametrize(
-    'which_file, skip_fits_update, expected_exp_type',
+    "which_file, skip_fits_update, expected_exp_type",
     [
-        ('just_fits', None,  'FGS_DARK'),
-        ('just_fits', False, 'FGS_DARK'),
-        ('just_fits', True,  'FGS_DARK'),
-        ('model',     None,  'FGS_DARK'),
-        ('model',     False, 'FGS_DARK'),
-        ('model',     True,  'NRC_IMAGE')
-    ]
+        ("just_fits", None, "FGS_DARK"),
+        ("just_fits", False, "FGS_DARK"),
+        ("just_fits", True, "FGS_DARK"),
+        ("model", None, "FGS_DARK"),
+        ("model", False, "FGS_DARK"),
+        ("model", True, "NRC_IMAGE"),
+    ],
 )
-@pytest.mark.parametrize(
-    'use_env',
-    [False, True]
-)
-def test_skip_fits_update(tmp_path,
-                          monkeypatch,
-                          use_env,
-                          which_file,
-                          skip_fits_update,
-                          expected_exp_type):
+@pytest.mark.parametrize("use_env", [False, True])
+def test_skip_fits_update(
+    tmp_path, monkeypatch, use_env, which_file, skip_fits_update, expected_exp_type
+):
     """Test skip_fits_update setting"""
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     # Setup the FITS file, modifying a header value
     if which_file == "just_fits":
         primary_hdu = fits.PrimaryHDU()
-        primary_hdu.header['EXP_TYPE'] = 'NRC_IMAGE'
-        primary_hdu.header['DATAMODL'] = "FitsModel"
+        primary_hdu.header["EXP_TYPE"] = "NRC_IMAGE"
+        primary_hdu.header["DATAMODL"] = "FitsModel"
         hduls = fits.HDUList([primary_hdu])
         hduls.writeto(file_path)
     else:
         model = FitsModel()
-        model.meta.exposure.type = 'NRC_IMAGE'
+        model.meta.exposure.type = "NRC_IMAGE"
         model.save(file_path)
 
     with fits.open(file_path) as hduls:
-        hduls[0].header['EXP_TYPE'] = 'FGS_DARK'
+        hduls[0].header["EXP_TYPE"] = "FGS_DARK"
 
         if skip_fits_update is not None:
             ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
@@ -436,32 +467,33 @@ def test_skip_fits_update(tmp_path,
 
 
 def test_from_hdulist(tmp_path):
-    file_path = tmp_path/"test.fits"
+    file_path = tmp_path / "test.fits"
 
     with FitsModel() as dm:
         dm.save(file_path)
 
     with fits.open(file_path, memmap=False) as hdulist:
         with FitsModel(hdulist) as dm:
-            dm.data
-        assert not hdulist.fileinfo(0)['file'].closed
+            dm.data  # noqa: B018
+        assert not hdulist.fileinfo(0)["file"].closed
 
 
 def test_data_array(tmp_path):
-    file_path = tmp_path/"test.fits"
-    file_path2 = tmp_path/"test2.fits"
+    file_path = tmp_path / "test.fits"
+    file_path2 = tmp_path / "test2.fits"
 
     data_array_schema = {
         "allOf": [
-            asdf.schema.load_schema("http://example.com/schemas/core_metadata", resolve_references=True),
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
             {
                 "type": "object",
                 "properties": {
                     "arr": {
-                        'title': 'An array of data',
-                        'type': 'array',
+                        "title": "An array of data",
+                        "type": "array",
                         "fits_hdu": ["FOO", "DQ"],
-
                         "items": {
                             "title": "entry",
                             "type": "object",
@@ -470,24 +502,21 @@ def test_data_array(tmp_path):
                                     "fits_hdu": "FOO",
                                     "default": 0.0,
                                     "max_ndim": 2,
-                                    "datatype": "float64"
+                                    "datatype": "float64",
                                 },
-                                "dq": {
-                                    "fits_hdu": "DQ",
-                                    "default": 1,
-                                    "datatype": "uint8"
-                                },
-                            }
-                        }
+                                "dq": {"fits_hdu": "DQ", "default": 1, "datatype": "uint8"},
+                            },
+                        },
                     }
-                }
-            }
+                },
+            },
         ]
     }
 
-    array1 = np.random.rand(5, 5)
-    array2 = np.random.rand(5, 5)
-    array3 = np.random.rand(5, 5)
+    rng = np.random.default_rng(42)
+    array1 = rng.random((5, 5))
+    array2 = rng.random((5, 5))
+    array3 = rng.random((5, 5))
 
     with DataModel(schema=data_array_schema) as x:
         x.arr.append(x.arr.item())
@@ -512,12 +541,14 @@ def test_data_array(tmp_path):
 
         x.arr = []
         assert len(x.arr) == 0
-        x.arr.append({'data': np.empty((5, 5))})
+        x.arr.append({"data": np.empty((5, 5))})
         assert len(x.arr) == 1
-        x.arr.extend([
-            x.arr.item(data=np.empty((5, 5))),
-            x.arr.item(data=np.empty((5, 5)),
-                       dq=np.empty((5, 5), dtype=np.uint8))])
+        x.arr.extend(
+            [
+                x.arr.item(data=np.empty((5, 5))),
+                x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8)),
+            ]
+        )
         assert len(x.arr) == 3
         del x.arr[1]
         assert len(x.arr) == 2
@@ -526,21 +557,21 @@ def test_data_array(tmp_path):
     with fits.open(file_path2) as hdulist:
         x = set()
         for hdu in hdulist:
-            x.add((hdu.header.get('EXTNAME'),
-                   hdu.header.get('EXTVER')))
+            x.add((hdu.header.get("EXTNAME"), hdu.header.get("EXTVER")))
 
-        assert x == set(
-            [('FOO', 2), ('FOO', 1), ('ASDF', None), ('DQ', 2),
-             (None, None)])
+        assert x == {("FOO", 2), ("FOO", 1), ("ASDF", None), ("DQ", 2), (None, None)}
 
 
-@pytest.mark.parametrize("keyword,result", [
-    ("BZERO", True),
-    ("TFORM53", True),
-    ("SIMPLE", True),
-    ("EXTEND", True),
-    ("INSTRUME", False),
-])
+@pytest.mark.parametrize(
+    "keyword,result",
+    [
+        ("BZERO", True),
+        ("TFORM53", True),
+        ("SIMPLE", True),
+        ("EXTEND", True),
+        ("INSTRUME", False),
+    ],
+)
 def test_is_builtin_fits_keyword(keyword, result):
     assert fits_support.is_builtin_fits_keyword(keyword) is result
 
@@ -560,10 +591,10 @@ def test_no_asdf_extension_extra_fits(tmp_path):
     path = tmp_path / "no_asdf.fits"
 
     extra_fits = {
-        'ASDF': {
-            'header': [
-                ['CHECKSUM', '9kbGAkbF9kbFAkbF', 'HDU checksum updated 2018-03-07T08:48:27'],
-                ['DATASUM', '136453353', 'data unit checksum updated 2018-03-07T08:48:27']
+        "ASDF": {
+            "header": [
+                ["CHECKSUM", "9kbGAkbF9kbFAkbF", "HDU checksum updated 2018-03-07T08:48:27"],
+                ["DATASUM", "136453353", "data unit checksum updated 2018-03-07T08:48:27"],
             ]
         }
     }
@@ -581,7 +612,7 @@ def test_no_asdf_extension_extra_fits(tmp_path):
 
     with PureFitsModel(path) as m:
         with pytest.raises(AttributeError):
-            m.extra_fits
+            m.extra_fits  # noqa: B018
 
 
 def test_ndarray_validation(tmp_path):
@@ -616,7 +647,7 @@ def test_resave_duplication_bug(tmp_path):
     fn1 = tmp_path / "test1.fits"
     fn2 = tmp_path / "test2.fits"
 
-    arr = np.zeros((1000, 100), dtype='f4')
+    arr = np.zeros((1000, 100), dtype="f4")
     m = FitsModel(arr)
     m.save(fn1)
 
@@ -624,34 +655,31 @@ def test_resave_duplication_bug(tmp_path):
     m2.save(fn2)
 
     with fits.open(fn1) as ff1, fits.open(fn2) as ff2:
-        assert ff1['ASDF'].size == ff2['ASDF'].size
+        assert ff1["ASDF"].size == ff2["ASDF"].size
 
 
 def test_table_linking(tmp_path):
     file_path = tmp_path / "test.fits"
 
     schema = {
-        'title': 'Test data model',
-        '$schema': 'http://stsci.edu/schemas/asdf/asdf-schema-1.1.0',
-        'type': 'object',
-        'properties': {
-            'meta': {
-                'type': 'object',
-                'properties': {}
+        "title": "Test data model",
+        "$schema": "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0",
+        "type": "object",
+        "properties": {
+            "meta": {"type": "object", "properties": {}},
+            "test_table": {
+                "title": "Test table",
+                "fits_hdu": "TESTTABL",
+                "datatype": [
+                    {"name": "A_COL", "datatype": "int8"},
+                    {"name": "B_COL", "datatype": "int8"},
+                ],
             },
-            'test_table': {
-                'title': 'Test table',
-                'fits_hdu': 'TESTTABL',
-                'datatype': [
-                    {'name': 'A_COL', 'datatype': 'int8'},
-                    {'name': 'B_COL', 'datatype': 'int8'}
-                ]
-            }
-        }
+        },
     }
 
     with DataModel(schema=schema) as dm:
-        test_array = np.array([(1, 2), (3, 4)], dtype=[('A_COL', 'i1'), ('B_COL', 'i1')])
+        test_array = np.array([(1, 2), (3, 4)], dtype=[("A_COL", "i1"), ("B_COL", "i1")])
 
         # assigning to the model will convert the array to a FITS_rec
         dm.test_table = test_array
@@ -663,13 +691,13 @@ def test_table_linking(tmp_path):
     # open the model and confirm that the table was linked to an hdu
     with fits.open(file_path) as ff:
         # read the bytes for the embedded ASDF content
-        asdf_bytes = ff['ASDF'].data.tobytes()
+        asdf_bytes = ff["ASDF"].data.tobytes()
 
         # get only the bytes for the tree (not blocks) by splitting
         # on the yaml end document marker '...'
         # on the first block magic sequence
-        tree_string = asdf_bytes.split(b'...')[0].decode('ascii')
-        unlinked_arrays = re.findall(r'source:\s+[^f]', tree_string)
+        tree_string = asdf_bytes.split(b"...")[0].decode("ascii")
+        unlinked_arrays = re.findall(r"source:\s+[^f]", tree_string)
         assert not len(unlinked_arrays), unlinked_arrays
 
 
@@ -679,6 +707,13 @@ def test_fitsrec_for_non_schema_data(tmp_path):
     # file where this condition might occur (perhaps after a schema
     # update).
     m = DataModel()
-    m._instance['sneaky_table'] = fits.FITS_rec(np.array([('a', 1),], dtype=[('foo', 'S3'), ('bar', 'f4')]))
+    m._instance["sneaky_table"] = fits.FITS_rec(
+        np.array(
+            [
+                ("a", 1),
+            ],
+            dtype=[("foo", "S3"), ("bar", "f4")],
+        )
+    )
     fn = tmp_path / "test.fits"
     m.save(fn)

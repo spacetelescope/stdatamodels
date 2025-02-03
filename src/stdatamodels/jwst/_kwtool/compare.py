@@ -16,15 +16,44 @@ _MISSING_VALUE = _MissingValue()
 
 
 # Initialize the standard in regex pattern
-_fits_standard_regex = re.compile('|'.join('(^{0}$)'.format(x) for x in [
-    '', 'NAXIS[0-9]{0,3}', 'BITPIX', 'XTENSION', 'PCOUNT', 'GCOUNT',
-    'EXTEND', 'BSCALE', 'BUNIT', 'BZERO', 'BLANK', 'DATAMAX', 'DATAMIN',
-    'EXTNAME', 'EXTVER', 'EXTLEVEL', 'GROUPS', 'PTYPE[0-9]',
-    'PSCAL[0-9]', 'PZERO[0-9]', 'SIMPLE', 'TFIELDS',
-    'TBCOL[0-9]{1,3}', 'TFORM[0-9]{1,3}', 'TTYPE[0-9]{1,3}',
-    'TUNIT[0-9]{1,3}', 'TSCAL[0-9]{1,3}', 'TZERO[0-9]{1,3}',
-    'TNULL[0-9]{1,3}', 'TDISP[0-9]{1,3}', 'HISTORY'
-]))
+_fits_standard_regex = re.compile(
+    "|".join(
+        f"(^{x}$)"
+        for x in [
+            "",
+            "NAXIS[0-9]{0,3}",
+            "BITPIX",
+            "XTENSION",
+            "PCOUNT",
+            "GCOUNT",
+            "EXTEND",
+            "BSCALE",
+            "BUNIT",
+            "BZERO",
+            "BLANK",
+            "DATAMAX",
+            "DATAMIN",
+            "EXTNAME",
+            "EXTVER",
+            "EXTLEVEL",
+            "GROUPS",
+            "PTYPE[0-9]",
+            "PSCAL[0-9]",
+            "PZERO[0-9]",
+            "SIMPLE",
+            "TFIELDS",
+            "TBCOL[0-9]{1,3}",
+            "TFORM[0-9]{1,3}",
+            "TTYPE[0-9]{1,3}",
+            "TUNIT[0-9]{1,3}",
+            "TSCAL[0-9]{1,3}",
+            "TZERO[0-9]{1,3}",
+            "TNULL[0-9]{1,3}",
+            "TDISP[0-9]{1,3}",
+            "HISTORY",
+        ]
+    )
+)
 
 _DEFAULT_SKIP_MODELS = {
     dm.ReferenceFileModel,  # ignore reference file models
@@ -53,14 +82,14 @@ _DEFAULT_EXPECTED_DIFFS = {
     ("PRIMARY", "PATTTYPE"): {
         "enum": {
             "dmd": {
-                "difference": {'SUBARRAY-DITHER', 'N/A', 'FULL-TIGHT', 'ANY'},
+                "difference": {"SUBARRAY-DITHER", "N/A", "FULL-TIGHT", "ANY"},
             },
         },
     },
     ("PRIMARY", "CATEGORY"): {
         "enum": {
             "dmd": {
-                "union": {'AR', 'CAL', 'COM', 'DD', 'ENG', 'GO', 'GTO', 'NASA', 'SURVEY'},
+                "union": {"AR", "CAL", "COM", "DD", "ENG", "GO", "GTO", "NASA", "SURVEY"},
                 "difference": {_MISSING_VALUE},
             },
         },
@@ -78,7 +107,7 @@ _DEFAULT_EXPECTED_DIFFS = {
                 "difference": {"ALL"},
             },
         },
-    }
+    },
 }
 
 
@@ -100,22 +129,22 @@ def _filter_non_pattern(d):
 
 def _compare_path(k, d):
     paths = {}
-    for c, n in [(k, 'kwd'), (d, 'dmd')]:
-        paths[n] = set(('.'.join(i['path']) for i in c))
-    if paths['kwd'] == paths['dmd']:
+    for c, n in [(k, "kwd"), (d, "dmd")]:
+        paths[n] = {".".join(i["path"]) for i in c}
+    if paths["kwd"] == paths["dmd"]:
         return None
 
     # Ignore paths that are nested under "items" in the
     # datamodel schemas as these can't be matched to specific
     # keywords
     for i in d:
-        if 'items' in i['path']:
+        if "items" in i["path"]:
             return None
 
     # Paths differences are only a problem for the keywords
     # that have an archive destination
     for i in k:
-        if i['keyword'].get('destination'):
+        if i["keyword"].get("destination"):
             # since there is a destination, report the difference
             return paths
     return None
@@ -125,9 +154,9 @@ def _compare_keyword_subitem(k, d, key):
     # This can pass if both are missing since the final set comparison will
     # be {_MISSING_VALUE} == {_MISSING_VALUE}.
     items = {}
-    for c, n in [(k, 'kwd'), (d, 'dmd')]:
-        items[n] = set((i['keyword'].get(key, _MISSING_VALUE) for i in c))
-    if items['kwd'] == items['dmd']:
+    for c, n in [(k, "kwd"), (d, "dmd")]:
+        items[n] = {i["keyword"].get(key, _MISSING_VALUE) for i in c}
+    if items["kwd"] == items["dmd"]:
         return None
     return items
 
@@ -145,8 +174,8 @@ def _compare_type(k, d):
     diff = _compare_keyword_subitem(k, d, "type")
     if not diff:
         return
-    k_values = diff['kwd']
-    d_values = diff['dmd']
+    k_values = diff["kwd"]
+    d_values = diff["dmd"]
     mapped_k_values = set()
     for kv in k_values:
         if kv not in _k_to_d_map:
@@ -154,7 +183,7 @@ def _compare_type(k, d):
         mapped_k_values.add(_k_to_d_map[kv])
     if mapped_k_values == d_values:
         return None
-    return {'kwd': mapped_k_values, 'dmd': d_values}
+    return {"kwd": mapped_k_values, "dmd": d_values}
 
 
 def _compare_enum(k, d):
@@ -186,7 +215,7 @@ def _compare_enum(k, d):
 
         # an "enum" might be nested in this subschema so let's walk the schema
         def _get_enums(ss, path, combiner, ctx, r):
-            if isinstance(ss, dict) and 'enum' in ss:
+            if isinstance(ss, dict) and "enum" in ss:
                 enum = ss["enum"]
                 if not isinstance(enum, list):
                     raise ValueError(f"datamodel contains a non-list enum: {enum}")
@@ -215,7 +244,7 @@ def _compare_enum(k, d):
 
     if k_values == d_values:
         return None
-    return {'kwd': k_values, 'dmd': d_values}
+    return {"kwd": k_values, "dmd": d_values}
 
 
 def _compare_definitions(k, d):
@@ -229,14 +258,14 @@ def _compare_definitions(k, d):
     # - enum: these should match (after combination, might not exist)
     diff = {}
     if subdiff := _compare_path(k, d):
-        diff['path'] = subdiff
-    for key in ('title', ):
+        diff["path"] = subdiff
+    for key in ("title",):
         if subdiff := _compare_keyword_subitem(k, d, key):
             diff[key] = subdiff
     if subdiff := _compare_type(k, d):
-        diff['type'] = subdiff
+        diff["type"] = subdiff
     if subdiff := _compare_enum(k, d):
-        diff['enum'] = subdiff
+        diff["enum"] = subdiff
     return diff
 
 
@@ -248,12 +277,12 @@ def _is_expected(kw, diff, expected_diffs):
         if expected_key not in diff:
             continue
         sub_diff = diff[expected_key]
-        for collection_key in ('dmd', 'kwd'):
+        for collection_key in ("dmd", "kwd"):
             if collection_key not in sub_expected:
                 continue
             for op, other_set in sub_expected[collection_key].items():
                 sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
-        if sub_diff['dmd'] == sub_diff['kwd']:
+        if sub_diff["dmd"] == sub_diff["kwd"]:
             del diff[expected_key]
     # if we have no differences left then all was expected
     if not diff:

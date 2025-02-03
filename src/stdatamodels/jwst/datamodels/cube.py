@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ['CubeModel']
+__all__ = ["CubeModel"]
 
 
 class CubeModel(JwstDataModel):
@@ -37,10 +37,10 @@ class CubeModel(JwstDataModel):
     var_rnoise : numpy float32 array
          Integration-specific variances of slope due to read noise
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/cube.schema"
 
     def __init__(self, init=None, **kwargs):
-
         super(CubeModel, self).__init__(init=init, **kwargs)
 
         # Implicitly create arrays

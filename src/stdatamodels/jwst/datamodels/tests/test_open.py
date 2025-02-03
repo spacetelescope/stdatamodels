@@ -3,7 +3,6 @@ Test datamodel.open
 """
 
 import os
-import os.path
 from pathlib import Path, PurePath
 import warnings
 
@@ -13,19 +12,26 @@ from astropy.io import fits
 from stdatamodels import DataModel
 from stdatamodels.validate import ValidationError, ValidationWarning
 
-from stdatamodels.jwst.datamodels import (JwstDataModel, ImageModel,
-                                          RampModel, CubeModel, ReferenceFileModel, ReferenceImageModel,
-                                          ReferenceCubeModel, ReferenceQuadModel)
+from stdatamodels.jwst.datamodels import (
+    JwstDataModel,
+    ImageModel,
+    RampModel,
+    CubeModel,
+    ReferenceFileModel,
+    ReferenceImageModel,
+    ReferenceCubeModel,
+    ReferenceQuadModel,
+)
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import util
 
 import asdf
 
 
-@pytest.mark.parametrize('guess', [True, False])
+@pytest.mark.parametrize("guess", [True, False])
 def test_guess(guess):
     """Test the guess parameter to the open func"""
-    path = Path(t_path('test.fits'))
+    path = Path(t_path("test.fits"))
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
@@ -42,7 +48,7 @@ def test_guess(guess):
 
 def test_open_from_pathlib():
     """Test opening a PurePath object"""
-    path = Path(t_path('test.fits'))
+    path = Path(t_path("test.fits"))
     assert isinstance(path, PurePath)
 
     with warnings.catch_warnings():
@@ -55,7 +61,7 @@ def test_open_fits():
     """Test opening a model from a FITS file"""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        fits_file = t_path('test.fits')
+        fits_file = t_path("test.fits")
         with datamodels.open(fits_file) as model:
             assert isinstance(model, JwstDataModel)
 
@@ -82,7 +88,7 @@ def test_open_hdulist(tmp_path):
     hdulist = fits.HDUList()
     primary = fits.PrimaryHDU()
     data = np.empty((50, 50), dtype=np.float32)
-    science = fits.ImageHDU(data=data, name='SCI', ver=1)
+    science = fits.ImageHDU(data=data, name="SCI", ver=1)
     hdulist.append(primary)
     hdulist.append(science)
 
@@ -126,12 +132,15 @@ def test_open_cube(tmp_path):
             assert isinstance(model, CubeModel)
 
 
-@pytest.mark.parametrize("model_class, shape", [
-    (ReferenceFileModel, None),
-    (ReferenceImageModel, (10, 10)),
-    (ReferenceCubeModel, (3, 3, 3)),
-    (ReferenceQuadModel, (2, 2, 2, 2)),
-])
+@pytest.mark.parametrize(
+    "model_class, shape",
+    [
+        (ReferenceFileModel, None),
+        (ReferenceImageModel, (10, 10)),
+        (ReferenceCubeModel, (3, 3, 3)),
+        (ReferenceQuadModel, (2, 2, 2, 2)),
+    ],
+)
 def test_open_reffiles(tmp_path, model_class, shape):
     """Try opening files with a REFTYPE keyword and different data/dq shapes"""
     path = str(tmp_path / "reffile.fits")
@@ -153,25 +162,25 @@ def test_open_readonly(tmp_path, suffix):
     path = str(tmp_path / f"readonly{suffix}")
 
     with ImageModel(data=np.zeros((10, 10))) as model:
-        model.meta.telescope = 'JWST'
-        model.meta.instrument.name = 'NIRCAM'
-        model.meta.instrument.detector = 'NRCA4'
-        model.meta.instrument.channel = 'SHORT'
+        model.meta.telescope = "JWST"
+        model.meta.instrument.name = "NIRCAM"
+        model.meta.instrument.detector = "NRCA4"
+        model.meta.instrument.channel = "SHORT"
         model.save(path)
 
-    os.chmod(path, 0o440)
+    Path(path).chmod(0o440)
     assert os.access(path, os.W_OK) is False
 
     with datamodels.open(path) as model:
-        assert model.meta.telescope == 'JWST'
+        assert model.meta.telescope == "JWST"
         assert isinstance(model, ImageModel)
 
 
 # Utilities
 def t_path(partial_path):
     """Construction the full path for test files"""
-    test_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(test_dir, partial_path)
+    test_dir = Path(__file__).parent / "data"
+    return test_dir / partial_path
 
 
 @pytest.mark.parametrize("suffix", ["asdf", "fits"])

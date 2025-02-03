@@ -7,13 +7,14 @@ from stdatamodels.validate import ValidationWarning
 from .reference import ReferenceFileModel
 
 
-__all__ = ['TsoPhotModel']
+__all__ = ["TsoPhotModel"]
 
 
 class TsoPhotModel(ReferenceFileModel):
     """
     A model for a reference file of type "tsophot".
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/tsophot.schema"
     reftype = "tsophot"
 
@@ -41,4 +42,4 @@ class TsoPhotModel(ReferenceFileModel):
                 tb = sys.exc_info()[-1]
                 tb_info = traceback.extract_tb(tb)
                 text = tb_info[-1][-1]
-                warnings.warn(text, ValidationWarning)
+                warnings.warn(text, ValidationWarning, stacklevel=2)

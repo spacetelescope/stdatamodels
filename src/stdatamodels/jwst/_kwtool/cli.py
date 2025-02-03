@@ -25,9 +25,12 @@ def _entry_to_str(entry):
         "div",
         R(
             "dl",
-            R("dt", "path") + R("dd", entry["path"]) +
-            R("dt", "scope") + R("dd", entry["scope"]) +
-            R("dt", "keyword") + R("dd", R("pre", R("code", pformat(entry["keyword"], indent=2)))),
+            R("dt", "path")
+            + R("dd", entry["path"])
+            + R("dt", "scope")
+            + R("dd", entry["scope"])
+            + R("dt", "keyword")
+            + R("dd", R("pre", R("code", pformat(entry["keyword"], indent=2)))),
         ),
     )
 
@@ -48,7 +51,7 @@ def _keyword_details(kwd, dmd, k):
 
 def _set_to_list(item):
     if isinstance(item, set):
-        return _set_to_list(sorted(list(item)))
+        return _set_to_list(sorted(item))
     if isinstance(item, (list, tuple)):
         return [_set_to_list(i) for i in item]
     if isinstance(item, dict):
@@ -93,14 +96,16 @@ def generate_report(kwd_path):
 def _configure_cmdline_parser():
     parser = argparse.ArgumentParser(
         prog="kwtool",
-        description="Generate a report of FITS keyword differences between datamodel schemas and the keyword dictionary",
+        description="Generate a report of FITS keyword differences between "
+        "datamodel schemas and the keyword dictionary",
     )
     parser.add_argument(
         "keyword_dictionary_path",
         help="Path to keyword dictionary directory.",
     )
     parser.add_argument(
-        "-o", "--output_file",
+        "-o",
+        "--output_file",
         default="report.html",
         help="HTML report output filename.",
     )

@@ -2,7 +2,7 @@ from .model_base import JwstDataModel
 from .spec import SpecModel, MRSSpecModel
 
 
-__all__ = ['MultiSpecModel', 'MRSMultiSpecModel']
+__all__ = ["MultiSpecModel", "MRSMultiSpecModel"]
 
 
 class MultiSpecModel(JwstDataModel):
@@ -35,21 +35,20 @@ class MultiSpecModel(JwstDataModel):
     Examples
     --------
     >>> output_model = MultiSpecModel()
-    >>> spec = SpecModel()       # for the default data type
+    >>> spec = SpecModel()  # for the default data type
     >>> for slit in input_model.slits:  # doctest: +SKIP
     ...     slitname = slit.name
     ...     slitmodel = ExtractModel()
     ...     slitmodel.fromJSONFile(extref, slitname)
     ...     column, wavelength, countrate = slitmodel.extract(slit.data)
-    ...     otab = np.array(zip(column, wavelength, countrate),
-    ...                     dtype=spec.spec_table.dtype)
+    ...     otab = np.array(zip(column, wavelength, countrate), dtype=spec.spec_table.dtype)
     ...     spec = datamodels.SpecModel(spec_table=otab)
     ...     output_model.spec.append(spec)
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/multispec.schema"
 
     def __init__(self, init=None, **kwargs):
-
         if isinstance(init, SpecModel):
             super(MultiSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())
@@ -68,10 +67,10 @@ class MRSMultiSpecModel(JwstDataModel):
     to `MultiSpecModel`, except that the spectra have additional columns
     for the MIRI MRS mode, containing residual fringe corrected values.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mrs_multispec.schema"
 
     def __init__(self, init=None, **kwargs):
-
         if isinstance(init, MRSSpecModel):
             super(MRSMultiSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())

@@ -3,7 +3,7 @@ import warnings
 from stdatamodels.validate import ValidationWarning
 from .reference import ReferenceFileModel
 
-__all__ = ['ABVegaOffsetModel']
+__all__ = ["ABVegaOffsetModel"]
 
 
 class ABVegaOffsetModel(ReferenceFileModel):
@@ -45,22 +45,21 @@ class ABVegaOffsetModel(ReferenceFileModel):
         super(ABVegaOffsetModel, self).validate()
         try:
             assert len(self.abvega_offset) > 0
-            assert (self.meta.instrument.name in
-                    ('FGS', 'MIRI', 'NIRCAM', 'NIRISS'))
-            assert 'abvega_offset' in self.abvega_offset.colnames
+            assert self.meta.instrument.name in ("FGS", "MIRI", "NIRCAM", "NIRISS")
+            assert "abvega_offset" in self.abvega_offset.colnames
 
-            if self.meta.instrument.name == 'FGS':
-                assert 'detector' in self.abvega_offset.colnames
+            if self.meta.instrument.name == "FGS":
+                assert "detector" in self.abvega_offset.colnames
 
-            if self.meta.instrument.name == 'MIRI':
-                assert 'filter' in self.abvega_offset.colnames
+            if self.meta.instrument.name == "MIRI":
+                assert "filter" in self.abvega_offset.colnames
 
-            if self.meta.instrument.name in ('NIRCAM', 'NIRISS'):
-                assert 'filter' in self.abvega_offset.colnames
-                assert 'pupil' in self.abvega_offset.colnames
+            if self.meta.instrument.name in ("NIRCAM", "NIRISS"):
+                assert "filter" in self.abvega_offset.colnames
+                assert "pupil" in self.abvega_offset.colnames
 
         except AssertionError as errmsg:
             if self._strict_validation:
-                raise AssertionError(errmsg)
+                raise AssertionError(errmsg) from errmsg
             else:
-                warnings.warn(str(errmsg), ValidationWarning)
+                warnings.warn(str(errmsg), ValidationWarning, stacklevel=2)

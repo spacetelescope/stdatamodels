@@ -22,11 +22,12 @@ def find_fits_keyword(schema, keyword, return_result=False):
     -------
     locations : list of str
     """
+
     def find_fits_keyword(subschema, path, combiner, ctx, recurse):
-        if len(path) and path[0] == 'extra_fits':
+        if len(path) and path[0] == "extra_fits":
             return True
-        if subschema.get('fits_keyword') == keyword:
-            results.append('.'.join(path))
+        if subschema.get("fits_keyword") == keyword:
+            results.append(".".join(path))
 
     results = []
     walk_schema(schema, find_fits_keyword, results)
@@ -42,10 +43,9 @@ class SearchSchemaResults(list):
         for path, description in self:
             result.append(path)
             result.append(
-                textwrap.fill(
-                    description, initial_indent='    ',
-                    subsequent_indent='    '))
-        return '\n'.join(result)
+                textwrap.fill(description, initial_indent="    ", subsequent_indent="    ")
+            )
+        return "\n".join(result)
 
 
 def search_schema(schema, substring):
@@ -74,19 +74,19 @@ def search_schema(schema, substring):
 
     def find_substring(subschema, path, combiner, ctx, recurse):
         matches = False
-        for param in ('title', 'description'):
-            if substring in schema.get(param, '').lower():
+        for param in ("title", "description"):
+            if substring in schema.get(param, "").lower():
                 matches = True
                 break
 
-        if substring in '.'.join(path).lower():
+        if substring in ".".join(path).lower():
             matches = True
 
         if matches:
-            description = '\n\n'.join([
-                schema.get('title', ''),
-                schema.get('description', '')]).strip()
-            results.append(('.'.join(path), description))
+            description = "\n\n".join(
+                [schema.get("title", ""), schema.get("description", "")]
+            ).strip()
+            results.append((".".join(path), description))
 
     results = SearchSchemaResults()
     walk_schema(schema, find_substring, results)
@@ -119,35 +119,36 @@ def walk_schema(schema, callback, ctx=None):
     ctx : object, optional
         An arbitrary context object
     """
+
     def recurse(schema, path, combiner, ctx):
         if callback(schema, path, combiner, ctx, recurse):  # noqa: F821
             return
 
-        for c in ['allOf', 'not']:
+        for c in ["allOf", "not"]:
             for sub in schema.get(c, []):
                 recurse(sub, path, c, ctx)  # noqa: F821
 
-        for c in ['anyOf', 'oneOf']:
-            for i, sub in enumerate(schema.get(c, [])):
+        for c in ["anyOf", "oneOf"]:
+            for _, sub in enumerate(schema.get(c, [])):
                 recurse(sub, path + [c], c, ctx)  # noqa: F821
 
-        if schema.get('type') == 'object':
-            for key, val in schema.get('properties', {}).items():
+        if schema.get("type") == "object":
+            for key, val in schema.get("properties", {}).items():
                 recurse(val, path + [key], combiner, ctx)  # noqa: F821
 
-        if schema.get('type') == 'array':
-            items = schema.get('items', {})
+        if schema.get("type") == "array":
+            items = schema.get("items", {})
             if isinstance(items, list):
                 for item in items:
-                    recurse(item, path + ['items'], combiner, ctx)  # noqa: F821
+                    recurse(item, path + ["items"], combiner, ctx)  # noqa: F821
             elif len(items):
-                recurse(items, path + ['items'], combiner, ctx)  # noqa: F821
+                recurse(items, path + ["items"], combiner, ctx)  # noqa: F821
 
     if ctx is None:
         ctx = {}
     recurse(schema, [], None, ctx)
     # testing memory usage and garbage collection revealed that recurse
-    # was diffcult to garbage collect (often resulting in models and associated
+    # was difficult to garbage collect (often resulting in models and associated
     # data ending up in generation 2 for the garbage collector).
     # calling del here seems to improve the situation (one test used 1/2 the memory
     # with this del)
@@ -185,14 +186,14 @@ def merge_property_trees(schema):
                 cursor = cursor.setdefault(combiner, [])
                 return
             elif isinstance(part, int):
-                cursor = cursor.setdefault('items', [])
+                cursor = cursor.setdefault("items", [])
                 while len(cursor) <= part:
                     cursor.append({})
                 cursor = cursor[part]
-            elif part == 'items':
-                cursor = cursor.setdefault('items', {})
+            elif part == "items":
+                cursor = cursor.setdefault("items", {})
             else:
-                cursor = cursor.setdefault('properties', {})
+                cursor = cursor.setdefault("properties", {})
                 if i < len(path) - 1 and isinstance(path[i + 1], int):
                     cursor = cursor.setdefault(part, [])
                 else:
@@ -201,15 +202,15 @@ def merge_property_trees(schema):
         cursor.update(schema)
 
     def callback(schema, path, combiner, ctx, recurse):
-        schema_type = schema.get('type')
+        schema_type = schema.get("type")
         schema = dict(schema)  # shallow copy
-        if schema_type == 'object':
-            if 'properties' in schema:
-                del schema['properties']
-        elif schema_type == 'array':
-            del schema['items']
-        if 'allOf' in schema:
-            del schema['allOf']
+        if schema_type == "object":
+            if "properties" in schema:
+                del schema["properties"]
+        elif schema_type == "array":
+            del schema["items"]
+        if "allOf" in schema:
+            del schema["allOf"]
 
         add_entry(path, schema, combiner)
 
@@ -238,19 +239,16 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
     """
     from . import model_base
 
-
     def get_field_info(subschema, path, combiner, info, recurse):
         # Return all schema fields representing fits hdus
-        if 'fits_hdu' in subschema and not 'fits_keyword' in subschema:
-            attr = '.'.join(path)
+        if "fits_hdu" in subschema and "fits_keyword" not in subschema:
+            attr = ".".join(path)
             info[attr] = subschema
-        return 'fits_hdu' in subschema or 'fits_keyword' in subschema
+        return "fits_hdu" in subschema or "fits_keyword" in subschema
 
     # Silly rabbit, only datamodels have schemas
-    if not (klass == model_base.DataModel or
-            issubclass(klass, model_base.DataModel)):
-        raise ValueError("Class must be a subclass of DataModel: %s",
-                          klass.__name__)
+    if not (klass == model_base.DataModel or issubclass(klass, model_base.DataModel)):
+        raise ValueError("Class must be a subclass of DataModel: %s", klass.__name__)
 
     # Create a new model just to get its shape
     null_object = klass(init=None)
@@ -270,42 +268,42 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
     # Extract field names from template to set defaults
     # so format won't crash while using them when they aren't there
     default_schema = {}
-    fields = re.findall(r'\{([^\\:}]*)[\:\}]', template)
+    fields = re.findall(r"\{([^\\:}]*)[\:\}]", template)
     for field in fields:
-        default_schema[field] = ''
+        default_schema[field] = ""
 
     buffer = []
     for attr, subschema in info.items():
         schema = {}
         schema.update(default_schema)
         schema.update(subschema)
-        schema['path'] = attr
+        schema["path"] = attr
 
         # Determine if attribute has a default value
         instance = shaped_object.instance
-        for field in attr.split('.'):
+        for field in attr.split("."):
             try:
                 instance = instance.get(field)
             except AttributeError:
                 instance = None
             if instance is None:
                 break
-        schema['default'] = instance is not None
+        schema["default"] = instance is not None
 
         # Extract table field names from datatype
-        if type(schema['datatype']) == str:
-            schema['array'] = True
+        if isinstance(schema["datatype"], str):
+            schema["array"] = True
         else:
-            schema['records'] = True
+            schema["records"] = True
             fields = []
-            for field_info in schema['datatype']:
-                fields.append(field_info['name'])
-            schema['fields'] = ', '.join(fields)
-            schema['datatype'] = 'table'
+            for field_info in schema["datatype"]:
+                fields.append(field_info["name"])
+            schema["fields"] = ", ".join(fields)
+            schema["datatype"] = "table"
 
         # Convert boolean fields to their field names
         for field, value in schema.items():
-            if type(value) == bool:
+            if isinstance(value, bool):
                 schema[field] = field
 
         # Apply format to schema fields

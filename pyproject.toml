@@ -120,6 +120,10 @@ select = [
     "E722",
 ]
 
+[tool.codespell]
+skip = "*.fits, *.asdf, ./build, ./docs/_build, CHANGES.rst, *.schema.yaml"
+ignore-words-list = "indx, delt, Shepard, fo"
+
 [tool.pytest.ini_options]
 minversion = "4.6"
 doctest_plus = true

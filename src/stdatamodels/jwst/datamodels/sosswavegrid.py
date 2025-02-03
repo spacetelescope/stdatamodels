@@ -1,6 +1,6 @@
 from .model_base import JwstDataModel
 
-__all__ = ['SossWaveGridModel']
+__all__ = ["SossWaveGridModel"]
 
 
 class SossWaveGridModel(JwstDataModel):
@@ -14,4 +14,5 @@ class SossWaveGridModel(JwstDataModel):
     wavegrid : numpy float32 array
         1-D array of the wavelengths corresponding to the ATOCA fit.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/sosswavegrid.schema"

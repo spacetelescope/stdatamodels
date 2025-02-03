@@ -1,7 +1,7 @@
 from .reference import ReferenceFileModel
 
 
-__all__ = ['IRS2Model']
+__all__ = ["IRS2Model"]
 
 
 class IRS2Model(ReferenceFileModel):
@@ -22,4 +22,5 @@ class IRS2Model(ReferenceFileModel):
         A table with three columns (OUTPUT, ODD_EVEN, and MASK) and
         eight rows.
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/irs2.schema"

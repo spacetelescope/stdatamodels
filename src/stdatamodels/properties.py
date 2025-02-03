@@ -12,16 +12,20 @@ from . import validate
 from . import schema as mschema
 
 import logging
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-__all__ = ['ObjectNode', 'ListNode']
+__all__ = ["ObjectNode", "ListNode"]
 
 
 def _is_struct_array(val):
-    return (isinstance(val, (np.ndarray, fits.FITS_rec)) and
-            val.dtype.names is not None and val.dtype.fields is not None)
+    return (
+        isinstance(val, (np.ndarray, fits.FITS_rec))
+        and val.dtype.names is not None
+        and val.dtype.fields is not None
+    )
 
 
 def _is_struct_array_precursor(val):
@@ -29,8 +33,7 @@ def _is_struct_array_precursor(val):
 
 
 def _is_struct_array_schema(schema):
-    return (isinstance(schema['datatype'], list) and
-            any('name' in t for t in schema['datatype']))
+    return isinstance(schema["datatype"], list) and any("name" in t for t in schema["datatype"])
 
 
 def _cast(val, schema):
@@ -38,23 +41,26 @@ def _cast(val, schema):
     if val is None:
         return None
 
-    if 'datatype' in schema:
+    if "datatype" in schema:
         # Handle lazy array
         if isinstance(val, ndarray.NDArrayType):
             val = val._make_array()
 
         allow_extra_columns = False
-        if (_is_struct_array_schema(schema) and len(val) and
-            (_is_struct_array_precursor(val) or _is_struct_array(val))):
+        if (
+            _is_struct_array_schema(schema)
+            and len(val)
+            and (_is_struct_array_precursor(val) or _is_struct_array(val))
+        ):
             # we are dealing with a structured array. Because we may
             # modify schema (to add shape), we make a deep copy of the
             # schema here:
             schema = copy.deepcopy(schema)
 
-            if 'allow_extra_columns' in schema:
-                allow_extra_columns = schema['allow_extra_columns']
+            if "allow_extra_columns" in schema:
+                allow_extra_columns = schema["allow_extra_columns"]
 
-            for t, v in zip(schema['datatype'], val[0]):
+            for t, v in zip(schema["datatype"], val[0], strict=False):
                 if not isinstance(t, Mapping):
                     continue
 
@@ -64,27 +70,29 @@ def _cast(val, schema):
 
                 # make sure that if 'ndim' is specified for a field,
                 # it matches the dimensionality of val's field:
-                if 'ndim' in t and val_ndim != t['ndim']:
+                if "ndim" in t and val_ndim != t["ndim"]:
                     raise ValueError(
-                        "Array has wrong number of dimensions. "
-                        "Expected {}, got {}".format(t['ndim'], val_ndim)
+                        "Array has wrong number of dimensions. Expected {}, got {}".format(
+                            t["ndim"], val_ndim
+                        )
                     )
 
-                if 'max_ndim' in t and val_ndim > t['max_ndim']:
+                if "max_ndim" in t and val_ndim > t["max_ndim"]:
                     raise ValueError(
-                        "Array has wrong number of dimensions. "
-                        "Expected <= {}, got {}".format(t['max_ndim'], val_ndim)
+                        "Array has wrong number of dimensions. Expected <= {}, got {}".format(
+                            t["max_ndim"], val_ndim
+                        )
                     )
 
                 # if shape of a field's value is not specified in the schema,
                 # add it to the schema based on the shape of the actual data:
-                if 'shape' not in t:
-                    t['shape'] = shape
+                if "shape" not in t:
+                    t["shape"] = shape
 
-        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema['datatype'])
+        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
 
         # save columns in case this is cast back to a fitsrec
-        if hasattr(val, 'columns'):
+        if hasattr(val, "columns"):
             cols = val.columns
         else:
             cols = None
@@ -97,15 +105,19 @@ def _cast(val, schema):
                     if col.name in val.names and col.unit is not None:
                         val.columns[col.name].unit = col.unit
 
-    if 'ndim' in schema and len(val.shape) != schema['ndim']:
+    if "ndim" in schema and len(val.shape) != schema["ndim"]:
         raise ValueError(
-            "Array has wrong number of dimensions.  Expected {}, got {}"
-            .format(schema['ndim'], len(val.shape)))
+            "Array has wrong number of dimensions.  Expected {}, got {}".format(
+                schema["ndim"], len(val.shape)
+            )
+        )
 
-    if 'max_ndim' in schema and len(val.shape) > schema['max_ndim']:
+    if "max_ndim" in schema and len(val.shape) > schema["max_ndim"]:
         raise ValueError(
-            "Array has wrong number of dimensions.  Expected <= {}, got {}"
-            .format(schema['max_ndim'], len(val.shape)))
+            "Array has wrong number of dimensions.  Expected <= {}, got {}".format(
+                schema["max_ndim"], len(val.shape)
+            )
+        )
 
     if isinstance(val, np.generic) and np.isscalar(val):
         val = val.item()
@@ -136,12 +148,12 @@ def _get_schema_type(schema):
     the subschemas are joined by combiners. Then return a type string
     if all the types are the same or 'mixed' if they differ
     """
-    def callback(subschema, path, combiner, types, recurse):
-        if 'type' in subschema:
-            types.append(subschema['type'])
 
-        has_combiner = ('anyOf' in subschema.keys() or
-                        'allOf' in subschema.keys())
+    def callback(subschema, path, combiner, types, recurse):
+        if "type" in subschema:
+            types.append(subschema["type"])
+
+        has_combiner = "anyOf" in subschema.keys() or "allOf" in subschema.keys()
         return not has_combiner
 
     types = []
@@ -152,18 +164,18 @@ def _get_schema_type(schema):
         if schema_type is None:
             schema_type = a_type
         elif schema_type != a_type:
-            schema_type = 'mixed'
+            schema_type = "mixed"
             break
 
     return schema_type
 
 
 def _make_default_array(attr, schema, ctx):
-    dtype = schema.get('datatype')
+    dtype = schema.get("datatype")
     if dtype is not None:
         dtype = ndarray.asdf_datatype_to_numpy_dtype(dtype)
-    ndim = schema.get('ndim', schema.get('max_ndim'))
-    default = schema.get('default', None)
+    ndim = schema.get("ndim", schema.get("max_ndim"))
+    default = schema.get("default", None)
     primary_array_name = ctx.get_primary_array_name()
 
     if attr == primary_array_name:
@@ -211,15 +223,15 @@ def _make_default_array(attr, schema, ctx):
 
 
 def _make_default(attr, schema, ctx):
-    if 'max_ndim' in schema or 'ndim' in schema or 'datatype' in schema:
+    if "max_ndim" in schema or "ndim" in schema or "datatype" in schema:
         return _make_default_array(attr, schema, ctx)
-    elif 'default' in schema:
-        return schema['default']
+    elif "default" in schema:
+        return schema["default"]
     else:
         schema_type = _get_schema_type(schema)
-        if schema_type == 'object':
+        if schema_type == "object":
             return {}
-        elif schema_type == 'array':
+        elif schema_type == "array":
             return []
         else:
             return None
@@ -241,10 +253,10 @@ def _unmake_node(obj):
 
 
 def _get_schema_for_property(schema, attr):
-    subschema = schema.get('properties', {}).get(attr, None)
+    subschema = schema.get("properties", {}).get(attr, None)
     if subschema is not None:
         return subschema
-    for combiner in ['allOf', 'anyOf']:
+    for combiner in ["allOf", "anyOf"]:
         for subschema in schema.get(combiner, []):
             subsubschema = _get_schema_for_property(subschema, attr)
             if subsubschema != {}:
@@ -253,7 +265,7 @@ def _get_schema_for_property(schema, attr):
 
 
 def _get_schema_for_index(schema, i):
-    items = schema.get('items', {})
+    items = schema.get("items", {})
     if isinstance(items, list):
         if i >= len(items):
             return {}
@@ -262,15 +274,17 @@ def _get_schema_for_index(schema, i):
     else:
         return items
 
+
 def _find_property(schema, attr):
     subschema = _get_schema_for_property(schema, attr)
     if subschema == {}:
         find = False
     else:
-        find = 'default' in subschema
+        find = "default" in subschema
     return find
 
-class Node():
+
+class Node:
     def __init__(self, attr, instance, schema, ctx, parent):
         self._name = attr
         self._instance = instance
@@ -285,9 +299,10 @@ class Node():
     def instance(self):
         return self._instance
 
+
 class ObjectNode(Node):
     def __dir__(self):
-        added = set(self._schema.get('properties', {}).keys())
+        added = set(self._schema.get("properties", {}).keys())
         return sorted(set(super().__dir__()) | added)
 
     def __eq__(self, other):
@@ -297,16 +312,15 @@ class ObjectNode(Node):
             return self._instance == other
 
     def __getattr__(self, attr):
-
-        if attr.startswith('_'):
-            raise AttributeError('No attribute {0}'.format(attr))
+        if attr.startswith("_"):
+            raise AttributeError(f"No attribute {attr}")
 
         schema = _get_schema_for_property(self._schema, attr)
         try:
             val = self._instance[attr]
-        except KeyError:
+        except KeyError as err:
             if schema == {}:
-                raise AttributeError("No attribute '{0}'".format(attr))
+                raise AttributeError(f"No attribute '{attr}'") from err
 
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
@@ -322,7 +336,7 @@ class ObjectNode(Node):
         return node
 
     def __setattr__(self, attr, val):
-        if attr.startswith('_'):
+        if attr.startswith("_"):
             self.__dict__[attr] = val
         else:
             schema = _get_schema_for_property(self._schema, attr)
@@ -338,16 +352,18 @@ class ObjectNode(Node):
                 self._instance[attr] = val
 
     def __delattr__(self, attr):
-        if attr.startswith('_'):
+        if attr.startswith("_"):
             del self.__dict__[attr]
         else:
             schema = _get_schema_for_property(self._schema, attr)
-            if validate.value_change(attr, None, schema, self._ctx) or self._ctx._pass_invalid_values:
+            if (
+                validate.value_change(attr, None, schema, self._ctx)
+                or self._ctx._pass_invalid_values
+            ):
                 try:
                     del self._instance[attr]
-                except KeyError:
-                    raise AttributeError(
-                        "Attribute '{0}' missing".format(attr))
+                except KeyError as err:
+                    raise AttributeError(f"Attribute '{attr}' missing") from err
 
     def __iter__(self):
         return NodeIterator(self)
@@ -359,9 +375,10 @@ class ObjectNode(Node):
         # Return a (key, value) tuple for the node
         for key in self:
             val = self
-            for field in key.split('.'):
+            for field in key.split("."):
                 val = getattr(val, field)
             yield (key, val)
+
 
 class ListNode(Node):
     def __cast(self, other):
@@ -390,7 +407,7 @@ class ListNode(Node):
 
     def __setitem__(self, i, val):
         schema = _get_schema_for_index(self._schema, i)
-        val =  _cast(val, schema)
+        val = _cast(val, schema)
         node = ObjectNode(self._name, val, schema, self._ctx, self)
         if self._ctx._validate_on_assignment:
             if node._validate():
@@ -412,7 +429,6 @@ class ListNode(Node):
                 self._instance.append(item)
         else:
             self._instance.append(item)
-
 
     def insert(self, i, item):
         schema = _get_schema_for_index(self._schema, i)
@@ -449,19 +465,20 @@ class ListNode(Node):
             self.append(part)
 
     def item(self, **kwargs):
-        assert isinstance(self._schema['items'], dict)
-        node = ObjectNode(self._name, kwargs, self._schema['items'],
-                          self._ctx, self)
+        assert isinstance(self._schema["items"], dict)
+        node = ObjectNode(self._name, kwargs, self._schema["items"], self._ctx, self)
         if not self._ctx._validate_on_assignment:
             return node
         if not node._validate():
             node = None
         return node
 
+
 class NodeIterator:
     """
-    An iterator for a node which flattens the hierachical structure
+    An iterator for a node which flattens the hierarchical structure
     """
+
     def __init__(self, node):
         self.key_stack = []
         self.iter_stack = [iter(node._instance.items())]
@@ -483,9 +500,10 @@ class NodeIterator:
                 self.key_stack.append(key)
                 self.iter_stack.append(iter(val.items()))
             else:
-                return '.'.join(self.key_stack + [key])
+                return ".".join(self.key_stack + [key])
 
         raise StopIteration
+
 
 def put_value(path, value, tree):
     """
@@ -510,7 +528,7 @@ def put_value(path, value, tree):
                 cursor.append({})
             cursor = cursor[part]
         else:
-            if isinstance(path[i + 1], int) or path[i + 1] == 'items':
+            if isinstance(path[i + 1], int) or path[i + 1] == "items":
                 cursor = cursor.setdefault(part, [])
             else:
                 cursor = cursor.setdefault(part, {})
@@ -525,6 +543,7 @@ def merge_tree(a, b):
     """
     Merge elements from tree `b` into tree `a`.
     """
+
     def recurse(a, b):
         if isinstance(b, dict):
             if not isinstance(a, dict):

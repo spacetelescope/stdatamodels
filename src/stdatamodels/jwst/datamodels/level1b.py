@@ -2,7 +2,7 @@ from .model_base import JwstDataModel
 import numpy as np
 from numpy.lib.recfunctions import merge_arrays
 
-__all__ = ['Level1bModel']
+__all__ = ["Level1bModel"]
 
 
 def _migrate_moving_target_table(hdulist):
@@ -15,12 +15,12 @@ def _migrate_moving_target_table(hdulist):
     to pass validation.
     """
     for ext in hdulist:
-        if ext.name != 'MOVING_TARGET_POSITION':
+        if ext.name != "MOVING_TARGET_POSITION":
             continue
         table_data = ext.data
-        if 'mt_v2' not in table_data.dtype.fields:
-            dtype_v2 = [('mt_v2', '>f8')]
-            dtype_v3 = [('mt_v3', '>f8')]
+        if "mt_v2" not in table_data.dtype.fields:
+            dtype_v2 = [("mt_v2", ">f8")]
+            dtype_v3 = [("mt_v3", ">f8")]
             mt_v2_col = np.full(table_data.shape[0], np.nan, dtype=dtype_v2)
             mt_v3_col = np.full(table_data.shape[0], np.nan, dtype=dtype_v3)
             table_data = merge_arrays((table_data, mt_v2_col, mt_v3_col), flatten=True)
@@ -50,6 +50,7 @@ class Level1bModel(JwstDataModel):
          table of times for each integration
 
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/level1b.schema"
 
     def _migrate_hdulist(self, hdulist):

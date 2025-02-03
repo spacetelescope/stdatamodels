@@ -1,5 +1,5 @@
-import os
 import warnings
+from pathlib import Path
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -8,12 +8,11 @@ import pytest
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
 
 
-FITS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'sip.fits')
+FITS_FILE = Path(__file__).parent / "data" / "sip.fits"
 
 
 def test_get_fits_wcs(tmpdir):
     with ImageModel(FITS_FILE) as dm:
-
         # Refer to the data array to initialize it.
         dm.data = np.zeros((5, 5))
 
@@ -22,7 +21,8 @@ def test_get_fits_wcs(tmpdir):
         dm2 = dm.copy()
         wcs2 = dm2.get_fits_wcs()
 
-    x = np.random.rand(2 ** 16, wcs1.wcs.naxis)
+    rng = np.random.default_rng(42)
+    x = rng.random((2**16, wcs1.wcs.naxis))
     world1 = wcs1.all_pix2world(x, 1)
     world2 = wcs2.all_pix2world(x, 1)
 
@@ -47,7 +47,7 @@ def test_get_fits_wcs(tmpdir):
 
     assert wcs3.wcs.crpix[0] == 42.0
 
-    x = np.random.rand(2 ** 16, wcs1.wcs.naxis)
+    x = rng.random((2**16, wcs1.wcs.naxis))
     world1 = wcs1.all_pix2world(x, 1)
     world2 = wcs3.all_pix2world(x, 1)
 
@@ -66,32 +66,35 @@ def test_get_fits_wcs(tmpdir):
 
 
 def test_wcs_ref_models():
-    filters = [{'name': 'F090W', 'row_offset': 1, 'column_offset': 1},
-               {'name': 'F070W', 'row_offset': 2, 'column_offset': 2}
-               ]
-    with FilteroffsetModel(filters=filters, instrument='NIRCAM', strict_validation=True) as fo:
-        fo.filters == filters
-        with pytest.raises(ValueError, match="Model.meta is missing values for"
-                           "['description', 'reftype', 'author', 'pedigree',"
-                           "'useafter']"):
+    filters = [
+        {"name": "F090W", "row_offset": 1, "column_offset": 1},
+        {"name": "F070W", "row_offset": 2, "column_offset": 2},
+    ]
+    with FilteroffsetModel(filters=filters, instrument="NIRCAM", strict_validation=True) as fo:
+        assert fo.filters == filters
+        with pytest.raises(
+            ValueError,
+            match="Model.meta is missing values for['description', "
+            "'reftype', 'author', 'pedigree','useafter']",
+        ):
             fo.validate()
 
-    filters = [{'filter': 'F090W', 'pupil': 'GRISMR',
-                'row_offset': 1, 'column_offset': 1},
-               {'filter': 'F070W', 'pupil': 'GRISMC',
-                'row_offset': 2, 'column_offset': 2}
-               ]
-    with FilteroffsetModel(filters=filters, instrument='NIRCAM', strict_validation=True) as fo:
-        fo.filters == filters
+    filters = [
+        {"filter": "F090W", "pupil": "GRISMR", "row_offset": 1, "column_offset": 1},
+        {"filter": "F070W", "pupil": "GRISMC", "row_offset": 2, "column_offset": 2},
+    ]
+    with FilteroffsetModel(filters=filters, instrument="NIRCAM", strict_validation=True) as fo:
+        assert fo.filters == filters
         fo.meta.description = "Filter offsets"
         fo.meta.reftype = "filteroffset"
         fo.meta.author = "Unknown"
         fo.meta.pedigree = "GROUND"
         fo.meta.useafter = "2019-12-01"
 
-        with pytest.raises(ValueError, match="Expected meta.instrument.channel for "
-                           "instrument NIRCAM to be one of "):
+        with pytest.raises(
+            ValueError, match="Expected meta.instrument.channel for instrument NIRCAM to be one of "
+        ):
             fo.validate()
-        fo.meta.instrument.channel = 'SHORT'
+        fo.meta.instrument.channel = "SHORT"
         fo.meta.instrument.module = "A"
         fo.validate()
