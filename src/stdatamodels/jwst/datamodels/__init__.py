@@ -111,6 +111,7 @@ from .wcs_ref_models import (
     DisperserModel,
     NIRCAMGrismModel,
     NIRISSGrismModel,
+    MiriLRSSpecwcsModel,
     WaveCorrModel,
 )
 from .wfssbkg import WfssBkgModel
@@ -179,6 +180,7 @@ __all__ = [
     "Level1bModel",
     "LinearityModel",
     "MaskModel",
+    "MiriLRSSpecwcsModel",
     "MSAModel",
     "MultiCombinedSpecModel",
     "MultiExposureModel",
