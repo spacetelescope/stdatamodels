@@ -1,7 +1,7 @@
 [project]
 name = "stdatamodels"
 description = "Core support for DataModel classes used in calibration pipelines"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
     { name = "STScI" },
 ]
@@ -15,8 +15,8 @@ dependencies = [
     "asdf>=3.1.0",
     "asdf-transform-schemas>=0.5.0",
     "asdf-astropy>=0.3.0",
-    "numpy>=1.18",
-    "astropy>=5.0.4",
+    "numpy>=1.25",
+    "astropy>=5.2",
 ]
 dynamic = [
     "version",
@@ -57,7 +57,6 @@ docs = [
     "numpydoc",
     "sphinx-rtd-theme",
     "sphinx-asdf>=0.1.1",
-    'tomli; python_version <"3.11"',
 ]
 
 [build-system]
