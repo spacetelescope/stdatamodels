@@ -91,6 +91,8 @@ properties:
   quadrant:
     title: MSA quadrant for slit
     type: integer
+    fits_keyword: MSAQUAD
+    fits_hdu: SCI
   xcen:
     title: Center of shutter in MSA coordinates (X dir)
     type: integer
@@ -108,8 +110,18 @@ properties:
     fits_keyword: SRCDEC
     fits_hdu: SCI
   slit_ymin:
-     title: Bottom of slit in slit_frame relative to (0, 0) center
-     type: number
+    title: Bottom of slit in slit_frame relative to (0, 0) center
+    type: number
   slit_ymax:
-     title: Top of slit in slit_frame relative to (0, 0) center
-     type: number
+    title: Top of slit in slit_frame relative to (0, 0) center
+    type: number
+  slit_xscale:
+    title: Scale open to full MSA slit coordinates (X dir)
+    type: number
+    fits_keyword: SLTXSCL
+    fits_hdu: SCI
+  slit_yscale:
+    title: Scale open to full MSA slit coordinates (Y dir)
+    type: number
+    fits_keyword: SLTYSCL
+    fits_hdu: SCI

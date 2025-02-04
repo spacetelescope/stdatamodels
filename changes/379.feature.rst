@@ -1,0 +1,1 @@
+Add keywords for NIRSpec MSA quadrant and slit area scales to slit and spectral datamodels.
