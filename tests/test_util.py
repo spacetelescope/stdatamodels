@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 
 import pytest
 
@@ -291,7 +291,7 @@ def test_create_history_entry():
     assert isinstance(entry, HistoryEntry)
     assert entry["description"] == "Once upon a time..."
     assert entry.get("software") is None
-    dt = datetime.now(timezone.utc).replace(tzinfo=None)
+    dt = datetime.now(UTC).replace(tzinfo=None)
     assert (dt - entry["time"]) < timedelta(seconds=10)
 
     software = {"name": "PolarBearSoft", "version": "1.2.3"}

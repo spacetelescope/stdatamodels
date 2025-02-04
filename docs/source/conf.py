@@ -4,11 +4,7 @@ import sys
 from configparser import ConfigParser
 from datetime import datetime
 import importlib
-
-if sys.version_info < (3, 11):
-    import tomli as tomllib
-else:
-    import tomllib
+import tomllib
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
