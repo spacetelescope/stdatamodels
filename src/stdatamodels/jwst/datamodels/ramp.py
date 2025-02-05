@@ -19,9 +19,6 @@ class RampModel(JwstDataModel):
     groupdq : numpy uint8 array
          4-D data quality array for each plane
 
-    err : numpy float32 array
-         Error array
-
     zeroframe : numpy float32 array
          Zeroframe array
 
@@ -41,4 +38,3 @@ class RampModel(JwstDataModel):
         # Implicitly create arrays
         self.pixeldq = self.pixeldq
         self.groupdq = self.groupdq
-        self.err = self.err
