@@ -1,0 +1,1 @@
+Validate dimension against schema when instantiating datamodel from array shape
