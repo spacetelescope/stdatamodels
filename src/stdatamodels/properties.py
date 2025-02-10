@@ -180,6 +180,10 @@ def _make_default_array(attr, schema, ctx):
 
     if attr == primary_array_name:
         if ctx.shape is not None:
+            # Ensure that input shape matches schema ndim
+            if (ndim is not None) and (len(ctx.shape) != ndim):
+                msg = f"Array has wrong number of dimensions. Expected {ndim}, got {len(ctx.shape)}"
+                raise ValueError(msg)
             shape = ctx.shape
         elif ndim is not None:
             shape = tuple([0] * ndim)

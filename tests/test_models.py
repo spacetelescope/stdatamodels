@@ -99,6 +99,9 @@ def test_init_with_array2():
         with BasicModel(array) as dm:
             dm.data  # noqa: B018
 
+def test_init_invalid_shape():
+    with pytest.raises(ValueError):
+        BasicModel((50, 50, 50))
 
 def test_set_array():
     with pytest.raises(ValueError):
