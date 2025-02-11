@@ -740,9 +740,9 @@ class DataModel(properties.ObjectNode):
             the schema where this FITS keyword is used.  Each element
             is a dot-separated path.
         """
-        from . import schema
+        from . import fits_support
 
-        return schema.find_fits_keyword(self.schema, keyword)
+        return fits_support.find_fits_keyword(self.schema, keyword)
 
     def search_schema(self, substring):
         """

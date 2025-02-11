@@ -929,3 +929,38 @@ def ensure_ascii(s):
     if isinstance(s, bytes):
         s = s.decode("ascii")
     return s
+
+
+def find_fits_keyword(schema, keyword, return_result=False):
+    """
+    Utility function to find a reference to a FITS keyword in a given
+    schema.  This is intended for interactive use, and not for use
+    within library code.
+
+    Parameters
+    ----------
+    schema : JSON schema fragment
+        The schema in which to search.
+
+    keyword : str
+        A FITS keyword name
+
+    Returns
+    -------
+    locations : list of str
+
+    Notes
+    -----
+    return_result is included for backward compatibility and is not used.
+    """
+
+    def find_fits_keyword(subschema, path, combiner, ctx, recurse):
+        if len(path) and path[0] == "extra_fits":
+            return True
+        if subschema.get("fits_keyword") == keyword:
+            results.append(".".join(path))
+
+    results = []
+    mschema.walk_schema(schema, find_fits_keyword, results)
+
+    return results

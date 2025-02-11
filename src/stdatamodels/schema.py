@@ -3,38 +3,6 @@
 import re
 
 
-# return_result included for backward compatibility
-def find_fits_keyword(schema, keyword, return_result=False):
-    """
-    Utility function to find a reference to a FITS keyword in a given
-    schema.  This is intended for interactive use, and not for use
-    within library code.
-
-    Parameters
-    ----------
-    schema : JSON schema fragment
-        The schema in which to search.
-
-    keyword : str
-        A FITS keyword name
-
-    Returns
-    -------
-    locations : list of str
-    """
-
-    def find_fits_keyword(subschema, path, combiner, ctx, recurse):
-        if len(path) and path[0] == "extra_fits":
-            return True
-        if subschema.get("fits_keyword") == keyword:
-            results.append(".".join(path))
-
-    results = []
-    walk_schema(schema, find_fits_keyword, results)
-
-    return results
-
-
 class SearchSchemaResults(list):
     def __repr__(self):
         import textwrap
