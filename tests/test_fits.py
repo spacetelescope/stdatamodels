@@ -717,3 +717,8 @@ def test_fitsrec_for_non_schema_data(tmp_path):
     )
     fn = tmp_path / "test.fits"
     m.save(fn)
+
+
+def test_find_fits_keyword():
+    with FitsModel() as x:
+        assert x.find_fits_keyword("TELESCOP") == ["meta.telescope"]

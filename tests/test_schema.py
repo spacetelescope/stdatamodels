@@ -29,11 +29,6 @@ def test_ad_hoc_attributes(filename, tmp_path):
         assert dm2.meta.foo == {"a": 42, "b": ["a", "b", "c"]}
 
 
-def test_find_fits_keyword():
-    with FitsModel() as x:
-        assert x.find_fits_keyword("TELESCOP") == ["meta.telescope"]
-
-
 def test_search_schema():
     with BasicModel() as x:
         results = x.search_schema("origin")
