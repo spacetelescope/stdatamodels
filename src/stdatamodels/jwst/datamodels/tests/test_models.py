@@ -142,7 +142,7 @@ def test_model_with_nonstandard_primary_array():
         def get_primary_array_name(self):
             return "wavelength"
 
-    m = _NonstandardPrimaryArrayModel((10,))
+    m = _NonstandardPrimaryArrayModel((10, 10))
     assert "wavelength" in list(m.keys())
     assert m.wavelength.sum() == 0
 

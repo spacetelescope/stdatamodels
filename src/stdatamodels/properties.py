@@ -181,6 +181,7 @@ def _make_default_array(attr, schema, ctx):
     if attr == primary_array_name:
         if ctx.shape is not None:
             shape = ctx.shape
+            _validate_primary_shape(schema, shape)
         elif ndim is not None:
             shape = tuple([0] * ndim)
         else:
@@ -220,6 +221,34 @@ def _make_default_array(attr, schema, ctx):
     if default is not None:
         array[...] = default
     return array
+
+
+def _validate_primary_shape(schema, shape):
+    """
+    Ensure requested shape is allowed by schema.
+
+    Parameters
+    ----------
+    schema : dict
+        The schema for the primary array.
+    shape : tuple
+        The requested shape of the default array.
+
+    Raises
+    ------
+    ValueError
+        If the requested has dimensions different from the schema's ndim,
+        or larger than the schema's max_ndim.
+    """
+    ndim_requested = len(shape)
+    max_ndim = schema.get("max_ndim", None)
+    ndim = schema.get("ndim", None)
+    if (ndim is not None) and (ndim_requested != ndim):
+        msg = f"Array has wrong number of dimensions. Expected {ndim}, got {ndim_requested}"
+        raise ValueError(msg)
+    if (max_ndim is not None) and (ndim_requested > max_ndim):
+        msg = f"Array has wrong number of dimensions. Expected <= {max_ndim}, got {ndim_requested}"
+        raise ValueError(msg)
 
 
 def _make_default(attr, schema, ctx):

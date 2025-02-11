@@ -100,6 +100,22 @@ def test_init_with_array2():
             dm.data  # noqa: B018
 
 
+def test_init_invalid_shape():
+    """Requested some number of dimensions unequal to ndim, which is set to 2"""
+    with pytest.raises(ValueError):
+        BasicModel((50,))
+
+
+def test_init_invalid_shape2():
+    """Requested more dimensions than max_ndim"""
+    with BasicModel() as dm:
+        schema = dm._schema
+    schema["properties"]["data"]["max_ndim"] = 1
+    schema["properties"]["data"]["ndim"] = None
+    with pytest.raises(ValueError):
+        BasicModel((50, 50), schema=schema)
+
+
 def test_set_array():
     with pytest.raises(ValueError):
         with BasicModel() as dm:
