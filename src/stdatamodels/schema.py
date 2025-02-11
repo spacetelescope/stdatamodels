@@ -1,6 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import re
+from asdf.tags.core import NDArrayType
+from astropy.time import Time
+import datetime
+import numpy as np
+
+
+__all__ = [
+    "flatten_nested_dict",
+]
 
 
 # return_result included for backward compatibility
@@ -315,3 +324,43 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
 
     field_info = "\n".join(buffer) + "\n"
     return field_info
+
+
+def flatten_nested_dict(schema, include_arrays=True):
+    """
+    Return a dictionary of all of the schema items as a flat dictionary.
+
+    Each dictionary key is a dot-separated name.  For example, the
+    schema element `meta.observation.date` will end up in the
+    dictionary as::
+
+        {"meta.observation.date": "2012-04-22T03:22:05.432"}
+
+    Parameters
+    ----------
+    schema : dict, ObjectNode, or datamodel
+        The schema to flatten.
+    include_arrays : bool, optional
+        Whether to keep key-value pairs where the value is an array. By default True
+
+    Returns
+    -------
+    dict
+        A flattened dictionary of all of the schema items.
+    """
+
+    def convert_val(val):
+        if isinstance(val, datetime.datetime):
+            return val.isoformat()
+        elif isinstance(val, Time):
+            return str(val)
+        return val
+
+    if include_arrays:
+        return {key: convert_val(val) for (key, val) in schema.items()}
+    else:
+        return {
+            key: convert_val(val)
+            for (key, val) in schema.items()
+            if not isinstance(val, (np.ndarray, NDArrayType))
+        }

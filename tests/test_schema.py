@@ -7,7 +7,7 @@ from asdf.exceptions import ValidationError
 from asdf.tags.core import NDArrayType
 from astropy.modeling import models
 
-from stdatamodels.schema import merge_property_trees, build_docstring
+from stdatamodels.schema import merge_property_trees, build_docstring, flatten_nested_dict
 from stdatamodels import DataModel
 
 from models import FitsModel, TransformModel, BasicModel, ValidationModel, TableModel
@@ -85,6 +85,28 @@ def test_to_flat_dict_ndarraytype(tmp_path):
 
         d = dm.to_flat_dict(include_arrays=False)
         assert "data" not in d
+
+
+def test_flatten_nested_dict():
+    """Test the standalone utility function underlying to_flat_dict."""
+    array = np.arange(1024)
+
+    with DataModel() as x:
+        x.meta.origin = "FOO"
+        x.data = array
+        assert x["meta.origin"] == "FOO"
+
+        d = flatten_nested_dict(x)
+
+        assert d["meta.origin"] == "FOO"
+        assert_array_equal(d["data"], array)
+
+        d = flatten_nested_dict(x, include_arrays=False)
+        assert "data" not in d
+
+        # Test the function still works on a non-datamodel ObjectNode
+        d = flatten_nested_dict(x.meta)
+        assert d["origin"] == "FOO"
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
