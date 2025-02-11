@@ -101,7 +101,7 @@ def test_init_with_array2():
 
 
 def test_init_invalid_shape():
-    """Requested some number of dimensions unequal to ndim"""
+    """Requested some number of dimensions unequal to ndim, which is set to 2"""
     with pytest.raises(ValueError):
         BasicModel((50,))
 
