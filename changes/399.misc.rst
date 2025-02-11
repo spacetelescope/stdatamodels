@@ -1,0 +1,1 @@
+Increase minimum versions of asdf-astropy, asdf and astropy dependencies.
