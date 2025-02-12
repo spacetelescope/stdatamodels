@@ -341,9 +341,3 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             # many models which would indicate they are difficult to garbage
             # collect.
             assert len(mids) < 2
-
-
-def test_get_fileext_deprecation():
-    m = DataModel()
-    with pytest.warns(DeprecationWarning):
-        assert m.get_fileext() == "fits"
