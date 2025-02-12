@@ -118,7 +118,7 @@ class NirspecQuadFlatModel(ReferenceFileModel):
             self.quadrants[0].wavelength = init.wavelength
             self.quadrants[0].flat_table = init.flat_table
             self.quadrants[0].dq_def = init.dq_def
-            self.quadrants[0].dq = dynamic_mask(self.quadrants[0])
+            self.quadrants[0].dq = dynamic_mask(self.quadrants[0], pixel)
             return
 
         super(NirspecQuadFlatModel, self).__init__(init=init, **kwargs)
