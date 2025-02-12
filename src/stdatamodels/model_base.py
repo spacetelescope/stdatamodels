@@ -682,7 +682,24 @@ class DataModel(properties.ObjectNode):
                 self._shape = primary_array.shape
         return self._shape
 
+    def __getattribute__(self, attr):
+        if attr in ("extra_fits", "_extra_fits"):
+            warnings.warn(
+                "Manipulation of extra_fits is deprecated. "
+                "This feature will be removed in an upcoming release",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        return object.__getattribute__(self, attr)
+
     def __setattr__(self, attr, value):
+        if attr in ("extra_fits", "_extra_fits"):
+            warnings.warn(
+                "Manipulation of extra_fits is deprecated. "
+                "This feature will be removed in an upcoming release",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         if attr in frozenset(("shape", "history", "_extra_fits", "schema")):
             object.__setattr__(self, attr, value)
         else:
