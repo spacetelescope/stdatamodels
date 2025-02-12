@@ -10,7 +10,14 @@ def flatmodel():
     rng = np.random.default_rng()
     data = rng.random((100, 100))
     dq = rng.integers(0, 2, (100, 100))
-    return NirspecFlatModel(data, dq=dq)
+    model = NirspecFlatModel(data, dq=dq)
+    model.meta.instrument.name = "NIRSPEC"
+    model.meta.reftype = "FLAT"
+    model.meta.author = "STSCI"
+    model.meta.description = "Test flat field model"
+    model.meta.pedigree = "GROUND"
+    model.meta.useafter = "2025-02-12T00:00:00"
+    return model
 
 
 def test_initialize_quad_from_flat(flatmodel):
