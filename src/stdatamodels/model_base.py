@@ -1031,6 +1031,26 @@ class DataModel(properties.ObjectNode):
         entries.clear()
         entries.extend(values)
 
+    @property
+    def _extra_fits(self):
+        warnings.warn(
+            "Manipulation of _extra_fits is deprecated. "
+            "This feature will be removed in an upcoming release",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._extra_fits
+
+    @property
+    def extra_fits(self):
+        warnings.warn(
+            "Manipulation of _extra_fits is deprecated. "
+            "This feature will be removed in an upcoming release",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.extra_fits
+
     def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
         """
         Get a `astropy.wcs.WCS` object created from the FITS WCS

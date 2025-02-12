@@ -68,6 +68,12 @@ not found in the schema are placed in the header subtree and data is
 placed in the data subtree.  Finally, it reads the history keywords
 and places them in a history structure.
 
+.. note::
+
+    Manipulation of `extra_fits` is a deprecated feature.  The way 
+    stdatamodels handles FITS keywords that are not in the schema is
+    likely to change in a future release.
+
 To write a model back to a file, call the save method on the file. It
 first calls validate_required to check the schema to see if all the
 required fields are present in the model. Then it calls the function
