@@ -93,7 +93,7 @@ def test_extra_fits(tmp_path):
         hdul.writeto(file_path, overwrite=True)
 
     with DataModel(file_path) as dm:
-        with pytest.raises(DeprecationWarning, "Manipulation of extra_fits is deprecated"):
+        with pytest.raises(DeprecationWarning, match="Manipulation of extra_fits is deprecated"):
             assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
@@ -601,7 +601,7 @@ def test_no_asdf_extension_extra_fits(tmp_path):
     }
 
     with PureFitsModel((5, 5)) as m:
-        with pytest.raises(DeprecationWarning, "Manipulation of extra_fits is deprecated"):
+        with pytest.raises(DeprecationWarning, match="Manipulation of extra_fits is deprecated"):
             m.extra_fits = {}
             m.extra_fits.instance.update(extra_fits)
             assert "ASDF" in m.extra_fits.instance
@@ -614,7 +614,9 @@ def test_no_asdf_extension_extra_fits(tmp_path):
 
     with PureFitsModel(path) as m:
         with pytest.raises(AttributeError):
-            with pytest.raises(DeprecationWarning, "Manipulation of extra_fits is deprecated"):
+            with pytest.raises(
+                DeprecationWarning, match="Manipulation of extra_fits is deprecated"
+            ):
                 m.extra_fits  # noqa: B018
 
 

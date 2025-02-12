@@ -202,7 +202,9 @@ def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits)
             # Verify the fixture returns keywords we expect
             assert oldim.meta.telescope == "JWST"
             assert oldim.meta.wcsinfo.crval1 == 5
-            with pytest.raises(DeprecationWarning, "Manipulation of extra_fits is deprecated"):
+            with pytest.raises(
+                DeprecationWarning, match="Manipulation of extra_fits is deprecated"
+            ):
                 assert oldim.extra_fits.PRIMARY.header == [["FOO", "BAR", ""]]
                 assert oldim.extra_fits.SCI.header == [["BAZ", "BUZ", ""]]
 
