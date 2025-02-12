@@ -341,3 +341,16 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             # many models which would indicate they are difficult to garbage
             # collect.
             assert len(mids) < 2
+
+
+def test_extra_fits_deprecation():
+    m = DataModel()
+    m.extra_fits = "foo"
+    with pytest.warns(DeprecationWarning):
+        _ = m.extra_fits
+    with pytest.warns(DeprecationWarning):
+        _ = m._extra_fits
+    with pytest.warns(DeprecationWarning):
+        m.extra_fits = "bar"
+    with pytest.warns(DeprecationWarning):
+        m._extra_fits = "baz"
