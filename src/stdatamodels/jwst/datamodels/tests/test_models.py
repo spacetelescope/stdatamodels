@@ -27,10 +27,12 @@ from stdatamodels.jwst.datamodels import (
     IFUImageModel,
     ABVegaOffsetModel,
     Level1bModel,
+    CubeModel,
 )
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
+from stdatamodels.validate import ValidationWarning
 
 ROOT_DIR = Path(__file__).parent / "data"
 FITS_FILE = ROOT_DIR / "test.fits"
@@ -312,6 +314,13 @@ def test_ifuimage():
 
     im = ImageModel(ifuimage)
     assert type(im) is ImageModel
+
+
+def test_init_incompatible_model():
+    data = np.arange(24).reshape((6, 4))
+    im = ImageModel(data=data, err=data / 2, dq=data)
+    with pytest.raises(ValidationWarning):
+        CubeModel(im)
 
 
 def test_abvega_offset_model():
