@@ -6,7 +6,8 @@ import numpy as np
 
 from stdatamodels import DataModel
 
-from models import BasicModel, AnyOfModel, TableModel, TransformModel
+from models import BasicModel, AnyOfModel, TableModel, TransformModel, FitsModel
+from stdatamodels.validate import ValidationWarning
 
 
 def test_init_from_pathlib(tmp_path):
@@ -114,6 +115,15 @@ def test_init_invalid_shape2():
     schema["properties"]["data"]["ndim"] = None
     with pytest.raises(ValueError):
         BasicModel((50, 50), schema=schema)
+
+
+def test_init_incompatible_datamodel():
+    """Initialized a model with a different model type that has invalid dimensions"""
+    input_model = FitsModel((50, 50))
+    schema = input_model._schema
+    schema["properties"]["data"]["ndim"] = 3
+    with pytest.raises(ValidationWarning):
+        BasicModel(input_model, schema=schema)
 
 
 def test_set_array():
