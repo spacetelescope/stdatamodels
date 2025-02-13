@@ -119,6 +119,19 @@ select = [
     "E722",
 ]
 
+[tool.numpydoc_validation]
+checks = [
+    "all",
+    "EX01", # No examples section found
+    "SA01", # See Also section not found
+    "ES01", # No extended summary found
+    "GL08", # Object does not have a docstring. Ruff catches these, and allows more granular ignores.
+    "PR01", # Parameters not documented. Already caught by ruff.
+    "PR09", # Parameter description should finish with a period
+    "RT02", # First line of return should contain only the type
+    "RT05", # Return value description should finish with a period
+]
+
 [tool.codespell]
 skip = "*.fits, *.asdf, ./build, ./docs/_build, CHANGES.rst, *.schema.yaml"
 ignore-words-list = "indx, delt, Shepard, fo"
