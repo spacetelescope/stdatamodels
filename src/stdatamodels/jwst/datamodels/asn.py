@@ -7,9 +7,7 @@ __all__ = ["AsnModel"]
 
 
 class AsnModel(JwstDataModel):
-    """
-    A data model for association tables.
-    """
+    """A data model for association tables."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/asn.schema"
     supported_formats = ["yaml", "json", "fits"]
@@ -21,6 +19,7 @@ class AsnModel(JwstDataModel):
         self.parse_table()
 
     def parse_table(self):
+        """Parse the association table to identify the output product and inputs."""
         self.output = None
         self.output_rootname = None
         self.inputs = []

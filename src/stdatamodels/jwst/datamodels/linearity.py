@@ -10,14 +10,12 @@ class LinearityModel(ReferenceFileModel):
     """
     A data model for linearity correction information.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     coeffs : numpy float32 array
          Linearity coefficients
-
     dq : numpy uint32 array
          Data quality flags
-
     dq_def : numpy table
          DQ flag definitions
     """
@@ -34,9 +32,11 @@ class LinearityModel(ReferenceFileModel):
 
     def get_primary_array_name(self):
         """
-        Returns the name "primary" array for this model, which
-        controls the size of other arrays that are implicitly created.
-        This is intended to be overridden in the subclasses if the
-        primary array's name is not "data".
+        Return the name "primary" array for this model.
+
+        Returns
+        -------
+        str
+            The name of the primary array.
         """
         return "coeffs"

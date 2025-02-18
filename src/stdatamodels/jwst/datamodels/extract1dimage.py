@@ -8,8 +8,8 @@ class Extract1dImageModel(JwstDataModel):
     """
     A data model for the extract_1d reference image array.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          1-D extraction regions array
     """

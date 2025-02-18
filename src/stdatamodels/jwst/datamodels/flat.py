@@ -10,17 +10,14 @@ class FlatModel(ReferenceFileModel):
     """
     A data model for 2D flat-field images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
-
     dq_def : numpy table
          DQ flag definitions
     """

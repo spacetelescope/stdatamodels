@@ -1,8 +1,9 @@
-"""General utility objects"""
+"""General utility objects."""
 
 
 def bytes2human(n):
-    """Convert bytes to human-readable format
+    """
+    Convert bytes to human-readable format.
 
     Taken from the `psutil` library which references
     http://code.activestate.com/recipes/578019

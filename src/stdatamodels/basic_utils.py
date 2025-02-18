@@ -5,7 +5,8 @@ __all__ = ["multiple_replace"]
 
 
 def multiple_replace(string, rep_dict):
-    """Single-pass replacement of multiple substrings
+    """
+    Single-pass replacement of multiple substrings.
 
     Similar to `str.replace`, except that a dictionary of replacements
     can be specified.
@@ -17,7 +18,6 @@ def multiple_replace(string, rep_dict):
     ----------
     string: str
         The source string to have replacements done on it.
-
     rep_dict: dict
         The replacements were key is the input substring and
         value is the replacement
