@@ -45,9 +45,8 @@ class WaveMapSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS wavelength map data.
 
-    Parameters
+    Attributes
     ----------
-    __________
     data : numpy float32 array
          Wavelength values
     """

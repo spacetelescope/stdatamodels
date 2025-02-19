@@ -131,10 +131,13 @@ checks = [
     "RT02", # First line of return should contain only the type
     "RT05", # Return value description should finish with a period
 ]
-exclude = [
-    "shape$", # Exclude shape methods
-    "validate$", # Exclude validate methods
-    "copy$", # Exclude copy methods
+exclude = [ # exclude the following methods
+    "shape$",
+    "validate$",
+    "copy$",
+    "__call__$",
+    "inverse$",
+    "__str__$",
 ]
 
 [tool.codespell]

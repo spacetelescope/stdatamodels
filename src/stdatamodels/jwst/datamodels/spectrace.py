@@ -45,9 +45,8 @@ class SpecTraceSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS spectral trace data.
 
-    Parameters
+    Attributes
     ----------
-    __________
     data : numpy table
          Trace values
     """

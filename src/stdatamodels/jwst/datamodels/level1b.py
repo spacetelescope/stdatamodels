@@ -14,6 +14,16 @@ def _migrate_moving_target_table(hdulist):
     stdatamodels>=2.1.0 will encounter validation errors due to the
     missing columns. This function adds NaN-filled columns where needed
     to pass validation.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The input HDUList
+
+    Returns
+    -------
+    hdulist : HDUList
+        The modified HDUList
     """
     for ext in hdulist:
         if ext.name != "MOVING_TARGET_POSITION":

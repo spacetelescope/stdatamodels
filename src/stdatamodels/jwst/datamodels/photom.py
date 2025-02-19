@@ -88,7 +88,6 @@ class MirLrsPhotomModel(ReferenceFileModel):
        - wavelength: float32[*]
        - relresponse: float32[*]
        - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"

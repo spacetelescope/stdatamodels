@@ -16,8 +16,8 @@ def get_resource_mappings():
 
     Returns
     -------
-    list of the `asdf.resource.ResourceMapping` instances containing the `jwst.transforms`
-    schemas.
+    list
+        The `asdf.resource.ResourceMapping` instances containing the `jwst.transforms` schemas.
     """
     resources_root = importlib.resources.files(transforms) / "resources"
     if not resources_root.is_dir():

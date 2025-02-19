@@ -28,9 +28,10 @@ repos:
       - id: numpydoc-validation
         exclude: |
           (?x)^(
-          src/stdatamodels/jwst/.* |
           docs/.* |
           tests/.* |
+          .*/tests/.* |
+          .*/_tests/.* |
           src/__init__.py |
           )$
   - repo: https://github.com/codespell-project/codespell
