@@ -1,9 +1,6 @@
 """
 Utilities for interpretation of data quality flags.
 
-Implementation
---------------
-
 The flags are implemented as "bit flags": Each flag is assigned a bit position
 in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned
 to that bit is interpreted as being set or active.
@@ -62,7 +59,7 @@ def dqflags_to_mnemonics(dqflags, mnemonic_map):
     ----------
     dqflags : int-like
         The value to interpret as DQ flags
-    mnemonic_map: {str: int[,...]}
+    mnemonic_map : {str: int[,...]}
         Dictionary associating the mnemonic string to an integer value
         representing the set bit for that mnemonic.
 

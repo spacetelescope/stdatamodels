@@ -6,7 +6,7 @@ __all__ = ["multiple_replace"]
 
 def multiple_replace(string, rep_dict):
     """
-    Single-pass replacement of multiple substrings.
+    Replace multiple substrings.
 
     Similar to `str.replace`, except that a dictionary of replacements
     can be specified.
@@ -16,15 +16,15 @@ def multiple_replace(string, rep_dict):
 
     Parameters
     ----------
-    string: str
+    string : str
         The source string to have replacements done on it.
-    rep_dict: dict
+    rep_dict : dict
         The replacements were key is the input substring and
         value is the replacement
 
     Returns
     -------
-    replaced: str
+    replaced : str
         New string with the replacements done
 
     Examples
@@ -35,7 +35,6 @@ def multiple_replace(string, rep_dict):
 
     >>> multiple_replace("button mutton", {"but": "mut", "mutton": "lamb"})
     'mutton lamb'
-
     """
     pattern = re.compile(
         "|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]), flags=re.DOTALL
