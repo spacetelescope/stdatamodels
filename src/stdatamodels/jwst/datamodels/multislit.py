@@ -76,12 +76,12 @@ class MultiSlitModel(JwstDataModel):
         Parameters
         ----------
         key : str or int
-        A dotted name identifying a metadata field or a slit number.
+            A dotted name identifying a metadata field or a slit number.
 
         Returns
         -------
         value : any
-        The value of the metadata field or the ``SlitModel`` instance.
+            The value of the metadata field or the ``SlitModel`` instance.
         """
         if isinstance(key, str) and key.split(".")[0] == "meta":
             res = super(MultiSlitModel, self).__getitem__(key)

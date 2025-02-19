@@ -77,7 +77,14 @@ class MultiExposureModel(JwstDataModel):
         super(MultiExposureModel, self).__init__(init=init, schema=schema, **kwargs)
 
     def _build_schema(self):
-        """Build the schema, incorporating the core."""
+        """
+        Build the schema, incorporating the core.
+
+        Returns
+        -------
+        schema : dict
+            The schema for the model.
+        """
         # Get the schemas
         schema = asdf_schema.load_schema(self.schema_url, resolve_references=True)
         core_schema = asdf_schema.load_schema(self.core_schema_url, resolve_references=True)

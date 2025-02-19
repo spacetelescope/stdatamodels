@@ -45,9 +45,8 @@ class SpecProfileSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS spectral profile data.
 
-    Parameters
+    Attributes
     ----------
-    __________
     data : numpy float32 array
          Spectral profile values
     """

@@ -135,7 +135,6 @@ class GrismObject(
     order_bounding is stored as a lookup dictionary per order and contains
     the object x,y bounding location on the grism image
     GrismObject(order_bounding={"+1":((xmin,xmax),(ymin,ymax)),"+2":((2,3),(2,3))})
-
     """
 
     __slots__ = ()  # prevent instance dictionary for lower memory
@@ -162,32 +161,30 @@ class GrismObject(
         Parameters
         ----------
         sid : int
-            source identified
+            Source identified
         order_bounding : dict{order: tuple}
             Contains the object x,y bounding locations on the image
             keyed on spectral order
-        sky_centroid: `~astropy.coordinates.SkyCoord`
-            ra and dec of the center of the object
+        sky_centroid : `~astropy.coordinates.SkyCoord`
+            RA and Dec of the center of the object
         partial_order : bool
             True if the order is only partially contained on the image
         waverange : list
-            wavelength range for the order
+            Wavelength range for the order
         sky_bbox_ll : `~astropy.coordinates.SkyCoord`
             Lower left corner of the minimum bounding box
         sky_bbox_lr : `~astropy.coordinates.SkyCoord`
             Lower right corder of the minimum bounding box
-        sky_bbox_ul : `~astropy.coordinates.SkyCoord`
-            Upper left corner of the minimum bounding box
         sky_bbox_ur : `~astropy.coordinates.SkyCoord`
             Upper right corner of the minimum bounding box
-        xcentroid : float
-            x center of object in pixels
-        ycentroid : float
-            y center of object in pixels
+        sky_bbox_ul : `~astropy.coordinates.SkyCoord`
+            Upper left corner of the minimum bounding box
+        xcentroid, ycentroid : float
+            The x, y center of object in pixels
         is_extended : bool
             True if marked as extended in the source catalog
         isophotal_abmag : float
-            isophotal_abmag from the source catalog
+            The isophotal_abmag from the source catalog
 
         Returns
         -------
@@ -432,7 +429,7 @@ class Gwa2Slit(Model):
         ----------
         name : str
             Name of the slit.
-        x, y z : float
+        x, y, z : float
             The three angle coordinates at the GWA going from detector to sky.
 
         Returns
@@ -440,7 +437,7 @@ class Gwa2Slit(Model):
         name : str
             Name of the slit.
         x_slit, y_slit : float
-            x and y coordinates within the virtual slit.
+            The x and y coordinates within the virtual slit.
         lam : float
             Wavelength.
         """
@@ -527,12 +524,12 @@ class Slit2Msa(Model):
         name : str
             Name of the slit.
         x, y : float
-            x and y coordinates within the virtual slit.
+            The x and y coordinates within the virtual slit.
 
         Returns
         -------
         x_msa, y_msa : float
-            x and y coordinates in the MSA frame.
+            The x and y coordinates in the MSA frame.
         """
         index = self.slit_ids.index(name)
         return self.models[index](x, y)
@@ -772,12 +769,12 @@ class V2V3ToIdeal(Model):
 
         Parameters
         ----------
-        xidl, yidl : ndarray-like
-            Coordinates in Ideal System [in arcsec]
+        v2, v3 : ndarray-like
+            Coordinates in the telescope (V2, V3) frame [in arcsec].
         v3idlyangle : float
             Angle between Ideal Y-axis and V3 [in deg]
         v2ref, v3ref : ndarray-like
-            Coordinates in V2, V3 [in arcsec]
+            Reference coordinates in V2, V3 [in arcsec]
         vparity : int
             Parity.
 
@@ -805,6 +802,16 @@ def _toindex(value):
     corresponding to the center of the pixel.
     The convention is that the center of the pixel is
     (0, 0), while the lower left corner is (-0.5, -0.5).
+
+    Parameters
+    ----------
+    value : ndarray
+        Input coordinates.
+
+    Returns
+    -------
+    ndarray
+        Integer coordinates representing pixel centers.
 
     Examples
     --------
@@ -948,8 +955,6 @@ class NIRCAMForwardRowGrismDispersion(Model):
 
         Parameters
         ----------
-        model : astropy.modeling.Model
-            The model governing the y-solutions, indexable by order.
         order : int
             The input spectral order
         x0, y0 : float
@@ -1216,13 +1221,13 @@ class NIRCAMBackwardGrismDispersion(Model):
             List of models which govern the x solutions
         ymodels : list [astropy.modeling.Model]
             List of models which govern the y solutions
-        inv_lmodels: list [astropy.modeling.Model]
+        inv_lmodels : list [astropy.modeling.Model]
             List of models which will be used if inverse lmodels
             cannot be analytically derived
-        inv_xmodels: list [astropy.modeling.Model]
+        inv_xmodels : list [astropy.modeling.Model]
             List of models which will be used if inverse xmodels
             cannot be analytically derived
-        inv_ymodels: list [astropy.modeling.Model]
+        inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels
             cannot be analytically derived
         name : str, optional
@@ -1252,7 +1257,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         Parameters
         ----------
         x, y : float
-            input x, y pixel
+            Input x, y pixel
         wavelength : float
             Wavelength in angstroms
         order : int
@@ -1359,14 +1364,14 @@ class NIRISSBackwardGrismDispersion(Model):
 
         Parameters
         ----------
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of models for the polynomial model in l
         xmodels : list[tuple]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuple]
             The list of tuple(models) for the polynomial model in y
-        lmodels : list
-            The list of models for the polynomial model in l
-        orders : list
-            The list of orders which are available to the model
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
@@ -1469,12 +1474,12 @@ class NIRISSForwardRowGrismDispersion(Model):
         ----------
         orders : list
             The list of orders which are available to the model
+        lmodels : list
+            The list of models for the polynomial model in l
         xmodels : list[tuples]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuples]
             The list of tuple(models) for the polynomial model in y
-        lmodels : list
-            The list of models for the polynomial model in l
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
@@ -1590,12 +1595,12 @@ class NIRISSForwardColumnGrismDispersion(Model):
         ----------
         orders : list
             The list of orders which are available to the model.
+        lmodels : list
+            The list of models for the polynomial model in wavelength.
         xmodels : list[tuple]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuple]
             The list of tuple(models) for the polynomial model in y
-        lmodels : list
-            The list of models for the polynomial model in wavelength.
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str
@@ -1623,14 +1628,10 @@ class NIRISSForwardColumnGrismDispersion(Model):
 
         Parameters
         ----------
-        x :  int,float
-            Input x location
-        y :  int,float
-            Input y location
-        x0: int,float
-            Source object x-center
-        y0: int,float
-            Source object y-center
+        x, y :  int,float
+            Input x,y location
+        x0, y0 : int,float
+            Source object x-center, y-center
         order : int
             Input spectral order
 
@@ -1820,7 +1821,33 @@ class Snell(Model):
 
     @staticmethod
     def compute_refraction_index(lam, temp, tref, pref, pressure, kcoef, lcoef, tcoef):
-        """Calculate and return the refraction index."""
+        """
+        Calculate and return the refraction index.
+
+        Parameters
+        ----------
+        lam : float
+            Wavelength in microns.
+        temp : float
+            System temperature during observation in K.
+        tref : float
+            Reference temperature in K.
+        pref : float
+            Reference pressure in ATM.
+        pressure : float
+            System pressure during observation in ATM.
+        kcoef : list
+            K coefficients in Sellmeier equation.
+        lcoef : list
+            L coefficients in Sellmeier equation.
+        tcoef : list
+            Thermal coefficients of glass.
+
+        Returns
+        -------
+        n : float
+            Refraction index.
+        """
         # Convert to microns
         lam = np.asarray(lam * 1e6)
         KtoC = 273.15  # kelvin to celsius conversion  # noqa: N806
@@ -2074,13 +2101,6 @@ class Rotation3D(Model):
     def __init__(self, angles, axes_order, name=None):
         """
         Initialize the 3D rotation model.
-
-        Parameters
-        ----------
-        angles : array-like
-            Angles of rotation in deg in the order of axes_order.
-        axes_order : str
-            A sequence of 'x', 'y', 'z' corresponding of axis of rotation.
 
         Parameters
         ----------

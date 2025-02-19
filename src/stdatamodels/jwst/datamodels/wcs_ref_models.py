@@ -314,7 +314,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
         init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
-        displ: `~astropy.modeling.Model`
+        displ : `~astropy.modeling.Model`
             Nircam Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
             Nircam Grism row dispersion model
@@ -399,7 +399,7 @@ class NIRISSGrismModel(ReferenceFileModel):
         init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
-        displ: `~astropy.modeling.Model`
+        displ : `~astropy.modeling.Model`
             NIRISS Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
             NIRISS Grism row dispersion model
@@ -407,10 +407,6 @@ class NIRISSGrismModel(ReferenceFileModel):
             NIRISS Grism column dispersion model
         invdispl : `~astropy.modeling.Model`
             NIRISS Grism inverse wavelength dispersion model
-        invdispx : `~astropy.modeling.Model`
-            NIRISS Grism inverse row dispersion model
-        invdispy : `~astropy.modeling.Model`
-            NIRISS Grism inverse column dispersion model
         orders : `~astropy.modeling.Model`
             NIRISS Grism orders, matched to the array locations of the
             dispersion models

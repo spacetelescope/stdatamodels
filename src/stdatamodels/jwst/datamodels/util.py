@@ -52,7 +52,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         If not guess and the model type is not explicit, raise a TypeError.
     memmap : bool
         Turn memmap of file on or off.  (default: False).
-    kwargs : dict
+    **kwargs : dict
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
 
@@ -236,14 +236,14 @@ def _class_from_model_type(init):
     """
     Get the model type from the primary header, lookup to get class.
 
-    Parameter
-    ---------
-    init: AsdfFile or HDUList
+    Parameters
+    ----------
+    init : AsdfFile or HDUList
         The input metadata
 
-    Return
-    ------
-    new_class: str or None
+    Returns
+    -------
+    new_class : str or None
         The class name.
     """
     from . import _defined_models as defined_models
