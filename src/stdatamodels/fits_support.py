@@ -789,7 +789,7 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
 
     Returns
     -------
-    ff : asdf.AsdfFile
+    asdf.AsdfFile
         The ASDF file object
     """
     try:
@@ -830,7 +830,7 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
 
     Returns
     -------
-    af : asdf.AsdfFile
+    asdf.AsdfFile
         The ASDF file object
     """
     ignore_missing_extensions = kwargs.pop("ignore_missing_extensions")
