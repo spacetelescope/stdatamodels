@@ -210,12 +210,16 @@ def create_history_entry(description, software=None):
         ``homepage``: A URI to the homepage of the software
         ``version``: The version of the software
 
+    Returns
+    -------
+    asdf.tags.core.HistoryEntry
+        The history entry object
+
     Examples
     --------
     >>> soft = {'name': 'jwreftools', 'author': 'STSCI', \
                 'homepage': 'https://github.com/spacetelescope/jwreftools', 'version': "0.7"}
     >>> entry = create_history_entry(description="HISTORY of this file", software=soft)
-
     """
     from asdf.tags.core import Software, HistoryEntry
     import datetime
@@ -248,6 +252,11 @@ def get_envar_as_boolean(name, default=False):
         The name of the environmental variable to retrieve
     default : bool
         If the environmental variable cannot be accessed, use as the default.
+
+    Returns
+    -------
+    bool
+        The value of the environmental variable interpreted as a boolean
     """
     truths = ("true", "t", "yes", "y")
     falses = ("false", "f", "no", "n")
@@ -275,10 +284,12 @@ def get_model_type(init):
     Parameters
     ----------
     init : asdf.AsdfFile or astropy.io.fits.HDUList
+        The file object to extract the model type from.
 
     Returns
     -------
     str or None
+        The model type
     """
     if isinstance(init, asdf.AsdfFile):
         if "meta" in init:
@@ -326,6 +337,11 @@ def convert_fitsrec_to_array_in_tree(tree):
     ----------
     tree : object
         The root node of the tree.
+
+    Returns
+    -------
+    object
+        Modified tree.
     """
 
     def _convert_fitsrec(node):

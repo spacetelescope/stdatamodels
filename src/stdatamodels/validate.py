@@ -26,11 +26,11 @@ def value_change(path, value, schema, ctx):
     ----------
     path : str or list
         The path to the attribute being validated.
-    value
+    value : object
         The value to validate.
-    schema
+    schema : dict
         The schema to validate against.
-    ctx
+    ctx : DataModel
         The datamodel that the value is being added to
 
     Returns
@@ -178,11 +178,11 @@ def _check_value(value, schema, ctx):
 
     Parameters
     ----------
-    value
+    value : object
         The value to validate.
-    schema
+    schema : dict
         The schema to validate against.
-    ctx
+    ctx : DataModel
         The datamodel that the value is being added to
     """
     # Do not validate None values.  These are regarded as missing in DataModel,

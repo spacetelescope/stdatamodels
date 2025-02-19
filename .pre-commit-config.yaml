@@ -28,7 +28,6 @@ repos:
       - id: numpydoc-validation
         exclude: |
           (?x)^(
-          src/stdatamodels/.*\.py |
           src/stdatamodels/jwst/.* |
           docs/.* |
           tests/.* |

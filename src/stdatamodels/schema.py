@@ -106,6 +106,7 @@ def walk_schema(schema, callback, ctx=None):
     Parameters
     ----------
     schema : JSON schema
+        The schema to walk
 
     callback : callable
         The callback receives the following arguments at each entry:
@@ -172,6 +173,16 @@ def merge_property_trees(schema):
     This allows datamodel schemas to be more modular, since various components
     can be represented in individual files and then referenced elsewhere. They
     are then combined by this function into a single schema data structure.
+
+    Parameters
+    ----------
+    schema : JSON schema
+        The schema to be merged
+
+    Returns
+    -------
+    JSON schema
+        The merged schema
     """
     # track the "combined" and "top" items separately
     # this allows the top level "id", "$schema", etc to overwrite

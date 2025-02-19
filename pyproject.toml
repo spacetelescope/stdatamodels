@@ -131,6 +131,11 @@ checks = [
     "RT02", # First line of return should contain only the type
     "RT05", # Return value description should finish with a period
 ]
+exclude = [
+    "shape$", # Exclude shape methods
+    "validate$", # Exclude validate methods
+    "copy$", # Exclude copy methods
+]
 
 [tool.codespell]
 skip = "*.fits, *.asdf, ./build, ./docs/_build, CHANGES.rst, *.schema.yaml"
