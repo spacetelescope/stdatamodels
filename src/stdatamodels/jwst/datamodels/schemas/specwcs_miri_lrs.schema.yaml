@@ -2,14 +2,12 @@
 ---
 $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
-title: MIRI LRS Spec Schema
+title: MIRI LRS Fixed Slit Specwcs Schema
 allOf:
 - $ref: referencefile.schema
 - $ref: keyword_pexptype.schema
 - $ref: keyword_exptype.schema
-- $ref: keyword_readpatt.schema
 - $ref: keyword_filter.schema
-- $ref: keyword_band.schema
 - $ref: subarray.schema
 - type: object
   properties:

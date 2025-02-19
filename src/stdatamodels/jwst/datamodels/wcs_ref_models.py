@@ -29,7 +29,7 @@ __all__ = [
     "NIRCAMGrismModel",
     "NIRISSGrismModel",
     "WaveCorrModel",
-    "MiriLRSSpecwcsModel"
+    "MiriLRSSpecwcsModel",
 ]
 
 
@@ -430,27 +430,31 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
     v3vert4 : float
         slit vertex 4 in V3 frames
     wavetable : numpy  2-D array
-        For each row in the slit hold  wavelength, and 
-        x center, ycenter, x and y box region cooresponding to the wavelength
+        For each row in the slit hold  wavelength, and
+        x center, ycenter, x and y box region corresponding to the wavelength
     """
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
     reftype = "specwcs"
 
-    def __init__(self, init=None,
-                 wavetable=None,
-                 x_ref=None,
-                 y_ref=None,
-                 x_ref_slitless=None,
-                 y_ref_slitless=None,
-                 v2_vert1=None,
-                 v2_vert2=None,
-                 v2_vert3=None,
-                 v2_vert4=None,
-                 v3_vert1=None,
-                 v3_vert2=None,
-                 v3_vert3=None,
-                 v3_vert4=None,
-                 **kwargs):
+    def __init__(
+        self,
+        init=None,
+        wavetable=None,
+        x_ref=None,
+        y_ref=None,
+        x_ref_slitless=None,
+        y_ref_slitless=None,
+        v2_vert1=None,
+        v2_vert2=None,
+        v2_vert3=None,
+        v2_vert4=None,
+        v3_vert1=None,
+        v3_vert2=None,
+        v3_vert3=None,
+        v3_vert4=None,
+        **kwargs,
+    ):
         super().__init__(init=init, **kwargs)
 
         if init is None:
@@ -486,6 +490,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
         self.meta.instrument.name = "MIRI"
         self.meta.instrument.detector = "MIRIMAGE"
         self.meta.reftype = self.reftype
+        self.meta.instrument.filter = "P750L"
 
     def validate(self):
         super(MiriLRSSpecwcsModel, self).validate()
@@ -497,7 +502,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
             if self._strict_validation:
                 raise
             else:
-                warnings.warn(traceback.format_exc(), ValidationWarning)
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
 class RegionsModel(ReferenceFileModel):
