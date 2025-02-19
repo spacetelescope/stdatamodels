@@ -30,13 +30,5 @@ class LinearityModel(ReferenceFileModel):
         # Implicitly create arrays
         self.dq = self.dq
 
-    def get_primary_array_name(self):
-        """
-        Return the name "primary" array for this model.
-
-        Returns
-        -------
-        str
-            The name of the primary array.
-        """
+    def get_primary_array_name(self):  # noqa: D102
         return "coeffs"

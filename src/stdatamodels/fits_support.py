@@ -472,6 +472,16 @@ def _normalize_arrays(tree):
     They are written to disk by astropy.io.fits in C-contiguous, and we
     don't want the asdf library to notice the change in memory
     layout and duplicate the array in the embedded ASDF.
+
+    Parameters
+    ----------
+    tree : dict
+        The ASDF tree.
+
+    Returns
+    -------
+    tree : dict
+        The ASDF tree with all arrays converted to C-contiguous.
     """
 
     def normalize_array(node):
@@ -740,7 +750,7 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         The FITS HDUList
     schema : dict
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
-    context: DataModel
+    context : DataModel
         The `DataModel` to update
     skip_fits_update : bool or None
         DEPRECATED
@@ -751,6 +761,8 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
         the model only from the ASDF extension.
         When `None`, the value is taken from the environmental SKIP_FITS_UPDATE.
         Otherwise, the default is `False`
+    **kwargs : dict
+        Additional arguments to pass to `asdf.open`
 
     Returns
     -------
@@ -787,11 +799,11 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     ignore_unrecognized_tag : bool
         When `True`, ignore unrecognized tags in the ASDF file.
         When `False`, raise an error when an unrecognized tag is found.
-    ignore_missing_extensions : bool
-        When `True`, ignore missing extensions in the ASDF file.
-        When `False`, raise an error when an extension is missing.
     **kwargs : dict
         Additional arguments to pass to `asdf.open`
+        - ignore_missing_extensions : bool
+          When `True`, ignore missing extensions in the ASDF file.
+          When `False`, raise an error when an extension is missing.
 
     Returns
     -------
