@@ -126,7 +126,19 @@ def _cast(val, schema):
 
 
 def _as_fitsrec(val):
-    """Convert a numpy record into a fits record if it is not one already."""
+    """
+    Convert a numpy record into a fits record if it is not one already.
+
+    Parameters
+    ----------
+    val : numpy.ndarray
+        The numpy record to convert.
+
+    Returns
+    -------
+    fits.FITS_rec
+        The converted FITS record.
+    """
     if isinstance(val, fits.FITS_rec):
         return val
     else:
@@ -556,11 +568,10 @@ def put_value(path, value, tree):
     ----------
     path : list of str or int
         The path to the element.
-
     value : any
         The value to place
-
     tree : JSON object tree
+        The tree to place the value into.
     """
     cursor = tree
     for i in range(len(path) - 1):
@@ -582,7 +593,21 @@ def put_value(path, value, tree):
 
 
 def merge_tree(a, b):
-    """Merge elements from tree `b` into tree `a`."""
+    """
+    Merge elements from tree `b` into tree `a`.
+
+    Parameters
+    ----------
+    a : JSON object tree
+        The tree to merge into.
+    b : JSON object tree
+        The tree to merge from.
+
+    Returns
+    -------
+    a : JSON object tree
+        The merged tree.
+    """
 
     def recurse(a, b):
         if isinstance(b, dict):

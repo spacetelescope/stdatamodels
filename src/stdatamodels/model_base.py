@@ -132,7 +132,7 @@ class DataModel(properties.ObjectNode):
             contains metadata about extensions that are not available.
             Defaults to `True`.
 
-        kwargs : dict
+        **kwargs : dict
             Additional keyword arguments passed to lower level functions. These arguments
             are generally file format-specific.
         """
@@ -333,9 +333,7 @@ class DataModel(properties.ObjectNode):
         """
         Get the CRDS observatory code for this model.
 
-        Returns
-        -------
-        str
+        Subclasses should override this to return a str.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -345,9 +343,7 @@ class DataModel(properties.ObjectNode):
         """
         Get the parameters used by CRDS to select references for this model.
 
-        Returns
-        -------
-        dict
+        Subclasses should override this to return a dict.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -381,7 +377,14 @@ class DataModel(properties.ObjectNode):
 
     @property
     def override_handle(self):
-        """Identify in-memory models where a filepath would normally be used."""
+        """
+        Identify in-memory models where a filepath would normally be used.
+
+        Returns
+        -------
+        str
+            A string that can be used to identify the model as an in-memory model.
+        """
         # Arbitrary choice to look something like crds://
         return "override://" + self.__class__.__name__
 
@@ -453,11 +456,11 @@ class DataModel(properties.ObjectNode):
         validate.value_change(str(self), self._instance, self._schema, self)
 
     def info(self, *args, **kwargs):
-        """Return information about the model."""
+        """Return information about the model."""  # numpydoc ignore=RT01
         return self._asdf.info(**kwargs)
 
     def search(self, *args, **kwargs):
-        """Search the asdf tree for nodes that match the given criteria."""
+        """Search the asdf tree for nodes that match the given criteria."""  # numpydoc ignore=RT01
         return self._asdf.search(*args, **kwargs)
 
     try:
@@ -543,18 +546,18 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        path : string or func
+        path : str or func
             File path to save to.
             If function, it takes one argument with is
             model.meta.filename and returns the full path string.
 
-        dir_path: string
+        dir_path : str
             Directory to save to. If not None, this will override
             any directory information in the `path`
 
         Returns
         -------
-        output_path: str
+        output_path : str
             The file path the model was saved in.
         """
         if callable(path):
@@ -629,9 +632,9 @@ class DataModel(properties.ObjectNode):
             - str : file path: initialize from the given file
             - readable file object: Initialize from the given file object
             - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-        schema :
+        schema : dict
             Same as for `__init__`
-        kwargs : dict
+        **kwargs : dict
             Aadditional arguments passed to lower level functions
 
         Returns
@@ -653,9 +656,10 @@ class DataModel(properties.ObjectNode):
         Parameters
         ----------
         init : file path or file object
-        args : tuple, list
+            The file to write to.
+        *args : tuple, list
             Additional positional arguments passed to `~asdf.AsdfFile.write_to`.
-        kwargs : dict
+        **kwargs : dict
             Any additional keyword arguments are passed along to
             `~asdf.AsdfFile.write_to`.
         """
@@ -681,11 +685,9 @@ class DataModel(properties.ObjectNode):
             - readable file object: Initialize from the given file object
             - astropy.io.fits.HDUList: Initialize from the given
               `~astropy.io.fits.HDUList`.
-
         schema : dict, str
             Same as for `__init__`
-
-        kwargs : dict
+        **kwargs : dict
             Aadditional arguments passed to lower level functions.
 
         Returns
@@ -707,10 +709,11 @@ class DataModel(properties.ObjectNode):
         Parameters
         ----------
         init : file path or file object
-
-        args, kwargs
-            Any additional arguments are passed along to
-            `astropy.io.fits.writeto`.
+            The file to write to.
+        *args : tuple, list
+            Additional positional arguments passed to `astropy.io.fits.writeto`.
+        **kwargs : dict
+            Additional keyword arguments passed to `astropy.io.fits.writeto`.
         """
         self.on_save(init)
 
@@ -831,7 +834,7 @@ class DataModel(properties.ObjectNode):
 
         return schema.search_schema(self.schema, substring)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # numpydoc ignore=RT01
         """Get a metadata value using a dotted name."""
         assert isinstance(key, str)
         meta = self
@@ -931,10 +934,10 @@ class DataModel(properties.ObjectNode):
         d : `~jwst.datamodels.DataModel` or dictionary-like object
             The model to copy the metadata elements from. Can also be a
             dictionary or dictionary of dictionaries or lists.
-        only: str, None
+        only : str, None
             Update only the named hdu, e.g. ``only='PRIMARY'``. Can either be
             a string or list of hdu names. Default is to update all the hdus.
-        extra_fits : boolean
+        extra_fits : bool
             Update from ``extra_fits``.  Default is False.
         """
 
@@ -1127,16 +1130,16 @@ class DataModel(properties.ObjectNode):
             named HDU's, not numerical order HDUs. To get the primary
             HDU, pass ``'PRIMARY'``.
 
+        hdu_ver : int, optional
+            The extension version. Used when there is more than one
+            extension with the same name. The default value, 1,
+            is the first.
+
         key : str, optional
             The name of a particular WCS transform to use.  This may
             be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
             the ``"a"`` part of the ``CTYPEia`` cards.  *key* may only
             be provided if *header* is also provided.
-
-        hdu_ver: int, optional
-            The extension version. Used when there is more than one
-            extension with the same name. The default value, 1,
-            is the first.
 
         Returns
         -------
