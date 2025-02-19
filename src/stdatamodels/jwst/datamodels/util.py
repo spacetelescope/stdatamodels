@@ -1,6 +1,4 @@
-"""
-Various utility functions and data types
-"""
+"""Various utility functions and data types."""
 
 from collections.abc import Sequence
 import sys
@@ -24,12 +22,14 @@ log.addHandler(logging.NullHandler())
 
 
 class NoTypeWarning(Warning):
+    """Warn if model type is not found in list of defined models."""
+
     pass
 
 
 def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     """
-    Creates a DataModel from a number of different types
+    Create a DataModel from a number of different types.
 
     Parameters
     ----------
@@ -55,11 +55,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
-
     memmap : bool
         Turn memmap of file on or off.  (default: False).
-
-    kwargs : dict
+    **kwargs : dict
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
 
@@ -79,9 +77,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
 
     Returns
     -------
-    model : DataModel instance
+    DataModel
+        A new model instance.
     """
-
     from . import model_base
 
     # Initialize variables used to select model class
@@ -249,15 +247,17 @@ def _handle_missing_model_type(model, file_name):
 
 def _class_from_model_type(init):
     """
-    Get the model type from the primary header, lookup to get class
+    Get the model type from the primary header, lookup to get class.
 
-    Parameter
-    ---------
-    init: AsdfFile or HDUList
+    Parameters
+    ----------
+    init : AsdfFile or HDUList
+        The input metadata
 
-    Return
-    ------
-    new_class: str or None
+    Returns
+    -------
+    new_class : str or None
+        The class name.
     """
     from . import _defined_models as defined_models
 
@@ -283,7 +283,19 @@ def _class_from_model_type(init):
 
 def _class_from_ramp_type(hdulist, shape):
     """
-    Special check to see if file is ramp file
+    Check to see if file is ramp file.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    RampModel
+        The model class to use
     """
     if not hdulist:
         new_class = None
@@ -305,7 +317,19 @@ def _class_from_ramp_type(hdulist, shape):
 
 def _class_from_reftype(hdulist, shape):
     """
-    Get the class name from the reftype and other header keywords
+    Get the class name from the reftype and other header keywords.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    ReferenceDataModel
+        The model class to use
     """
     if not hdulist:
         new_class = None
@@ -335,7 +359,19 @@ def _class_from_reftype(hdulist, shape):
 
 def _class_from_shape(hdulist, shape):
     """
-    Get the class name from the shape
+    Get the class name from the shape.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    DataModel
+        The model class to use
     """
     if len(shape) == 0:
         from . import model_base
@@ -371,6 +407,18 @@ def _class_from_shape(hdulist, shape):
 def can_broadcast(a, b):
     """
     Given two shapes, returns True if they are broadcastable.
+
+    Parameters
+    ----------
+    a : tuple
+        The first shape
+    b : tuple
+        The second shape
+
+    Returns
+    -------
+    bool
+        True if the shapes are broadcastable
     """
     for i in range(1, min(len(a), len(b)) + 1):
         adim = a[-i]
@@ -383,12 +431,35 @@ def can_broadcast(a, b):
 
 
 def to_camelcase(token):
+    """
+    Convert a dash- or underscore-separated token to camelcase.
+
+    Parameters
+    ----------
+    token : str
+        The token to convert
+
+    Returns
+    -------
+    str
+        The camelcase version of `token`
+    """
     return "".join(x.capitalize() for x in token.split("_-"))
 
 
 def is_association(asn_data):
     """
-    Test if an object is an association by checking for required fields
+    Test if an object is an association by checking for required fields.
+
+    Parameters
+    ----------
+    asn_data : object
+        The object to test
+
+    Returns
+    -------
+    bool
+        True if `asn_data` is an association
     """
     if isinstance(asn_data, dict):
         if "asn_id" in asn_data and "asn_pool" in asn_data:

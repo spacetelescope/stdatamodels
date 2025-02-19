@@ -6,10 +6,10 @@ __all__ = ["SegmentationMapModel"]
 
 class SegmentationMapModel(JwstDataModel):
     """
-    A data model for 2D segmentation maps
+    A data model for 2D segmentation maps.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy uint32 array
          The segmentation map
     """

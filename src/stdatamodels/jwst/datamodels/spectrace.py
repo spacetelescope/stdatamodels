@@ -23,11 +23,10 @@ class SpecTraceModel(ReferenceFileModel):
     the first element of `trace`.  `SpecTraceSingleModel` objects can be appended
     to the `trace` attribute by using its `append` method.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     trace.items.data : numpy table
          Spectral trace data
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/spectrace.schema"
@@ -46,8 +45,8 @@ class SpecTraceSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS spectral trace data.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy table
          Trace values
     """
