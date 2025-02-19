@@ -19,6 +19,7 @@ class JwstDataModel(_DataModel):
         Returns
         -------
         str
+            The observatory code.
         """
         return "jwst"
 
@@ -29,6 +30,7 @@ class JwstDataModel(_DataModel):
         Returns
         -------
         dict
+            Dictionary of CRDS parameters
         """
         return {
             key: val

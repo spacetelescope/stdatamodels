@@ -47,6 +47,11 @@ class ReferenceFileModel(JwstDataModel):
             The path to the directory containing the file
         *args, **kwargs
             Any additional arguments to pass to the save method of JwstDataModel
+
+        Returns
+        -------
+        output_path : str
+            The path to the saved file
         """
         if (
             self.hasattr("dq_def")
@@ -84,17 +89,12 @@ class ReferenceImageModel(ReferenceFileModel):
     """
     A data model for 2D reference images.
 
-    Reference image data model.
-
-    Parameters
+    Attributes
     ----------
-    __________
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
     """
