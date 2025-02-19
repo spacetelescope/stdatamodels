@@ -111,6 +111,13 @@ resol_model_map = {
     "other": dm.ResolutionModel,
 }
 
+specwcs_model_map = {
+    "MIR_IMAGE": dm.MiriLRSSpecwcsModel,
+    "NIRCAM": dm.NIRCAMGrismModel,
+    "NIRISS": dm.NIRISSGrismModel,
+    "other": dm.SpecwcsModel,
+}
+
 ref_to_multiples_dict = {
     "apcorr": apcorr_model_map,
     "area": area_model_map,
@@ -120,6 +127,7 @@ ref_to_multiples_dict = {
     "pathloss": pathloss_model_map,
     "photom": photom_model_map,
     "resol": resol_model_map,
+    "specwcs": specwcs_model_map,
 }
 
 ref_to_datamodel_dict = {
@@ -167,7 +175,7 @@ ref_to_datamodel_dict = {
     "speckernel": dm.SpecKernelModel,
     "specprofile": dm.SpecProfileModel,
     "spectrace": dm.SpecTraceModel,
-    "specwcs": dm.SpecwcsModel,
+    #    "specwcs": dm.SpecwcsModel,
     "straymask": dm.StrayLightModel,
     "superbias": dm.SuperBiasModel,
     "throughput": dm.ThroughputModel,
