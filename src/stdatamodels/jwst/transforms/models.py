@@ -251,11 +251,11 @@ class MIRI_AB2Slice(Model):  # noqa: N801
         Parameters
         ----------
         beta_zero : float
-            Beta zero parameter. ADD HERE
+            Beta coordinate of the center of slice 1 in the MIRI MRS.
         beta_del : float
-            Beta delta parameter. ADD HERE
+            Slice width.
         channel : int
-            MIRI MRS channel
+            MIRI MRS channel number. Valid values are 1, 2, 3, 4.
         **kwargs : dict
             Additional keyword arguments to pass to Model.
         """
@@ -273,13 +273,13 @@ class MIRI_AB2Slice(Model):  # noqa: N801
         Parameters
         ----------
         beta : float
-            The beta angle. ADD HERE
+            The beta angle.
         beta_zero : float
-            Beta zero parameter. ADD HERE
+            Beta coordinate of the center of slice 1 in the MIRI MRS.
         beta_del : float
-            Beta delta parameter. ADD HERE
+            Slice width.
         channel : int
-            MIRI MRS channel. ADD HERE
+            MIRI MRS channel number. Valid values are 1, 2, 3, 4.
 
         Returns
         -------

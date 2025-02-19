@@ -164,17 +164,17 @@ class DistortionMRSModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
         x_model : `astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         y_model : `astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         alpha_model : `astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         beta_model : `astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         bzero : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         bdel : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         input_units : str or `~astropy.units.NamedUnit`, optional
             The units of the input, by default None
         output_units : str or `~astropy.units.NamedUnit`, optional
@@ -579,7 +579,7 @@ class RegionsModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
         regions : np.ndarray, optional
-            ADD HERE, by default None
+            TODO, by default None
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel
         """
@@ -735,9 +735,9 @@ class FPAModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
         nrs1_model : `~astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         nrs2_model : `~astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         """
         super().__init__(init=init, **kwargs)
         if nrs1_model is not None:
@@ -844,9 +844,9 @@ class IFUSlicerModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
         model : `~astropy.modeling.core.Model`, optional
-            ADD HERE, by default None
+            TODO, by default None
         data : np.ndarray, optional
-            ADD HERE, by default None
+            TODO, by default None
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -890,9 +890,9 @@ class MSAModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
         models : dict, optional
-            ADD HERE, by default None
+            TODO, by default None
         data : dict, optional
-            ADD HERE, by default None
+            TODO, by default None
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -956,29 +956,29 @@ class DisperserModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
         angle : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         gwa_tiltx : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         gwa_tilty : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         kcoef : list, optional
-            ADD HERE, by default None
+            TODO, by default None
         lcoef : list, optional
-            ADD HERE, by default None
+            TODO, by default None
         tcoef : list, optional
-            ADD HERE, by default None
+            TODO, by default None
         pref : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         tref : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         theta_x : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         theta_y : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         theta_z : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         groovedensity : float, optional
-            ADD HERE, by default None
+            TODO, by default None
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -1064,7 +1064,7 @@ class FilteroffsetModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
         filters : dict, optional
-            ADD HERE, by default None
+            TODO, by default None
         instrument : str, optional
             The instrument for which the filter offsets are defined, by default None
         **kwargs : dict
@@ -1226,8 +1226,8 @@ class WaveCorrModel(ReferenceFileModel):
         init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None
-        apertures : ADD HERE, optional
-            ADD HERE, by default None
+        apertures : TODO, optional
+            TODO, by default None
         """
         super().__init__(init, **kwargs)
         if apertures is not None:
