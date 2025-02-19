@@ -6,7 +6,8 @@ import numpy as np
 
 from stdatamodels import DataModel
 
-from models import BasicModel, AnyOfModel, TableModel, TransformModel
+from models import BasicModel, AnyOfModel, TableModel, TransformModel, FitsModel
+from stdatamodels.validate import ValidationWarning
 
 
 def test_init_from_pathlib(tmp_path):
@@ -98,6 +99,31 @@ def test_init_with_array2():
         array = np.zeros((50,))
         with BasicModel(array) as dm:
             dm.data  # noqa: B018
+
+
+def test_init_invalid_shape():
+    """Requested some number of dimensions unequal to ndim, which is set to 2"""
+    with pytest.raises(ValueError):
+        BasicModel((50,))
+
+
+def test_init_invalid_shape2():
+    """Requested more dimensions than max_ndim"""
+    with BasicModel() as dm:
+        schema = dm._schema
+    schema["properties"]["data"]["max_ndim"] = 1
+    schema["properties"]["data"]["ndim"] = None
+    with pytest.raises(ValueError):
+        BasicModel((50, 50), schema=schema)
+
+
+def test_init_incompatible_datamodel():
+    """Initialized a model with a different model type that has invalid dimensions"""
+    input_model = FitsModel((50, 50))
+    schema = input_model._schema
+    schema["properties"]["data"]["ndim"] = 3
+    with pytest.raises(ValidationWarning):
+        BasicModel(input_model, schema=schema)
 
 
 def test_set_array():
@@ -325,9 +351,3 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             # many models which would indicate they are difficult to garbage
             # collect.
             assert len(mids) < 2
-
-
-def test_get_fileext_deprecation():
-    m = DataModel()
-    with pytest.warns(DeprecationWarning):
-        assert m.get_fileext() == "fits"

@@ -212,7 +212,10 @@ class DataModel(properties.ObjectNode):
             asdffile = None
             self.clone(self, init)
             if not isinstance(init, self.__class__):
+                current_validate_arrays = self._validate_arrays
+                self._validate_arrays = True
                 self.validate()
+                self._validate_arrays = current_validate_arrays
             return
 
         elif isinstance(init, AsdfFile):
@@ -1006,14 +1009,6 @@ class DataModel(properties.ObjectNode):
     @property
     def schema(self):
         return self._schema
-
-    def get_fileext(self):
-        warnings.warn(
-            "get_fileext always returns 'fits' and will be removed in an upcoming release",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return "fits"
 
     @property
     def history(self):
