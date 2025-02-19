@@ -22,8 +22,8 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist : `astropy.io.fits.HDUList`
         Optional HDUList to write the ASDF data to. If not provided,
         a new HDUList will be created.
-    **kwargs : variable keyword arguments
-        Passed on to :func:`astropy.io.fits.HDUList.writeto`
+    **kwargs : dict
+        Additional keyword arguments to pass to :func:`astropy.io.fits.HDUList.writeto`
     """
     hdulist = fits_support.to_fits(tree, None, hdulist=hdulist)  # no custom schema
     hdulist.writeto(filename, **kwargs)
@@ -39,8 +39,8 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
         Filename of the fits file or an open `astropy.io.fits.HDUList`
         containing the ASDF data. If a filename is provided it
         will be opened with :func:`astropy.io.fits.open`.
-    **kwargs : variable keyword arguments
-        Passed on to :func:`asdf.open`
+    **kwargs : dict
+        Additional keyword arguments to pass to :func:`asdf.open`
 
     Returns
     -------

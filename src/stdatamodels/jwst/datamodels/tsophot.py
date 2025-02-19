@@ -26,7 +26,8 @@ class TsoPhotModel(ReferenceFileModel):
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
         radii : list, optional
-            ADD HERE, by default None
+            List of one or more dictionaries, each with keys 'pupil', 'radius',
+            'radius_inner', and 'radius_outer', by default None.
         **kwargs
             Additional keyword arguments passed to ReferenceFileModel.
         """
