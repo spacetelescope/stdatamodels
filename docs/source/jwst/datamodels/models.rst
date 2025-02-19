@@ -293,25 +293,29 @@ use::
 Extra FITS keywords
 -------------------
 
+.. warning::
+
+    This feature is deprecated and will be removed in a future release.
+
 When loading arbitrary FITS files, there may be keywords that are not
 listed in the schema for that data model.  These "extra" FITS keywords
-are put under the model in the `_extra_fits` namespace.
+are put under the model in the `extra_fits` namespace.
 
-Under the `_extra_fits` namespace is a section for each header data
+Under the `extra_fits` namespace is a section for each header data
 unit, and under those are the extra FITS keywords.  For example, if
 the FITS file contains a keyword `FOO` in the primary header, its
 value can be obtained using::
 
-    model._extra_fits.PRIMARY.FOO
+    model.extra_fits.PRIMARY.FOO
 
 This feature is useful to retain any extra keywords from input files
 to output products.
 
-To get a list of everything in `_extra_fits`::
+To get a list of everything in `extra_fits`::
 
-    model._extra_fits._instance
+    model.extra_fits._instance
 
-returns a dictionary of of the instance at the model._extra_fits node.
+returns a dictionary of of the instance at the model.extra_fits node.
 
 `_instance` can be used at any node in the tree to return a dictionary
 of rest of the tree structure at that node.
