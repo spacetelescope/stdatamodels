@@ -67,22 +67,22 @@ allOf:
         x_ref:
           type: number
           title: x coord of ref position of MIRIM_SLIT
-          default: pixels
+          units: pixels
           fits_keyword: IMX
         y_ref:
           type: number
           title: y coord of ref position of MIRIM_SLIT
-          default: pixels
+          units: pixels
           fits_keyword: IMY
         x_ref_slitless:
           type: number
           title: x coord of ref position of MIRIM_SLITLESS
-          default: pixels
+          units: pixels
           fits_keyword: IMXSLTL
         y_ref_slitless:
           type: number
           title: y coord of ref position of MIRIM_SLITLESS
-          default: pixels
+          units: pixels
           fits_keyword: IMYSLTL
         v2_vert1:
           type: number

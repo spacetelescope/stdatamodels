@@ -489,7 +489,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
     def populate_meta(self):
         self.meta.instrument.name = "MIRI"
         self.meta.instrument.detector = "MIRIMAGE"
-        self.meta.reftype = self.reftype
+        self.meta.reftype = self.reftype.lower()
         self.meta.instrument.filter = "P750L"
 
     def validate(self):
