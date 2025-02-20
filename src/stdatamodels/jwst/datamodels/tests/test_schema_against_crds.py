@@ -114,8 +114,8 @@ resol_model_map = {
 specwcs_model_map = {
     "MIR_LRS-FIXEDSLIT": dm.MiriLRSSpecwcsModel,
     "MIR_LRS-SLITLESS": dm.MiriLRSSpecwcsModel,
-    # "NRS_WFSS": dm.NIRCAMGrismModel,
-    # "NIS_WFSS": dm.NIRISSGrismModel,
+    "NRC_WFSS": dm.NIRCAMGrismModel,
+    "NIS_WFSS": dm.NIRISSGrismModel,
     "other": dm.SpecwcsModel,
 }
 
@@ -176,7 +176,6 @@ ref_to_datamodel_dict = {
     "speckernel": dm.SpecKernelModel,
     "specprofile": dm.SpecProfileModel,
     "spectrace": dm.SpecTraceModel,
-    #    "specwcs": dm.SpecwcsModel,
     "straymask": dm.StrayLightModel,
     "superbias": dm.SuperBiasModel,
     "throughput": dm.ThroughputModel,
