@@ -489,7 +489,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
     def populate_meta(self):
         self.meta.instrument.name = "MIRI"
         self.meta.instrument.detector = "MIRIMAGE"
-        self.meta.reftype = self.reftype.lower()
+        self.meta.reftype = self.reftype
         self.meta.instrument.filter = "P750L"
 
     def validate(self):
@@ -497,7 +497,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
         try:
             assert self.meta.instrument.name == "MIRI"
             assert self.meta.instrument.detector == "MIRIMAGE"
-            assert self.meta.reftype == self.reftype
+            assert self.meta.reftype.lower() == self.reftype
         except AssertionError:
             if self._strict_validation:
                 raise
