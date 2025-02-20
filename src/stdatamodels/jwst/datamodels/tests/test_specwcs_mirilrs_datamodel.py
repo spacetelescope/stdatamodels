@@ -41,6 +41,10 @@ def test_miri_lrs_specwcs():
     )
 
     model = datamodels.MiriLRSSpecwcsModel(x_ref=430, y_ref=400, wavetable=wavetable)
+    model.meta.description = "MIRI LRS SPECWCS reference file"
+    model.meta.author = "Jane Morrison"
+    model.meta.pedigree = "FLIGHT"
+    model.meta.useafter = "2022-05-01T00:00:00"
     assert model.meta.instrument.name == "MIRI"
     assert model.meta.instrument.detector == "MIRIMAGE"
     assert model.meta.reftype == "specwcs"
@@ -57,3 +61,4 @@ def test_miri_lrs_specwcs():
     assert model.meta.v3_vert2 is None
     assert model.meta.v3_vert3 is None
     assert model.meta.v3_vert4 is None
+    model.validate()
