@@ -112,9 +112,10 @@ resol_model_map = {
 }
 
 specwcs_model_map = {
-    "MIR_IMAGE": dm.MiriLRSSpecwcsModel,
-    "NIRCAM": dm.NIRCAMGrismModel,
-    "NIRISS": dm.NIRISSGrismModel,
+    "MIR_LRS-FIXEDSLIT": dm.MiriLRSSpecwcsModel,
+    "MIR_LRS-SLITLESS": dm.MiriLRSSpecwcsModel,
+    # "NRS_WFSS": dm.NIRCAMGrismModel,
+    # "NIS_WFSS": dm.NIRISSGrismModel,
     "other": dm.SpecwcsModel,
 }
 
