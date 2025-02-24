@@ -16,7 +16,6 @@ from .cube import CubeModel
 from .dark import DarkModel
 from .darkMIRI import DarkMIRIModel
 from .emi import EmiModel
-from .extract1dimage import Extract1dImageModel
 from .extract1d_spec import Extract1dIFUModel
 from .flat import FlatModel
 from .fringe import FringeModel
@@ -38,7 +37,6 @@ from .mask import MaskModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
-from .multiextract1d import MultiExtract1dImageModel
 from .multislit import MultiSlitModel
 from .multispec import MultiSpecModel, MRSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
@@ -149,7 +147,6 @@ __all__ = [
     "DistortionModel",
     "DistortionMRSModel",
     "EmiModel",
-    "Extract1dImageModel",
     "Extract1dIFUModel",
     "FilteroffsetModel",
     "FlatModel",
@@ -182,7 +179,6 @@ __all__ = [
     "MSAModel",
     "MultiCombinedSpecModel",
     "MultiExposureModel",
-    "MultiExtract1dImageModel",
     "MultiSlitModel",
     "MultiSpecModel",
     "MRSMultiSpecModel",
