@@ -381,14 +381,14 @@ def test_metadata_from_fits(tmp_path):
 
 
 def test_get_short_doc():
-    assert fits_support.get_short_doc({}) == ""
-    assert fits_support.get_short_doc({"title": "Some schema title."}) == "Some schema title."
+    assert fits_support._get_short_doc({}) == ""
+    assert fits_support._get_short_doc({"title": "Some schema title."}) == "Some schema title."
     assert (
-        fits_support.get_short_doc({"title": "Some schema title.\nWhoops, another line."})
+        fits_support._get_short_doc({"title": "Some schema title.\nWhoops, another line."})
         == "Some schema title."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "title": "Some schema title.",
                 "description": "Some schema description.",
@@ -397,7 +397,7 @@ def test_get_short_doc():
         == "Some schema title."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "description": "Some schema description.",
             }
@@ -405,7 +405,7 @@ def test_get_short_doc():
         == "Some schema description."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "description": "Some schema description.\nWhoops, another line.",
             }
