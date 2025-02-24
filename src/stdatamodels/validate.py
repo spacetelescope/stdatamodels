@@ -13,7 +13,7 @@ from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
 
 
 class ValidationWarning(Warning):
-    """Raise when a value fails to validate a model's schema."""
+    """Warning issued when a value fails validation against a schema."""
 
     pass
 
@@ -61,7 +61,7 @@ def value_change(path, value, schema, ctx):
 
 def _validate_datatype(validator, schema_datatype, instance, schema):
     """
-    Validate that an array has the correct datatype.
+    Validate a datatype instance against a schema.
 
     This extends the ASDF datatype validator to support ndim
     and max_ndim within individual fields of structured arrays,
@@ -187,7 +187,7 @@ def _check_value(value, schema, ctx):
     schema : dict
         The schema to validate against.
     ctx : DataModel
-        The datamodel that the value is being added to
+        The datamodel to use as context.
     """
     # Do not validate None values.  These are regarded as missing in DataModel,
     # and will eventually be stripped out when the model is saved to FITS or ASDF.
