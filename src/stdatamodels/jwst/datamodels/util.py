@@ -16,7 +16,7 @@ from stdatamodels import filetype
 from stdatamodels.model_base import _FileReference
 
 
-__all__ = ["open", "NoTypeWarning", "can_broadcast", "to_camelcase", "is_association"]
+__all__ = ["open", "NoTypeWarning", "to_camelcase", "is_association"]
 
 
 log = logging.getLogger(__name__)
@@ -366,20 +366,6 @@ def _class_from_shape(hdulist, shape):
         new_class = None
 
     return new_class
-
-
-def can_broadcast(a, b):
-    """
-    Given two shapes, returns True if they are broadcastable.
-    """
-    for i in range(1, min(len(a), len(b)) + 1):
-        adim = a[-i]
-        bdim = b[-i]
-
-        if not (adim == 1 or bdim == 1 or adim == bdim):
-            return False
-
-    return True
 
 
 def to_camelcase(token):
