@@ -16,7 +16,7 @@ from stdatamodels import filetype
 from stdatamodels.model_base import _FileReference
 
 
-__all__ = ["open", "NoTypeWarning", "to_camelcase", "is_association"]
+__all__ = ["open", "NoTypeWarning", "is_association"]
 
 
 log = logging.getLogger(__name__)
@@ -366,10 +366,6 @@ def _class_from_shape(hdulist, shape):
         new_class = None
 
     return new_class
-
-
-def to_camelcase(token):
-    return "".join(x.capitalize() for x in token.split("_-"))
 
 
 def is_association(asn_data):
