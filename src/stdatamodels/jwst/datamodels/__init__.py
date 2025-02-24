@@ -41,7 +41,6 @@ from .multislit import MultiSlitModel
 from .multispec import MultiSpecModel, MRSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
-from .outlierpars import OutlierParsModel
 from .outlierifuoutput import OutlierIFUOutputModel
 from .pathloss import PathlossModel, MirLrsPathlossModel
 from .persat import PersistenceSatModel
@@ -185,7 +184,6 @@ __all__ = [
     "NIRCAMGrismModel",
     "NIRISSGrismModel",
     "OTEModel",
-    "OutlierParsModel",
     "OutlierIFUOutputModel",
     "PathlossModel",
     "MirLrsPathlossModel",
