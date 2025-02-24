@@ -413,11 +413,6 @@ def test_get_short_doc():
     )
 
 
-def test_ensure_ascii():
-    for inp in [b"ABCDEFG", "ABCDEFG"]:
-        assert fits_support.ensure_ascii(inp) == "ABCDEFG"
-
-
 @pytest.mark.parametrize(
     "which_file, skip_fits_update, expected_exp_type",
     [

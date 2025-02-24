@@ -245,7 +245,7 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
     title = schema.get("title")
     if title is not None:
         current_comment_stack = fits_context.comment_stack
-        current_comment_stack.append(ensure_ascii(title))
+        current_comment_stack.append(title)
 
     for prop, subschema in properties.items():
         if prop in instance:
@@ -274,12 +274,11 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
-    comment = ensure_ascii(get_short_doc(schema))
-    instance = ensure_ascii(instance)
+    comment = get_short_doc(schema)
 
     if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
-            hdu.header[fits_keyword] = ensure_ascii(item)
+            hdu.header[fits_keyword] = item
     elif fits_keyword in hdu.header:
         hdu.header[fits_keyword] = (instance, comment)
     else:
@@ -919,13 +918,3 @@ def get_short_doc(schema):
         if title is not None:
             description = title + "\n\n" + description
     return description.partition("\n")[0]
-
-
-def ensure_ascii(s):
-    # TODO: This function seems to only ever receive
-    # string input.  Also it's not checking that the
-    # characters in the string fall within the valid
-    # range for FITS headers.
-    if isinstance(s, bytes):
-        s = s.decode("ascii")
-    return s
