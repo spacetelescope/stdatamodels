@@ -6,6 +6,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import warnings
+import functools
 
 import numpy as np
 
@@ -452,15 +453,15 @@ class DataModel(properties.ObjectNode):
     __copy__ = __deepcopy__ = copy
 
     def validate(self):
-        """Re-validate the model instance against its schema."""
+        """Validate the model instance against its schema."""
         validate.value_change(str(self), self._instance, self._schema, self)
 
-    def info(self, *args, **kwargs):
-        """Return information about the model."""  # numpydoc ignore=RT01
+    @functools.wraps(asdf.AsdfFile.info)
+    def info(self, *args, **kwargs):  # noqa: D102
         return self._asdf.info(**kwargs)
 
-    def search(self, *args, **kwargs):
-        """Search the asdf tree for nodes that match the given criteria."""  # numpydoc ignore=RT01
+    @functools.wraps(asdf.AsdfFile.search)
+    def search(self, *args, **kwargs):  # noqa: D102
         return self._asdf.search(*args, **kwargs)
 
     try:
@@ -550,7 +551,6 @@ class DataModel(properties.ObjectNode):
             File path to save to.
             If function, it takes one argument with is
             model.meta.filename and returns the full path string.
-
         dir_path : str
             Directory to save to. If not None, this will override
             any directory information in the `path`
@@ -756,8 +756,8 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        schema : DataModel
-            The updated schema.
+        self : DataModel
+            The datamodel with its schema updated.
         """
         schema = {"allOf": [self._schema, new_schema]}
         self._schema = mschema.merge_property_trees(schema)
@@ -779,8 +779,8 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        schema : DataModel
-            The updated schema.
+        self : DataModel
+            The datamodel with the schema entry added.
         """
         parts = position.split(".")
         schema = new_schema
@@ -871,7 +871,7 @@ class DataModel(properties.ObjectNode):
 
     def items(self):
         """
-        Iterate over all of the schema items in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
 
         Each element is a pair (`key`, `value`).  Each `key` is a
         dot-separated name.  For example, the schema element
@@ -898,7 +898,7 @@ class DataModel(properties.ObjectNode):
 
     def keys(self):
         """
-        Iterate over all of the schema keys in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
 
         Yields
         ------
@@ -913,7 +913,7 @@ class DataModel(properties.ObjectNode):
 
     def values(self):
         """
-        Iterate over all of the schema values in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
 
         Yields
         ------
@@ -1048,7 +1048,7 @@ class DataModel(properties.ObjectNode):
 
     def to_flat_dict(self, include_arrays=True):
         """
-        Return a dictionary of all of the schema items as a flat dictionary.
+        Return a dictionary of all of the datamodel contents as a flat dictionary.
 
         Each dictionary key is a dot-separated name.  For example, the
         schema element `meta.observation.date` will end up in the
@@ -1065,7 +1065,7 @@ class DataModel(properties.ObjectNode):
         Returns
         -------
         flat_dict : dict
-            A dictionary of all of the schema items as a flat dictionary.
+            A dictionary of all of the datamodel contents as a flat dictionary.
         """
 
         def convert_val(val):
@@ -1085,7 +1085,15 @@ class DataModel(properties.ObjectNode):
             }
 
     @property
-    def schema(self):  # noqa: D102
+    def schema(self):
+        """
+        Retrieve the schema for this model.
+
+        Returns
+        -------
+        dict
+            The datamodel schema.
+        """
         return self._schema
 
     @property
@@ -1129,12 +1137,10 @@ class DataModel(properties.ObjectNode):
             The name of the HDU to get the WCS from.  This must use
             named HDU's, not numerical order HDUs. To get the primary
             HDU, pass ``'PRIMARY'``.
-
         hdu_ver : int, optional
             The extension version. Used when there is more than one
             extension with the same name. The default value, 1,
             is the first.
-
         key : str, optional
             The name of a particular WCS transform to use.  This may
             be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
@@ -1163,7 +1169,6 @@ class DataModel(properties.ObjectNode):
         ----------
         wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
             The object containing FITS WCS information
-
         hdu_name : str, optional
             The name of the HDU to set the WCS from.  This must use
             named HDU's, not numerical order HDUs.  To set the primary

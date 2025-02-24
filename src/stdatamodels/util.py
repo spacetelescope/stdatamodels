@@ -36,7 +36,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         The dtype of the new array.
     allow_extra_columns : bool
         If True, extra columns in the input array are allowed and will be
-        appended to the output array. If False, extra columns will raise an
+        included in the output array. If False, extra columns will raise an
         exception.
 
     Returns
@@ -284,7 +284,7 @@ def get_model_type(init):
     Parameters
     ----------
     init : asdf.AsdfFile or astropy.io.fits.HDUList
-        The file object to extract the model type from.
+        The object to extract the model type from.
 
     Returns
     -------
@@ -311,12 +311,12 @@ def remove_none_from_tree(tree):
 
     Parameters
     ----------
-    tree : object
+    tree : dict
         The root node of the tree.
 
     Returns
     -------
-    object
+    dict
         Modified tree.
     """
 
@@ -335,13 +335,13 @@ def convert_fitsrec_to_array_in_tree(tree):
 
     Parameters
     ----------
-    tree : object
-        The root node of the tree.
+    tree : dict
+        A tree that may contain FITS record arrays.
 
     Returns
     -------
     object
-        Modified tree.
+        A copy of the input tree with FITS record arrays converted to numpy arrays.
     """
 
     def _convert_fitsrec(node):

@@ -80,7 +80,7 @@ _builtin_regex = re.compile("|".join(f"(^{x}$)" for x in _builtin_regexes))
 
 def is_builtin_fits_keyword(key):
     """
-    Check if key is a fits builtin.
+    Check if key is a FITS builtin.
 
     Builtins are those managed by ``astropy.io.fits``, and we don't
     want to propagate those through the `_extra_fits` mechanism.
@@ -158,7 +158,7 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
 
     Parameters
     ----------
-    hdulist : weakref.ReferenceType
+    hdulist : astropy.io.fits.hdu.hdulist.HDUList
         A FITS HDUList
     hdu_name : str
         The name of the HDU to retrieve
@@ -292,7 +292,7 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
-    comment = get_short_doc(schema)
+    comment = _get_short_doc(schema)
 
     if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
@@ -781,7 +781,7 @@ def from_fits(hdulist, schema, context, **kwargs):
 
 def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     """
-    Wrap asdf call to extract optional arguments.
+    Open the ASDF extension from a FITS hdulist.
 
     Parameters
     ----------
@@ -961,20 +961,7 @@ def fits_hash(hdulist):
     return fits_hash.hexdigest()
 
 
-def get_short_doc(schema):
-    """
-    Get the short description from the schema.
-
-    Parameters
-    ----------
-    schema : dict
-        The schema to extract the description
-
-    Returns
-    -------
-    description : str
-        The short description
-    """
+def _get_short_doc(schema):
     title = schema.get("title", None)
     description = schema.get("description", None)
     if description is None:

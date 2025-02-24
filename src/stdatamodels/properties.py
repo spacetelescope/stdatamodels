@@ -154,7 +154,7 @@ def _as_fitsrec(val):
 
 def _get_schema_type(schema):
     """
-    Find the type of a schema and its subschemas.
+    Find the type or types used by a schema.
 
     Create a list of types used by a schema and its subschemas when
     the subschemas are joined by combiners. Then return a type string
@@ -167,8 +167,8 @@ def _get_schema_type(schema):
 
     Returns
     -------
-    schema_type : str
-        The type of the schema, or 'mixed' if the schema has multiple types.
+    str
+        The type used by a schema, or 'mixed' if the schema has multiple types.
     """
 
     def callback(subschema, path, combiner, types, recurse):
@@ -336,7 +336,7 @@ def _find_property(schema, attr):
 
 
 class Node:
-    """A schema-validated object."""
+    """An object that supports validation against a schema."""
 
     def __init__(self, attr, instance, schema, ctx, parent):
         self._name = attr
@@ -354,7 +354,7 @@ class Node:
 
 
 class ObjectNode(Node):
-    """A schema-validated dictionary-like structure."""
+    """A dictionary-like Node."""
 
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
@@ -436,7 +436,7 @@ class ObjectNode(Node):
 
 
 class ListNode(Node):
-    """A list of schema-validated objects."""
+    """A list-like Node."""
 
     def __cast(self, other):
         if isinstance(other, ListNode):
@@ -570,7 +570,7 @@ def put_value(path, value, tree):
         The path to the element.
     value : any
         The value to place
-    tree : JSON object tree
+    tree : `asdf.tags.core.AsdfObject`
         The tree to place the value into.
     """
     cursor = tree
@@ -598,14 +598,14 @@ def merge_tree(a, b):
 
     Parameters
     ----------
-    a : JSON object tree
+    a : `asdf.tags.core.AsdfObject`
         The tree to merge into.
-    b : JSON object tree
+    b : `asdf.tags.core.AsdfObject`
         The tree to merge from.
 
     Returns
     -------
-    a : JSON object tree
+    a : `asdf.tags.core.AsdfObject`
         The merged tree.
     """
 
