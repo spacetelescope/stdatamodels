@@ -10,6 +10,7 @@ def _iterable(values):
 class HistoryList:
     """
     A list that coerces a new value into a HistoryEntry.
+
     Only a subset of the list interface is implemented.
     """
 
@@ -64,16 +65,16 @@ class HistoryList:
                         return False
         return True
 
-    def append(self, value):
+    def append(self, value):  # noqa: D102
         if isinstance(value, HistoryEntry):
             self._entries.append(value)
         else:
             self._context.add_history_entry(value)
 
-    def clear(self):
+    def clear(self):  # noqa: D102
         self._entries.clear()
 
-    def extend(self, values):
+    def extend(self, values):  # noqa: D102
         values = _iterable(values)
         for value in values:
             self.append(value)

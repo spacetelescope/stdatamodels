@@ -4,7 +4,7 @@ import os
 
 @pytest.fixture
 def jail_environ():
-    """Lock changes to the environment"""
+    """Lock changes to the environment."""
     original = os.environ.copy()
     try:
         yield

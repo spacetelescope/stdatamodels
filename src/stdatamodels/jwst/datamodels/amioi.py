@@ -5,16 +5,16 @@ __all__ = ["AmiOIModel"]
 
 class AmiOIModel(JwstDataModel):
     """
-    TODO
+    TODO.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     TODO
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 
-    def get_primary_array_name(self):
+    def get_primary_array_name(self):  # noqa: D102
         # for the example file OI_T3 is the largest array
         return "t3"
 
@@ -75,11 +75,11 @@ class AmiOIModel(JwstDataModel):
         if self.meta.oifits.derived.array.z is None:
             self.meta.oifits.derived.array.z = 0.0
 
-    def on_save(self, path=None):
+    def on_save(self, path=None):  # noqa: D102
         super().on_save(path)
         self._map_oifits_keywords()
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         # map the JWST to OIFITS keywords prior to validate
         self._map_oifits_keywords()
         super().validate()

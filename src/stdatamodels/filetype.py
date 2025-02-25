@@ -3,17 +3,17 @@ from pathlib import Path
 
 def check(init):
     """
-    Determine the type of a file and return it as a string
+    Determine the type of a file and return it as a string.
 
     Parameters
     ----------
-
-    init : file path or file object
+    init : str or file-like object
+        The file path or file object
 
     Returns
     -------
-    file_type: a string with the file type ("asdf", "asn", or "fits")
-
+    file_type : str
+        A string representing the file type ("asdf", "asn", or "fits")
     """
     if isinstance(init, str):
         path = Path(init)

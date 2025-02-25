@@ -9,6 +9,10 @@ exclude = [
     "dist",
     ".tox",
     ".eggs",
+    "**/tests/test*.py",
+    "**/_tests/test*.py",
+    "**/tests/**/__init__.py",
+    "src/__init__.py",
 ]
 line-length = 100
 target-version = "py311"
@@ -69,3 +73,5 @@ ignore-fully-untyped = true  # Turn of annotation checking for fully untyped cod
 "**/test_*.py" = ["S101", "SLF001", "B011", "D104"]
 "tests/**" = ["INP001"]
 "src/stdatamodels/jwst/datamodels/darkMIRI.py" = ["N999"]
+"src/stdatamodels/jwst/transforms/converters/jwst_models.py" = ["D"] # all converters have same standard docstrings
+"src/stdatamodels/jwst/datamodels/wcs_ref_models.py" = ["D102"] # all public methods are overriding base class, so are the same

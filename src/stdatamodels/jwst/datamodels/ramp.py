@@ -8,26 +8,20 @@ class RampModel(JwstDataModel):
     """
     A data model for 4D ramps.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     pixeldq : numpy uint32 array
          2-D data quality array for all planes
-
     groupdq : numpy uint8 array
          4-D data quality array for each plane
-
     zeroframe : numpy float32 array
          Zeroframe array
-
     group : numpy table
          group parameters table
-
     int_times : numpy table
          table of times for each integration
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ramp.schema"

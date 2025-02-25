@@ -1,6 +1,4 @@
-"""
-Functions that support validation of model changes
-"""
+"""Functions that support validation of model changes."""
 
 import warnings
 from asdf import schema as asdf_schema
@@ -22,8 +20,23 @@ warnings.filterwarnings("always", category=ValidationWarning, append=True)
 
 def value_change(path, value, schema, ctx):
     """
-    Validate a change in value against a schema.
-    Trap error and return a flag.
+    Validate a change in value against a schema, trap the error, and return a flag.
+
+    Parameters
+    ----------
+    path : str or list
+        The path to the attribute being validated.
+    value
+        The value to validate.
+    schema
+        The schema to validate against.
+    ctx
+        The datamodel that the value is being added to
+
+    Returns
+    -------
+    bool
+        True if the value is valid, False if it is invalid.
     """
     try:
         _check_value(value, schema, ctx)
@@ -43,12 +56,30 @@ def value_change(path, value, schema, ctx):
 
 def _validate_datatype(validator, schema_datatype, instance, schema):
     """
+    Validate that an array has the correct datatype.
+
     This extends the ASDF datatype validator to support ndim
     and max_ndim within individual fields of structured arrays,
     and handle the absence of the shape field correctly.
 
     Additionally, dtypes are required to be equivalent, instead
     of just "safe" to cast.
+
+    Parameters
+    ----------
+    validator : asdf.schema.validator.Validator
+        The validator object.
+    schema_datatype : str or list of str
+        The datatype(s) specified in the schema.
+    instance : object
+        The instance to validate.
+    schema : dict
+        The schema that the instance is being validated against.
+
+    Yields
+    ------
+    ValidationError
+        If the instance does not match the schema datatype.
     """
     allow_extra_columns = schema.get("allow_extra_columns", False)
     if isinstance(instance, list):
@@ -144,6 +175,15 @@ _VALIDATORS["max_ndim"] = ndarray.validate_max_ndim
 def _check_value(value, schema, ctx):
     """
     Perform the actual validation.
+
+    Parameters
+    ----------
+    value
+        The value to validate.
+    schema
+        The schema to validate against.
+    ctx
+        The datamodel that the value is being added to
     """
     # Do not validate None values.  These are regarded as missing in DataModel,
     # and will eventually be stripped out when the model is saved to FITS or ASDF.
@@ -168,7 +208,19 @@ def _check_value(value, schema, ctx):
 
 def _error_message(path, error):
     """
-    Add the path to the attribute as context for a validation error
+    Add the path to the attribute as context for a validation error.
+
+    Parameters
+    ----------
+    path : str or list
+        The path to the attribute that was being validated.
+    error : Exception
+        The exception that was raised during validation.
+
+    Returns
+    -------
+    str
+        The error message with the path prepended.
     """
     if isinstance(path, list):
         spath = [str(p) for p in path]

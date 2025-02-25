@@ -1,3 +1,4 @@
+"""Convert models to and from YAML tree structures."""
 # from .jwst_models import (Gwa2SlitConverter, Slit2MsaConverter, LogicalConverter,
 #                           NirissSOSSConverter, RefractionIndexConverter,
 #                           MIRI_AB2SliceConverter, NIRCAMGrismDispersionConverter,

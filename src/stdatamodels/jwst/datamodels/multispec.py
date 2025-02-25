@@ -24,11 +24,10 @@ class MultiSpecModel(JwstDataModel):
     the first element of `spec`.  `SpecModel` objects can be appended
     to the `spec` attribute by using its `append` method.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     int_times : numpy table
          table of times for each integration
-
     spec.items.spec_table : numpy table
          Extracted spectral data table
 

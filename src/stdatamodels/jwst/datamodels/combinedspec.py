@@ -8,8 +8,8 @@ class CombinedSpecModel(JwstDataModel):
     """
     A data model for combined 1D spectra.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     spec_table : numpy table
          Combined, extracted spectral data table
     """

@@ -6,10 +6,10 @@ __all__ = ["PsfMaskModel"]
 
 class PsfMaskModel(ReferenceFileModel):
     """
-    A data model for coronagraphic 2D PSF mask reference files
+    A data model for coronagraphic 2D PSF mask reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The PSF mask
     """

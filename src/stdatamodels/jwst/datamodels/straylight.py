@@ -8,8 +8,8 @@ class StrayLightModel(ReferenceFileModel):
     """
     A data model for 2D straylight mask.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy uint8 array
          Straylight mask
     """

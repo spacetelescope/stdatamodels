@@ -6,7 +6,8 @@ __all__ = ["Level1bModel"]
 
 
 def _migrate_moving_target_table(hdulist):
-    """Add missing columns to prevent validation issues for `jwst` 1.16.0
+    """
+    Add missing columns to prevent validation issues for `jwst` 1.16.0.
 
     Files produced prior to Build 11.1 will not have columns `mt_v2` or
     `mt_v3` in the moving_target_table; loading these old files with
@@ -32,23 +33,18 @@ class Level1bModel(JwstDataModel):
     """
     A data model for raw 4D ramps level-1b products.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy uint16 array
          The science data
-
     zeroframe : numpy uint16 array
          Zeroframe array
-
     refout : numpy uint16 array
          Reference Output
-
     group : numpy table
          group parameters table
-
     int_times : numpy table
          table of times for each integration
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/level1b.schema"

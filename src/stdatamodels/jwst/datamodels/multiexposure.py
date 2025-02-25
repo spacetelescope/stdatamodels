@@ -13,8 +13,9 @@ __all__ = ["MultiExposureModel", "set_hdu", "remove_fits"]
 
 class MultiExposureModel(JwstDataModel):
     """
-    A data model for multi-slit images derived from
-    numerous exposures. The intent is that all slits
+    A data model for multi-slit images derived from numerous exposures.
+
+    The intent is that all slits
     in this model are of the same source, with each slit
     representing a separate exposure of that source.
 
@@ -34,8 +35,8 @@ class MultiExposureModel(JwstDataModel):
     models. This is part of the Level 3 processing of multi-objection
     observations.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     exposures.items.data : numpy float32 array
 
     exposures.items.dq : numpy uint32 array
@@ -97,7 +98,7 @@ class MultiExposureModel(JwstDataModel):
 
 # Utilities
 def set_hdu(obj, hdu_id="EXP"):
-    """Add fits_hdu specification to fits-connected properties"""
+    """Add fits_hdu specification to fits-connected properties."""
     try:
         if "fits_keyword" in obj.keys():
             obj["fits_hdu"] = hdu_id
@@ -106,6 +107,7 @@ def set_hdu(obj, hdu_id="EXP"):
 
 
 def remove_fits(obj):
+    """Remove fits_keyword and fits_hdu from schema."""
     try:
         obj.pop("fits_keyword", None)
     except (AttributeError, KeyError, TypeError):

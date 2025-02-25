@@ -11,25 +11,36 @@ __all__ = ["TsoPhotModel"]
 
 
 class TsoPhotModel(ReferenceFileModel):
-    """
-    A model for a reference file of type "tsophot".
-    """
+    """A model for a reference file of type "tsophot"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/tsophot.schema"
     reftype = "tsophot"
 
     def __init__(self, init=None, radii=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        radii : list, optional
+            ADD HERE, by default None
+        **kwargs
+            Additional keyword arguments passed to ReferenceFileModel.
+        """
         super(TsoPhotModel, self).__init__(init=init, **kwargs)
         if radii is not None:
             self.radii = radii
 
-    def on_save(self, path=None):
+    def on_save(self, path=None):  # noqa: D102
         self.meta.reftype = self.reftype
 
-    def to_fits(self):
+    def to_fits(self):  # noqa: D102
         raise NotImplementedError("FITS format is not supported for this file.")
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         super(TsoPhotModel, self).validate()
         try:
             assert len(self.radii) > 0

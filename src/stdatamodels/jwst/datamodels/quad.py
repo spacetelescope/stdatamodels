@@ -8,14 +8,12 @@ class QuadModel(JwstDataModel):
     """
     A data model for 4D image arrays.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
     """

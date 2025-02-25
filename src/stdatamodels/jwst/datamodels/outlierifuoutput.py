@@ -11,21 +11,16 @@ class OutlierIFUOutputModel(JwstDataModel):
     In the parameter definitions below, `n` is the number of
     exposures,  `ny` and `nx` are the height and width of the image.
 
-    Parameters
-    __________
-
+    Attributes
+    ----------
     diffarr : numpy float32 array (n, ny, nx)
         Minimum difference array for all the data
-
     minarr : numpy float32 array (ny, nx)
         Final combined minimum difference array
-
     normarr : numpy float32 array (ny, nx)
         Normalized minarr
-
     minnorm : numpy float32 array (ny, nx)
         minarr/normarr
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/outlierifuoutput.schema"
