@@ -1,4 +1,5 @@
-"""JWST Data Quality Flags
+"""
+JWST Data Quality Flags.
 
 The definitions are documented in the JWST RTD:
 

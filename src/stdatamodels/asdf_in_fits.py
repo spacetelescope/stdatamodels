@@ -8,7 +8,8 @@ __all__ = ["write", "open"]
 
 
 def write(filename, tree, hdulist=None, **kwargs):
-    """Write ASDF data inside a fits file
+    """
+    Write ASDF data inside a fits file.
 
     Parameters
     ----------
@@ -16,10 +17,8 @@ def write(filename, tree, hdulist=None, **kwargs):
         Filename where the resulting fits file containing the ASDF
         data will be saved. This is passed on to
         :func:`astropy.io.fits.HDUList.writeto`
-
     tree : ASDF tree or dict
         ASDF data to save in the fits file
-
     kwargs : variable keyword arguments
         Passed on to :func:`astropy.io.fits.HDUList.writeto`
     """
@@ -28,7 +27,8 @@ def write(filename, tree, hdulist=None, **kwargs):
 
 
 def open(filename_or_hdu, **kwargs):  # noqa: A001
-    """Read ASDF data embedded in a fits file
+    """
+    Read ASDF data embedded in a fits file.
 
     Parameters
     ----------
@@ -36,7 +36,6 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
         Filename of the fits file or an open `astropy.io.fits.HDUList`
         containing the ASDF data. If a filename is provided it
         will be opened with :func:`astropy.io.fits.open`.
-
     kwargs : variable keyword arguments
         Passed on to :func:`asdf.open`
 
@@ -46,7 +45,6 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
         :obj:`asdf.AsdfFile` created from ASDF data embedded in the opened
         fits file.
     """
-
     is_hdu = isinstance(filename_or_hdu, fits.HDUList)
     hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
     if "ignore_missing_extensions" not in kwargs:

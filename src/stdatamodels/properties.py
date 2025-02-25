@@ -126,9 +126,7 @@ def _cast(val, schema):
 
 
 def _as_fitsrec(val):
-    """
-    Convert a numpy record into a fits record if it is not one already
-    """
+    """Convert a numpy record into a fits record if it is not one already."""
     if isinstance(val, fits.FITS_rec):
         return val
     else:
@@ -144,9 +142,21 @@ def _as_fitsrec(val):
 
 def _get_schema_type(schema):
     """
+    Find the type of a schema and its subschemas.
+
     Create a list of types used by a schema and its subschemas when
     the subschemas are joined by combiners. Then return a type string
-    if all the types are the same or 'mixed' if they differ
+    if all the types are the same or 'mixed' if they differ.
+
+    Parameters
+    ----------
+    schema : dict
+        The schema to analyze.
+
+    Returns
+    -------
+    schema_type : str
+        The type of the schema, or 'mixed' if the schema has multiple types.
     """
 
     def callback(subschema, path, combiner, types, recurse):
@@ -314,6 +324,8 @@ def _find_property(schema, attr):
 
 
 class Node:
+    """A schema-validated object."""
+
     def __init__(self, attr, instance, schema, ctx, parent):
         self._name = attr
         self._instance = instance
@@ -330,6 +342,8 @@ class Node:
 
 
 class ObjectNode(Node):
+    """A schema-validated dictionary-like structure."""
+
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
         return sorted(set(super().__dir__()) | added)
@@ -397,10 +411,10 @@ class ObjectNode(Node):
     def __iter__(self):
         return NodeIterator(self)
 
-    def hasattr(self, attr):
+    def hasattr(self, attr):  # noqa: D102
         return attr in self._instance
 
-    def items(self):
+    def items(self):  # noqa: D102
         # Return a (key, value) tuple for the node
         for key in self:
             val = self
@@ -410,6 +424,8 @@ class ObjectNode(Node):
 
 
 class ListNode(Node):
+    """A list of schema-validated objects."""
+
     def __cast(self, other):
         if isinstance(other, ListNode):
             return other._instance
@@ -449,7 +465,7 @@ class ListNode(Node):
         if self._ctx._validate_on_assignment:
             self._validate()
 
-    def append(self, item):
+    def append(self, item):  # noqa: D102
         schema = _get_schema_for_index(self._schema, len(self._instance))
         item = _cast(item, schema)
         node = ObjectNode(self._name, item, schema, self._ctx, self)
@@ -459,7 +475,7 @@ class ListNode(Node):
         else:
             self._instance.append(item)
 
-    def insert(self, i, item):
+    def insert(self, i, item):  # noqa: D102
         schema = _get_schema_for_index(self._schema, i)
         item = _cast(item, schema)
         node = ObjectNode(self._name, item, schema, self._ctx, self)
@@ -469,31 +485,31 @@ class ListNode(Node):
         else:
             self._instance.insert(i, item)
 
-    def pop(self, i=-1):
+    def pop(self, i=-1):  # noqa: D102
         schema = _get_schema_for_index(self._schema, 0)
         x = self._instance.pop(i)
         return _make_node(self._name, x, schema, self._ctx, self)
 
-    def remove(self, item):
+    def remove(self, item):  # noqa: D102
         self._instance.remove(item)
 
-    def count(self, item):
+    def count(self, item):  # noqa: D102
         return self._instance.count(item)
 
-    def index(self, item):
+    def index(self, item):  # noqa: D102
         return self._instance.index(item)
 
-    def reverse(self):
+    def reverse(self):  # noqa: D102
         self._instance.reverse()
 
-    def sort(self, *args, **kwargs):
+    def sort(self, *args, **kwargs):  # noqa: D102
         self._instance.sort(*args, **kwargs)
 
-    def extend(self, other):
+    def extend(self, other):  # noqa: D102
         for part in _unmake_node(other):
             self.append(part)
 
-    def item(self, **kwargs):
+    def item(self, **kwargs):  # noqa: D102
         assert isinstance(self._schema["items"], dict)
         node = ObjectNode(self._name, kwargs, self._schema["items"], self._ctx, self)
         if not self._ctx._validate_on_assignment:
@@ -504,9 +520,7 @@ class ListNode(Node):
 
 
 class NodeIterator:
-    """
-    An iterator for a node which flattens the hierarchical structure
-    """
+    """An iterator for a node which flattens the hierarchical structure."""
 
     def __init__(self, node):
         self.key_stack = []
@@ -536,8 +550,7 @@ class NodeIterator:
 
 def put_value(path, value, tree):
     """
-    Put a value at the given path into tree, replacing it if it is
-    already present.
+    Put a value at the given path into tree, replacing it if it is already present.
 
     Parameters
     ----------
@@ -569,9 +582,7 @@ def put_value(path, value, tree):
 
 
 def merge_tree(a, b):
-    """
-    Merge elements from tree `b` into tree `a`.
-    """
+    """Merge elements from tree `b` into tree `a`."""
 
     def recurse(a, b):
         if isinstance(b, dict):
