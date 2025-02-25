@@ -26,7 +26,7 @@ def test_supported_filename(filename, expected_filetype):
     assert check(filename) == expected_filetype
 
 
-@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4"])
+@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4", "test_file.tar.gz"])
 def test_unsupported_filename(filename):
     with pytest.raises(ValueError):
         check(filename)
