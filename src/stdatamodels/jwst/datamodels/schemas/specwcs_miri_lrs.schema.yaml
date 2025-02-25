@@ -55,7 +55,7 @@ allOf:
       properties:
         x_ref:
           type: number
-          title: "[pixels]  x coord of ref position of MIRIM_SLIT"
+          title: "[pixels] x coord of ref position of MIRIM_SLIT"
           fits_keyword: IMX
         y_ref:
           type: number
