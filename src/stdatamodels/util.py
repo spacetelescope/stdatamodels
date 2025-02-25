@@ -1,6 +1,4 @@
-"""
-Various utility functions and data types
-"""
+"""Various utility functions and data types."""
 
 import copy
 import os
@@ -26,24 +24,23 @@ log.addHandler(logging.NullHandler())
 
 def gentle_asarray(a, dtype, allow_extra_columns=False):
     """
-    Convert ``a`` to dtype ``dtype`` ignoring case differences in
-    dtype field (column) names for structured arrays (tables).
+    Convert to dtype ignoring case differences in column names for structured arrays (tables).
 
-    When name conflicts occur (the cases differ) the name from
-    ``dtype`` will be used.
+    When name conflicts occur (the cases differ) the name from ``dtype`` will be used.
 
     Parameters
     ----------
-
     a : np.ndarray
         Array which will be converted to the new dtype.
-
     dtype : np.dtype
         The dtype of the new array.
+    allow_extra_columns : bool
+        If True, extra columns in the input array are allowed and will be
+        appended to the output array. If False, extra columns will raise an
+        exception.
 
     Returns
     -------
-
     new_array : np.ndarray
         Array converted to the new dtype.
     """
@@ -87,7 +84,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     # We can remove this once the issue is resolved in astropy:
     # https://github.com/astropy/astropy/issues/8862
     if isinstance(a, fits.fitsrec.FITS_rec):
-        a.dtype = rebuild_fits_rec_dtype(a)
+        a.dtype = _rebuild_fits_rec_dtype(a)
         in_dtype = a.dtype
 
     if in_dtype == out_dtype:
@@ -237,7 +234,8 @@ def create_history_entry(description, software=None):
 
 
 def get_envar_as_boolean(name, default=False):
-    """Interpret an environmental as a boolean flag
+    """
+    Interpret an environmental as a boolean flag.
 
     Truth is any numeric value that is not 0 or
     any of the following case-insensitive strings:
@@ -248,7 +246,6 @@ def get_envar_as_boolean(name, default=False):
     ----------
     name : str
         The name of the environmental variable to retrieve
-
     default : bool
         If the environmental variable cannot be accessed, use as the default.
     """
@@ -296,7 +293,9 @@ def get_model_type(init):
 
 def remove_none_from_tree(tree):
     """
-    Remove None values from a tree.  Both dictionary keys
+    Remove None values from a tree.
+
+    Both dictionary keys
     and list indices with None values will be removed.
 
     Parameters
@@ -320,6 +319,15 @@ def remove_none_from_tree(tree):
 
 
 def convert_fitsrec_to_array_in_tree(tree):
+    """
+    Convert all FITS record array objects in a tree to numpy arrays.
+
+    Parameters
+    ----------
+    tree : object
+        The root node of the tree.
+    """
+
     def _convert_fitsrec(node):
         if isinstance(node, fits.FITS_rec):
             return _fits_rec_to_array(node)
@@ -329,7 +337,7 @@ def convert_fitsrec_to_array_in_tree(tree):
     return treeutil.walk_and_modify(tree, _convert_fitsrec)
 
 
-def rebuild_fits_rec_dtype(fits_rec):
+def _rebuild_fits_rec_dtype(fits_rec):
     dtype = fits_rec.dtype
     new_dtype = []
     for field_name in dtype.fields:
@@ -353,7 +361,7 @@ def _fits_rec_to_array(fits_rec):
     ]
     if not len(bad_columns):
         return fits_rec.view(np.ndarray)
-    new_dtype = rebuild_fits_rec_dtype(fits_rec)
+    new_dtype = _rebuild_fits_rec_dtype(fits_rec)
     arr = np.asarray(fits_rec, new_dtype).copy()
     for name in bad_columns:
         arr[name] = fits_rec[name]
