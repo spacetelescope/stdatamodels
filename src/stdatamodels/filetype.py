@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 
 def check(init):
@@ -18,18 +18,20 @@ def check(init):
     supported = ("asdf", "fits", "json")
 
     if isinstance(init, str):
-        path, ext = os.path.splitext(init)  # noqa: PTH122
-        ext = ext.strip(".")
+        path = Path(init)
 
-        if not ext:
+        if len(path.suffixes) == 0:
             raise ValueError(f"Input file path does not have an extension: {init}")
 
+        ext = path.suffixes[-1].strip(".")
         if ext not in supported:  # Could be the file is zipped; try splitting again
-            path, ext = os.path.splitext(path)  # noqa: PTH122
-            ext = ext.strip(".")
-
+            err_msg = f"Unrecognized file type for: {init}"
+            try:
+                ext = path.suffixes[-2].strip(".")
+            except IndexError:
+                raise ValueError(err_msg) from None
             if ext not in supported:
-                raise ValueError(f"Unrecognized file type for: {init}")
+                raise ValueError(err_msg) from None
 
         if ext == "json":  # Assume json input is an association
             return "asn"

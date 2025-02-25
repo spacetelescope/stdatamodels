@@ -17,6 +17,7 @@ from stdatamodels.filetype import check
         ("test_file.json.gz", "asn"),
         ("test_file.asdf", "asdf"),
         ("test_file.asdf.gz", "asdf"),
+        ("test_file.asdf.fits", "fits"),
         ("stpipe.MyPipeline.fits", "fits"),
         ("stpipe.MyPipeline.fits.gz", "fits"),
     ],
