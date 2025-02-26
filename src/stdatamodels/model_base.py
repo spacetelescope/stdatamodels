@@ -1111,11 +1111,11 @@ class DataModel(properties.ObjectNode):
     # --------------------------------------------------------
 
     def read(self, *args, **kwargs):
-        warnings.warn("read is deprecated and will be removed", DeprecationWarning, stacklevel=2)
+        warnings.warn("read is deprecated, use __init__ instead.", DeprecationWarning, stacklevel=2)
         return self.__init__(*args, **kwargs)
 
     def write(self, path, *args, **kwargs):
-        warnings.warn("write is deprecated and will be removed", DeprecationWarning, stacklevel=2)
+        warnings.warn("write is deprecated, use save instead.", DeprecationWarning, stacklevel=2)
         self.save(path, *args, **kwargs)
 
     def getarray_noinit(self, attribute):
