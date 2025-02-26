@@ -63,11 +63,18 @@ jobs:
       cache-path: ${{ needs.data.outputs.crds_path }}
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
-        - macos: py311-xdist
-        - linux: py311-cov-xdist
-          coverage: codecov
+        - linux: py311-xdist
         - linux: py312-xdist
-        - linux: py313-xdist
+        # `tox` does not currently use the `requires-python` versions 
+        # defined in pyproject.toml. This means even if we set an upper limit
+        # for python in that file the `py3` below will try to use the newest
+        # python even if it's above that limit.
+        # If we don't support the latest stable python, update `py3` below
+        # to use only the latest supported version (matching what is set
+        # for `requires-python` in `pyproject.toml`)
+        - linux: py3-cov-xdist
+          coverage: codecov
+        - macos: py3-xdist
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8c0fde6f7e926df6ed7057255d29afa9c1ad5320  # v1.16.0
     needs: [ data ]
