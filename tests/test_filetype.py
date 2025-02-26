@@ -17,6 +17,7 @@ from stdatamodels.filetype import check
         ("test_file.json.gz", "asn"),
         ("test_file.asdf", "asdf"),
         ("test_file.asdf.gz", "asdf"),
+        ("test_file.asdf.fits", "fits"),
         ("stpipe.MyPipeline.fits", "fits"),
         ("stpipe.MyPipeline.fits.gz", "fits"),
     ],
@@ -25,7 +26,7 @@ def test_supported_filename(filename, expected_filetype):
     assert check(filename) == expected_filetype
 
 
-@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4"])
+@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4", "test_file.tar.gz"])
 def test_unsupported_filename(filename):
     with pytest.raises(ValueError):
         check(filename)

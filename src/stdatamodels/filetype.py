@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 
 def check(init):
@@ -15,26 +15,21 @@ def check(init):
     file_type: a string with the file type ("asdf", "asn", or "fits")
 
     """
-    supported = ("asdf", "fits", "json")
-
     if isinstance(init, str):
-        path, ext = os.path.splitext(init)  # noqa: PTH122
-        ext = ext.strip(".")
+        path = Path(init)
 
-        if not ext:
+        # Could be the file is zipped; consider last 2 suffixes
+        suffixes = path.suffixes[-2:]
+        if not suffixes:
             raise ValueError(f"Input file path does not have an extension: {init}")
 
-        if ext not in supported:  # Could be the file is zipped; try splitting again
-            path, ext = os.path.splitext(path)  # noqa: PTH122
-            ext = ext.strip(".")
-
-            if ext not in supported:
-                raise ValueError(f"Unrecognized file type for: {init}")
-
-        if ext == "json":  # Assume json input is an association
-            return "asn"
-
-        return ext
+        for suffix in suffixes[::-1]:
+            ext = suffix.strip(".")
+            if ext in ["asdf", "fits"]:
+                return ext
+            if ext == "json":
+                return "asn"
+        raise ValueError(f"Unrecognized file type for: {init}")
 
     if hasattr(init, "read") and hasattr(init, "seek"):
         magic = init.read(5)
