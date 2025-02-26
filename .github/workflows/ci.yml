@@ -65,8 +65,13 @@ jobs:
       envs: |
         - linux: py311-xdist
         - linux: py312-xdist
-        # `tox` does not currently respect `requires-python` versions when creating testing environments;
-        # if this breaks, add an upper pin to `requires-python` and revert this py3 to the latest working version
+        # `tox` does not currently use the `requires-python` versions 
+        # defined in pyproject.toml. This means even if we set an upper limit
+        # for python in that file the `py3` below will try to use the newest
+        # python even if it's above that limit.
+        # If we don't support the latest stable python, update `py3` below
+        # to use only the latest supported version (matching what is set
+        # for `requires-python` in `pyproject.toml`)
         - linux: py3-cov-xdist
           coverage: codecov
         - macos: py3-xdist
