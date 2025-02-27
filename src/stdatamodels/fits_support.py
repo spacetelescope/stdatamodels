@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-__all__ = ["to_fits", "from_fits", "fits_hdu_name", "get_hdu", "is_builtin_fits_keyword"]
+__all__ = ["to_fits", "from_fits", "get_hdu", "is_builtin_fits_keyword"]
 
 
 _ASDF_EXTENSION_NAME = "ASDF"
@@ -112,22 +112,10 @@ def _get_indexed_keyword(keyword, i):
     return keyword
 
 
-def fits_hdu_name(name):
-    """
-    Returns a FITS hdu name in the correct form for the current
-    version of Python.
-    """
-    if isinstance(name, bytes):
-        return name.decode("ascii")
-    return name
-
-
 def _get_hdu_name(schema):
     hdu_name = schema.get("fits_hdu")
     if hdu_name in (None, "PRIMARY"):
         hdu_name = 0
-    else:
-        hdu_name = fits_hdu_name(hdu_name)
     return hdu_name
 
 
@@ -245,7 +233,7 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
     title = schema.get("title")
     if title is not None:
         current_comment_stack = fits_context.comment_stack
-        current_comment_stack.append(ensure_ascii(title))
+        current_comment_stack.append(title)
 
     for prop, subschema in properties.items():
         if prop in instance:
@@ -274,12 +262,11 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
-    comment = ensure_ascii(get_short_doc(schema))
-    instance = ensure_ascii(instance)
+    comment = get_short_doc(schema)
 
     if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
-            hdu.header[fits_keyword] = ensure_ascii(item)
+            hdu.header[fits_keyword] = item
     elif fits_keyword in hdu.header:
         hdu.header[fits_keyword] = (instance, comment)
     else:
@@ -471,7 +458,6 @@ def _normalize_arrays(tree):
 def _save_extra_fits(hdulist, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get("extra_fits", {}).items():
-        hdu_name = fits_hdu_name(hdu_name)
         if "data" in parts:
             hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
             hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
@@ -919,13 +905,3 @@ def get_short_doc(schema):
         if title is not None:
             description = title + "\n\n" + description
     return description.partition("\n")[0]
-
-
-def ensure_ascii(s):
-    # TODO: This function seems to only ever receive
-    # string input.  Also it's not checking that the
-    # characters in the string fall within the valid
-    # range for FITS headers.
-    if isinstance(s, bytes):
-        s = s.decode("ascii")
-    return s
