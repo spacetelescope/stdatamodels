@@ -140,7 +140,5 @@ def limit_dmd_models():
 
 @pytest.fixture(scope="module")
 def fake_dmd(limit_dmd_models):
-    """
-    A fake datamodel dictionary that includes only 1 datamodel: ImageModel
-    """
+    """Make a fake datamodel dictionary that includes only 1 datamodel: ImageModel."""
     return dmd.load()

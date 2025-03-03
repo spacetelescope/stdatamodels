@@ -6,23 +6,18 @@ __all__ = ["GLS_RampFitModel"]
 
 class GLS_RampFitModel(JwstDataModel):  # noqa: N801
     """
-    A data model for the optional output of the ramp fitting step
-    for the GLS algorithm.
+    Data model for the optional output of the ramp fitting step for the GLS algorithm.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     yint : numpy float32 array
          Y-intercept
-
     sigyint : numpy float32 array
          Sigma for Y-intercept
-
     pedestal : numpy float32 array
          Pedestal
-
     crmag : numpy float32 array
          CR magnitudes
-
     sigcrmag : numpy float32 array
          Sigma for CR magnitudes
     """

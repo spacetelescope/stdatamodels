@@ -1,5 +1,6 @@
 """
 Since these aren't jsonschemas the usual tools won't work.
+
 - Start with a "top" schema
 - Traverse (keeping track of path, ignore combiners, properties, etc)
 - When we hit 'fits_keyword'...
