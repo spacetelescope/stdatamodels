@@ -996,6 +996,8 @@ properties:
                    SUB64FP1A, SUB64FP1B, SUB64P, SUB64FP6A,
                    SUB8FP1A, SUB8FP1B, SUB8FP6A,
                    SUB96DHSPILA, SUB96DHSPILB,
+                   SUB41STRIPE1_DHS, SUB82STRIPE2_DHS,
+                   SUB164STRIPE4_DHS, SUB260STRIPE4_DHS,
                    SUBFSA210R, SUBFSA335R, SUBFSA430R, SUBFSALWB, SUBFSASWB,
                    SUBGRISM128, SUBGRISM256, SUBGRISM64,
                    SUBNDA210R, SUBNDA335R, SUBNDA430R,
@@ -1074,6 +1076,46 @@ properties:
             title: Number of pixels in detector y-axis direction
             type: integer
             fits_keyword: DETYSIZ
+            blend_table: True
+          multistripe_reads1:
+            title: Num. substripe rows read starting at SUBSTRT1
+            type: number
+            fits_keyword: MSTR_RD1
+            blend_table: True
+          multistripe_skips1:
+            title: Num. rows to skip after reading MSTR_RD1 rows
+            type: number
+            fits_keyword: MSTR_SK1
+            blend_table: True
+          multistripe_reads2:
+            title: Num. rows read in subsequent substripes
+            type: number
+            fits_keyword: MSTR_RD2
+            blend_table: True
+          multistripe_skips2:
+            title: Num. rows to skip between susequent substripes
+            type: number
+            fits_keyword: MSTR_SK2
+            blend_table: True
+          repeat_stripe:
+            title: Repeat reading MSTR_RD2 rows at first position
+            type: number
+            fits_keyword: MSTR_RPT
+            blend_table: True
+          interleave_reads1:
+            title: Interleave MSTR_RD1 rows between substripes
+            type: number
+            fits_keyword: MSTR_ILV
+            blend_table: True
+          superstripe_step:
+            title: Rows to advance superstripe postn btwn intgrtns
+            type: number
+            fits_keyword: SSTR_STP
+            blend_table: True
+          num_superstripe:
+            title: Num. superstripe positions in super-integration
+            type: number
+            fits_keyword: SSTR_NST
             blend_table: True
       dither:
         title: Dither information
