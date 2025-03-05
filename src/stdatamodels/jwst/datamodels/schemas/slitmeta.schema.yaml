@@ -125,3 +125,18 @@ properties:
     type: number
     fits_keyword: SLTYSCL
     fits_hdu: SCI
+  wavelength_corrected:
+    title: Wavelength corrected (T/F)
+    type: boolean
+    fits_keyword: WAVECOR
+    fits_hdu: SCI
+  pathloss_correction_type:
+    title: Type of pathloss correction applied
+    type: string
+    fits_keyword: PTHLOSS
+    fits_hdu: SCI
+  barshadow_corrected:
+    title: Barshadow corrected (T/F)
+    type: boolean
+    fits_keyword: BARSHDW
+    fits_hdu: SCI
