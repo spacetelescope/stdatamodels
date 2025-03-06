@@ -1,1 +1,0 @@
-Remove unused can_broadcast, to_camelcase, ensure_ascii, fits_hdu_name and bytes2human functions.

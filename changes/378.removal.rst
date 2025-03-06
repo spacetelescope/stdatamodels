@@ -1,1 +1,0 @@
-Remove fits metaschema, use updated asdf metaschema.

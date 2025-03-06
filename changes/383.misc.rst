@@ -1,1 +1,0 @@
-Apply style checks to code to match jwst.

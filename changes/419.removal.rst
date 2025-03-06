@@ -1,1 +1,0 @@
-Remove unused Extract1dImageModel and MultiExtract1dImageModel.

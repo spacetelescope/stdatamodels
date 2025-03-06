@@ -1,1 +1,0 @@
-Add eight multistripe subarray keywords to support NIRCam DHS modes.
