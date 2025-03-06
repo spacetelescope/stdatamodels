@@ -6,11 +6,10 @@ __all__ = ["TrapsFilledModel"]
 
 class TrapsFilledModel(JwstDataModel):
     """
-    A data model for the number of traps filled for a detector, for
-    persistence.
+    A data model for the number of traps filled for a detector, for persistence.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
         Traps filled
         The map of the number of traps filled over the detector, with

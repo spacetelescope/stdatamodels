@@ -8,8 +8,8 @@ class SpecKernelModel(ReferenceFileModel):
     """
     A data model for 2D spectral kernels.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     wavelengths : numpy float32 array
          Wavelengths
 

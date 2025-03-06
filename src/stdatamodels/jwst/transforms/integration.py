@@ -1,6 +1,4 @@
-"""
-This module supports the entry points for ASDF support for the `jwst.transforms`.
-"""
+"""Create the entry points for ASDF support for the `jwst.transforms`."""
 
 import importlib.resources
 
@@ -18,8 +16,8 @@ def get_resource_mappings():
 
     Returns
     -------
-    list of the `asdf.resource.ResourceMapping` instances containing the `jwst.transforms`
-    schemas.
+    list
+        The `asdf.resource.ResourceMapping` instances containing the `jwst.transforms` schemas.
     """
     resources_root = importlib.resources.files(transforms) / "resources"
     if not resources_root.is_dir():
@@ -40,11 +38,13 @@ def get_resource_mappings():
 def get_extensions():
     """
     Get the jwst.transforms extension.
+
     This method is registered with the asdf.extensions entry point.
 
     Returns
     -------
     list of asdf.extension.Extension
+        The jwst.transforms extensions.
     """
     from . import extensions
 
