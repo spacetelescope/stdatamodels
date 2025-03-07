@@ -574,20 +574,9 @@ def _schema_has_fits_hdu(schema):
     return has_fits_hdu[0]
 
 
-def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
+def _load_from_schema(hdulist, schema, tree, context):
     known_keywords = {}
     known_datas = set()
-
-    # Check if there are any table HDU's. If not, this whole process
-    # can be skipped.
-    if skip_fits_update:
-        if not any(isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != "ASDF"):
-            log.debug("Skipping FITS updating completely.")
-            return known_keywords, known_datas
-        log.debug(
-            "Skipping FITS keyword updating except for "
-            "BinTableHDU and its associated header keywords."
-        )
 
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
@@ -601,7 +590,7 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
 
     def callback(schema, path, combiner, ctx, recurse):
         result = None
-        if not skip_fits_update and "fits_keyword" in schema:
+        if "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
@@ -683,7 +672,7 @@ def _load_history(hdulist, tree):
         history["entries"].append(HistoryEntry({"description": entry}))
 
 
-def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
+def from_fits(hdulist, schema, context, **kwargs):
     """Read model information from a FITS HDU list
 
     Parameters
@@ -696,30 +685,14 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
 
     context: DataModel
         The `DataModel` to update
-
-    skip_fits_update : bool or None
-        DEPRECATED
-        When `False`, models opened from FITS files will proceed
-        and load the FITS header values into the model.
-        When `True` and the FITS file has an ASDF extension, the
-        loading/validation of the FITS header will be skipped, loading
-        the model only from the ASDF extension.
-        When `None`, the value is taken from the environmental SKIP_FITS_UPDATE.
-        Otherwise, the default is `False`
     """
     try:
         ff = from_fits_asdf(hdulist, **kwargs)
     except Exception as exc:
         raise exc.__class__("ERROR loading embedded ASDF: " + str(exc)) from exc
 
-    # Determine whether skipping the FITS loading can be done.
-    skip_fits_update = _verify_skip_fits_update(skip_fits_update, hdulist, ff, context)
-
-    known_keywords, known_datas = _load_from_schema(
-        hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update
-    )
-    if not skip_fits_update:
-        _load_extra_fits(hdulist, known_keywords, known_datas, ff.tree)
+    known_keywords, known_datas = _load_from_schema(hdulist, schema, ff.tree, context)
+    _load_extra_fits(hdulist, known_keywords, known_datas, ff.tree)
 
     _load_history(hdulist, ff.tree)
 
@@ -804,71 +777,6 @@ def from_fits_hdu(hdu, schema):
         data._coldefs._listeners = listeners
 
     return data
-
-
-def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
-    """Ensure all conditions for skipping FITS updating are true
-
-    Returns True if either 1) the FITS hash in the asdf structure matches the input
-    FITS structure. Or 2) skipping has been explicitly asked for in `skip_fits_update`.
-
-    Parameters
-    ----------
-    skip_fits_update : bool
-        Regardless of FIT hash check, attempt to skip if requested.
-
-    hdulist : astropy.io.fits.HDUList
-        The input FITS information
-
-    asdf_struct : asdf.ASDFFile
-        The associated ASDF structure
-
-    context : DataModel
-        The DataModel being built.
-
-    Returns
-    -------
-    skip_fits_update : bool
-        All conditions are satisfied for skipping FITS updating.
-    """
-    if skip_fits_update is None:
-        skip_fits_update = util.get_envar_as_boolean("SKIP_FITS_UPDATE", None)
-    if skip_fits_update is not None:
-        # warn if the value was not None (defined by the user)
-        warnings.warn(
-            "skip_fits_update is deprecated and will be removed", DeprecationWarning, stacklevel=2
-        )
-
-    # If skipping has been explicitly disallowed, indicate as such.
-    if skip_fits_update is False:
-        return False
-
-    # Skipping has either been requested or has been left to be determined automatically.
-    # Continue checking conditions necessary for skipping.
-
-    # Need an already existing ASDF. If not, cannot skip.
-    if not len(asdf_struct.tree):
-        log.debug("No ASDF information found. Cannot skip updating from FITS headers.")
-        return False
-
-    # Ensure model types match
-    hdulist_model_type = util.get_model_type(hdulist)
-    if hdulist_model_type != context.__class__.__name__:
-        log.debug(
-            f"Input model type {hdulist_model_type} does not match the"
-            f" requested model {type(context)}."
-            " Cannot skip updating from FITS headers."
-        )
-        return False
-
-    # Check for FITS hash and compare to current. If equal, automatically skip.
-    if asdf_struct.tree.get(FITS_HASH_KEY, None) is not None:
-        if asdf_struct.tree[FITS_HASH_KEY] == fits_hash(hdulist):
-            log.debug("FITS hash matches. Skipping FITS updating.")
-            return True
-
-    # If skip only if explicitly requested.
-    return False if skip_fits_update is None else True
 
 
 def fits_hash(hdulist):

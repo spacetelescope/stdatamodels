@@ -1,4 +1,3 @@
-import contextlib
 import re
 
 import pytest
@@ -9,6 +8,7 @@ import asdf.schema
 
 from stdatamodels import DataModel
 from stdatamodels import fits_support
+from stdatamodels.jwst import datamodels
 
 from models import FitsModel, PureFitsModel
 
@@ -413,52 +413,23 @@ def test_get_short_doc():
     )
 
 
-@pytest.mark.parametrize(
-    "which_file, skip_fits_update, expected_exp_type",
-    [
-        ("just_fits", None, "FGS_DARK"),
-        ("just_fits", False, "FGS_DARK"),
-        ("just_fits", True, "FGS_DARK"),
-        ("model", None, "FGS_DARK"),
-        ("model", False, "FGS_DARK"),
-        ("model", True, "NRC_IMAGE"),
-    ],
-)
-@pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(
-    tmp_path, monkeypatch, use_env, which_file, skip_fits_update, expected_exp_type
-):
-    """Test skip_fits_update setting"""
+def test_fits_update(tmp_path):
+    """Test that FITS changes are seen when datamodels are opened"""
     file_path = tmp_path / "test.fits"
+    expected_exp_type = "FGS_DARK"
 
     # Setup the FITS file, modifying a header value
-    if which_file == "just_fits":
-        primary_hdu = fits.PrimaryHDU()
-        primary_hdu.header["EXP_TYPE"] = "NRC_IMAGE"
-        primary_hdu.header["DATAMODL"] = "FitsModel"
-        hduls = fits.HDUList([primary_hdu])
-        hduls.writeto(file_path)
-    else:
-        model = FitsModel()
-        model.meta.exposure.type = "NRC_IMAGE"
-        model.save(file_path)
+    model = datamodels.ImageModel()
+    model.meta.exposure.type = "NRC_IMAGE"
+    model.save(file_path)
+    del model
 
-    with fits.open(file_path) as hduls:
-        hduls[0].header["EXP_TYPE"] = "FGS_DARK"
+    with fits.open(file_path) as hdulist:
+        hdulist["PRIMARY"].header["EXP_TYPE"] = expected_exp_type
+        hdulist.writeto(file_path, overwrite=True)
 
-        if skip_fits_update is not None:
-            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
-        else:
-            ctx = contextlib.nullcontext()
-
-        if use_env:
-            if skip_fits_update is not None:
-                monkeypatch.setenv("SKIP_FITS_UPDATE", str(skip_fits_update))
-                skip_fits_update = None
-
-        with ctx:
-            model = FitsModel(hduls, skip_fits_update=skip_fits_update)
-            assert model.meta.exposure.type == expected_exp_type
+    with datamodels.open(file_path) as model:
+        assert model.meta.exposure.type == expected_exp_type
 
 
 def test_from_hdulist(tmp_path):
