@@ -1,0 +1,1 @@
+Add new informational processing status keywords to slit and spectral datamodels for NIRSpec multi-slit data.
