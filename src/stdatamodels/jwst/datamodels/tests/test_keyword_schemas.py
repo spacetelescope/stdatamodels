@@ -5,16 +5,6 @@ Test duplicated schema information is in sync.
 import asdf
 import pytest
 
-# keyword schema file
-# - is this a single or multiple enum? (can it be inferred)
-# - what's the path (can it be inferred, no, because of the referencefile schema for name)
-# is there a pattern file (not all have them)
-# - all are a single regex
-# - what's the path? (can it be inferred)
-# core schema location
-# - single or multiple enum? (can it be inferred)
-# - what's the path
-
 
 comparisons = {
     "band": {
@@ -97,23 +87,23 @@ SCHEMA_URI_BASE = "http://stsci.edu/schemas/jwst_datamodel"
 
 
 def parse_pattern(regex_string):
+    """Return a set of possible values for a keyword_p* regex."""
     return {i.strip("\\ ") for i in regex_string.strip("^(").split(")")[0].split("|")}
 
 
 def parse_schema_items(subschema):
-    # enum -> one enum
-    # pattern -> regex
-    # anyOf -> multiple enum
+    """Extract a set of values allowable by the schema."""
     if "enum" in subschema:
         return set(subschema["enum"])
     if "pattern" in subschema:
         return parse_pattern(subschema["pattern"])
     if "anyOf" in subschema:
         return set.union(*[parse_schema_items(i) for i in subschema["anyOf"]])
-    raise Exception("Not supported")  # noqa: TRY002
+    raise Exception(f"Failed to parse subschema {subschema}")  # noqa: TRY002
 
 
 def read_schema_items(name, path):
+    """Extract a set of possible values for an attribute at a path for the named schema."""
     schema = asdf.schema.load_schema(f"{SCHEMA_URI_BASE}/{name}")
     # walk schema consuming path
     cursor = schema
@@ -121,13 +111,14 @@ def read_schema_items(name, path):
         if "properties" in cursor:
             cursor = cursor["properties"]
         if subpath not in cursor:
-            raise Exception("I'm lost...")  # noqa: TRY002
+            raise Exception("Failed to traverse schema.")  # noqa: TRY002
         cursor = cursor[subpath]
     return parse_schema_items(cursor)
 
 
 @pytest.mark.parametrize("key", comparisons.keys())
 def test_schemas_match(key):
+    """Test that the duplicated contents in the schemas defined above match."""
     items = {}
     for schema_type, (schema_name, schema_path) in comparisons[key].items():
         items[schema_type] = read_schema_items(schema_name, schema_path)
