@@ -2,6 +2,7 @@ from asdf import schema as mschema
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
+from stdatamodels.jwst._kwtool import dmd
 from stdatamodels.jwst.datamodels import JwstDataModel
 
 
@@ -106,3 +107,28 @@ def test_ami_wcsinfo():
         wcsinfo = wcsinfo_def[keyword]
         for key in set(ami.keys()) | set(wcsinfo.keys()) - {"fits_hdu"}:
             assert ami[key] == wcsinfo[key]
+
+
+def test_duplicate_keywords():
+    """Test that FITS keywords are not used more than once."""
+    datamodel_keywords = dmd.load()
+
+    errors = {}
+    for keyword, entry in datamodel_keywords.items():
+        # this has a duplicate
+        if keyword == ("SCI", "SRCTYPE"):
+            continue
+
+        # find schema "paths" to each keyword
+        paths = {".".join(i["path"]) for i in entry}
+
+        # Remove "items" paths, these are acceptable reuses
+        # for things like MultiSlitModel where each slit will
+        # have it's own SCI extension when the keywords will
+        # be reused.
+        paths = [p for p in paths if ".items" not in p]
+
+        if len(paths) > 1:
+            errors[keyword] = paths
+
+    assert not errors
