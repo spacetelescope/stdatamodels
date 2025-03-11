@@ -14,7 +14,14 @@ import numpy as np
 from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
 
 
+__all__ = [
+    "ValidationWarning",
+]
+
+
 class ValidationWarning(Warning):
+    """Warning to raise if a model fails to validate through its schema."""
+
     pass
 
 
