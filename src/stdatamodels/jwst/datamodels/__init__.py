@@ -112,11 +112,12 @@ from .wcs_ref_models import (
     WaveCorrModel,
 )
 from .wfssbkg import WfssBkgModel
-from .util import open  # noqa: A004
+from .util import open, NoTypeWarning  # noqa: A004
 
 
 __all__ = [
     "open",
+    "NoTypeWarning",
     "JwstDataModel",
     "ABVegaOffsetModel",
     "AmiLgModel",
@@ -251,7 +252,7 @@ __all__ = [
 ]
 
 
-_all_models = __all__[1:]
+_all_models = __all__[2:]
 _local_dict = locals()
 _defined_models = {k: _local_dict[k] for k in _all_models}
 
