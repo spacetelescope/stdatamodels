@@ -10,7 +10,7 @@ import pytest
 import numpy as np
 from astropy.io import fits
 from stdatamodels import DataModel
-from stdatamodels.validate import ValidationError, ValidationWarning
+from stdatamodels.validate import ValidationError
 
 from stdatamodels.jwst.datamodels import (
     JwstDataModel,
@@ -23,7 +23,7 @@ from stdatamodels.jwst.datamodels import (
     ReferenceQuadModel,
 )
 from stdatamodels.jwst import datamodels
-from stdatamodels.jwst.datamodels import util
+from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
 
 import asdf
 
@@ -99,7 +99,7 @@ def test_open_hdulist(tmp_path):
     with datamodels.open(hdulist) as model:
         assert isinstance(model, ImageModel)
 
-    with pytest.warns(datamodels.util.NoTypeWarning) as record:
+    with pytest.warns(NoTypeWarning) as record:
         with datamodels.open(path) as model:
             assert isinstance(model, ImageModel)
             assert len(record) == 1
@@ -114,7 +114,7 @@ def test_open_ramp(tmp_path):
         hdulist.append(fits.ImageHDU(data=np.zeros(shape), name="SCI", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, RampModel)
 
@@ -127,7 +127,7 @@ def test_open_cube(tmp_path):
         hdulist.append(fits.ImageHDU(data=np.zeros(shape), name="SCI", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, CubeModel)
 
@@ -151,7 +151,7 @@ def test_open_reffiles(tmp_path, model_class, shape):
             hdulist.append(fits.ImageHDU(data=np.zeros(shape, dtype=np.uint), name="DQ", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, model_class)
 
@@ -194,7 +194,7 @@ def test_open_asdf_no_datamodel_class(tmp_path, suffix):
     # sharing the same class name as stdatamodels.DataModel (used here)
     # now that jwst.DataModel is removed, both the fits and asdf
     # files correctly report NoTypeWarning
-    with pytest.warns(util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 
@@ -205,7 +205,7 @@ def test_open_asdf(tmp_path):
     with asdf.AsdfFile(tree) as af:
         af.write_to(path)
 
-    with pytest.warns(util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 

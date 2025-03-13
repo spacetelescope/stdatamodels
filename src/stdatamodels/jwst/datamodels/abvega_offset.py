@@ -1,6 +1,6 @@
 import warnings
 
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 from .reference import ReferenceFileModel
 
 __all__ = ["ABVegaOffsetModel"]

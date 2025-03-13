@@ -12,17 +12,7 @@ from asdf.util import HashableDict
 import numpy as np
 
 from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
-
-
-__all__ = [
-    "ValidationWarning",
-]
-
-
-class ValidationWarning(Warning):
-    """Warning to raise if a model fails to validate through its schema."""
-
-    pass
+from stdatamodels.exceptions import ValidationWarning
 
 
 # always show validation warnings unless another filter was added that

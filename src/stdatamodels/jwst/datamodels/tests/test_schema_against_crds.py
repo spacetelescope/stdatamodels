@@ -8,6 +8,7 @@ import asdf
 import pytest
 
 from stdatamodels.jwst import datamodels as dm
+from stdatamodels.exceptions import NoTypeWarning
 
 os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 
@@ -226,7 +227,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     if reftype in ref_to_multiples_dict.keys():
                         model_map = ref_to_multiples_dict[reftype]
                         with warnings.catch_warnings():
-                            warnings.simplefilter("ignore", dm.util.NoTypeWarning)
+                            warnings.simplefilter("ignore", NoTypeWarning)
                             refs = cache_references(context, {reftype: f})
                             if Path(refs[reftype]).name == "jwst_fgs_distortion_0003.asdf":
                                 # jwst_fgs_distortion_0003.asdf contains an invalid set of ASDF

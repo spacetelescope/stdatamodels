@@ -5,7 +5,7 @@ from asdf.tags.core import NDArrayType
 import numpy as np
 from astropy.modeling.core import Model
 from astropy import units as u
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 
 from .reference import ReferenceFileModel
 
