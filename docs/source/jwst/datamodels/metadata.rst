@@ -87,6 +87,25 @@ equivalent::
     print(model['meta.observation.date'])
     print(model.meta.observation.date)
 
+Lazy-Loading Metadata
+---------------------
+
+The ``datamodels.open`` method loads the entire file into memory and validates it through
+its schema. While this is a good thing in most cases, it can be slow for large files.
+To access a single metadata element without loading the entire file, use the
+``datamodels.load_meta_attribute`` method.  For example, to access the ``wcsinfo``, use
+the following code::
+
+.. doctest-skip::
+
+    >>> from stdatamodels.jwst.datamodels import load_meta_attribute
+    >>> wcsinfo = datamodels.load_meta_attribute("myfile.fits", "meta.wcsinfo")
+    >>> print(type(wcsinfo)) # <class 'dict'>
+
+.. warning::
+  
+  This method bypasses schema validation, so use it with caution.
+
 Working with lists
 ==================
 

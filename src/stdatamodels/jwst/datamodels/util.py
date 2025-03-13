@@ -16,7 +16,7 @@ from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
 
 
-__all__ = ["open", "is_association", "load_meta_attribute"]
+__all__ = ["open", "is_association"]
 
 
 log = logging.getLogger(__name__)
