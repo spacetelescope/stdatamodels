@@ -6,6 +6,7 @@ import warnings
 from pathlib import Path
 import logging
 
+import io
 import asdf
 
 import numpy as np
@@ -15,7 +16,7 @@ from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
 
 
-__all__ = ["open", "is_association"]
+__all__ = ["open", "is_association", "load_meta_attribute"]
 
 
 log = logging.getLogger(__name__)
@@ -411,3 +412,72 @@ def is_association(asn_data):
         if "asn_id" in asn_data and "asn_pool" in asn_data:
             return True
     return False
+
+
+def load_meta_attribute(init, attribute):
+    """
+    Load a metadata attribute from a file without loading the entire datamodel into memory.
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    init : str or Path
+        Path to a JWSTDataModel file.
+    attribute : str or list
+        The attribute to load. If a string, it should be `.` separated, e.g.
+        "meta.instrument.filter". If a list, it should be a list of strings,
+        e.g. ["meta", "instrument", "filter"].
+
+    Returns
+    -------
+    attribute : object
+        The value of the requested attribute.
+
+    Raises
+    ------
+    TypeError
+        If the input data is not a file path.
+    TypeError
+        If the attribute is not a string or list of strings.
+    ValueError
+        If the file type is not FITS or ASDF.
+    """
+
+    # ensure input data is a file
+    if not isinstance(init, (Path, str, bytes)):
+        raise TypeError("init must be a file path")
+    if isinstance(init, bytes):
+        init = init.decode(sys.getfilesystemencoding())
+
+    # ensure attribute is a list
+    if not isinstance(attribute, (str, list)):
+        raise TypeError("attribute must be a `.` separated string or a list of strings")
+    if isinstance(attribute, str):
+        attribute = attribute.split(".")
+
+    file_type = filetype.check(init)
+    if file_type == "fits":
+        with fits.open(init) as ff:
+            bs = io.BytesIO(ff["ASDF"].data.tobytes())
+            tree = asdf.util.load_yaml(bs)
+            return _traverse_tree(tree, attribute)
+    elif file_type == "asdf":
+        with asdf.open(init) as af:
+            # bs = io.BytesIO(ff['ASDF'].data.tobytes())
+            return _traverse_tree(af.tree, attribute)
+    else:
+        raise ValueError(f"File type {file_type} not supported. Must be FITS or ASDF.")
+
+
+def _traverse_tree(tree, attribute):
+    """Traverse the tree to get the attribute."""
+    attr = tree
+    for key in attribute:
+        attr = attr[key]
+    return attr
