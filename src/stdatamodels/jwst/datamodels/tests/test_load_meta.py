@@ -24,10 +24,9 @@ def test_load_meta(extension, tmp_path):
     assert meta_attr_foo == "bar"
     assert meta_attr_foo_list == "bar"
 
-    # Ensure meta attributes of data are accessible
-    # TODO: these come out differently for ASDF and FITS files
-    # data_shape = load_meta_attribute(path, "data.shape")
-    # assert shp == tuple(data_shape)
+    # Ensure serialized attributes of data are accessible
+    data_shape = load_meta_attribute(path, "data.shape")
+    assert shp == tuple(data_shape)
 
     # Ensure that data itself is not in memory when attempting to access "data"
     data_meta = load_meta_attribute(path, "data")

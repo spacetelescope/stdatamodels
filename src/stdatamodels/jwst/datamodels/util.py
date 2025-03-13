@@ -466,17 +466,12 @@ def load_meta_attribute(init, attribute):
         with fits.open(init) as ff:
             bs = io.BytesIO(ff["ASDF"].data.tobytes())
             tree = asdf.util.load_yaml(bs)
-            return _traverse_tree(tree, attribute)
     elif file_type == "asdf":
-        with asdf.open(init) as af:
-            return _traverse_tree(af.tree, attribute)
+        tree = asdf.util.load_yaml(init)
     else:
         raise ValueError(f"File type {file_type} not supported. Must be FITS or ASDF.")
 
-
-def _traverse_tree(tree, attribute):
-    """Traverse the tree to get the attribute."""
-    attr = tree
+    # Traverse the tree to get the attribute
     for key in attribute:
-        attr = attr[key]
-    return attr
+        tree = tree[key]
+    return tree
