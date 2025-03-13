@@ -47,6 +47,10 @@ def test_load_meta_bad_inputs(tmp_path):
     with pytest.raises(TypeError):
         load_meta_attribute(model, "meta.foo")
 
+    # Cannot use this on a bad attribute data type
+    with pytest.raises(TypeError):
+        load_meta_attribute(path, 5)
+
     # Cannot use this on a non-existent attribute
     with pytest.raises(KeyError):
         load_meta_attribute(path, "meta.baz")
