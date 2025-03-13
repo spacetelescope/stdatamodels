@@ -7,7 +7,7 @@ import asdf
 from asdf.exceptions import ValidationError
 import numpy as np
 
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 from models import BasicModel, ValidationModel, RequiredModel
 
 

@@ -12,10 +12,7 @@ from asdf.util import HashableDict
 import numpy as np
 
 from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
-
-
-class ValidationWarning(Warning):
-    pass
+from stdatamodels.exceptions import ValidationWarning
 
 
 # always show validation warnings unless another filter was added that

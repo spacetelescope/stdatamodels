@@ -248,9 +248,10 @@ An alternative is to use::
         ...
 
 The `datamodels.open()` method checks if the `DATAMODL` FITS keyword has
-been set, which records the DataModel that was used to create the file.
+been set (or, for ASDF files, the `meta.model_type attribute`), 
+which records the DataModel that was used to create the file.
 If the keyword is not set, then `datamodels.open()` does its best to
-guess the best DataModel to use.
+guess the best DataModel to use and emits a `NoTypeWarning`.
 
 Accessing data
 --------------

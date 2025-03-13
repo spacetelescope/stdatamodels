@@ -7,7 +7,7 @@ import numpy as np
 from stdatamodels import DataModel
 
 from models import BasicModel, AnyOfModel, TableModel, TransformModel, FitsModel
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 
 
 def test_init_from_pathlib(tmp_path):

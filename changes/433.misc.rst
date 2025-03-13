@@ -1,0 +1,1 @@
+Move NoTypeWarning and ValidationWarning to new exceptions submodule

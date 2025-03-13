@@ -14,17 +14,14 @@ import numpy as np
 from astropy.io import fits
 from stdatamodels import filetype
 from stdatamodels.model_base import _FileReference
+from stdatamodels.exceptions import NoTypeWarning
 
 
-__all__ = ["open", "NoTypeWarning", "is_association"]
+__all__ = ["open", "is_association"]
 
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-
-class NoTypeWarning(Warning):
-    pass
 
 
 def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001

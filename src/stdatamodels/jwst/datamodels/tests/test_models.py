@@ -32,7 +32,7 @@ from stdatamodels.jwst.datamodels import (
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 
 ROOT_DIR = Path(__file__).parent / "data"
 FITS_FILE = ROOT_DIR / "test.fits"
