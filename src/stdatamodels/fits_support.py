@@ -285,11 +285,11 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         return
 
     if "ndim" in schema:
-        ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
+        yield from ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
     if "max_ndim" in schema:
-        ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
-    if "dtype" in schema:
-        ndarray.validate_dtype(validator, schema["dtype"], instance, schema)
+        yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
+    if "datatype" in schema:
+        yield from ndarray.validate_datatype(validator, schema["datatype"], instance, schema)
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
