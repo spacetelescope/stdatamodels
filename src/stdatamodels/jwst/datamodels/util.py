@@ -469,7 +469,6 @@ def load_meta_attribute(init, attribute):
             return _traverse_tree(tree, attribute)
     elif file_type == "asdf":
         with asdf.open(init) as af:
-            # bs = io.BytesIO(ff['ASDF'].data.tobytes())
             return _traverse_tree(af.tree, attribute)
     else:
         raise ValueError(f"File type {file_type} not supported. Must be FITS or ASDF.")
