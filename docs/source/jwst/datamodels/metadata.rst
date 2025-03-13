@@ -99,7 +99,7 @@ the following code::
 .. doctest-skip::
 
     >>> from stdatamodels.jwst.datamodels import load_meta_attribute
-    >>> wcsinfo = datamodels.load_meta_attribute("myfile.fits", "meta.wcsinfo")
+    >>> wcsinfo = load_meta_attribute("myfile.fits", "meta.wcsinfo")
     >>> print(type(wcsinfo)) # <class 'dict'>
 
 .. warning::
