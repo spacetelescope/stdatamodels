@@ -289,7 +289,7 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     if "max_ndim" in schema:
         yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
     if "datatype" in schema:
-        yield from ndarray.validate_datatype(validator, schema["datatype"], instance, schema)
+        yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)

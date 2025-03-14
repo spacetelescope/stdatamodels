@@ -418,7 +418,9 @@ def test_ndarray_datatype_validation(tmp_path):
     file_path = tmp_path / "test.fits"
     m = FitsModel(validate_arrays=True)
     m.instance["data"] = np.ones((4, 4), dtype=np.float64)
-    with pytest.raises(ValidationError, match="Can not safely cast from 'float64' to 'float32'"):
+    with pytest.raises(
+        ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"
+    ):
         m.save(file_path)
 
 
