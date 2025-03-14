@@ -58,6 +58,7 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 2
         x.save(path)
 
+    path2 = str(tmp_path / "data_array2.fits")
     with JwstDataModel(path, schema=data_array_schema) as x:
         assert len(x.arr) == 2
         assert_array_almost_equal(x.arr[0].data, array1)
@@ -79,11 +80,11 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 3
         del x.arr[1]
         assert len(x.arr) == 2
-        x.save(path)
+        x.save(path2)
 
     from astropy.io import fits
 
-    with fits.open(path) as hdulist:
+    with fits.open(path2) as hdulist:
         x = set()
         for hdu in hdulist:
             x.add((hdu.header.get("EXTNAME"), hdu.header.get("EXTVER")))

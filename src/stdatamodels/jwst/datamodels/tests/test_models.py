@@ -721,13 +721,14 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     else:
         m.flat_table = make_data(m.flat_table.dtype)
     m.save(fn)
+    fn2 = tmp_path / "test2.fits"
     with fits.open(fn) as ff:
         for ext in ff:
             if ext.name != "FAST_VARIATION":
                 continue
             # drop the error column
             ext.data = drop_fields(ext.data, "error")
-        ff.writeto(fn, overwrite=True)
+        ff.writeto(fn2, overwrite=True)
 
     def check_error_column(model):
         if isinstance(model, NirspecQuadFlatModel):
@@ -737,10 +738,10 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
         assert np.all(np.isnan(table["error"]))
 
     # check that migration works with datamodels.open
-    with datamodels.open(fn) as dm:
+    with datamodels.open(fn2) as dm:
         check_error_column(dm)
     # and with DataModel(fn)
-    with model(fn) as dm:
+    with model(fn2) as dm:
         check_error_column(dm)
 
 
@@ -756,13 +757,14 @@ def test_moving_target_table_migration(tmp_path):
     m = Level1bModel()
     m.moving_target = make_data(m.moving_target.dtype)
     m.save(fn)
+    fn2 = tmp_path / "test_mt2.fits"
     with fits.open(fn) as ff:
         for ext in ff:
             if ext.name != "MOVING_TARGET_POSITION":
                 continue
             # drop the error column
             ext.data = drop_fields(ext.data, ("mt_v2", "mt_v3"))
-        ff.writeto(fn, overwrite=True)
+        ff.writeto(fn2, overwrite=True)
 
     def check_error_column(model):
         table = model.moving_target
@@ -770,8 +772,8 @@ def test_moving_target_table_migration(tmp_path):
         assert np.all(np.isnan(table["mt_v3"]))
 
     # check that migration works with datamodels.open
-    with datamodels.open(fn) as dm:
+    with datamodels.open(fn2) as dm:
         check_error_column(dm)
     # and with DataModel(fn)
-    with Level1bModel(fn) as dm:
+    with Level1bModel(fn2) as dm:
         check_error_column(dm)

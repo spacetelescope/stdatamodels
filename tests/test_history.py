@@ -44,8 +44,8 @@ def test_historylist_methods():
     assert len(h1) == 0, "Clear history list"
 
 
-def test_history_from_model_to_fits(tmpdir):
-    tmpfits = str(tmpdir.join("tmp.fits"))
+def test_history_from_model_to_fits(tmp_path):
+    tmpfits = str(tmp_path / "tmp.fits")
     m = DataModel()
     m.history = [
         HistoryEntry(
@@ -62,6 +62,7 @@ def test_history_from_model_to_fits(tmpdir):
     with fits.open(tmpfits, memmap=False) as hdulist:
         assert list(hdulist[0].header["HISTORY"]) == ["First entry", "Second entry"]
 
+    tmpfits2 = str(tmp_path / "tmp2.fits")
     with DataModel(tmpfits) as m2:
         m2 = DataModel()
         m2.update(m)
@@ -69,26 +70,27 @@ def test_history_from_model_to_fits(tmpdir):
 
         assert m2.history == [{"description": "First entry"}, {"description": "Second entry"}]
 
-        m2.save(tmpfits)
+        m2.save(tmpfits2)
 
-    with fits.open(tmpfits, memmap=False) as hdulist:
+    with fits.open(tmpfits2, memmap=False) as hdulist:
         assert list(hdulist[0].header["HISTORY"]) == ["First entry", "Second entry"]
 
 
-def test_history_from_fits(tmpdir):
-    tmpfits = str(tmpdir.join("tmp.fits"))
+def test_history_from_fits(tmp_path):
+    tmpfits = str(tmp_path / "tmp.fits")
     header = fits.Header()
     header["HISTORY"] = "First entry"
     header["HISTORY"] = "Second entry"
     fits.writeto(tmpfits, np.array([]), header, overwrite=True)
 
+    tmpfits2 = str(tmp_path / "tmp2.fits")
     with DataModel(tmpfits) as m:
         assert m.history == [{"description": "First entry"}, {"description": "Second entry"}]
 
         del m.history[0]
         m.history.append(HistoryEntry({"description": "Third entry"}))
         assert m.history == [{"description": "Second entry"}, {"description": "Third entry"}]
-        m.save(tmpfits)
+        m.save(tmpfits2)
 
-    with DataModel(tmpfits) as m:
+    with DataModel(tmpfits2) as m:
         assert m.history == [{"description": "Second entry"}, {"description": "Third entry"}]
