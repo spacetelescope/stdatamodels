@@ -88,11 +88,13 @@ def test_extra_fits(tmp_path):
     with FitsModel() as dm:
         dm.save(file_path)
 
+    file_path2 = tmp_path / "test2.fits"
+
     with fits.open(file_path) as hdul:
         hdul[0].header["FOO"] = "BAR"
-        hdul.writeto(file_path, overwrite=True)
+        hdul.writeto(file_path2, overwrite=True)
 
-    with DataModel(file_path) as dm:
+    with DataModel(file_path2) as dm:
         assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
