@@ -1,5 +1,3 @@
-import contextlib
-import os
 import warnings
 from pathlib import Path
 
@@ -71,48 +69,16 @@ def test_init_from_pathlib(tmp_path):
         assert isinstance(model, ImageModel)
 
 
-@pytest.mark.parametrize(
-    "which_file, skip_fits_update, expected_exp_type",
-    [
-        ("just_fits", None, "FGS_DARK"),
-        ("just_fits", False, "FGS_DARK"),
-        ("just_fits", True, "FGS_DARK"),
-        ("model", None, "FGS_DARK"),
-        ("model", False, "FGS_DARK"),
-        ("model", True, "NRC_IMAGE"),
-    ],
-)
-@pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(
-    jail_environ, use_env, make_models, which_file, skip_fits_update, expected_exp_type
-):
+@pytest.mark.parametrize("which_file", ["just_fits", "model"])
+def test_skip_fits_update(make_models, which_file):
     """Test skip_fits_update setting"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
     with fits.open(path) as hduls:
         hduls[0].header["exp_type"] = "FGS_DARK"
 
-        # Decide how to skip. If using the environmental,
-        # set that and pass None to the open function.
-        try:
-            del os.environ["SKIP_FITS_UPDATE"]
-        except KeyError:
-            # No need to worry, environmental doesn't exist anyways
-            pass
-
-        if skip_fits_update is not None:
-            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
-        else:
-            ctx = contextlib.nullcontext()
-
-        if use_env:
-            if skip_fits_update is not None:
-                os.environ["SKIP_FITS_UPDATE"] = str(skip_fits_update)
-                skip_fits_update = None
-
-        with ctx:
-            with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-                assert model.meta.exposure.type == expected_exp_type
+        with datamodels.open(hduls) as model:
+            assert model.meta.exposure.type == "FGS_DARK"
 
 
 def test_asnmodel_table_size_zero():
