@@ -50,6 +50,7 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
     Additionally, dtypes are required to be equivalent, instead
     of just "safe" to cast.
     """
+    allow_extra_columns = schema.get("allow_extra_columns", False)
     if isinstance(instance, list):
         array = ndarray.inline_data_asarray(instance)
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(array.dtype)
@@ -86,7 +87,7 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
                 f"Expected structured datatype '{schema_datatype}', got '{instance_datatype}'"
             )
 
-        if len(instance_dtype.fields) != len(schema_dtype.fields):
+        if not allow_extra_columns and len(instance_dtype.fields) != len(schema_dtype.fields):
             yield ValidationError(
                 f"Mismatch in number of fields: Expected {len(schema_datatype)}, "
                 f"got {len(instance_datatype)}"

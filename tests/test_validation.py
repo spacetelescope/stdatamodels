@@ -8,7 +8,7 @@ from asdf.exceptions import ValidationError
 import numpy as np
 
 from stdatamodels.exceptions import ValidationWarning
-from models import BasicModel, ValidationModel, RequiredModel
+from models import BasicModel, FitsModel, ValidationModel, RequiredModel
 
 
 class _DoesNotRaiseContext:
@@ -412,6 +412,16 @@ def test_ndarray_validation(tmp_path):
     with pytest.raises(ValidationError, match="Wrong number of dimensions: Expected 2, got 1"):
         with BasicModel(file_path, strict_validation=True, validate_arrays=True) as model:
             model.validate()
+
+
+def test_ndarray_datatype_validation(tmp_path):
+    file_path = tmp_path / "test.fits"
+    m = FitsModel(validate_arrays=True)
+    m.instance["data"] = np.ones((4, 4), dtype=np.float64)
+    with pytest.raises(
+        ValidationError, match="Array datatype 'float64' is not compatible with 'float32'"
+    ):
+        m.save(file_path)
 
 
 def test_validation_memory_leak():
