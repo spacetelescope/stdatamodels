@@ -188,13 +188,23 @@ class DataModel(properties.ObjectNode):
         shape = None
 
         if init is None:
-            asdffile = self.open_asdf(init=None, **kwargs)
+            asdffile = AsdfFile(
+                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
+            )
 
         elif isinstance(init, dict):
-            asdffile = self.open_asdf(init=init, **kwargs)
+            asdffile = AsdfFile(
+                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
+            )
+            # Don't pass init to AsdfFile as that triggers an extra validation
+            # this can updated to AsdfFile(init, ...) when asdf 4.0 is the
+            # minimum version.
+            asdffile._tree = init
 
         elif isinstance(init, np.ndarray):
-            asdffile = self.open_asdf(init=None, **kwargs)
+            asdffile = AsdfFile(
+                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
+            )
 
             shape = init.shape
             is_array = True
@@ -206,7 +216,9 @@ class DataModel(properties.ObjectNode):
 
             shape = init
             is_shape = True
-            asdffile = self.open_asdf(init=None, **kwargs)
+            asdffile = AsdfFile(
+                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
+            )
 
         elif isinstance(init, DataModel):
             asdffile = None
@@ -239,8 +251,7 @@ class DataModel(properties.ObjectNode):
                 asdffile = fits_support.from_fits(hdulist, self._schema, self._ctx, **kwargs)
 
             elif file_type == "asdf":
-                asdffile = self.open_asdf(init=init, memmap=memmap, **kwargs)
-
+                asdffile = asdf.open(init, memmap=memmap, **kwargs)
             else:
                 # TODO handle json files as well
                 raise OSError("File does not appear to be a FITS or ASDF file.")
@@ -569,6 +580,10 @@ class DataModel(properties.ObjectNode):
         """
         Open an asdf object from a filename or create a new asdf object
         """
+        warnings.warn(
+            "open_asdf is deprecated, use asdf.open instead.", DeprecationWarning, stacklevel=2
+        )
+
         if isinstance(init, str):
             asdffile = asdf.open(init, ignore_unrecognized_tag=ignore_unrecognized_tag, **kwargs)
 
@@ -618,9 +633,10 @@ class DataModel(properties.ObjectNode):
         self.on_save(init)
         self.validate()  # required to trigger ValidationWarning
         tree = convert_fitsrec_to_array_in_tree(self._instance)
-        # don't open_asdf(tree) as this will cause a second validation of the tree
+        # Don't AsdfFile(tree) as this will cause a second validation of the tree
         # instead open an empty tree, then assign to the hidden '_tree'
-        asdffile = self.open_asdf(None, **kwargs)
+        # This can be updated when asdf 4.0 is the minimum version.
+        asdffile = AsdfFile()
         asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
 

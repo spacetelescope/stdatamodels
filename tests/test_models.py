@@ -366,3 +366,8 @@ def test_write_deprecation(tmp_path):
     m = DataModel()
     with pytest.warns(DeprecationWarning, match="write is deprecated"):
         m.write(fn)
+
+
+def test_open_asdf_deprecation():
+    with pytest.warns(DeprecationWarning, match="open_asdf is deprecated"):
+        DataModel.open_asdf(None)
