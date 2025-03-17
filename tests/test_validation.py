@@ -136,12 +136,7 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
     "suffix",
     [
         "asdf",
-        pytest.param(
-            "fits",
-            marks=pytest.mark.xfail(
-                reason="save to FITS raises error, not just warning", strict=True
-            ),
-        ),
+        "fits",
     ],
 )
 def test_pass_invalid_values_on_write(tmp_path, suffix):
@@ -149,11 +144,14 @@ def test_pass_invalid_values_on_write(tmp_path, suffix):
     model = ValidationModel(pass_invalid_values=True)
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
-    with pytest.warns(ValidationWarning):
+
+    ctx = pytest.warns(ValidationWarning) if suffix == "asdf" else pytest.raises(ValidationError)
+    with ctx:
         model.save(file_path)
 
-    with asdf.open(file_path) as af:
-        assert af["meta"]["string_attribute"] == 42
+    if suffix == "asdf":
+        with asdf.open(file_path) as af:
+            assert af["meta"]["string_attribute"] == 42
 
 
 @pytest.mark.parametrize(
@@ -199,12 +197,7 @@ def test_validate():
     "suffix",
     [
         "asdf",
-        pytest.param(
-            "fits",
-            marks=pytest.mark.xfail(
-                reason="save to FITS raises error, not just warning", strict=True
-            ),
-        ),
+        "fits",
     ],
 )
 def test_validation_on_write(tmp_path, suffix):
@@ -213,7 +206,10 @@ def test_validation_on_write(tmp_path, suffix):
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
 
-    with pytest.warns(ValidationWarning):
+    # pass_invalid_values=True does not allow saving an invalid FITS file
+    ctx = pytest.warns(ValidationWarning) if suffix == "asdf" else pytest.raises(ValidationError)
+
+    with ctx:
         model.save(file_path)
 
 
