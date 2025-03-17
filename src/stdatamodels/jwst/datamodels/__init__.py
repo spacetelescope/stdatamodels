@@ -72,7 +72,7 @@ from .rscd import RSCDModel
 from .saturation import SaturationModel
 from .segmap import SegmentationMapModel
 from .sirs_kernel import SIRSKernelModel
-from .slit import SlitModel, SlitDataModel
+from .slit import SlitModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
@@ -222,7 +222,6 @@ __all__ = [
     "RSCDModel",
     "SaturationModel",
     "SIRSKernelModel",
-    "SlitDataModel",
     "SlitModel",
     "SpecModel",
     "MRSSpecModel",

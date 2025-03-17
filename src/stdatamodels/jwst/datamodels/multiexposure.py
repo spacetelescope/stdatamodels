@@ -5,7 +5,7 @@ from asdf import treeutil
 
 from .model_base import JwstDataModel
 from .image import ImageModel
-from .slit import SlitModel, SlitDataModel
+from .slit import SlitModel
 
 
 __all__ = ["MultiExposureModel", "set_hdu", "remove_fits"]
@@ -52,7 +52,7 @@ class MultiExposureModel(JwstDataModel):
         # Lets create a schema
         schema = self._build_schema()
 
-        if isinstance(init, (SlitModel, SlitDataModel, ImageModel)):
+        if isinstance(init, (SlitModel, ImageModel)):
             super(MultiExposureModel, self).__init__(init=None, schema=schema, **kwargs)
             self.update(init)
             self.exposures.append(self.exposures.item())

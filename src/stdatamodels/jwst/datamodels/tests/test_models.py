@@ -21,7 +21,6 @@ from stdatamodels.jwst.datamodels import (
     SlitModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
-    SlitDataModel,
     IFUImageModel,
     ABVegaOffsetModel,
     Level1bModel,
@@ -232,8 +231,8 @@ def test_multislit_model():
     err = np.arange(24).reshape((6, 4)) + 2
     wav = np.arange(24).reshape((6, 4)) + 3
     dq = np.arange(24).reshape((6, 4)) + 1
-    s0 = SlitDataModel(data=data, err=err, dq=dq, wavelength=wav)
-    s1 = SlitDataModel(data=data + 1, err=err + 1, dq=dq + 1, wavelength=wav + 1)
+    s0 = SlitModel(data=data, err=err, dq=dq, wavelength=wav)
+    s1 = SlitModel(data=data + 1, err=err + 1, dq=dq + 1, wavelength=wav + 1)
 
     ms = MultiSlitModel()
     ms.slits.append(s0)
@@ -251,7 +250,7 @@ def test_slit_from_image():
     data = np.arange(24, dtype=np.float32).reshape((6, 4))
     im = ImageModel(data=data, err=data / 2, dq=data)
     im.meta.instrument.name = "MIRI"
-    slit_dm = SlitDataModel(im)
+    slit_dm = SlitModel(im)
     assert_allclose(im.data, slit_dm.data)
     assert hasattr(slit_dm, "wavelength")
     # this should be enabled after gwcs starts using non-coordinate inputs
