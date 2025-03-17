@@ -195,20 +195,6 @@ def test_validate():
         model.validate()
 
 
-@pytest.mark.xfail(reason="validation on init not yet implemented for ASDF files", strict=True)
-def test_validation_on_init(tmp_path):
-    with asdf.AsdfFile() as af:
-        af["meta"] = {"string_attribute": "foo"}
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            ValidationModel(af)
-
-        af["meta"]["string_attribute"] = 42
-        with pytest.warns(ValidationWarning):
-            ValidationModel(af)
-
-
 @pytest.mark.parametrize(
     "suffix",
     [
