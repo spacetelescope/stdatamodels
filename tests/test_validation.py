@@ -100,39 +100,11 @@ def test_object_assignment_with_nested_null():
         model.meta.object_attribute = {"string_attribute": None}
 
 
-@pytest.mark.xfail(reason="validation of a required attribute not yet implemented", strict=True)
-def test_required_attribute_assignment():
+def test_validation_for_required(tmp_path):
+    fn = tmp_path / "test.fits"
     model = RequiredModel()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        model.meta.required_attribute = "foo"
-
-    with pytest.warns(ValidationWarning):
-        model.meta.required_attribute = None
-
-
-@pytest.mark.xfail(reason="validation of required attributes not yet implemented", strict=True)
-def test_validation_on_delete():
-    model = RequiredModel()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        model.meta.required_keyword = "foo"
-
-    with pytest.warns(ValidationWarning):
-        del model.meta.required_keyword
-    assert model.meta.required_keyword == "foo"
-
-    model = RequiredModel(pass_invalid_values=True)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        model.meta.required_keyword = "foo"
-
-    with pytest.warns(ValidationWarning):
-        del model.meta.required_keyword
-    assert model.meta.required_keyword is None
+    with pytest.raises(ValidationError, match="'required_attribute' is a required property"):
+        model.save(fn)
 
 
 @pytest.mark.parametrize(
