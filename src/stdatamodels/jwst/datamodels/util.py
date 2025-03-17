@@ -66,14 +66,6 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
              If `True`, arrays will be validated against ndim, max_ndim, and datatype
              validators in the schemas.
 
-        - FITS
-
-           skip_fits_update :  bool or None
-              DEPRECATED
-              `True` to skip updating the ASDF tree from the FITS headers, if possible.
-              If `None`, value will be taken from the environmental SKIP_FITS_UPDATE.
-              Otherwise, the default value is `True`.
-
     Returns
     -------
     model : DataModel instance
