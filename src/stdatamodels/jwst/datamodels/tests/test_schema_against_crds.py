@@ -192,7 +192,7 @@ ref_to_datamodel_dict = {
 
 
 @pytest.mark.skipif(
-    "config.getoption('--no-crds')",
+    "config.getoption('--no-crds', True)",
     reason="no_crds option was enabled",
 )
 @pytest.mark.parametrize("instrument", ["fgs", "miri", "nircam", "niriss", "nirspec"])
