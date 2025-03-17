@@ -71,7 +71,7 @@ def test_init_from_pathlib(tmp_path):
 
 @pytest.mark.parametrize("which_file", ["just_fits", "model"])
 def test_skip_fits_update(make_models, which_file):
-    """Test skip_fits_update setting"""
+    """Ensure updates to the fits header get picked up on datamodel.open call"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
     with fits.open(path) as hduls:
