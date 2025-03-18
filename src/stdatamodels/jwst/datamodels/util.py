@@ -11,9 +11,11 @@ import asdf
 
 import numpy as np
 from astropy.io import fits
-from stdatamodels import filetype
+from stdatamodels import filetype, properties, fits_support
 from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
+import stdatamodels.schema as mschema
+import stdatamodels.jwst.datamodels as dm
 
 
 __all__ = ["open", "is_association"]
@@ -471,6 +473,130 @@ def load_meta_attribute(init, attribute):
     else:
         raise ValueError(f"File type {file_type} not supported. Must be FITS or ASDF.")
 
+    # Traverse the tree to get the attribute
+    for key in attribute:
+        tree = tree[key]
+    return tree
+
+
+def _lazy_load_from_schema(hdulist, schema):
+    """
+    Load metadata tree without loading entire datamodel into memory, and bypassing validation.
+
+    Parameters
+    ----------
+    hdulist : list
+        List of HDU objects from a FITS file.
+    schema : dict
+        Schema dictionary for the datamodel.
+
+    Returns
+    -------
+    tree : dict
+        Metadata tree.
+    """
+    tree = {}
+    known_keywords = {}
+
+    # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
+    # for a nirspec mos file with ~500 extensions) so we use a cache
+    # here to handle repeated accesses. A lru_cache around get_hdu
+    # was not used as hdulist is not hashable.
+    hdu_cache = {}
+
+    def callback(schema, path, combiner, ctx, recurse):
+        """Ignore anything that is a data array"""
+        result = None
+
+        if "fits_keyword" in schema:
+            fits_keyword = schema["fits_keyword"]
+            result = fits_support._fits_keyword_loader(
+                hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
+            )
+
+            properties.put_value(path, result, tree)
+
+    mschema.walk_schema(schema, callback)
+    return tree
+
+
+def lazy_load_tree(init, model_type=None):
+    """
+    Load a metadata tree from a file without loading the entire datamodel into memory.
+
+    TODO: would it make sense to turn schema validation back on?
+    TODO: what should be done if this receives an ASDF file? should that be supported?
+    TODO: how to make a fair test given need to retrieve schema from url?
+    TODO: why does Brett say that load_yaml doesn't load the datamodels, but the memory
+    usage is 2 GB on a 2GB file?
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    fname : str or Path, optional
+        Path to a JWSTDataModel file.
+    model_type : str
+        The model type used to figure out which schema to load. If not provided,
+        the model type will be determined from the file's "DATAMODL" header keyword.
+
+    Returns
+    -------
+    tree : dict
+        The metadata tree in yaml/ASDF-like format.
+    """
+    if not isinstance(init, (Path, str, bytes)):
+        raise TypeError("init must be a file path")
+    if isinstance(init, bytes):
+        init = init.decode(sys.getfilesystemencoding())
+
+    with fits.open(init) as hdulist:
+        if model_type is None:
+            model_type = hdulist[0].header["DATAMODL"]
+        schema_url = getattr(dm, model_type).schema_url
+        schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+        tree = _lazy_load_from_schema(hdulist, schema)
+    return tree
+
+
+def lazy_load_attribute(fname, attribute, model_type=None):
+    """
+    Load a metadata attribute from a file without loading the entire datamodel into memory.
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    fname : str or Path
+        Path to a JWSTDataModel file.
+    attribute : str or list
+        The attribute to load. If a string, it should be `.` separated, e.g.
+        "meta.instrument.filter". If a list, it should be a list of strings,
+        e.g. ["meta", "instrument", "filter"].
+    model_type : str, optional
+        The model type used to figure out which schema to load. If not provided,
+        the model type will be determined from the file's "DATAMODL" header keyword.
+
+    Returns
+    -------
+    attribute : object
+        The value of the requested attribute.
+    """
+    if not isinstance(attribute, (str, list)):
+        raise TypeError("attribute must be a `.` separated string or a list of strings")
+    if isinstance(attribute, str):
+        attribute = attribute.split(".")
+    tree = lazy_load_tree(fname, model_type=model_type)
     # Traverse the tree to get the attribute
     for key in attribute:
         tree = tree[key]
