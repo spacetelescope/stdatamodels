@@ -334,16 +334,6 @@ STRICT_VALIDATION
   If ``False``, they will generate a warning.
   Default is ``False``.
 
-SKIP_FITS_UPDATE
-  DEPRECATED: In the future the FITS header will always be used.
-  Used by `~jwst.datamodels.JwstDataModel` when instantiating a
-  model from a FITS file. When ``False``, models opened from FITS files will
-  proceed and load the FITS header values into the model. When ``True`` and the
-  FITS file has an ASDF extension, the loading/validation of the FITS header
-  will be skipped, loading the model only from the ASDF extension. If not
-  defined, the instantiation routines will determine whether the loading/validation
-  of the FITS header can be skipped or not.
-
 DMODEL_ALLOWED_MEMORY
   Implemented by the utility function
   `jwst.datamodels.util.check_memory_allocation` and used by
