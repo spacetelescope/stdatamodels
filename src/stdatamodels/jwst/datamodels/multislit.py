@@ -1,6 +1,6 @@
 from .model_base import JwstDataModel
 from .image import ImageModel
-from .slit import SlitModel, SlitDataModel
+from .slit import SlitModel
 
 
 __all__ = ["MultiSlitModel"]
@@ -76,8 +76,7 @@ class MultiSlitModel(JwstDataModel):
         if isinstance(init, (SlitModel, ImageModel)):
             super(MultiSlitModel, self).__init__(init=None, **kwargs)
             self.update(init)
-            slitdata = SlitDataModel(init)
-            self.slits.append(slitdata)
+            self.slits.append(init)
             return
 
         super(MultiSlitModel, self).__init__(init=init, **kwargs)
