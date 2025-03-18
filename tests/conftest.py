@@ -35,7 +35,6 @@ def patch_env_variables(monkeypatch):
     for var in [
         "PASS_INVALID_VALUES",
         "STRICT_VALIDATION",
-        "SKIP_FITS_UPDATE",
         "VALIDATE_ON_ASSIGNMENT",
     ]:
         monkeypatch.delenv(var, raising=False)
