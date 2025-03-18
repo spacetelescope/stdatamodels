@@ -37,6 +37,10 @@ and strict_validation, which control the data validation, and numpy arrays
 which are used to initialized the model arrays by using parameters of the
 same name.
 
+.. warning:
+   ``pass_invalid_values`` is deprecated and will be removed in
+   an upcoming release.
+
 As an alternative to creating a model by initializing an object of the
 specific class, you can call the open function, which is in
 util.py. This function takes the same arguments as the __init_
@@ -107,3 +111,7 @@ validate.py. The validator checks the values of pass_invalid_values,
 which allows values inconsistent with the schema to be set, and
 strict_validation, which throws an exception if the value does not
 match the schema.
+
+.. warning:
+   ``pass_invalid_values`` is deprecated and will be removed in
+   an upcoming release.
