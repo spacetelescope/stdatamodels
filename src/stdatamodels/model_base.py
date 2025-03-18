@@ -656,6 +656,11 @@ class DataModel(properties.ObjectNode):
         model : `~jwst.datamodels.DataModel`
             A data model.
         """
+        warnings.warn(
+            "from_fits is deprecated, use DataModel.__init__ instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return cls(init, schema=schema, **kwargs)
 
     def to_fits(self, init, *args, **kwargs):

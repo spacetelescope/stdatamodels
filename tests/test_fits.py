@@ -74,7 +74,7 @@ def test_from_scratch(tmp_path):
 
         dm.to_fits(file_path)
 
-        with FitsModel.from_fits(file_path) as dm2:
+        with FitsModel(file_path) as dm2:
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
             assert dm2.dq.dtype.name == "uint32"
@@ -599,7 +599,7 @@ def test_resave_duplication_bug(tmp_path):
     m = FitsModel(arr)
     m.save(fn1)
 
-    m2 = FitsModel.from_fits(fn1)
+    m2 = FitsModel(fn1)
     m2.save(fn2)
 
     with fits.open(fn1) as ff1, fits.open(fn2) as ff2:
