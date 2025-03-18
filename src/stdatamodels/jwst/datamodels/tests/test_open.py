@@ -218,7 +218,8 @@ def test_open_kwargs_asdf(tmp_path):
     file_path = tmp_path / "test.asdf"
 
     with pytest.warns(ValidationWarning):
-        model = ImageModel((4, 4), pass_invalid_values=True)
+        with pytest.warns(DeprecationWarning, match="enabling pass_invalid_values"):
+            model = ImageModel((4, 4), pass_invalid_values=True)
         model.meta.instrument.name = "CELESTRON"
         model.save(file_path)
 

@@ -323,7 +323,7 @@ Environment Variables
 There are a number of environment variables that affect how models are read.
 
 PASS_INVALID_VALUES
-  Used by `~jwst.datamodels.JwstDataModel` when instantiating
+  DEPRECATED: Used by `~jwst.datamodels.JwstDataModel` when instantiating
   a model from a file. If ``True``, values that do not validate the schema will
   still be added to the metadata. If ``False``, they will be set to ``None``.
   Default is ``False``.
