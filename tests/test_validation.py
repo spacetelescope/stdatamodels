@@ -1,3 +1,4 @@
+import contextlib
 import gc
 import warnings
 import weakref
@@ -121,7 +122,13 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
     if env_value is not None:
         monkeypatch.setenv("PASS_INVALID_VALUES", env_value)
 
-    model = ValidationModel(pass_invalid_values=init_value)
+    ctx = (
+        pytest.warns(DeprecationWarning, match="enabling pass_invalid_values")
+        if passed
+        else contextlib.nullcontext()
+    )
+    with ctx:
+        model = ValidationModel(pass_invalid_values=init_value)
 
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
@@ -141,7 +148,8 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
 )
 def test_pass_invalid_values_on_write(tmp_path, suffix):
     file_path = tmp_path / f"test.{suffix}"
-    model = ValidationModel(pass_invalid_values=True)
+    with pytest.warns(DeprecationWarning, match="enabling pass_invalid_values"):
+        model = ValidationModel(pass_invalid_values=True)
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
 
@@ -178,7 +186,8 @@ def test_strict_validation_attribute_assignment(
 
 
 def test_validate():
-    model = ValidationModel(pass_invalid_values=True)
+    with pytest.warns(DeprecationWarning, match="enabling pass_invalid_values"):
+        model = ValidationModel(pass_invalid_values=True)
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -202,7 +211,8 @@ def test_validate():
 )
 def test_validation_on_write(tmp_path, suffix):
     file_path = tmp_path / f"test.{suffix}"
-    model = ValidationModel(pass_invalid_values=True)
+    with pytest.warns(DeprecationWarning, match="enabling pass_invalid_values"):
+        model = ValidationModel(pass_invalid_values=True)
     with pytest.warns(ValidationWarning):
         model.meta.string_attribute = 42
 
@@ -333,9 +343,15 @@ def test_validate_on_assignment_strict_validation(
 def test_validate_on_assignment_pass_invalid_values(
     validate_on_assignment, pass_invalid_values, expected_context_manager, value
 ):
-    model = ValidationModel(
-        validate_on_assignment=validate_on_assignment, pass_invalid_values=pass_invalid_values
+    ctx = (
+        pytest.warns(DeprecationWarning, match="enabling pass_invalid_values")
+        if pass_invalid_values
+        else contextlib.nullcontext()
     )
+    with ctx:
+        model = ValidationModel(
+            validate_on_assignment=validate_on_assignment, pass_invalid_values=pass_invalid_values
+        )
 
     # pass_invalid_values=True allows for assignment,
     # even with validate_on_assignment=True

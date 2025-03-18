@@ -105,7 +105,7 @@ class DataModel(properties.ObjectNode):
             Turn memmap of FITS/ASDF file on or off.  (default: False).
 
         pass_invalid_values : bool or None
-            If `True`, values that do not validate the schema
+            DEPRECATED. If `True`, values that do not validate the schema
             will be added to the metadata. If `False`, they will be set to `None`.
             If `None`, value will be taken from the environmental PASS_INVALID_VALUES.
             Otherwise the default value is `False`.
@@ -142,6 +142,10 @@ class DataModel(properties.ObjectNode):
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
+        if pass_invalid_values:
+            warnings.warn(
+                "enabling pass_invalid_values is deprecated", DeprecationWarning, stacklevel=2
+            )
         self._pass_invalid_values = pass_invalid_values
         if strict_validation is None:
             strict_validation = get_envar_as_boolean("STRICT_VALIDATION", False)
