@@ -18,7 +18,7 @@ import stdatamodels.schema as mschema
 import stdatamodels.jwst.datamodels as dm
 
 
-__all__ = ["open", "is_association"]
+__all__ = ["open", "is_association", "lazy_load_attribute"]
 
 
 log = logging.getLogger(__name__)
@@ -479,7 +479,7 @@ def load_meta_attribute(init, attribute):
     return tree
 
 
-def _lazy_load_from_schema(hdulist, schema):
+def _lazy_load_fits_from_schema(hdulist, schema):
     """
     Load metadata tree without loading entire datamodel into memory, and bypassing validation.
 
@@ -520,15 +520,29 @@ def _lazy_load_from_schema(hdulist, schema):
     return tree
 
 
+def _lazy_load_asdf_from_schema(tree_in, schema):
+    """Constrain asdf tree to metadata only for closer matched behavior with fits case."""
+
+    tree = {}
+
+    def callback(schema, path, combiner, ctx, recurse):
+        """Ignore anything that is a data array"""
+        result = None
+
+        if "fits_keyword" in schema:
+            try:
+                result = traverse_tree(tree_in, path)
+            except KeyError:
+                result = None
+            properties.put_value(path, result, tree)
+
+    mschema.walk_schema(schema, callback)
+    return tree
+
+
 def lazy_load_tree(init, model_type=None):
     """
     Load a metadata tree from a file without loading the entire datamodel into memory.
-
-    TODO: would it make sense to turn schema validation back on?
-    TODO: what should be done if this receives an ASDF file? should that be supported?
-    TODO: how to make a fair test given need to retrieve schema from url?
-    TODO: why does Brett say that load_yaml doesn't load the datamodels, but the memory
-    usage is 2 GB on a 2GB file?
 
     .. warning::
 
@@ -555,12 +569,46 @@ def lazy_load_tree(init, model_type=None):
     if isinstance(init, bytes):
         init = init.decode(sys.getfilesystemencoding())
 
-    with fits.open(init) as hdulist:
+    ext = filetype.check(init)
+    if ext == "fits":
+        with fits.open(init) as hdulist:
+            if model_type is None:
+                model_type = hdulist[0].header["DATAMODL"]
+            schema_url = getattr(dm, model_type).schema_url
+            schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+            tree = _lazy_load_fits_from_schema(hdulist, schema)
+        return tree
+
+    elif ext == "asdf":
+        tree = asdf.util.load_yaml(init)
         if model_type is None:
-            model_type = hdulist[0].header["DATAMODL"]
+            model_type = tree["meta"]["model_type"]
         schema_url = getattr(dm, model_type).schema_url
         schema = asdf.schema.load_schema(schema_url, resolve_references=True)
-        tree = _lazy_load_from_schema(hdulist, schema)
+        return _lazy_load_asdf_from_schema(tree, schema)
+
+    else:
+        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
+
+
+def traverse_tree(tree, attribute):
+    """
+    Traverse a tree to get the attribute value.
+
+    Parameters
+    ----------
+    tree : dict
+        The metadata tree.
+    attribute : list[str]
+        The attribute to load, e.g. ["meta", "instrument", "filter"].
+
+    Returns
+    -------
+    attribute : object
+        The value of the requested attribute.
+    """
+    for key in attribute:
+        tree = tree[key]
     return tree
 
 
@@ -597,7 +645,4 @@ def lazy_load_attribute(fname, attribute, model_type=None):
     if isinstance(attribute, str):
         attribute = attribute.split(".")
     tree = lazy_load_tree(fname, model_type=model_type)
-    # Traverse the tree to get the attribute
-    for key in attribute:
-        tree = tree[key]
-    return tree
+    return traverse_tree(tree, attribute)
