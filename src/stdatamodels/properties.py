@@ -1,9 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
+import datetime
 import numpy as np
 from collections.abc import Mapping
 from astropy.io import fits
+from astropy.time import Time
 
 from asdf.tags.core import ndarray
 
@@ -17,7 +19,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-__all__ = ["ObjectNode", "ListNode"]
+__all__ = ["ObjectNode", "ListNode", "to_flat_dict"]
 
 
 def _is_struct_array(val):
@@ -620,3 +622,27 @@ def merge_tree(a, b):
 
     recurse(a, b)
     return a
+
+
+def to_flat_dict(tree):
+    """
+    Convert a tree to a flat dictionary
+    """
+    flat_dict = {}
+
+    def convert_val(val):
+        if isinstance(val, datetime.datetime):
+            return val.isoformat()
+        elif isinstance(val, Time):
+            return str(val)
+        return val
+
+    def recurse(tree, path):
+        for key, val in tree.items():
+            if isinstance(val, dict):
+                recurse(val, path + [key])
+            else:
+                flat_dict[".".join(path + [key])] = convert_val(val)
+
+    recurse(tree, [])
+    return flat_dict

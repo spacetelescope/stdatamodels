@@ -18,7 +18,7 @@ import stdatamodels.schema as mschema
 import stdatamodels.jwst.datamodels as dm
 
 
-__all__ = ["open", "is_association", "lazy_load_attribute"]
+__all__ = ["open", "is_association", "lazy_load_attribute", "lazy_load_tree"]
 
 
 log = logging.getLogger(__name__)
@@ -531,12 +531,13 @@ def _lazy_load_asdf_from_schema(tree_in, schema):
 
         if "fits_keyword" in schema:
             try:
-                result = traverse_tree(tree_in, path)
+                result = traverse_tree(tree_in, path)  # noqa: F821
             except KeyError:
                 result = None
             properties.put_value(path, result, tree)
 
     mschema.walk_schema(schema, callback)
+    del tree_in
     return tree
 
 
