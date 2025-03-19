@@ -3,22 +3,23 @@
 import pytest
 import numpy as np
 import stdatamodels.jwst.datamodels as dm
-from stdatamodels.jwst.datamodels.util import lazy_load_attribute
+from stdatamodels.jwst.datamodels.util import lazy_load_attribute, lazy_load_tree
+from sys import getsizeof
 
 
 TESTFILE_ROOT = "jwst_image."
 FILT = "GR150R"
+DATA = np.zeros((1000, 1000), dtype=np.float32)
 
 
 @pytest.fixture
 def make_and_save_models(tmp_path):
-    for extension in ["fits", "asdf"]:
-        # Create a new datamodel with a meta attribute
-        shp = (10, 10)
-        data = np.zeros(shp, dtype=np.float32)
-        model = dm.ImageModel(data=data)
-        model.meta.instrument.filter = FILT
+    # Create a new datamodel with a meta attribute
+    # and relatively large data array
+    model = dm.ImageModel(DATA)
+    model.meta.instrument.filter = FILT
 
+    for extension in ["fits", "asdf"]:
         # Save the datamodel to a file
         root = TESTFILE_ROOT + extension
         path = str(tmp_path / root)
@@ -42,7 +43,28 @@ def test_lazy_load_attribute(make_and_save_models, extension, tmp_path):
         lazy_load_attribute(path, "data")
 
 
-def test_load_meta_bad_inputs(make_and_save_models, tmp_path):
+@pytest.mark.parametrize("extension", ["asdf", "fits"])
+def test_lazy_load_tree(make_and_save_models, extension, tmp_path):
+    root = TESTFILE_ROOT + extension
+    path = str(tmp_path / root)
+
+    # Load the entire meta tree from the file
+    tree = lazy_load_tree(path)
+
+    # ensure the tree has attributes that have been set
+    assert tree["meta"]["instrument"]["filter"] == FILT
+
+    # ensure the tree has attributes that are in schema but have not been set
+    assert tree["meta"]["instrument"]["detector"] is None
+
+    # ensure the tree does not have data attributes
+    assert "data" not in tree
+
+    # ensure the memory usage of tree is lower than memory usage of data
+    assert getsizeof(tree) < getsizeof(DATA)
+
+
+def test_lazy_load_bad_inputs(make_and_save_models, tmp_path):
     # Create and save a new datamodel with a meta attribute
     shp = (500, 500)
     data = np.zeros(shp, dtype=np.float32)
