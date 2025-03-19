@@ -1,1 +1,0 @@
-Remove deprecated skip_fits_update and SKIP_FITS_UPDATE

@@ -1,1 +1,0 @@
-Fix ndim, max_ndim and datatype validation during FITS array writing.

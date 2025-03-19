@@ -1,1 +1,0 @@
-Deprecate DataModel.from_fits and DataModel.from_asdf. Use DataModel.__init__ instead.

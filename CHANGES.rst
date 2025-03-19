@@ -1,3 +1,41 @@
+3.0.1 (2025-03-19)
+==================
+
+Bug Fixes
+---------
+
+- Add missing values to pexptype pdetector and pgrating schemas. (`#430
+  <https://github.com/spacetelescope/stdatamodels/issues/430>`_)
+- Fix ndim, max_ndim and datatype validation during FITS array writing. (`#443
+  <https://github.com/spacetelescope/stdatamodels/issues/443>`_)
+
+
+Documentation
+-------------
+
+- Add documentation for NoTypeWarning and ValidationWarning (`#433
+  <https://github.com/spacetelescope/stdatamodels/issues/433>`_)
+
+
+Misc
+----
+
+- Move NoTypeWarning and ValidationWarning to new exceptions submodule (`#433
+  <https://github.com/spacetelescope/stdatamodels/issues/433>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Remove deprecated skip_fits_update and SKIP_FITS_UPDATE (`#380
+  <https://github.com/spacetelescope/stdatamodels/issues/380>`_)
+- Deprecate DataModel.open_asdf use asdf.open instead. (`#450
+  <https://github.com/spacetelescope/stdatamodels/issues/450>`_)
+- Deprecate DataModel.from_fits and DataModel.from_asdf. Use DataModel.__init__
+  instead. (`#455
+  <https://github.com/spacetelescope/stdatamodels/issues/455>`_)
+
+
 3.0.0 (2025-03-06)
 ==================
 

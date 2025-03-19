@@ -1,1 +1,0 @@
-Deprecate DataModel.open_asdf use asdf.open instead.
