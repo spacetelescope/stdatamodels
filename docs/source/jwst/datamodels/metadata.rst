@@ -87,19 +87,19 @@ equivalent::
     print(model['meta.observation.date'])
     print(model.meta.observation.date)
 
-Lazy-Loading Metadata
+Reading Metadata Only
 ---------------------
 
 The ``datamodels.open`` method loads the entire file into memory and validates it through
 its schema. While this is a good thing in most cases, it can be slow for large files.
 To access the metadata without loading the entire file, use the
-``datamodels.get_metadata`` method.  For example, to access the ``s_region``, use
+``datamodels.read_metadata`` method.  For example, to access the ``s_region``, use
 the following code::
 
 .. doctest-skip::
 
-    >>> from stdatamodels.jwst.datamodels import get_metadata
-    >>> meta = get_metadata("myfile.fits")
+    >>> from stdatamodels.jwst.datamodels import read_metadata
+    >>> meta = read_metadata("myfile.fits")
     >>> print(meta["meta.wcsinfo.s_region"])
 
 Note that the metadata is returned as a flat dictionary. The keys are the
