@@ -113,12 +113,12 @@ from .wcs_ref_models import (
     WaveCorrModel,
 )
 from .wfssbkg import WfssBkgModel
-from .util import open, load_meta_attribute  # noqa: A004
+from .util import open, get_metadata  # noqa: A004
 
 
 __all__ = [
     "open",
-    "load_meta_attribute",
+    "get_metadata",
     "JwstDataModel",
     "ABVegaOffsetModel",
     "AmiLgModel",

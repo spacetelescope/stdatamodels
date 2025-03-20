@@ -5,8 +5,9 @@ import sys
 import warnings
 from pathlib import Path
 import logging
+from astropy.time import Time
+from datetime import datetime
 
-import io
 import asdf
 
 import numpy as np
@@ -18,7 +19,7 @@ import stdatamodels.schema as mschema
 import stdatamodels.jwst.datamodels as dm
 
 
-__all__ = ["open", "is_association", "lazy_load_attribute", "lazy_load_tree"]
+__all__ = ["open", "is_association"]
 
 
 log = logging.getLogger(__name__)
@@ -416,69 +417,6 @@ def is_association(asn_data):
     return False
 
 
-def load_meta_attribute(init, attribute):
-    """
-    Load a metadata attribute from a file without loading the entire datamodel into memory.
-
-    .. warning::
-
-        This function entirely bypasses schema validation. Although validation
-        is done when saving a datamodel to file, if a model is modified and then
-        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
-        the schema will not be validated and invalid data could be loaded here.
-
-    Parameters
-    ----------
-    init : str or Path
-        Path to a JWSTDataModel file.
-    attribute : str or list
-        The attribute to load. If a string, it should be `.` separated, e.g.
-        "meta.instrument.filter". If a list, it should be a list of strings,
-        e.g. ["meta", "instrument", "filter"].
-
-    Returns
-    -------
-    attribute : object
-        The value of the requested attribute.
-
-    Raises
-    ------
-    TypeError
-        If the input data is not a file path.
-    TypeError
-        If the attribute is not a string or list of strings.
-    ValueError
-        If the file type is not FITS or ASDF.
-    """
-
-    # ensure input data is a file
-    if not isinstance(init, (Path, str, bytes)):
-        raise TypeError("init must be a file path")
-    if isinstance(init, bytes):
-        init = init.decode(sys.getfilesystemencoding())
-
-    # ensure attribute is a list
-    if not isinstance(attribute, (str, list)):
-        raise TypeError("attribute must be a `.` separated string or a list of strings")
-    if isinstance(attribute, str):
-        attribute = attribute.split(".")
-
-    file_type = filetype.check(init)
-    if file_type == "fits":
-        with fits.open(init) as ff:
-            bs = io.BytesIO(ff["ASDF"].data.tobytes())
-            tree = asdf.util.load_yaml(bs)
-    elif file_type == "asdf":
-        tree = asdf.util.load_yaml(init)
-    else:
-        raise ValueError(f"File type {file_type} not supported. Must be FITS or ASDF.")
-
-    # Traverse the tree to get the attribute
-    for key in attribute:
-        tree = tree[key]
-    return tree
-
-
 def _lazy_load_fits_from_schema(hdulist, schema):
     """
     Load metadata tree without loading entire datamodel into memory, and bypassing validation.
@@ -531,7 +469,7 @@ def _lazy_load_asdf_from_schema(tree_in, schema):
 
         if "fits_keyword" in schema:
             try:
-                result = traverse_tree(tree_in, path)  # noqa: F821
+                result = _traverse_tree(tree_in, path)  # noqa: F821
             except KeyError:
                 result = None
             properties.put_value(path, result, tree)
@@ -541,58 +479,7 @@ def _lazy_load_asdf_from_schema(tree_in, schema):
     return tree
 
 
-def lazy_load_tree(init, model_type=None):
-    """
-    Load a metadata tree from a file without loading the entire datamodel into memory.
-
-    .. warning::
-
-        This function entirely bypasses schema validation. Although validation
-        is done when saving a datamodel to file, if a model is modified and then
-        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
-        the schema will not be validated and invalid data could be loaded here.
-
-    Parameters
-    ----------
-    fname : str or Path, optional
-        Path to a JWSTDataModel file.
-    model_type : str
-        The model type used to figure out which schema to load. If not provided,
-        the model type will be determined from the file's "DATAMODL" header keyword.
-
-    Returns
-    -------
-    tree : dict
-        The metadata tree in yaml/ASDF-like format.
-    """
-    if not isinstance(init, (Path, str, bytes)):
-        raise TypeError("init must be a file path")
-    if isinstance(init, bytes):
-        init = init.decode(sys.getfilesystemencoding())
-
-    ext = filetype.check(init)
-    if ext == "fits":
-        with fits.open(init) as hdulist:
-            if model_type is None:
-                model_type = hdulist[0].header["DATAMODL"]
-            schema_url = getattr(dm, model_type).schema_url
-            schema = asdf.schema.load_schema(schema_url, resolve_references=True)
-            tree = _lazy_load_fits_from_schema(hdulist, schema)
-        return tree
-
-    elif ext == "asdf":
-        tree = asdf.util.load_yaml(init)
-        if model_type is None:
-            model_type = tree["meta"]["model_type"]
-        schema_url = getattr(dm, model_type).schema_url
-        schema = asdf.schema.load_schema(schema_url, resolve_references=True)
-        return _lazy_load_asdf_from_schema(tree, schema)
-
-    else:
-        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
-
-
-def traverse_tree(tree, attribute):
+def _traverse_tree(tree, attribute):
     """
     Traverse a tree to get the attribute value.
 
@@ -613,9 +500,45 @@ def traverse_tree(tree, attribute):
     return tree
 
 
-def lazy_load_attribute(fname, attribute, model_type=None):
+def _to_flat_dict(tree):
+    """Convert a tree to a flat dictionary."""
+    flat_dict = {}
+
+    def convert_val(val):
+        if isinstance(val, datetime):
+            return val.isoformat()
+        elif isinstance(val, Time):
+            return str(val)
+        return val
+
+    def recurse(tree, path):
+        for key, val in tree.items():
+            if isinstance(val, dict):
+                recurse(val, path + [key])
+            else:
+                flat_dict[".".join(path + [key])] = convert_val(val)
+
+    recurse(tree, [])
+    return flat_dict
+
+
+def get_metadata(fname, model_type=None):
     """
-    Load a metadata attribute from a file without loading the entire datamodel into memory.
+    Load a metadata tree from a file without loading the entire datamodel into memory.
+
+    The metadata dictionary will be returned in a flat format,
+    such that each key is a dot-separated name. For example, the schema element
+    `meta.observation.date` will end up in the result as::
+
+        ("meta.observation.date": "2012-04-22T03:22:05.432")
+
+    The output dictionary will contain every metadata attribute in the schema,
+    even if it is not present in the datamodel. If the attribute is not present,
+    the value will be None.
+
+    The output will not contain any data arrays, nor keys that would point to array-like
+    elements of the model. For example, trying to access
+    `meta_dict['data']` will raise a KeyError.
 
     .. warning::
 
@@ -626,24 +549,39 @@ def lazy_load_attribute(fname, attribute, model_type=None):
 
     Parameters
     ----------
-    fname : str or Path
+    fname : str or Path, optional
         Path to a JWSTDataModel file.
-    attribute : str or list
-        The attribute to load. If a string, it should be `.` separated, e.g.
-        "meta.instrument.filter". If a list, it should be a list of strings,
-        e.g. ["meta", "instrument", "filter"].
     model_type : str, optional
         The model type used to figure out which schema to load. If not provided,
-        the model type will be determined from the file's "DATAMODL" header keyword.
+        the model type will be determined from the file's header information
+        ("DATAMODL" keyword for FITS files, `meta.model_type` for ASDF files).
 
     Returns
     -------
-    attribute : object
-        The value of the requested attribute.
+    dict
+        The metadata tree as a flat dictionary.
     """
-    if not isinstance(attribute, (str, list)):
-        raise TypeError("attribute must be a `.` separated string or a list of strings")
-    if isinstance(attribute, str):
-        attribute = attribute.split(".")
-    tree = lazy_load_tree(fname, model_type=model_type)
-    return traverse_tree(tree, attribute)
+    if not isinstance(fname, (Path, str)):
+        raise TypeError("Input must be a file path.")
+
+    ext = filetype.check(fname)
+    if ext == "fits":
+        with fits.open(fname) as hdulist:
+            if model_type is None:
+                model_type = hdulist[0].header["DATAMODL"]
+            schema_url = getattr(dm, model_type).schema_url
+            schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+            tree = _lazy_load_fits_from_schema(hdulist, schema)
+
+    elif ext == "asdf":
+        tree_in = asdf.util.load_yaml(fname)
+        if model_type is None:
+            model_type = tree_in["meta"]["model_type"]
+        schema_url = getattr(dm, model_type).schema_url
+        schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+        tree = _lazy_load_asdf_from_schema(tree_in, schema)
+
+    else:
+        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
+
+    return _to_flat_dict(tree)
