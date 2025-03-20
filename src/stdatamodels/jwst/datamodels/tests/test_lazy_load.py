@@ -73,3 +73,7 @@ def test_get_metadata_bad_inputs(make_and_save_models, tmp_path):
     # Cannot use this on a datamodel object
     with pytest.raises(TypeError):
         get_metadata(model)
+
+    # Bad custom model type causes error
+    with pytest.raises(ValueError):
+        get_metadata(path, model_type="foo")

@@ -513,6 +513,15 @@ def _to_flat_dict(tree):
     return flat_dict
 
 
+def _retrieve_schema(model_type):
+    """Load schema for the input model type."""
+    try:
+        schema_url = getattr(dm, model_type).schema_url
+    except AttributeError:
+        raise ValueError(f"Model type {model_type} not found.") from None
+    return asdf.schema.load_schema(schema_url, resolve_references=True)
+
+
 def get_metadata(fname, model_type=None):
     """
     Load a metadata tree from a file without loading the entire datamodel into memory.
@@ -560,16 +569,14 @@ def get_metadata(fname, model_type=None):
         with fits.open(fname) as hdulist:
             if model_type is None:
                 model_type = hdulist[0].header["DATAMODL"]
-            schema_url = getattr(dm, model_type).schema_url
-            schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+            schema = _retrieve_schema(model_type)
             tree = _lazy_load_fits_from_schema(hdulist, schema)
 
     elif ext == "asdf":
         tree_in = asdf.util.load_yaml(fname)
         if model_type is None:
             model_type = tree_in["meta"]["model_type"]
-        schema_url = getattr(dm, model_type).schema_url
-        schema = asdf.schema.load_schema(schema_url, resolve_references=True)
+        schema = _retrieve_schema(model_type)
         tree = _lazy_load_asdf_from_schema(tree_in, schema)
 
     else:
