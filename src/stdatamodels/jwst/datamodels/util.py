@@ -522,7 +522,7 @@ def _retrieve_schema(model_type):
     return asdf.schema.load_schema(schema_url, resolve_references=True)
 
 
-def get_metadata(fname, model_type=None):
+def get_metadata(fname, model_type=None, flatten=True):
     """
     Load a metadata tree from a file without loading the entire datamodel into memory.
 
@@ -555,6 +555,9 @@ def get_metadata(fname, model_type=None):
         The model type used to figure out which schema to load. If not provided,
         the model type will be determined from the file's header information
         ("DATAMODL" keyword for FITS files, `meta.model_type` for ASDF files).
+    flatten : bool, optional
+        If True, the metadata will be returned as a flat dictionary. If False,
+        the metadata will be returned as a nested dictionary. Default is True.
 
     Returns
     -------
@@ -582,4 +585,6 @@ def get_metadata(fname, model_type=None):
     else:
         raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
 
-    return _to_flat_dict(tree)
+    if flatten:
+        return _to_flat_dict(tree)
+    return tree
