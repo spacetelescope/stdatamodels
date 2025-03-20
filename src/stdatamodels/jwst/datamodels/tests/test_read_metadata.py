@@ -50,6 +50,7 @@ def test_read_metadata(make_and_save_models, extension, tmp_path):
     assert isinstance(meta["meta.observation.date"], str)
     assert meta["meta.instrument.filter"] == FILT
     assert meta["meta.observation.date"] == INPUT_TIME
+    assert meta["meta.filename"] == root
 
     # Ensure attributes in schema but not in model are there but give None
     assert meta["meta.instrument.detector"] is None

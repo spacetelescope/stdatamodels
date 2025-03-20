@@ -575,6 +575,10 @@ def read_metadata(fname, model_type=None, flatten=True):
     else:
         raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
 
+    # Patch the input filename onto the tree
+    if "meta" in tree:
+        tree["meta"]["filename"] = Path(fname).name
+
     if flatten:
         return _to_flat_dict(tree)
     return tree
