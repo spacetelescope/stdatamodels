@@ -102,9 +102,10 @@ the following code::
     >>> meta = read_metadata("myfile.fits")
     >>> print(meta["meta.wcsinfo.s_region"])
 
-Note that the metadata is returned as a flat dictionary. The keys are the
-dot-separated names of the metadata elements.  The values are the
-corresponding values in the file.
+Notice that the metadata is returned as a flat dictionary by default.
+The keys are the dot-separated names of the metadata elements, and
+the values are the corresponding values in the file. A nested dictionary
+will be returned instead if the ``flatten`` keyword argument is set to False.
 
 .. warning::
   
