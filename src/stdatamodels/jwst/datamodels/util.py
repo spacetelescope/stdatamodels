@@ -5,8 +5,6 @@ import sys
 import warnings
 from pathlib import Path
 import logging
-from astropy.time import Time
-from datetime import datetime
 
 import asdf
 
@@ -504,19 +502,12 @@ def _to_flat_dict(tree):
     """Convert a tree to a flat dictionary."""
     flat_dict = {}
 
-    def convert_val(val):
-        if isinstance(val, datetime):
-            return val.isoformat()
-        elif isinstance(val, Time):
-            return str(val)
-        return val
-
     def recurse(tree, path):
         for key, val in tree.items():
             if isinstance(val, dict):
                 recurse(val, path + [key])
             else:
-                flat_dict[".".join(path + [key])] = convert_val(val)
+                flat_dict[".".join(path + [key])] = val
 
     recurse(tree, [])
     return flat_dict
