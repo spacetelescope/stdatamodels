@@ -56,6 +56,15 @@ def test_get_metadata(make_and_save_models, extension, tmp_path):
     assert "data" not in meta
     assert getsizeof(meta) < getsizeof(DATA)
 
+    # test flatten=False mode
+    meta = get_metadata(path, flatten=False)
+    assert isinstance(meta, dict)
+    assert isinstance(meta["meta"], dict)
+
+    # Ensure the metadata has the expected attributes
+    assert meta["meta"]["instrument"]["filter"] == FILT
+    assert meta["meta"]["observation"]["date"] == INPUT_TIME
+
 
 def test_get_metadata_bad_inputs(make_and_save_models, tmp_path):
     # Create and save a new datamodel with a meta attribute
