@@ -5,6 +5,9 @@ import sys
 import warnings
 from pathlib import Path
 import logging
+from asdf.tagged import TaggedString
+import functools
+import operator
 
 import asdf
 
@@ -415,7 +418,7 @@ def is_association(asn_data):
     return False
 
 
-def _lazy_load_fits_from_schema(hdulist, schema):
+def _load_fits_meta_from_schema(hdulist, schema):
     """
     Load metadata tree without loading entire datamodel into memory, and bypassing validation.
 
@@ -456,8 +459,8 @@ def _lazy_load_fits_from_schema(hdulist, schema):
     return tree
 
 
-def _lazy_load_asdf_from_schema(tree_in, schema):
-    """Constrain asdf tree to metadata only for closer matched behavior with fits case."""
+def _load_asdf_meta_from_schema(tree_in, schema):
+    """Constrain asdf tree to fits-mapped schema keywords only."""
 
     tree = {}
 
@@ -467,34 +470,16 @@ def _lazy_load_asdf_from_schema(tree_in, schema):
 
         if "fits_keyword" in schema:
             try:
-                result = _traverse_tree(tree_in, path)  # noqa: F821
+                # Traverse the tree to get the attribute
+                result = functools.reduce(operator.getitem, path, tree_in)  # noqa: F821
             except KeyError:
                 result = None
+            if isinstance(result, TaggedString):
+                result = str(result)
             properties.put_value(path, result, tree)
 
     mschema.walk_schema(schema, callback)
     del tree_in
-    return tree
-
-
-def _traverse_tree(tree, attribute):
-    """
-    Traverse a tree to get the attribute value.
-
-    Parameters
-    ----------
-    tree : dict
-        The metadata tree.
-    attribute : list[str]
-        The attribute to load, e.g. ["meta", "instrument", "filter"].
-
-    Returns
-    -------
-    attribute : object
-        The value of the requested attribute.
-    """
-    for key in attribute:
-        tree = tree[key]
     return tree
 
 
@@ -522,19 +507,24 @@ def _retrieve_schema(model_type):
     return asdf.schema.load_schema(schema_url, resolve_references=True)
 
 
-def get_metadata(fname, model_type=None, flatten=True):
+def read_metadata(fname, model_type=None, flatten=True):
     """
     Load a metadata tree from a file without loading the entire datamodel into memory.
 
-    The metadata dictionary will be returned in a flat format,
+    The metadata dictionary will be returned in a flat format by default,
     such that each key is a dot-separated name. For example, the schema element
     `meta.observation.date` will end up in the result as::
 
         ("meta.observation.date": "2012-04-22T03:22:05.432")
 
+    If `flatten` is set to False, the metadata will be returned as a nested
+    dictionary, with the keys being the schema elements.
+
     The output dictionary will contain every metadata attribute in the schema,
     even if it is not present in the datamodel. If the attribute is not present,
-    the value will be None.
+    the value will be None. Likewise, if the attribute is present in the datamodel
+    but is not mapped to a FITS keyword by the schema, it will not be included
+    in the output.
 
     The output will not contain any data arrays, nor keys that would point to array-like
     elements of the model. For example, trying to access
@@ -573,14 +563,14 @@ def get_metadata(fname, model_type=None, flatten=True):
             if model_type is None:
                 model_type = hdulist[0].header["DATAMODL"]
             schema = _retrieve_schema(model_type)
-            tree = _lazy_load_fits_from_schema(hdulist, schema)
+            tree = _load_fits_meta_from_schema(hdulist, schema)
 
     elif ext == "asdf":
-        tree_in = asdf.util.load_yaml(fname)
+        tree_in = asdf.util.load_yaml(fname, tagged=True)
         if model_type is None:
             model_type = tree_in["meta"]["model_type"]
         schema = _retrieve_schema(model_type)
-        tree = _lazy_load_asdf_from_schema(tree_in, schema)
+        tree = _load_asdf_meta_from_schema(tree_in, schema)
 
     else:
         raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
