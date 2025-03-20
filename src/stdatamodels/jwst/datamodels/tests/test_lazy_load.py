@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 import stdatamodels.jwst.datamodels as dm
-from stdatamodels.jwst.datamodels.util import lazy_load_attribute, lazy_load_tree
+from stdatamodels.jwst.datamodels.util import get_metadata
 from sys import getsizeof
 
 
@@ -14,8 +14,7 @@ DATA = np.zeros((1000, 1000), dtype=np.float32)
 
 @pytest.fixture
 def make_and_save_models(tmp_path):
-    # Create a new datamodel with a meta attribute
-    # and relatively large data array
+    """Create a new datamodel with a meta attribute and relatively large data array."""
     model = dm.ImageModel(DATA)
     model.meta.instrument.filter = FILT
 
@@ -28,43 +27,30 @@ def make_and_save_models(tmp_path):
 
 
 @pytest.mark.parametrize("extension", ["fits", "asdf"])
-def test_lazy_load_attribute(make_and_save_models, extension, tmp_path):
+def test_get_metadata(make_and_save_models, extension, tmp_path):
+    """Test lazy loading of a single attribute. Data should not be accessible."""
     root = TESTFILE_ROOT + extension
     path = str(tmp_path / root)
 
-    # Load the meta attribute from the file
-    meta_attr_foo = lazy_load_attribute(path, "meta.instrument.filter")
-    meta_attr_foo_list = lazy_load_attribute(path, ["meta", "instrument", "filter"])
-    assert meta_attr_foo == FILT
-    assert meta_attr_foo_list == FILT
+    # Load the metadata
+    meta = get_metadata(path)
 
-    # Ensure data is not accessible
-    with pytest.raises(KeyError):
-        lazy_load_attribute(path, "data")
+    # Ensure the dict is flat, i.e., none of the vals in keys are themselves dicts
+    assert isinstance(meta, dict)
+    assert all(not isinstance(v, dict) for v in meta.values())
 
+    # Ensure the metadata has the expected attributes
+    assert meta["meta.instrument.filter"] == FILT
 
-@pytest.mark.parametrize("extension", ["asdf", "fits"])
-def test_lazy_load_tree(make_and_save_models, extension, tmp_path):
-    root = TESTFILE_ROOT + extension
-    path = str(tmp_path / root)
+    # Ensure attributes in schema but not in model are there but give None
+    assert meta["meta.instrument.detector"] is None
 
-    # Load the entire meta tree from the file
-    tree = lazy_load_tree(path)
-
-    # ensure the tree has attributes that have been set
-    assert tree["meta"]["instrument"]["filter"] == FILT
-
-    # ensure the tree has attributes that are in schema but have not been set
-    assert tree["meta"]["instrument"]["detector"] is None
-
-    # ensure the tree does not have data attributes
-    assert "data" not in tree
-
-    # ensure the memory usage of tree is lower than memory usage of data
-    assert getsizeof(tree) < getsizeof(DATA)
+    # Ensure the metadata does not have data attributes
+    assert "data" not in meta
+    assert getsizeof(meta) < getsizeof(DATA)
 
 
-def test_lazy_load_bad_inputs(make_and_save_models, tmp_path):
+def test_get_metadata_bad_inputs(make_and_save_models, tmp_path):
     # Create and save a new datamodel with a meta attribute
     shp = (500, 500)
     data = np.zeros(shp, dtype=np.float32)
@@ -73,18 +59,10 @@ def test_lazy_load_bad_inputs(make_and_save_models, tmp_path):
     path = str(tmp_path / "jwst_image.fits")
     model.save(path)
 
-    # Cannot use this on a bad filename
+    # Cannot use this on an asn file
     with pytest.raises(ValueError):
-        lazy_load_attribute("fake.asn", "meta.foo")
+        get_metadata("asn.json")
 
     # Cannot use this on a datamodel object
     with pytest.raises(TypeError):
-        lazy_load_attribute(model, "meta.foo")
-
-    # Cannot use this on a bad attribute data type
-    with pytest.raises(TypeError):
-        lazy_load_attribute(path, 5)
-
-    # Cannot use this on a non-existent attribute
-    with pytest.raises(KeyError):
-        lazy_load_attribute(path, "meta.baz")
+        get_metadata(model)
