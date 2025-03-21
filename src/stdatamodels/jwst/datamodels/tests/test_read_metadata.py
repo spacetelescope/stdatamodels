@@ -39,7 +39,6 @@ def model_path(request, tmp_path, imagemodel):
 @pytest.mark.parametrize("is_str", [True, False])
 def test_read_metadata(model_path, is_str):
     """Test metadata loading to dict."""
-
     # Load the metadata. ensure str and path are both ok
     if is_str:
         meta = read_metadata(str(model_path))
@@ -58,8 +57,8 @@ def test_read_metadata(model_path, is_str):
     assert meta["meta.observation.date"] == INPUT_TIME
     assert meta["meta.filename"] == model_path.name
 
-    # Ensure attributes in schema but not in model are there but give None
-    assert meta["meta.instrument.detector"] is None
+    # Ensure attributes in schema but not in model are not present
+    assert "meta.instrument.detector" not in meta.keys()
 
     # Ensure the metadata does not have data attributes
     assert "data" not in meta
@@ -76,16 +75,41 @@ def test_read_metadata_nested(model_path):
     assert meta["meta"]["observation"]["date"] == INPUT_TIME
 
 
-def test_read_metadata_bad_inputs(model_path):
-    # Cannot use this on an asn file
+def test_data_never_loaded(model_path, monkeypatch):
+    """Test that data is never loaded when reading metadata."""
+
+    def throw_error(self):
+        raise Exception()  # noqa: TRY002
+
+    if model_path.suffix == ".asdf":
+        import asdf
+
+        monkeypatch.setattr(asdf, "open", throw_error)
+        read_metadata(model_path)
+    else:
+        from astropy.io import fits
+
+        monkeypatch.setattr(fits.ImageHDU, "data", property(throw_error))
+
+        with fits.open(model_path) as hdulist:
+            monkeypatch.setattr(fits, "open", lambda *args, **kwargs: hdulist)
+            read_metadata(model_path)
+
+
+def test_error_read_json():
+    """Attempting to read_metadata on an asn file should raise an error."""
     with pytest.raises(ValueError):
         read_metadata("asn.json")
 
-    # Cannot use this on an open datamodel object
+
+def test_error_read_open_model(model_path):
+    """Attempting to read_metadata on an open datamodel should raise an error."""
     model = dm.open(model_path)
     with pytest.raises(TypeError):
         read_metadata(model)
 
-    # Bad custom model type causes error
+
+def test_error_schema_not_found(model_path):
+    """Attempting to read_metadata with an unknown model type should raise an error."""
     with pytest.raises(ValueError):
         read_metadata(model_path, model_type="foo")

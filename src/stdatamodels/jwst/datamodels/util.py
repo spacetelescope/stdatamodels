@@ -435,7 +435,6 @@ def _load_fits_meta_from_schema(hdulist, schema):
         Metadata tree.
     """
     tree = {}
-    known_keywords = {}
 
     # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
     # for a nirspec mos file with ~500 extensions) so we use a cache
@@ -446,11 +445,17 @@ def _load_fits_meta_from_schema(hdulist, schema):
     def callback(schema, path, combiner, ctx, recurse):
         """Ignore anything that is not mapped to a fits header keyword."""
 
-        if "fits_keyword" in schema:
-            fits_keyword = schema["fits_keyword"]
-            result = fits_support._fits_keyword_loader(
-                hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
-            )
+        if fits_keyword := schema.get("fits_keyword"):
+            hdu_name = fits_support._get_hdu_name(schema)
+            try:
+                hdu = fits_support.get_hdu(hdulist, hdu_name, _cache=hdu_cache)
+            except AttributeError:
+                return
+
+            try:
+                result = hdu.header[fits_keyword]
+            except KeyError:
+                return
 
             properties.put_value(path, result, tree)
 
@@ -471,7 +476,7 @@ def _load_asdf_meta_from_schema(tree_in, schema):
                 # Traverse the tree to get the attribute
                 result = functools.reduce(operator.getitem, path, tree_in)
             except KeyError:
-                result = None
+                return
             if isinstance(result, TaggedString):
                 result = str(result)
             properties.put_value(path, result, tree)
@@ -518,9 +523,9 @@ def read_metadata(fname, model_type=None, flatten=True):
     dictionary, with the keys being the schema elements.
 
     The output dictionary will contain every metadata attribute that is mapped
-    to a FITS header keyword in the schema, even if it is not present in the datamodel.
-    If the attribute is not present, the value will be None.
-    Likewise, if the attribute is present in the datamodel but is not mapped
+    to a FITS header keyword in the schema, and is also present in the datamodel.
+    If the attribute is not present, it will not have a key in the output.
+    If the attribute is present in the datamodel but is not mapped
     to a FITS keyword by the schema, it will *not* be included in the output.
 
     The output will not contain any data arrays, nor keys that would point to
@@ -536,7 +541,7 @@ def read_metadata(fname, model_type=None, flatten=True):
 
     Parameters
     ----------
-    fname : str or Path, optional
+    fname : str or Path
         Path to a JWSTDataModel file.
     model_type : str, optional
         The model type used to figure out which schema to load. If not provided,
