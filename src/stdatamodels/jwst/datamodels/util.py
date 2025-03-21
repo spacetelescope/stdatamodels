@@ -444,8 +444,7 @@ def _load_fits_meta_from_schema(hdulist, schema):
     hdu_cache = {}
 
     def callback(schema, path, combiner, ctx, recurse):
-        """Ignore anything that is a data array"""
-        result = None
+        """Ignore anything that is not mapped to a fits header keyword."""
 
         if "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
@@ -466,12 +465,11 @@ def _load_asdf_meta_from_schema(tree_in, schema):
 
     def callback(schema, path, combiner, ctx, recurse):
         """Ignore anything that is a data array"""
-        result = None
 
         if "fits_keyword" in schema:
             try:
                 # Traverse the tree to get the attribute
-                result = functools.reduce(operator.getitem, path, tree_in)  # noqa: F821
+                result = functools.reduce(operator.getitem, path, tree_in)
             except KeyError:
                 result = None
             if isinstance(result, TaggedString):
@@ -479,7 +477,6 @@ def _load_asdf_meta_from_schema(tree_in, schema):
             properties.put_value(path, result, tree)
 
     mschema.walk_schema(schema, callback)
-    del tree_in
     return tree
 
 
@@ -520,15 +517,15 @@ def read_metadata(fname, model_type=None, flatten=True):
     If `flatten` is set to False, the metadata will be returned as a nested
     dictionary, with the keys being the schema elements.
 
-    The output dictionary will contain every metadata attribute in the schema,
-    even if it is not present in the datamodel. If the attribute is not present,
-    the value will be None. Likewise, if the attribute is present in the datamodel
-    but is not mapped to a FITS keyword by the schema, it will not be included
-    in the output.
+    The output dictionary will contain every metadata attribute that is mapped
+    to a FITS header keyword in the schema, even if it is not present in the datamodel.
+    If the attribute is not present, the value will be None.
+    Likewise, if the attribute is present in the datamodel but is not mapped
+    to a FITS keyword by the schema, it will *not* be included in the output.
 
-    The output will not contain any data arrays, nor keys that would point to array-like
-    elements of the model. For example, trying to access
-    `meta_dict['data']` will raise a KeyError.
+    The output will not contain any data arrays, nor keys that would point to
+    array-like elements of the model (this includes the WCS).
+    For example, trying to access `meta_dict['data']` will raise a KeyError.
 
     .. warning::
 
@@ -552,12 +549,12 @@ def read_metadata(fname, model_type=None, flatten=True):
     Returns
     -------
     dict
-        The metadata tree as a flat dictionary.
+        The metadata tree.
     """
     if not isinstance(fname, (Path, str)):
         raise TypeError("Input must be a file path.")
 
-    ext = filetype.check(fname)
+    ext = filetype.check(str(fname))
     if ext == "fits":
         with fits.open(fname) as hdulist:
             if model_type is None:

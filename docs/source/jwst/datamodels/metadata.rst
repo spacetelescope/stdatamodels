@@ -90,8 +90,9 @@ equivalent::
 Reading Metadata Only
 ---------------------
 
-The ``datamodels.open`` method loads the entire file into memory and validates it through
-its schema. While this is a good thing in most cases, it can be slow for large files.
+The ``datamodels.open`` method loads the entire file into memory and validates it against
+its schema. While this is a good thing in most cases, there are times when read-only
+access to metadata is useful.
 To access the metadata without loading the entire file, use the
 ``datamodels.read_metadata`` method.  For example, to access the ``s_region``, use
 the following code::
@@ -110,6 +111,8 @@ will be returned instead if the ``flatten`` keyword argument is set to False.
 .. warning::
   
   This method bypasses schema validation, so use it with caution.
+  It also only returns metadata that is mapped to FITS keywords,
+  so some useful items (e.g. ``meta.wcs``) will be missing.
 
 Working with lists
 ==================
