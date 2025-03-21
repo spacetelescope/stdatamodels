@@ -7,14 +7,19 @@ import sys
 import warnings
 from pathlib import Path
 import logging
+from asdf.tagged import TaggedString
+import functools
+import operator
 
 import asdf
 
 import numpy as np
 from astropy.io import fits
-from stdatamodels import filetype
+from stdatamodels import filetype, properties, fits_support
 from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
+import stdatamodels.schema as mschema
+import stdatamodels.jwst.datamodels as dm
 
 
 __all__ = ["open", "is_association"]
@@ -365,3 +370,171 @@ def is_association(asn_data):
         if "asn_id" in asn_data and "asn_pool" in asn_data:
             return True
     return False
+
+
+def _load_fits_meta_from_schema(hdulist, schema):
+    """
+    Load metadata tree without loading entire datamodel into memory, and bypassing validation.
+
+    Parameters
+    ----------
+    hdulist : list
+        List of HDU objects from a FITS file.
+    schema : dict
+        Schema dictionary for the datamodel.
+
+    Returns
+    -------
+    tree : dict
+        Metadata tree.
+    """
+    tree = {}
+
+    # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
+    # for a nirspec mos file with ~500 extensions) so we use a cache
+    # here to handle repeated accesses. A lru_cache around get_hdu
+    # was not used as hdulist is not hashable.
+    hdu_cache = {}
+
+    def callback(schema, path, combiner, ctx, recurse):
+        """Ignore anything that is not mapped to a fits header keyword."""
+
+        if fits_keyword := schema.get("fits_keyword"):
+            hdu_name = fits_support._get_hdu_name(schema)
+            try:
+                hdu = fits_support.get_hdu(hdulist, hdu_name, _cache=hdu_cache)
+            except AttributeError:
+                return
+
+            try:
+                result = hdu.header[fits_keyword]
+            except KeyError:
+                return
+
+            properties.put_value(path, result, tree)
+
+    mschema.walk_schema(schema, callback)
+    return tree
+
+
+def _load_asdf_meta_from_schema(tree_in, schema):
+    """Constrain asdf tree to fits-mapped schema keywords only."""
+
+    tree = {}
+
+    def callback(schema, path, combiner, ctx, recurse):
+        """Ignore anything that is a data array"""
+
+        if "fits_keyword" in schema:
+            try:
+                # Traverse the tree to get the attribute
+                result = functools.reduce(operator.getitem, path, tree_in)
+            except KeyError:
+                return
+            if isinstance(result, TaggedString):
+                result = str(result)
+            properties.put_value(path, result, tree)
+
+    mschema.walk_schema(schema, callback)
+    return tree
+
+
+def _to_flat_dict(tree):
+    """Convert a tree to a flat dictionary."""
+    flat_dict = {}
+
+    def recurse(tree, path):
+        for key, val in tree.items():
+            if isinstance(val, dict):
+                recurse(val, path + [key])
+            else:
+                flat_dict[".".join(path + [key])] = val
+
+    recurse(tree, [])
+    return flat_dict
+
+
+def _retrieve_schema(model_type):
+    """Load schema for the input model type."""
+    try:
+        schema_url = getattr(dm, model_type).schema_url
+    except AttributeError:
+        raise ValueError(f"Model type {model_type} not found.") from None
+    return asdf.schema.load_schema(schema_url, resolve_references=True)
+
+
+def read_metadata(fname, model_type=None, flatten=True):
+    """
+    Load a metadata tree from a file without loading the entire datamodel into memory.
+
+    The metadata dictionary will be returned in a flat format by default,
+    such that each key is a dot-separated name. For example, the schema element
+    `meta.observation.date` will end up in the result as::
+
+        ("meta.observation.date": "2012-04-22T03:22:05.432")
+
+    If `flatten` is set to False, the metadata will be returned as a nested
+    dictionary, with the keys being the schema elements.
+
+    The output dictionary will contain every metadata attribute that is mapped
+    to a FITS header keyword in the schema, and is also present in the datamodel.
+    If the attribute is not present, it will not have a key in the output.
+    If the attribute is present in the datamodel but is not mapped
+    to a FITS keyword by the schema, it will *not* be included in the output.
+
+    The output will not contain any data arrays, nor keys that would point to
+    array-like elements of the model (this includes the WCS).
+    For example, trying to access `meta_dict['data']` will raise a KeyError.
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    fname : str or Path
+        Path to a JWSTDataModel file.
+    model_type : str, optional
+        The model type used to figure out which schema to load. If not provided,
+        the model type will be determined from the file's header information
+        ("DATAMODL" keyword for FITS files, `meta.model_type` for ASDF files).
+    flatten : bool, optional
+        If True, the metadata will be returned as a flat dictionary. If False,
+        the metadata will be returned as a nested dictionary. Default is True.
+
+    Returns
+    -------
+    dict
+        The metadata tree.
+    """
+    if not isinstance(fname, (Path, str)):
+        raise TypeError("Input must be a file path.")
+
+    ext = filetype.check(str(fname))
+    if ext == "fits":
+        with fits.open(fname) as hdulist:
+            if model_type is None:
+                model_type = hdulist[0].header["DATAMODL"]
+            schema = _retrieve_schema(model_type)
+            tree = _load_fits_meta_from_schema(hdulist, schema)
+
+    elif ext == "asdf":
+        tree_in = asdf.util.load_yaml(fname, tagged=True)
+        if model_type is None:
+            model_type = tree_in["meta"]["model_type"]
+        schema = _retrieve_schema(model_type)
+        tree = _load_asdf_meta_from_schema(tree_in, schema)
+
+    else:
+        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
+
+    # Patch the input filename onto the tree
+    if "meta" in tree:
+        tree["meta"]["filename"] = Path(fname).name
+
+    if flatten:
+        return _to_flat_dict(tree)
+    return tree
