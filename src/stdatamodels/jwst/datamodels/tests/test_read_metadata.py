@@ -8,16 +8,33 @@ import stdatamodels.jwst.datamodels as dm
 from stdatamodels.jwst.datamodels.util import read_metadata
 
 
-TESTFILE_ROOT = "jwst_image."
+IMAGEFILE_ROOT = "jwst_image."
+MULTISLITFILE_ROOT = "jwst_multislit."
 FILT = "GR150R"
 INPUT_TIME = "2021-01-01 00:00:00.000"
 
 
 @pytest.fixture
 def imagemodel():
-    """Create a new datamodel with meta attributes and relatively large data array."""
-    data = np.zeros((1000, 1000), dtype=np.float32)
+    """Create an imagemodel with meta attributes and data array."""
+    data = np.zeros((10, 10), dtype=np.float32)
     model = dm.ImageModel(data)
+    model.meta.instrument.filter = FILT
+
+    # give this an astropy time to ensure it is cast to string
+    model.meta.observation.date = Time(INPUT_TIME, format="iso", scale="utc")
+    return model
+
+
+@pytest.fixture
+def multislitmodel():
+    """Create a multislit datamodel with meta attributes and data array."""
+    slit0 = dm.SlitModel(np.zeros((10, 10), dtype=np.float32))
+    slit0.meta.instrument.filter = FILT
+    slit1 = dm.SlitModel(np.ones((10, 10), dtype=np.float32))
+    model = dm.MultiSlitModel()
+    model.slits.append(slit0)
+    model.slits.append(slit1)
     model.meta.instrument.filter = FILT
 
     # give this an astropy time to ensure it is cast to string
@@ -27,12 +44,23 @@ def imagemodel():
 
 @pytest.fixture(params=["fits", "asdf"])
 def model_path(request, tmp_path, imagemodel):
-    """Save the datamodel to an ASDF or FITS file."""
+    """Save the imagemodel to an ASDF or FITS file."""
     extension = request.param
-    root = TESTFILE_ROOT + extension
+    root = IMAGEFILE_ROOT + extension
     path = str(tmp_path / root)
     imagemodel.save(path)
     imagemodel.close()
+    return Path(path)
+
+
+@pytest.fixture(params=["fits", "asdf"])
+def multislit_path(request, tmp_path, multislitmodel):
+    """Save the multislitmodel to an ASDF or FITS file."""
+    extension = request.param
+    root = MULTISLITFILE_ROOT + extension
+    path = str(tmp_path / root)
+    multislitmodel.save(path)
+    multislitmodel.close()
     return Path(path)
 
 
@@ -60,7 +88,7 @@ def test_read_metadata(model_path, is_str):
     # Ensure attributes in schema but not in model are not present
     assert "meta.instrument.detector" not in meta.keys()
 
-    # Ensure the metadata does not have data attributes
+    # Ensure the metadata does not have data attribute
     assert "data" not in meta
 
 
@@ -75,8 +103,28 @@ def test_read_metadata_nested(model_path):
     assert meta["meta"]["observation"]["date"] == INPUT_TIME
 
 
+def test_read_metadata_multislit(multislit_path):
+    """Test metadata loading for multislit model."""
+    meta = read_metadata(multislit_path)
+    assert isinstance(meta, dict)
+    assert all(not isinstance(v, dict) for v in meta.values())
+
+    # Ensure the metadata has the expected attributes
+    assert isinstance(meta["meta.instrument.filter"], str)
+    assert isinstance(meta["meta.observation.date"], str)
+    assert meta["meta.instrument.filter"] == FILT
+    assert meta["meta.observation.date"] == INPUT_TIME
+    assert meta["meta.filename"] == multislit_path.name
+
+    # Ensure attributes in schema but not in model are not present
+    assert "meta.instrument.detector" not in meta.keys()
+
+    # Ensure the metadata does not have slits attribute
+    assert "slits" not in meta
+
+
 def test_data_never_loaded(model_path, monkeypatch):
-    """Test that data is never loaded when reading metadata."""
+    """Test that data is never accessed when reading metadata."""
 
     def throw_error(self):
         raise Exception()  # noqa: TRY002
@@ -86,11 +134,11 @@ def test_data_never_loaded(model_path, monkeypatch):
 
         monkeypatch.setattr(asdf, "open", throw_error)
         read_metadata(model_path)
+
     else:
         from astropy.io import fits
 
         monkeypatch.setattr(fits.ImageHDU, "data", property(throw_error))
-
         with fits.open(model_path) as hdulist:
             monkeypatch.setattr(fits, "open", lambda *args, **kwargs: hdulist)
             read_metadata(model_path)
