@@ -6,8 +6,6 @@ import warnings
 from pathlib import Path
 import logging
 from asdf.tagged import TaggedString
-import functools
-import operator
 
 import asdf
 
@@ -456,7 +454,6 @@ def _load_fits_meta_from_schema(hdulist, schema):
                 result = hdu.header[fits_keyword]
             except KeyError:
                 return
-
             properties.put_value(path, result, tree)
 
     mschema.walk_schema(schema, callback)
@@ -473,8 +470,7 @@ def _load_asdf_meta_from_schema(tree_in, schema):
 
         if "fits_keyword" in schema:
             try:
-                # Traverse the tree to get the attribute
-                result = functools.reduce(operator.getitem, path, tree_in)
+                result = _traverse_tree(tree_in, path)
             except KeyError:
                 return
             if isinstance(result, TaggedString):
@@ -483,6 +479,19 @@ def _load_asdf_meta_from_schema(tree_in, schema):
 
     mschema.walk_schema(schema, callback)
     return tree
+
+
+def _traverse_tree(tree, attribute):
+    """Traverse the tree to get the attribute."""
+    attr = tree
+    for key in attribute:
+        if isinstance(attr, dict):
+            attr = attr[key]
+        else:
+            # ignore lists, e.g. multislitmodel.slits
+            del tree[key]
+
+    return attr
 
 
 def _to_flat_dict(tree):
@@ -526,7 +535,7 @@ def read_metadata(fname, model_type=None, flatten=True):
     to a FITS header keyword in the schema, and is also present in the datamodel.
     If the attribute is not present, it will not have a key in the output.
     If the attribute is present in the datamodel but is not mapped
-    to a FITS keyword by the schema, it will *not* be included in the output.
+    to a FITS keyword by the schema, it will not be included in the output.
 
     The output will not contain any data arrays, nor keys that would point to
     array-like elements of the model (this includes the WCS).

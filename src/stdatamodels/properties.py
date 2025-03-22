@@ -583,6 +583,8 @@ def put_value(path, value, tree):
         else:
             if isinstance(path[i + 1], int) or path[i + 1] == "items":
                 cursor = cursor.setdefault(part, [])
+            elif isinstance(cursor, list):
+                return
             else:
                 cursor = cursor.setdefault(part, {})
 
