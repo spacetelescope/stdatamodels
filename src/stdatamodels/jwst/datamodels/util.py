@@ -7,6 +7,7 @@ from pathlib import Path
 import logging
 from asdf.tagged import TaggedString
 
+import io
 import asdf
 
 import numpy as np
@@ -416,7 +417,7 @@ def is_association(asn_data):
     return False
 
 
-def _load_fits_meta_from_schema(hdulist, schema):
+def _load_fits_meta_from_schema(hdulist, tree, schema):
     """
     Load metadata tree without loading entire datamodel into memory, and bypassing validation.
 
@@ -432,7 +433,7 @@ def _load_fits_meta_from_schema(hdulist, schema):
     tree : dict
         Metadata tree.
     """
-    tree = {}
+    known_keywords = {}
 
     # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
     # for a nirspec mos file with ~500 extensions) so we use a cache
@@ -441,10 +442,22 @@ def _load_fits_meta_from_schema(hdulist, schema):
     hdu_cache = {}
 
     def callback(schema, path, combiner, ctx, recurse):
-        """Ignore anything that is not mapped to a fits header keyword."""
+        """
+        Update ASDF tree with corresponding FITS header values.
+
+        Do not attempt to update anything that is in the ASDF extension but is not mapped
+        to a fits header keyword.
+        Do not include any extra FITS header elements that are not in the schema.
+        Leave any list-like objects loaded from the ASDF extension as-is, e.g. model.slits.
+        Ignore validation.
+        """
 
         if fits_keyword := schema.get("fits_keyword"):
             hdu_name = fits_support._get_hdu_name(schema)
+
+            result = fits_support._fits_keyword_loader(
+                hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
+            )
             try:
                 hdu = fits_support.get_hdu(hdulist, hdu_name, _cache=hdu_cache)
             except AttributeError:
@@ -454,54 +467,59 @@ def _load_fits_meta_from_schema(hdulist, schema):
                 result = hdu.header[fits_keyword]
             except KeyError:
                 return
-            properties.put_value(path, result, tree)
 
-    mschema.walk_schema(schema, callback)
-    return tree
-
-
-def _load_asdf_meta_from_schema(tree_in, schema):
-    """Constrain asdf tree to fits-mapped schema keywords only."""
-
-    tree = {}
-
-    def callback(schema, path, combiner, ctx, recurse):
-        """Ignore anything that is a data array"""
-
-        if "fits_keyword" in schema:
+            # This AttributeError is raised for list-like objects.
+            # Ignoring these means that the asdf extension is not updated with fits keywords
+            # within lists, for example the metadata of model.slits in a multislitmodel
             try:
-                result = _traverse_tree(tree_in, path)
-            except KeyError:
+                properties.put_value(path, result, tree)
+            except AttributeError:
                 return
-            if isinstance(result, TaggedString):
-                result = str(result)
-            properties.put_value(path, result, tree)
 
     mschema.walk_schema(schema, callback)
     return tree
 
 
-def _traverse_tree(tree, attribute):
-    """Traverse the tree to get the attribute."""
-    attr = tree
-    for key in attribute:
-        if isinstance(attr, dict):
-            attr = attr[key]
-        else:
-            # ignore lists, e.g. multislitmodel.slits
-            del tree[key]
+def _convert_tagged_strings(tree):
+    """Convert TaggedString to string for all values of nested dict."""
 
-    return attr
+    def recurse(tree):
+        for key, val in tree.items():
+            if key == "wcs":
+                # Skip the WCS object because it is recursive
+                continue
+            if isinstance(val, TaggedString):
+                tree[key] = str(val)
+            elif isinstance(val, dict):
+                recurse(val)
+
+    recurse(tree)
 
 
 def _to_flat_dict(tree):
-    """Convert a tree to a flat dictionary."""
+    """
+    Convert a tree to a flat dictionary.
+
+    Lists are converted to dictionaries with keys equal to their indices as strings.
+    For example, a MultiSlitModel with two slits slits will have the attributes::
+
+        "slits.0.name", "slits.1.name", etc.
+    """
     flat_dict = {}
 
     def recurse(tree, path):
         for key, val in tree.items():
+            if key == "wcs":
+                # Skip the WCS object because it is recursive
+                continue
             if isinstance(val, dict):
                 recurse(val, path + [key])
+            elif isinstance(val, (list, tuple)):
+                tree[key] = {}
+                for i, item in enumerate(val):
+                    tree[key][str(i)] = item
+                    if isinstance(item, (dict, list, tuple)):
+                        recurse(item, path + [key] + [str(i)])
             else:
                 flat_dict[".".join(path + [key])] = val
 
@@ -531,15 +549,14 @@ def read_metadata(fname, model_type=None, flatten=True):
     If `flatten` is set to False, the metadata will be returned as a nested
     dictionary, with the keys being the schema elements.
 
-    The output dictionary will contain every metadata attribute that is mapped
-    to a FITS header keyword in the schema, and is also present in the datamodel.
-    If the attribute is not present, it will not have a key in the output.
-    If the attribute is present in the datamodel but is not mapped
-    to a FITS keyword by the schema, it will not be included in the output.
+    For FITS files, the output dictionary contains all metadata attributes
+    that are present in the FITS header and mapped to a schema element, as well
+    as any extra attributes that are present in the ASDF extension of the FITS file.
+    (If a header keyword is not mapped to a schema element, it will not be included.)
 
-    The output will not contain any data arrays, nor keys that would point to
-    array-like elements of the model (this includes the WCS).
-    For example, trying to access `meta_dict['data']` will raise a KeyError.
+    For ASDF files, the output dictionary simply contains the entire ASDF tree.
+
+    WCS objects are not loaded, as they can be recursive and can be large.
 
     .. warning::
 
@@ -555,7 +572,7 @@ def read_metadata(fname, model_type=None, flatten=True):
     model_type : str, optional
         The model type used to figure out which schema to load. If not provided,
         the model type will be determined from the file's header information
-        ("DATAMODL" keyword for FITS files, `meta.model_type` for ASDF files).
+        ("DATAMODL" keyword for FITS files). Has no effect for ASDF input.
     flatten : bool, optional
         If True, the metadata will be returned as a flat dictionary. If False,
         the metadata will be returned as a nested dictionary. Default is True.
@@ -571,24 +588,19 @@ def read_metadata(fname, model_type=None, flatten=True):
     ext = filetype.check(str(fname))
     if ext == "fits":
         with fits.open(fname) as hdulist:
+            bs = io.BytesIO(hdulist["ASDF"].data.tobytes())
+            tree = asdf.util.load_yaml(bs)
             if model_type is None:
                 model_type = hdulist[0].header["DATAMODL"]
             schema = _retrieve_schema(model_type)
-            tree = _load_fits_meta_from_schema(hdulist, schema)
+            tree = _load_fits_meta_from_schema(hdulist, tree, schema)
 
     elif ext == "asdf":
-        tree_in = asdf.util.load_yaml(fname, tagged=True)
-        if model_type is None:
-            model_type = tree_in["meta"]["model_type"]
-        schema = _retrieve_schema(model_type)
-        tree = _load_asdf_meta_from_schema(tree_in, schema)
+        tree = asdf.util.load_yaml(fname, tagged=True)
+        _convert_tagged_strings(tree)
 
     else:
         raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
-
-    # Patch the input filename onto the tree
-    if "meta" in tree:
-        tree["meta"]["filename"] = Path(fname).name
 
     if flatten:
         return _to_flat_dict(tree)
