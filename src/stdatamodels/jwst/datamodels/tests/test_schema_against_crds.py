@@ -135,6 +135,7 @@ ref_to_multiples_dict = {
 ref_to_datamodel_dict = {
     "abvegaoffset": dm.ABVegaOffsetModel,
     "barshadow": dm.BarshadowModel,
+    "bkg": dm.WfssBkgModel,
     "camera": dm.CameraModel,
     "collimator": dm.CollimatorModel,
     "dark": dm.DarkModel,
