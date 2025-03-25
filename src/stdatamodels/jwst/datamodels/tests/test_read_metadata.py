@@ -15,11 +15,21 @@ INPUT_TIME = "2021-01-01 00:00:00.000"
 
 
 @pytest.fixture
-def imagemodel():
+def recursive_tree():
+    """Create a recursive tree to substitute for a WCS object"""
+
+    w = {"inputs": "test"}
+    w["outputs"] = w
+    return w
+
+
+@pytest.fixture
+def imagemodel(recursive_tree):
     """Create an imagemodel with meta attributes and data array."""
     data = np.zeros((10, 10), dtype=np.float32)
     model = dm.ImageModel(data)
     model.meta.instrument.filter = FILT
+    model.meta.wcs = recursive_tree
 
     # give this an astropy time to ensure it is cast to string
     model.meta.observation.date = Time(INPUT_TIME, format="iso", scale="utc")
@@ -31,7 +41,9 @@ def multislitmodel():
     """Create a multislit datamodel with meta attributes and data array."""
     slit0 = dm.SlitModel(np.zeros((10, 10), dtype=np.float32))
     slit0.meta.instrument.filter = FILT
+    slit0.name = "slit0"
     slit1 = dm.SlitModel(np.ones((10, 10), dtype=np.float32))
+    slit1.name = "slit1"
     model = dm.MultiSlitModel()
     model.slits.append(slit0)
     model.slits.append(slit1)
@@ -88,8 +100,9 @@ def test_read_metadata(model_path, is_str):
     # Ensure attributes in schema but not in model are not present
     assert "meta.instrument.detector" not in meta.keys()
 
-    # Ensure the metadata does not have data attribute
+    # Ensure the metadata does not have data or wcs attributes
     assert "data" not in meta
+    assert "meta.wcs" not in meta
 
 
 def test_read_metadata_nested(model_path):
@@ -119,8 +132,48 @@ def test_read_metadata_multislit(multislit_path):
     # Ensure attributes in schema but not in model are not present
     assert "meta.instrument.detector" not in meta.keys()
 
-    # Ensure the metadata does not have slits attribute
-    assert "slits" not in meta
+    # Ensure the slit metadata is also in here
+    assert meta["slits.0.name"] == "slit0"
+    assert meta["slits.1.name"] == "slit1"
+
+
+def test_read_metadata_multislit_nested(multislit_path):
+    """Test flatten=False mode for multislit model."""
+    meta = read_metadata(multislit_path, flatten=False)
+    assert isinstance(meta, dict)
+    assert isinstance(meta["meta"], dict)
+    assert isinstance(meta["slits"], list)
+
+    # Ensure the metadata has the expected attributes
+    assert meta["meta"]["instrument"]["filter"] == FILT
+    assert meta["meta"]["observation"]["date"] == INPUT_TIME
+    assert meta["meta"]["filename"] == multislit_path.name
+
+    # Ensure attributes in schema but not in model are not present
+    assert "meta.instrument.detector" not in meta.keys()
+
+    # Ensure the slit metadata is also in here
+    assert meta["slits"][0]["name"] == "slit0"
+    assert meta["slits"][1]["name"] == "slit1"
+
+
+def test_equivalent_to_get_crds_parameters(multislit_path):
+    """
+    Check that read_metadata returns all attributes that get_crds_parameters does.
+
+    Note that read_metadata output also contains e.g. meta['data'] and meta['slits.0.data'],
+    although these are not loaded.
+    """
+    # Load the metadata
+    meta = read_metadata(multislit_path)
+
+    # load the model and get the CRDS parameters
+    model = dm.open(multislit_path)
+    crds_meta = model.get_crds_parameters()
+
+    # ensure all keys in crds_meta are in meta and have the same values
+    for key, val in crds_meta.items():
+        assert val == meta[key]
 
 
 def test_data_never_loaded(model_path, monkeypatch):
@@ -158,6 +211,11 @@ def test_error_read_open_model(model_path):
 
 
 def test_error_schema_not_found(model_path):
-    """Attempting to read_metadata with an unknown model type should raise an error."""
-    with pytest.raises(ValueError):
-        read_metadata(model_path, model_type="foo")
+    """
+    Attempting to read_metadata with an unknown model type should raise an error.
+
+    This only matters for FITS files.
+    """
+    if model_path.suffix == ".fits":
+        with pytest.raises(ValueError):
+            read_metadata(model_path, model_type="foo")
