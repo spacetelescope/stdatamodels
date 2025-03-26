@@ -1,12 +1,9 @@
-"""JWST Data Quality Flags
+"""
+JWST Data Quality Flags.
 
 The definitions are documented in the JWST RTD:
 
 https://jwst-pipeline.readthedocs.io/en/latest/jwst/references_general/references_general.html#data-quality-flags
-
-
-Implementation
--------------
 
 The flags are implemented as "bit flags": Each flag is assigned a bit position
 in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned

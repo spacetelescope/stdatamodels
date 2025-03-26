@@ -6,8 +6,9 @@ import re
 # return_result included for backward compatibility
 def find_fits_keyword(schema, keyword, return_result=False):
     """
-    Utility function to find a reference to a FITS keyword in a given
-    schema.  This is intended for interactive use, and not for use
+    Find references to a FITS keyword in a given schema.
+
+    This is intended for interactive use, and not for use
     within library code.
 
     Parameters
@@ -21,6 +22,7 @@ def find_fits_keyword(schema, keyword, return_result=False):
     Returns
     -------
     locations : list of str
+        A list of paths to instances of the keyword in the schema
     """
 
     def find_fits_keyword(subschema, path, combiner, ctx, recurse):
@@ -36,6 +38,8 @@ def find_fits_keyword(schema, keyword, return_result=False):
 
 
 class SearchSchemaResults(list):
+    """A list of search results with nicely-formatted string representation."""
+
     def __repr__(self):
         import textwrap
 
@@ -50,8 +54,7 @@ class SearchSchemaResults(list):
 
 def search_schema(schema, substring):
     """
-    Utility function to search the metadata schema for a particular
-    phrase.
+    Search the metadata schema for a particular phrase.
 
     This is intended for interactive use, and not for use within
     library code.
@@ -69,6 +72,8 @@ def search_schema(schema, substring):
     Returns
     -------
     locations : list of tuples
+        A list of tuples, each containing a path to the substring
+        and a description of the schema item at that path.
     """
     substring = substring.lower()
 
@@ -96,12 +101,12 @@ def search_schema(schema, substring):
 
 def walk_schema(schema, callback, ctx=None):
     """
-    Walks a JSON schema tree in breadth-first order, calling a
-    callback function at each entry.
+    Walk a JSON schema tree in breadth-first order, calling a callback function at each entry.
 
     Parameters
     ----------
     schema : JSON schema
+        The schema to walk
 
     callback : callable
         The callback receives the following arguments at each entry:
@@ -168,6 +173,16 @@ def merge_property_trees(schema):
     This allows datamodel schemas to be more modular, since various components
     can be represented in individual files and then referenced elsewhere. They
     are then combined by this function into a single schema data structure.
+
+    Parameters
+    ----------
+    schema : JSON schema
+        The schema to be merged
+
+    Returns
+    -------
+    JSON schema
+        The merged schema
     """
     # track the "combined" and "top" items separately
     # this allows the top level "id", "$schema", etc to overwrite
@@ -223,10 +238,8 @@ def build_docstring(klass, template="{fits_hdu} {title}"):
     """
     Build a docstring for the specified DataModel class from its schema.
 
-
     Parameters
     ----------
-
     klass : Python class
         A class instance of a datamodel
     template : str

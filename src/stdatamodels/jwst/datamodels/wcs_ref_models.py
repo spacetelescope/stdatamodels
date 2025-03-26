@@ -34,14 +34,27 @@ __all__ = [
 
 
 class _SimpleModel(ReferenceFileModel):
-    """
-    A model for a reference file of type "distortion".
-    """
+    """A DataModel for a reference file that includes an astropy.modeling.Model."""
 
     schema_url = None
     reftype = None
 
     def __init__(self, init=None, model=None, input_units=None, output_units=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        model : `astropy.modeling.core.Model` or list[Model], optional
+            The transform as an astropy Model, by default None
+        input_units : str or `~astropy.units.NamedUnit`, optional
+            The units of the input, by default None
+        output_units : str or `~astropy.units.NamedUnit`, optional
+            The units of the output, by default None
+        """
         super(_SimpleModel, self).__init__(init=init, **kwargs)
         if model is not None:
             self.model = model
@@ -56,18 +69,33 @@ class _SimpleModel(ReferenceFileModel):
                 pass
 
     def on_save(self, path=None):
+        """
+        Modify the model.meta.reftype attribute before saving to disk.
+
+        Also implicitly turns off other DataModel on_save functionality, which is
+        not relevant for this type of model.
+
+        Parameters
+        ----------
+        path : str, optional
+            Not used, only here to match the signature of the parent class, by default None.
+        """
         self.meta.reftype = self.reftype
 
     def populate_meta(self):
         """
-        Subclasses can overwrite this to populate specific meta keywords.
+        Populate specific meta keywords.
+
+        Should be overwritten by subclasses if needed.
         """
         raise NotImplementedError
 
     def to_fits(self):
+        """Override base class to specify that reference files are not writable to fits."""
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
+        """Run additional validations beyond schema validation for these model types."""
         super().validate()
         try:
             assert isinstance(self.model, Model) or all(isinstance(m, Model) for m in self.model)
@@ -87,9 +115,7 @@ class _SimpleModel(ReferenceFileModel):
 
 
 class DistortionModel(_SimpleModel):
-    """
-    A model for a reference file of type "distortion".
-    """
+    """A model for a reference file of type "distortion"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/distortion.schema"
     reftype = "distortion"
@@ -111,9 +137,7 @@ class DistortionModel(_SimpleModel):
 
 
 class DistortionMRSModel(ReferenceFileModel):
-    """
-    A model for a reference file of type "distortion" for the MIRI MRS.
-    """
+    """A model for a reference file of type "distortion" for the MIRI MRS."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/distortion_mrs.schema"
     reftype = "distortion"
@@ -131,6 +155,31 @@ class DistortionMRSModel(ReferenceFileModel):
         output_units=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        x_model : `astropy.modeling.core.Model`, optional
+            TODO, by default None
+        y_model : `astropy.modeling.core.Model`, optional
+            TODO, by default None
+        alpha_model : `astropy.modeling.core.Model`, optional
+            TODO, by default None
+        beta_model : `astropy.modeling.core.Model`, optional
+            TODO, by default None
+        bzero : float, optional
+            TODO, by default None
+        bdel : float, optional
+            TODO, by default None
+        input_units : str or `~astropy.units.NamedUnit`, optional
+            The units of the input, by default None
+        output_units : str or `~astropy.units.NamedUnit`, optional
+            The units of the output, by default None
+        """
         super().__init__(init=init, **kwargs)
 
         if x_model is not None:
@@ -240,25 +289,6 @@ class NIRCAMGrismModel(ReferenceFileModel):
 
     This reference file contains the models for wave, x, and y polynomial
     solutions that describe dispersion through the grism.
-
-    Parameters
-    ----------
-    displ: `~astropy.modeling.Model`
-          Nircam Grism wavelength dispersion model
-    dispx : `~astropy.modeling.Model`
-          Nircam Grism row dispersion model
-    dispy : `~astropy.modeling.Model`
-          Nircam Grism column dispersion model
-    invdispl : `~astropy.modeling.Model`
-          Nircam Grism inverse wavelength dispersion model
-    invdispx : `~astropy.modeling.Model`
-          Nircam Grism inverse row dispersion model
-    invdispy : `~astropy.modeling.Model`
-          Nircam Grism inverse column dispersion model
-    orders : `~astropy.modeling.Model`
-          NIRCAM Grism orders, matched to the array locations of the
-          dispersion models
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_nircam_grism.schema"
@@ -276,6 +306,32 @@ class NIRCAMGrismModel(ReferenceFileModel):
         orders=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        displ : `~astropy.modeling.Model`
+            Nircam Grism wavelength dispersion model
+        dispx : `~astropy.modeling.Model`
+            Nircam Grism row dispersion model
+        dispy : `~astropy.modeling.Model`
+            Nircam Grism column dispersion model
+        invdispl : `~astropy.modeling.Model`
+            Nircam Grism inverse wavelength dispersion model
+        invdispx : `~astropy.modeling.Model`
+            Nircam Grism inverse row dispersion model
+        invdispy : `~astropy.modeling.Model`
+            Nircam Grism inverse column dispersion model
+        orders : `~astropy.modeling.Model`
+            NIRCAM Grism orders, matched to the array locations of the
+            dispersion models
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel
+        """
         super().__init__(init=init, **kwargs)
 
         if init is None:
@@ -319,29 +375,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
 
 
 class NIRISSGrismModel(ReferenceFileModel):
-    """
-    A model for a reference file of type "specwcs" for NIRISS grisms.
-
-    Parameters
-    ----------
-    displ: `~astropy.modeling.Model`
-          NIRISS Grism wavelength dispersion model
-    dispx : `~astropy.modeling.Model`
-          NIRISS Grism row dispersion model
-    dispy : `~astropy.modeling.Model`
-          NIRISS Grism column dispersion model
-    invdispl : `~astropy.modeling.Model`
-          NIRISS Grism inverse wavelength dispersion model
-    invdispx : `~astropy.modeling.Model`
-          NIRISS Grism inverse row dispersion model
-    invdispy : `~astropy.modeling.Model`
-          NIRISS Grism inverse column dispersion model
-    orders : `~astropy.modeling.Model`
-          NIRISS Grism orders, matched to the array locations of the
-          dispersion models
-    fwcpos_ref : float
-        The reference value for the filter wheel position
-    """
+    """A model for a reference file of type "specwcs" for NIRISS grisms."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_niriss_grism.schema"
     reftype = "specwcs"
@@ -357,6 +391,30 @@ class NIRISSGrismModel(ReferenceFileModel):
         fwcpos_ref=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        displ : `~astropy.modeling.Model`
+            NIRISS Grism wavelength dispersion model
+        dispx : `~astropy.modeling.Model`
+            NIRISS Grism row dispersion model
+        dispy : `~astropy.modeling.Model`
+            NIRISS Grism column dispersion model
+        invdispl : `~astropy.modeling.Model`
+            NIRISS Grism inverse wavelength dispersion model
+        orders : `~astropy.modeling.Model`
+            NIRISS Grism orders, matched to the array locations of the
+            dispersion models
+        fwcpos_ref : float
+            The reference value for the filter wheel position
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel
+        """
         super().__init__(init=init, **kwargs)
 
         if init is None:
@@ -402,36 +460,8 @@ class NIRISSGrismModel(ReferenceFileModel):
 class MiriLRSSpecwcsModel(ReferenceFileModel):
     """
     A model for a reference file of type "specwcs" for MIRI LRS Slit.
-    The model is for the specwcs for LRS Fixed Slit and LRSSlitless
-    Parameters
-    ----------
-    x_ref : float
-         x coordinate of reference position of fixed slit aperture
-    y_ref : float
-        y coordinate of reference position of fixed slit aperture
-    x_ref_slitless : float
-         x coordinate of reference position of slitless aperture
-    y_ref_slitless : float
-        y coordinate of reference position of slitless aperture
-    v2vert1 : float
-        slit vertex 1 in V2 frame
-    v2vert2 : float
-        slit vertex 2 in V2 frame
-    v2vert3 : float
-        slit vertex 3 in V2 frame
-    v2vert4 : float
-        slit vertex 4 in V2 frames
-    v3vert1 : float
-        slit vertex 1 in V3 frames
-    v3vert2 : float
-        slit vertex 2 in V3 frames
-    v3vert3 : float
-        slit vertex 3 in V3 frames
-    v3vert4 : float
-        slit vertex 4 in V3 frames
-    wavetable : numpy  2-D array
-        For each row in the slit hold  wavelength, and
-        x center, ycenter, x and y box region corresponding to the wavelength
+
+    The model is for the specwcs for LRS Fixed Slit and LRS Slitless data.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
@@ -455,6 +485,44 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
         v3_vert4=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        wavetable : numpy  2-D array
+            For each row in the slit hold  wavelength, and
+            x center, ycenter, x and y box region corresponding to the wavelength
+        x_ref : float
+            X-coordinate of reference position of fixed slit aperture
+        y_ref : float
+            Y-coordinate of reference position of fixed slit aperture
+        x_ref_slitless : float
+            X-coordinate of reference position of slitless aperture
+        y_ref_slitless : float
+            Y-coordinate of reference position of slitless aperture
+        v2_vert1 : float
+            Slit vertex 1 in V2 frame
+        v2_vert2 : float
+            Slit vertex 2 in V2 frame
+        v2_vert3 : float
+            Slit vertex 3 in V2 frame
+        v2_vert4 : float
+            Slit vertex 4 in V2 frames
+        v3_vert1 : float
+            Slit vertex 1 in V3 frames
+        v3_vert2 : float
+            Slit vertex 2 in V3 frames
+        v3_vert3 : float
+            Slit vertex 3 in V3 frames
+        v3_vert4 : float
+            Slit vertex 4 in V3 frames
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init=init, **kwargs)
 
         if init is None:
@@ -506,14 +574,25 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
 
 
 class RegionsModel(ReferenceFileModel):
-    """
-    A model for a reference file of type "regions".
-    """
+    """A model for a reference file of type "regions"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/regions.schema"
     reftype = "regions"
 
     def __init__(self, init=None, regions=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        regions : np.ndarray, optional
+            TODO, by default None
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel
+        """
         super().__init__(init=init, **kwargs)
         if regions is not None:
             self.regions = regions
@@ -561,19 +640,6 @@ class WavelengthrangeModel(ReferenceFileModel):
     A model for a reference file of type "wavelengthrange".
 
     The model is used by MIRI, NIRSPEC, NIRCAM, and NIRISS.
-
-
-    Parameters
-    ----------
-    wrange : list
-        Contains a list of [order, filter, min wave, max wave]
-    order : list
-        A list of orders that are available and described in the file
-    extract_orders : list
-        A list of filters and the orders that should be extracted by default
-    wunits : `~astropy.units`
-        The units for the wavelength data
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wavelengthrange.schema"
@@ -589,6 +655,25 @@ class WavelengthrangeModel(ReferenceFileModel):
         wunits=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        wrange : list
+            Contains a list of [order, filter, min wave, max wave]
+        order : list
+            A list of orders that are available and described in the file
+        extract_orders : list
+            A list of filters and the orders that should be extracted by default
+        wunits : `~astropy.units`
+            The units for the wavelength data
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel
+        """
         super().__init__(init=init, **kwargs)
         if wrange_selector is not None:
             self.waverange_selector = wrange_selector
@@ -618,7 +703,8 @@ class WavelengthrangeModel(ReferenceFileModel):
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
     def get_wfss_wavelength_range(self, filter_name, orders):
-        """Retrieve the wavelength range for a WFSS observation.
+        """
+        Retrieve the wavelength range for a WFSS observation.
 
         Parameters
         ----------
@@ -644,14 +730,25 @@ class WavelengthrangeModel(ReferenceFileModel):
 
 
 class FPAModel(ReferenceFileModel):
-    """
-    A model for a NIRSPEC reference file of type "fpa".
-    """
+    """A model for a NIRSPEC reference file of type "fpa"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fpa.schema"
     reftype = "fpa"
 
     def __init__(self, init=None, nrs1_model=None, nrs2_model=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        nrs1_model : `~astropy.modeling.core.Model`, optional
+            TODO, by default None
+        nrs2_model : `~astropy.modeling.core.Model`, optional
+            TODO, by default None
+        """
         super().__init__(init=init, **kwargs)
         if nrs1_model is not None:
             self.nrs1_model = nrs1_model
@@ -687,28 +784,34 @@ class FPAModel(ReferenceFileModel):
 
 
 class IFUPostModel(ReferenceFileModel):
-    """
-    A model for a NIRSPEC reference file of type "ifupost".
-
-    Parameters
-    ----------
-    init : str
-        A file name.
-    slice_models : dict
-        A dictionary with slice transforms with the following entries
-        {"slice_N": {'linear': astropy.modeling.Model,
-        ...         'xpoly': astropy.modeling.Model,
-        ...         'xpoly_distortion': astropy.modeling.Model,
-        ...         'ypoly': astropy.modeling.Model,
-        ...         'ypoly_distortion': astropy.modeling.Model,
-        ...         }}
-
-    """
+    """A model for a NIRSPEC reference file of type "ifupost"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifupost.schema"
     reftype = "ifupost"
 
     def __init__(self, init=None, slice_models=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        slice_models : dict
+            A dictionary with slice transforms with the following entries
+            {"slice_N": {'linear': astropy.modeling.Model,
+            ...         'xpoly': astropy.modeling.Model,
+            ...         'xpoly_distortion': astropy.modeling.Model,
+            ...         'ypoly': astropy.modeling.Model,
+            ...         'ypoly_distortion': astropy.modeling.Model,
+            ...         }}
+
+        Raises
+        ------
+        ValueError
+            If the number of slice models is not 30.
+        """
         super().__init__(init=init, **kwargs)
         if slice_models is not None:
             if len(slice_models) != 30:
@@ -736,14 +839,27 @@ class IFUPostModel(ReferenceFileModel):
 
 
 class IFUSlicerModel(ReferenceFileModel):
-    """
-    A model for a NIRSPEC reference file of type "ifuslicer".
-    """
+    """A model for a NIRSPEC reference file of type "ifuslicer"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuslicer.schema"
     reftype = "ifuslicer"
 
     def __init__(self, init=None, model=None, data=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        model : `~astropy.modeling.core.Model`, optional
+            TODO, by default None
+        data : np.ndarray, optional
+            TODO, by default None
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init=init, **kwargs)
         if model is not None:
             self.model = model
@@ -769,14 +885,27 @@ class IFUSlicerModel(ReferenceFileModel):
 
 
 class MSAModel(ReferenceFileModel):
-    """
-    A model for a NIRSPEC reference file of type "msa".
-    """
+    """A model for a NIRSPEC reference file of type "msa"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/msa.schema"
     reftype = "msa"
 
     def __init__(self, init=None, models=None, data=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        models : dict, optional
+            TODO, by default None
+        data : dict, optional
+            TODO, by default None
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init=init, **kwargs)
         if models is not None and data is not None:
             self.Q1 = {"model": models["Q1"], "data": data["Q1"]}
@@ -806,9 +935,7 @@ class MSAModel(ReferenceFileModel):
 
 
 class DisperserModel(ReferenceFileModel):
-    """
-    A model for a NIRSPEC reference file of type "disperser".
-    """
+    """A model for a NIRSPEC reference file of type "disperser"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/disperser.schema"
     reftype = "disperser"
@@ -830,6 +957,41 @@ class DisperserModel(ReferenceFileModel):
         groovedensity=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        angle : float, optional
+            TODO, by default None
+        gwa_tiltx : float, optional
+            TODO, by default None
+        gwa_tilty : float, optional
+            TODO, by default None
+        kcoef : list, optional
+            TODO, by default None
+        lcoef : list, optional
+            TODO, by default None
+        tcoef : list, optional
+            TODO, by default None
+        pref : float, optional
+            TODO, by default None
+        tref : float, optional
+            TODO, by default None
+        theta_x : float, optional
+            TODO, by default None
+        theta_y : float, optional
+            TODO, by default None
+        theta_z : float, optional
+            TODO, by default None
+        groovedensity : float, optional
+            TODO, by default None
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init=init, **kwargs)
         if groovedensity is not None:
             self.groovedensity = groovedensity
@@ -897,14 +1059,27 @@ class DisperserModel(ReferenceFileModel):
 
 
 class FilteroffsetModel(ReferenceFileModel):
-    """
-    A model for filter-dependent boresight offsets.
-    """
+    """A model for filter-dependent boresight offsets."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/filteroffset.schema"
     reftype = "filteroffset"
 
     def __init__(self, init=None, filters=None, instrument=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        filters : dict, optional
+            TODO, by default None
+        instrument : str, optional
+            The instrument for which the filter offsets are defined, by default None
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init, **kwargs)
         if filters is not None:
             self.filters = filters
@@ -953,9 +1128,7 @@ class FilteroffsetModel(ReferenceFileModel):
 
 
 class IFUFOREModel(_SimpleModel):
-    """
-    A model for a NIRSPEC reference file of type "ifufore".
-    """
+    """A model for a NIRSPEC reference file of type "ifufore"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifufore.schema"
     reftype = "ifufore"
@@ -968,9 +1141,7 @@ class IFUFOREModel(_SimpleModel):
 
 
 class CameraModel(_SimpleModel):
-    """
-    A model for a reference file of type "camera".
-    """
+    """A model for a reference file of type "camera"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/camera.schema"
     reftype = "camera"
@@ -985,9 +1156,7 @@ class CameraModel(_SimpleModel):
 
 
 class CollimatorModel(_SimpleModel):
-    """
-    A model for a reference file of type "collimator".
-    """
+    """A model for a reference file of type "collimator"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/collimator.schema"
     reftype = "collimator"
@@ -1002,9 +1171,7 @@ class CollimatorModel(_SimpleModel):
 
 
 class OTEModel(_SimpleModel):
-    """
-    A model for a reference file of type "ote".
-    """
+    """A model for a reference file of type "ote"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ote.schema"
     reftype = "ote"
@@ -1019,9 +1186,7 @@ class OTEModel(_SimpleModel):
 
 
 class FOREModel(_SimpleModel):
-    """
-    A model for a reference file of type "fore".
-    """
+    """A model for a reference file of type "fore"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fore.schema"
     reftype = "fore"
@@ -1057,10 +1222,23 @@ class FOREModel(_SimpleModel):
 
 
 class WaveCorrModel(ReferenceFileModel):
+    """Model for the reference file for the wavecorr step."""
+
     reftype = "wavecorr"
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wavecorr.schema"
 
     def __init__(self, init=None, apertures=None, **kwargs):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None
+        apertures : TODO, optional
+            TODO, by default None
+        """
         super().__init__(init, **kwargs)
         if apertures is not None:
             self.apertures = apertures
@@ -1069,6 +1247,14 @@ class WaveCorrModel(ReferenceFileModel):
 
     @property
     def aperture_names(self):
+        """
+        Return the names of the apertures.
+
+        Returns
+        -------
+        list
+            A list of aperture names
+        """
         return [getattr(ap, "aperture_name") for ap in self.apertures]  # noqa: B009
 
     def populate_meta(self):

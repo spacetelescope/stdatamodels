@@ -8,8 +8,8 @@ class SpecModel(JwstDataModel):
     """
     A data model for 1D spectra.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     spec_table : numpy table
         Extracted spectral data table.
         A table with at least four columns:  wavelength, flux, an error
@@ -23,8 +23,8 @@ class MRSSpecModel(SpecModel):
     """
     A data model for MIRI MRS 1D spectra with residual fringe corrections.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     spec_table : numpy table
         Extracted spectral data table.
         A table with the standard spectral columns plus three extra
