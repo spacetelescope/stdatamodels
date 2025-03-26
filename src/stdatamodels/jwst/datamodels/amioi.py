@@ -4,13 +4,7 @@ __all__ = ["AmiOIModel"]
 
 
 class AmiOIModel(JwstDataModel):
-    """
-    TODO.
-
-    Attributes
-    ----------
-    TODO
-    """
+    """Class containing AMI interferometric observables."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 

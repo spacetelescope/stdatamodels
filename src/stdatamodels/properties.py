@@ -570,7 +570,7 @@ def put_value(path, value, tree):
         The path to the element.
     value : any
         The value to place
-    tree : `asdf.tags.core.AsdfObject`
+    tree : dict
         The tree to place the value into.
     """
     cursor = tree
@@ -598,14 +598,14 @@ def merge_tree(a, b):
 
     Parameters
     ----------
-    a : `asdf.tags.core.AsdfObject`
+    a : dict
         The tree to merge into.
-    b : `asdf.tags.core.AsdfObject`
+    b : dict
         The tree to merge from.
 
     Returns
     -------
-    a : `asdf.tags.core.AsdfObject`
+    a : dict
         The merged tree.
     """
 
