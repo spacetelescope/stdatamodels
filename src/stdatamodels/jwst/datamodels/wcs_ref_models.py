@@ -460,36 +460,8 @@ class NIRISSGrismModel(ReferenceFileModel):
 class MiriLRSSpecwcsModel(ReferenceFileModel):
     """
     A model for a reference file of type "specwcs" for MIRI LRS Slit.
-    The model is for the specwcs for LRS Fixed Slit and LRSSlitless
-    Parameters
-    ----------
-    x_ref : float
-         x coordinate of reference position of fixed slit aperture
-    y_ref : float
-        y coordinate of reference position of fixed slit aperture
-    x_ref_slitless : float
-         x coordinate of reference position of slitless aperture
-    y_ref_slitless : float
-        y coordinate of reference position of slitless aperture
-    v2vert1 : float
-        slit vertex 1 in V2 frame
-    v2vert2 : float
-        slit vertex 2 in V2 frame
-    v2vert3 : float
-        slit vertex 3 in V2 frame
-    v2vert4 : float
-        slit vertex 4 in V2 frames
-    v3vert1 : float
-        slit vertex 1 in V3 frames
-    v3vert2 : float
-        slit vertex 2 in V3 frames
-    v3vert3 : float
-        slit vertex 3 in V3 frames
-    v3vert4 : float
-        slit vertex 4 in V3 frames
-    wavetable : numpy  2-D array
-        For each row in the slit hold  wavelength, and
-        x center, ycenter, x and y box region corresponding to the wavelength
+
+    The model is for the specwcs for LRS Fixed Slit and LRS Slitless data.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
@@ -513,6 +485,44 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
         v3_vert4=None,
         **kwargs,
     ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+            The data from which to initialize the model. Can be of any type that
+            is supported by DataModel, by default None.
+        wavetable : numpy  2-D array
+            For each row in the slit hold  wavelength, and
+            x center, ycenter, x and y box region corresponding to the wavelength
+        x_ref : float
+            X-coordinate of reference position of fixed slit aperture
+        y_ref : float
+            Y-coordinate of reference position of fixed slit aperture
+        x_ref_slitless : float
+            X-coordinate of reference position of slitless aperture
+        y_ref_slitless : float
+            Y-coordinate of reference position of slitless aperture
+        v2_vert1 : float
+            Slit vertex 1 in V2 frame
+        v2_vert2 : float
+            Slit vertex 2 in V2 frame
+        v2_vert3 : float
+            Slit vertex 3 in V2 frame
+        v2_vert4 : float
+            Slit vertex 4 in V2 frames
+        v3_vert1 : float
+            Slit vertex 1 in V3 frames
+        v3_vert2 : float
+            Slit vertex 2 in V3 frames
+        v3_vert3 : float
+            Slit vertex 3 in V3 frames
+        v3_vert4 : float
+            Slit vertex 4 in V3 frames
+        **kwargs : dict
+            Additional keyword arguments to pass to ReferenceFileModel.
+        """
         super().__init__(init=init, **kwargs)
 
         if init is None:

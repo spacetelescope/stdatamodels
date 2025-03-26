@@ -1202,6 +1202,11 @@ class DataModel(properties.ObjectNode):
         ----------
         *args, **kwargs : tuple, dict
             Additional arguments passed to the model init function.
+
+        Returns
+        -------
+        model : `~jwst.datamodels.DataModel`
+            A data model.
         """
         warnings.warn("read is deprecated, use __init__ instead.", DeprecationWarning, stacklevel=2)
         return self.__init__(*args, **kwargs)
