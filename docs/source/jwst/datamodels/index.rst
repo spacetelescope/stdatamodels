@@ -15,3 +15,4 @@ Data Models
    schemas.rst
 
 .. automodapi:: jwst.datamodels
+.. automodapi:: jwst.datamodels.dqflags
