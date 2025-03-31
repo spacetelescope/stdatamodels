@@ -30,7 +30,7 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     flip_bits : bool, None
         See `astropy.nddata.bitmask.interpret_bit_flags`.
 
-    mnemonic_map : {str: int[,...]}
+    mnemonic_map : dict
         Dictionary associating the mnemonic string to an integer value
         representing the set bit for that mnemonic.
 

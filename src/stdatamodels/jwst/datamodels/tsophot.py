@@ -24,10 +24,10 @@ class TsoPhotModel(ReferenceFileModel):
         ----------
         init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
             The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+            is supported by DataModel.
         radii : list, optional
             List of one or more dictionaries, each with keys 'pupil', 'radius',
-            'radius_inner', and 'radius_outer', by default None.
+            'radius_inner', and 'radius_outer'.
         **kwargs
             Additional keyword arguments passed to ReferenceFileModel.
         """

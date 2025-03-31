@@ -256,7 +256,7 @@ class MIRI_AB2Slice(Model):  # noqa: N801
             Slice width.
         channel : int
             MIRI MRS channel number. Valid values are 1, 2, 3, 4.
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to Model.
         """
         super().__init__(beta_zero=beta_zero, beta_del=beta_del, channel=channel, **kwargs)
@@ -310,7 +310,7 @@ class RefractionIndexFromPrism(Model):
         prism_angle : float
             Prism angle in degrees.
         name : str, optional
-            Name of the model, by default None
+            Name of the model
         """
         super(RefractionIndexFromPrism, self).__init__(prism_angle=prism_angle, name=name)
         self.inputs = (
@@ -636,7 +636,7 @@ class Logical(Model):
             same shape.
         value : float, ndarray
             Value to substitute where condition is True.
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to Model.
         """
         self.condition = condition.upper()
@@ -648,7 +648,7 @@ class Logical(Model):
 
     def evaluate(self, x):
         """
-        Compare x to compareto and substitute value where condition is True.
+        Compare x to ``compareto`` and substitute value where condition is True.
 
         Parameters
         ----------
@@ -682,7 +682,7 @@ class IdealToV2V3(Model):
 
     The two systems have the same origin: V2_REF, V3_REF.
 
-    Note that this model has no schema implemented - add schema if needed.
+    Note that this model has no schema implemented.
     """
 
     _separable = False
@@ -740,7 +740,7 @@ class V2V3ToIdeal(Model):
 
     The two systems have the same origin - V2_REF, V3_REF.
 
-    Note that this model has no schema implemented - add if needed.
+    Note that this model has no schema implemented.
     """
 
     _separable = False
@@ -878,7 +878,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels cannot be analytically derived
         name : str, optional
-            Name of the model, by default None
+            Name of the model
         meta : dict, optional
             Unused
         """
@@ -903,9 +903,9 @@ class NIRCAMForwardRowGrismDispersion(Model):
 
         Parameters
         ----------
-        x, y :  int,float,list
+        x, y :  int, float, list
             Input x, y location
-        x0, y0 : int,float,list
+        x0, y0 : int, float, list
             Source object x-center, y-center
         order : int
             Input spectral order
@@ -1052,7 +1052,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels cannot be analytically derived
         name : str, optional
-            Name of the model, by default None
+            Name of the model
         meta : dict, optional
             Unused
         """
@@ -1077,9 +1077,9 @@ class NIRCAMForwardColumnGrismDispersion(Model):
 
         Parameters
         ----------
-        x, y :  int,float,list
+        x, y :  int, float, list
             Input x, y location
-        x0, y0 : int,float,list
+        x0, y0 : int, float, list
             Source object x-center, y-center
         order : int
             Input spectral order
@@ -1231,7 +1231,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             List of models which will be used if inverse ymodels
             cannot be analytically derived
         name : str, optional
-            Name of the model, by default None.
+            Name of the model
         meta : dict
             Unused
         """
@@ -1375,7 +1375,7 @@ class NIRISSBackwardGrismDispersion(Model):
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
-            Name of the model, by default None.
+            Name of the model
         meta : dict
             Unused
         """
@@ -1483,7 +1483,7 @@ class NIRISSForwardRowGrismDispersion(Model):
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
-            Name of the model, by default None.
+            Name of the model
         meta : dict
             Unused
         """
@@ -1507,9 +1507,9 @@ class NIRISSForwardRowGrismDispersion(Model):
 
         Parameters
         ----------
-        x, y :  int,float,list
+        x, y :  int, float, list
             Input x, y location
-        x0, y0 : int,float,list
+        x0, y0 : int, float, list
             Source object x-center, y-center
         order : int
             Input spectral order
@@ -1604,7 +1604,7 @@ class NIRISSForwardColumnGrismDispersion(Model):
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
         name : str
-            The name of the model, by default None.
+            The name of the model
         meta : dict
             Unused.
         """
@@ -1628,9 +1628,9 @@ class NIRISSForwardColumnGrismDispersion(Model):
 
         Parameters
         ----------
-        x, y :  int,float
+        x, y :  int, float
             Input x,y location
-        x0, y0 : int,float
+        x0, y0 : int, float
             Source object x-center, y-center
         order : int
             Input spectral order
@@ -1774,7 +1774,7 @@ class Rotation3DToGWA(Model):
 
 
 class Snell(Model):
-    """Apply transforms, including Snell law, through the NIRSpec prism."""
+    """Apply transforms, including Snell's law, through the NIRSpec prism."""
 
     standard_broadcasting = False
     _separable = False
@@ -1805,7 +1805,7 @@ class Snell(Model):
         pressure : float
             System pressure during observation in ATM.
         name : str, optional
-            Name of the model, by default None.
+            Name of the model
         """
         self.prism_angle = angle
         self.kcoef = np.array(kcoef, dtype=float)
@@ -1977,7 +1977,7 @@ class AngleFromGratingEquation(Model):
             Grating ruling density.
         order : int
             Spectral order.
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to Model base class.
         """
         super().__init__(groove_density=groove_density, order=order, **kwargs)
@@ -2041,7 +2041,7 @@ class WavelengthFromGratingEquation(Model):
             Grating ruling density.
         order : int
             Spectral order.
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to Model base class.
         """
         super().__init__(groove_density=groove_density, order=order, **kwargs)
@@ -2112,7 +2112,7 @@ class Rotation3D(Model):
             axis of rotation and matching the order in ``angles``.
             The axes are "zyxyz".
         name : str, optional
-            The name of the transform, by default None.
+            The name of the transform
         """
         self.axes = ["x", "y", "z"]
         unrecognized = set(axes_order).difference(self.axes)
@@ -2243,7 +2243,7 @@ class V23ToSky(Rotation3D):
             axis of rotation and matching the order in ``angles``.
             The axes are "zyxyz".
         name : str, optional
-            The name of the transform, by default None.
+            The name of the transform
         """
         super(V23ToSky, self).__init__(angles, axes_order=axes_order, name=name)
         self._inputs = ("v2", "v3")

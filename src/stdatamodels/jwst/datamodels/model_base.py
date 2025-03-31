@@ -40,7 +40,7 @@ class JwstDataModel(_DataModel):
 
     def on_init(self, init):
         """
-        Run before returning a newly created model instance.
+        Run a hook before returning a newly created model instance.
 
         Parameters
         ----------
@@ -54,7 +54,7 @@ class JwstDataModel(_DataModel):
 
     def on_save(self, init):
         """
-        Run before writing a model to a file (FITS or ASDF).
+        Run a hook before writing a model to a file (FITS or ASDF).
 
         Parameters
         ----------

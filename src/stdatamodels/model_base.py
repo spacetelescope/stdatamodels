@@ -101,7 +101,7 @@ class DataModel(properties.ObjectNode):
             will be used.
 
         memmap : bool
-            Turn memmap of FITS/ASDF file on or off.  (default: False).
+            Turn memmap of FITS/ASDF file on or off.
 
         pass_invalid_values : bool or None
             If `True`, values that do not validate the schema
@@ -133,7 +133,7 @@ class DataModel(properties.ObjectNode):
             contains metadata about extensions that are not available.
             Defaults to `True`.
 
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments passed to lower level functions. These arguments
             are generally file format-specific.
         """
@@ -334,7 +334,10 @@ class DataModel(properties.ObjectNode):
         """
         Get the CRDS observatory code for this model.
 
-        Subclasses should override this to return a str.
+        Raises
+        ------
+        NotImplementedError
+            Subclasses should override this method to return a str.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -344,7 +347,10 @@ class DataModel(properties.ObjectNode):
         """
         Get the parameters used by CRDS to select references for this model.
 
-        Subclasses should override this to return a dict.
+        Raises
+        ------
+        NotImplementedError
+            Subclasses should override this method to return a dict.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -417,10 +423,10 @@ class DataModel(properties.ObjectNode):
             The model to clone into.
         source : DataModel
             The model to clone from.
-        deepcopy : bool
+        deepcopy : bool, optional
             If `True`, perform a deep copy of the source model.
             If `False`, perform a shallow copy.
-        memo : dict
+        memo : dict, optional
             A dictionary to use as a memoization table for deep copy.
         """
         if deepcopy:
@@ -441,7 +447,14 @@ class DataModel(properties.ObjectNode):
         target._no_asdf_extension = source._no_asdf_extension
 
     def copy(self, memo=None):
-        """Return a deep copy of this model."""
+        """
+        Return a deep copy of this model.
+
+        Parameters
+        ----------
+        memo : dict, optional
+            A dictionary to use as a memoization table for deep copy.
+        """
         result = self.__class__(
             init=None,
             pass_invalid_values=self._pass_invalid_values,
@@ -475,6 +488,8 @@ class DataModel(properties.ObjectNode):
         Retrieve the name of the "primary" array for this model.
 
         The primary array controls the size of other arrays that are implicitly created.
+        If the schema has the "data" property, then this method returns "data".
+        Otherwise, it returns an empty string.
         This is intended to be overridden in the subclasses if the
         primary array's name is not "data".
 
@@ -572,7 +587,7 @@ class DataModel(properties.ObjectNode):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)  # noqa: PTH118
 
-        # TODO: Support gzip-compressed fits
+        # TODO: Support gzip-compressed FITS
         if ext == ".fits":
             # TODO: remove 'clobber' check once depreciated fully in astropy
             if "clobber" not in kwargs:
@@ -588,7 +603,7 @@ class DataModel(properties.ObjectNode):
     @staticmethod
     def open_asdf(init=None, ignore_unrecognized_tag=False, **kwargs):
         """
-        Open an asdf object from a filename or create a new asdf object.
+        Open an ASDF object from a filename or create a new ASDF object.
 
         Parameters
         ----------
@@ -599,13 +614,13 @@ class DataModel(properties.ObjectNode):
             - dict : Initialize from the given dictionary.
         ignore_unrecognized_tag : bool
             If `True`, ignore tags that are not recognized.
-        **kwargs : dict
+        **kwargs
             Additional arguments passed to asdf.open.
 
         Returns
         -------
         asdffile : `~asdf.AsdfFile`
-            An asdf file object.
+            An ASDF file object.
         """
         warnings.warn(
             "open_asdf is deprecated, use asdf.open instead.", DeprecationWarning, stacklevel=2
@@ -634,7 +649,7 @@ class DataModel(properties.ObjectNode):
             - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
         schema : dict
             Same as for `__init__`
-        **kwargs : dict
+        **kwargs
             Aadditional arguments passed to lower level functions
 
         Returns
@@ -657,9 +672,9 @@ class DataModel(properties.ObjectNode):
         ----------
         init : file path or file object
             The file to write to.
-        *args : tuple, list
+        *args
             Additional positional arguments passed to `~asdf.AsdfFile.write_to`.
-        **kwargs : dict
+        **kwargs
             Any additional keyword arguments are passed along to
             `~asdf.AsdfFile.write_to`.
         """
@@ -687,7 +702,7 @@ class DataModel(properties.ObjectNode):
               `~astropy.io.fits.HDUList`.
         schema : dict, str
             Same as for `__init__`
-        **kwargs : dict
+        **kwargs
             Aadditional arguments passed to lower level functions.
 
         Returns
@@ -710,9 +725,9 @@ class DataModel(properties.ObjectNode):
         ----------
         init : file path or file object
             The file to write to.
-        *args : tuple, list
+        *args
             Additional positional arguments passed to `astropy.io.fits.writeto`.
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments passed to `astropy.io.fits.writeto`.
         """
         self.on_save(init)

@@ -127,7 +127,7 @@ def _cast(val, schema):
 
 def _as_fitsrec(val):
     """
-    Convert a numpy record into a fits record if it is not one already.
+    Convert a numpy record into a FITS record if it is not one already.
 
     Parameters
     ----------

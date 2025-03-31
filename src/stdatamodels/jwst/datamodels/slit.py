@@ -12,35 +12,35 @@ class SlitDataModel(JwstDataModel):
     Attributes
     ----------
     data : numpy float32 array
-         The science data
+        The science data
     dq : numpy uint32 array
-         Data quality array
+        Data quality array
     err : numpy float32 array
-         Error array
+        Error array
     var_poisson : numpy float32 array
-         variance due to poisson noise
+        variance due to poisson noise
     var_rnoise : numpy float32 array
-         variance due to read noise
+        variance due to read noise
     var_flat : numpy float32 array
-         variance due to flat
+        variance due to flat
     wavelength : numpy float32 array
-         Wavelength array, corrected for zero-point
+        Wavelength array, corrected for zero-point
     barshadow : numpy float32 array
-         Bar shadow correction
+        Bar shadow correction
     flatfield_point : numpy float32 array
-         flatfield array for point source
+        flatfield array for point source
     flatfield_uniform : numpy float32 array
-         flatfield array for uniform source
+        flatfield array for uniform source
     pathloss_point : numpy float32 array
-         pathloss array for point source
+        pathloss array for point source
     pathloss_uniform : numpy float32 array
-         pathloss array for uniform source
+        pathloss array for uniform source
     photom_point : numpy float32 array
-         photom array for point source
+        photom array for point source
     photom_uniform : numpy float32 array
-         photom array for uniform source
+        photom array for uniform source
     area : numpy float32 array
-         Pixel area map array
+        Pixel area map array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
@@ -81,37 +81,37 @@ class SlitModel(JwstDataModel):
     Attributes
     ----------
     data : numpy float32 array
-         The science data
+        The science data
     dq : numpy uint32 array
-         Data quality array
+        Data quality array
     err : numpy float32 array
-         Error array
+        Error array
     var_poisson : numpy float32 array
-         variance due to poisson noise
+        Variance due to poisson noise
     var_rnoise : numpy float32 array
-         variance due to read noise
+        Variance due to read noise
     var_flat : numpy float32 array
-         variance due to flat
+        Variance due to flat
     wavelength : numpy float32 array
-         Wavelength array, corrected for zero-point
+        Wavelength array, corrected for zero-point
     barshadow : numpy float32 array
-         Bar shadow correction
+        Bar shadow correction
     flatfield_point : numpy float32 array
-         flatfield array for point source
+        Flatfield array for point source
     flatfield_uniform : numpy float32 array
-         flatfield array for uniform source
+        Flatfield array for uniform source
     pathloss_point : numpy float32 array
-         pathloss array for point source
+        Pathloss array for point source
     pathloss_uniform : numpy float32 array
-         pathloss array for uniform source
+        Pathloss array for uniform source
     photom_point : numpy float32 array
-         photom array for point source
+        Photom array for point source
     photom_uniform : numpy float32 array
-         photom array for uniform source
+        Photom array for uniform source
     area : numpy float32 array
-         Pixel area map array
+        Pixel area map array
     int_times : numpy table
-         table of times for each integration
+        Table of times for each integration
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slit.schema"

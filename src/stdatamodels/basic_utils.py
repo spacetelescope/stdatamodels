@@ -18,7 +18,7 @@ def multiple_replace(string, rep_dict):
     string : str
         The source string to have replacements done on it.
     rep_dict : dict
-        The replacements were key is the input substring and
+        The replacements, where key is the input substring and
         value is the replacement
 
     Returns

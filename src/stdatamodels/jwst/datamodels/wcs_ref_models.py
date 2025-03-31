@@ -47,13 +47,13 @@ class _SimpleModel(ReferenceFileModel):
         ----------
         init : str, None, optional
             The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+            is supported by DataModel.
         model : `astropy.modeling.core.Model` or list[Model], optional
-            The transform as an astropy Model, by default None
+            The transform as an astropy Model
         input_units : str or `~astropy.units.NamedUnit`, optional
-            The units of the input, by default None
+            The units of the input
         output_units : str or `~astropy.units.NamedUnit`, optional
-            The units of the output, by default None
+            The units of the output
         """
         super(_SimpleModel, self).__init__(init=init, **kwargs)
         if model is not None:
@@ -78,7 +78,7 @@ class _SimpleModel(ReferenceFileModel):
         Parameters
         ----------
         path : str, optional
-            Not used, only here to match the signature of the parent class, by default None.
+            Not used, only here to match the signature of the parent class
         """
         self.meta.reftype = self.reftype
 
@@ -91,7 +91,7 @@ class _SimpleModel(ReferenceFileModel):
         raise NotImplementedError
 
     def to_fits(self):
-        """Override base class to specify that reference files are not writable to fits."""
+        """Override base class to specify that reference files are not writable to FITS."""
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -161,27 +161,27 @@ class DistortionMRSModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         x_model : `astropy.modeling.core.Model`, optional
             Transform between the 'detector' frame and the frame associated with
-            the local channel cube 'alpha', by default None.
+            the local channel cube 'alpha'
         y_model : `astropy.modeling.core.Model`, optional
             Transform between the 'detector' frame and the frame associated with
-            the local channel cube 'beta', by default None.
+            the local channel cube 'beta'
         alpha_model : `astropy.modeling.core.Model`, optional
             Transform between the local channel frame and the global instrument frame
-            on the sky, by default None.
+            on the sky
         beta_model : `astropy.modeling.core.Model`, optional
             Transform between the local channel frame and the global instrument frame
-            on the sky, by default None.
+            on the sky
         bzero : float, optional
             Center of each slice in the local channel frame.
         bdel : float, optional
             Slice width in the local channel frame.
         input_units : str or `~astropy.units.NamedUnit`, optional
-            The units of the input, by default None
+            The units of the input
         output_units : str or `~astropy.units.NamedUnit`, optional
-            The units of the output, by default None
+            The units of the output
         """
         super().__init__(init=init, **kwargs)
 
@@ -315,7 +315,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         displ : `~astropy.modeling.Model`
             Nircam Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
@@ -331,7 +331,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
         orders : `~astropy.modeling.Model`
             NIRCAM Grism orders, matched to the array locations of the
             dispersion models
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel
         """
         super().__init__(init=init, **kwargs)
@@ -399,7 +399,7 @@ class NIRISSGrismModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         displ : `~astropy.modeling.Model`
             NIRISS Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
@@ -413,7 +413,7 @@ class NIRISSGrismModel(ReferenceFileModel):
             dispersion models
         fwcpos_ref : float
             The reference value for the filter wheel position
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel
         """
         super().__init__(init=init, **kwargs)
@@ -492,7 +492,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         wavetable : numpy  2-D array
             For each row in the slit hold  wavelength, and
             x center, ycenter, x and y box region corresponding to the wavelength
@@ -520,7 +520,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
             Slit vertex 3 in V3 frames
         v3_vert4 : float
             Slit vertex 4 in V3 frames
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel.
         """
         super().__init__(init=init, **kwargs)
@@ -586,10 +586,10 @@ class RegionsModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         regions : np.ndarray, optional
-            An array mapping pixels to slices, by default None.
-        **kwargs : dict
+            An array mapping pixels to slices
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel
         """
         super().__init__(init=init, **kwargs)
@@ -660,7 +660,7 @@ class WavelengthrangeModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         wrange : list
             Contains a list of [order, filter, min wave, max wave]
         order : list
@@ -669,7 +669,7 @@ class WavelengthrangeModel(ReferenceFileModel):
             A list of filters and the orders that should be extracted by default
         wunits : `~astropy.units`
             The units for the wavelength data
-        **kwargs : dict
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel
         """
         super().__init__(init=init, **kwargs)
@@ -740,13 +740,13 @@ class FPAModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         nrs1_model : `~astropy.modeling.core.Model`, optional
             The transform from the NIRSpec focal plane array (FPA) to the camera
-            for the NRS1 detector, by default None.
+            for the NRS1 detector
         nrs2_model : `~astropy.modeling.core.Model`, optional
             The transform from the NIRSpec focal plane array (FPA) to the camera
-            for the NRS2 detector, by default None.
+            for the NRS2 detector
         """
         super().__init__(init=init, **kwargs)
         if nrs1_model is not None:
@@ -795,7 +795,7 @@ class IFUPostModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         slice_models : dict
             A dictionary with slice transforms with the following entries
             {"slice_N": {'linear': astropy.modeling.Model,
@@ -850,14 +850,13 @@ class IFUSlicerModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         model : `~astropy.modeling.core.Model`, optional
             Transform from relative positions of each slice to
-            absolute positions within the exit plane of the slicer, by default None.
+            absolute positions within the exit plane of the slicer
         data : np.ndarray, optional
-            Relative positions and sizes of each slice in the slicer frame,
-            by default None.
-        **kwargs : dict
+            Relative positions and sizes of each slice in the slicer frame
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel.
         """
         super().__init__(init=init, **kwargs)
@@ -897,14 +896,13 @@ class MSAModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         models : dict, optional
             Transform from relative positions of each shutter within the MSA plane
-            to absolute positions within the MSA, by default None.
+            to absolute positions within the MSA
         data : dict, optional
-            Relative positions and sizes of each shutter within the MSA plane,
-            by default None.
-        **kwargs : dict
+            Relative positions and sizes of each shutter within the MSA plane
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel.
         """
         super().__init__(init=init, **kwargs)
@@ -964,34 +962,30 @@ class DisperserModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         angle : float, optional
-            Angle between the front surface and back surface of the prism in degrees,
-            by default None.
+            Angle between the front surface and back surface of the prism in degrees
         gwa_tiltx, gwa_tilty : float, optional
             Angles in x, y between the grating surface and the reference surface (MIRROR)
-            in degrees, by default None.
+            in degrees
         kcoef : list, optional
-            Coefficients K1, K2, and K3 to describe the material of the prism,
-            by default None.
+            Coefficients K1, K2, and K3 to describe the material of the prism
         lcoef : list, optional
-            Coefficients L1, L2, and L3 to describe the material of the prism,
-            by default None.
+            Coefficients L1, L2, and L3 to describe the material of the prism
         tcoef : list, optional
-            Six constants (D0, D1, D2, E0, E1 and lambdak) to describe
-            the thermal behavior of the glass, by default None.
+            Six constants (D0, D1, D2, E0, E1 and lambda_k) to describe
+            the thermal behavior of the glass
         pref : float, optional
             Pressure (in atm) to compute the change in temperature relative to
-            the reference temperature of the prism glass, by default None.
+            the reference temperature of the prism glass
         tref : float, optional
             Temperature (in Kelvin) to compute the change in temperature relative to
-            the reference temperature of the prism glass, by default None.
+            the reference temperature of the prism glass
         theta_x, theta_y, theta_z : float, optional
-            Element alignment angles in the x-, y-, and z-axes in arcseconds,
-            by default None.
+            Element alignment angles in the x-, y-, and z-axes in arcseconds
         groovedensity : float, optional
-            Number of grooves per meter, by default None
-        **kwargs : dict
+            Number of grooves per meter
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel.
         """
         super().__init__(init=init, **kwargs)
@@ -1073,12 +1067,12 @@ class FilteroffsetModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         filters : list[dict], optional
-            Column and row offsets for each filter in pixels, by default None.
+            Column and row offsets for each filter in pixels
         instrument : str, optional
-            The instrument for which the filter offsets are defined, by default None.
-        **kwargs : dict
+            The instrument for which the filter offsets are defined
+        **kwargs
             Additional keyword arguments to pass to ReferenceFileModel.
         """
         super().__init__(init, **kwargs)
@@ -1132,7 +1126,7 @@ class IFUFOREModel(_SimpleModel):
     """
     A model for a NIRSPEC reference file of type "ifufore".
 
-    This model provides the parameters (Paraxial and distortions coefficients)
+    This model provides the parameters (paraxial and distortion coefficients)
     for the coordinate transforms from the MSA plane (in)
     to the plane of the IFU slicer.
     """
@@ -1241,7 +1235,7 @@ class WaveCorrModel(ReferenceFileModel):
         Parameters
         ----------
         init : str, None, optional
-            Input file name in ASDF format from which to initialize the model.
+            File name for input file in ASDF format from which to initialize the model.
         apertures : list[dict], optional
             Each aperture is a dict with keys:
             * aperture_name : str, the name of the aperture.

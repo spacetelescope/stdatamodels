@@ -571,7 +571,7 @@ def to_fits(tree, schema, hdulist=None):
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
     # convert all FITS_rec instances to numpy arrays, this is needed as
-    # some arrays loaded from the fits data for old files may not be defined
+    # some arrays loaded from the FITS data for old files may not be defined
     # in the current schemas. These will be loaded as FITS_rec instances but
     # not linked back (and safely converted) on write if they are removed
     # from the schema.
@@ -752,7 +752,7 @@ def from_fits(hdulist, schema, context, **kwargs):
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
     context : DataModel
         The `DataModel` to update
-    **kwargs : dict
+    **kwargs
         Additional arguments to pass to `from_fits_asdf`
 
     Returns
@@ -781,7 +781,7 @@ def from_fits(hdulist, schema, context, **kwargs):
 
 def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     """
-    Open the ASDF extension from a FITS hdulist.
+    Open the ASDF extension from a FITS HDUlist.
 
     Parameters
     ----------
@@ -790,7 +790,7 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     ignore_unrecognized_tag : bool
         When `True`, ignore unrecognized tags in the ASDF file.
         When `False`, raise an error when an unrecognized tag is found.
-    **kwargs : dict
+    **kwargs
         Additional arguments to pass to `asdf.open`
         - ignore_missing_extensions : bool
           When `True`, ignore missing extensions in the ASDF file.
@@ -857,7 +857,7 @@ def _map_hdulist_to_arrays(hdulist, af):
 
 def from_fits_hdu(hdu, schema):
     """
-    Read the data from a fits hdu into a numpy ndarray.
+    Read the data from a FITS HDU into a numpy ndarray.
 
     Parameters
     ----------

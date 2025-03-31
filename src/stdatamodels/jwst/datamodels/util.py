@@ -51,8 +51,8 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
     memmap : bool
-        Turn memmap of file on or off.  (default: False).
-    **kwargs : dict
+        Turn memmap of file on or off.
+    **kwargs
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
 

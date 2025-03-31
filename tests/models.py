@@ -1,4 +1,4 @@
-"""Dummy models for testing."""
+"""Mock models for testing."""
 
 from stdatamodels import DataModel
 

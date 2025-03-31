@@ -105,7 +105,7 @@ class MultiExposureModel(JwstDataModel):
 
 # Utilities
 def set_hdu(obj, hdu_id="EXP"):
-    """Add fits_hdu specification to fits-connected properties."""
+    """Add fits_hdu specification to FITS-connected properties."""
     try:
         if "fits_keyword" in obj.keys():
             obj["fits_hdu"] = hdu_id
