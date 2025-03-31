@@ -1,3 +1,13 @@
+2.2.1.dev45+gd93fdcd (2025-03-31)
+=================================
+
+Deprecations and Removals
+-------------------------
+
+- Revert #409 to restore dqflag utility functions (`#459
+  <https://github.com/spacetelescope/stdatamodels/issues/459>`_)
+
+
 3.0.1 (2025-03-19)
 ==================
 
