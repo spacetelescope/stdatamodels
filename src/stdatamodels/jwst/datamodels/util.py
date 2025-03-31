@@ -130,6 +130,8 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             else:
                 model = new_class(asdffile, **kwargs)
 
+            model._file_references.append(_FileReference(asdffile))
+
             return model
 
     elif isinstance(init, tuple):
