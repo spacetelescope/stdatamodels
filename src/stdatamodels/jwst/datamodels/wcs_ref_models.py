@@ -45,7 +45,7 @@ class _SimpleModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
+        init : str, None, optional
             The data from which to initialize the model. Can be of any type that
             is supported by DataModel, by default None.
         model : `astropy.modeling.core.Model` or list[Model], optional
@@ -160,21 +160,24 @@ class DistortionMRSModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         x_model : `astropy.modeling.core.Model`, optional
-            TODO, by default None
+            Transform between the 'detector' frame and the frame associated with
+            the local channel cube 'alpha', by default None.
         y_model : `astropy.modeling.core.Model`, optional
-            TODO, by default None
+            Transform between the 'detector' frame and the frame associated with
+            the local channel cube 'beta', by default None.
         alpha_model : `astropy.modeling.core.Model`, optional
-            TODO, by default None
+            Transform between the local channel frame and the global instrument frame
+            on the sky, by default None.
         beta_model : `astropy.modeling.core.Model`, optional
-            TODO, by default None
+            Transform between the local channel frame and the global instrument frame
+            on the sky, by default None.
         bzero : float, optional
-            TODO, by default None
+            Center of each slice in the local channel frame.
         bdel : float, optional
-            TODO, by default None
+            Slice width in the local channel frame.
         input_units : str or `~astropy.units.NamedUnit`, optional
             The units of the input, by default None
         output_units : str or `~astropy.units.NamedUnit`, optional
@@ -311,9 +314,8 @@ class NIRCAMGrismModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         displ : `~astropy.modeling.Model`
             Nircam Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
@@ -396,9 +398,8 @@ class NIRISSGrismModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         displ : `~astropy.modeling.Model`
             NIRISS Grism wavelength dispersion model
         dispx : `~astropy.modeling.Model`
@@ -490,9 +491,8 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         wavetable : numpy  2-D array
             For each row in the slit hold  wavelength, and
             x center, ycenter, x and y box region corresponding to the wavelength
@@ -585,11 +585,10 @@ class RegionsModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         regions : np.ndarray, optional
-            TODO, by default None
+            An array mapping pixels to slices, by default None.
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel
         """
@@ -660,9 +659,8 @@ class WavelengthrangeModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None.
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         wrange : list
             Contains a list of [order, filter, min wave, max wave]
         order : list
@@ -741,13 +739,14 @@ class FPAModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         nrs1_model : `~astropy.modeling.core.Model`, optional
-            TODO, by default None
+            The transform from the NIRSpec focal plane array (FPA) to the camera
+            for the NRS1 detector, by default None.
         nrs2_model : `~astropy.modeling.core.Model`, optional
-            TODO, by default None
+            The transform from the NIRSpec focal plane array (FPA) to the camera
+            for the NRS2 detector, by default None.
         """
         super().__init__(init=init, **kwargs)
         if nrs1_model is not None:
@@ -795,9 +794,8 @@ class IFUPostModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         slice_models : dict
             A dictionary with slice transforms with the following entries
             {"slice_N": {'linear': astropy.modeling.Model,
@@ -806,6 +804,7 @@ class IFUPostModel(ReferenceFileModel):
             ...         'ypoly': astropy.modeling.Model,
             ...         'ypoly_distortion': astropy.modeling.Model,
             ...         }}
+            These are the transforms from the IFU slicer plane to the MSA frame.
 
         Raises
         ------
@@ -850,13 +849,14 @@ class IFUSlicerModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         model : `~astropy.modeling.core.Model`, optional
-            TODO, by default None
+            Transform from relative positions of each slice to
+            absolute positions within the exit plane of the slicer, by default None.
         data : np.ndarray, optional
-            TODO, by default None
+            Relative positions and sizes of each slice in the slicer frame,
+            by default None.
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -896,13 +896,14 @@ class MSAModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         models : dict, optional
-            TODO, by default None
+            Transform from relative positions of each shutter within the MSA plane
+            to absolute positions within the MSA, by default None.
         data : dict, optional
-            TODO, by default None
+            Relative positions and sizes of each shutter within the MSA plane,
+            by default None.
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -962,33 +963,34 @@ class DisperserModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
         angle : float, optional
-            TODO, by default None
-        gwa_tiltx : float, optional
-            TODO, by default None
-        gwa_tilty : float, optional
-            TODO, by default None
+            Angle between the front surface and back surface of the prism in degrees,
+            by default None.
+        gwa_tiltx, gwa_tilty : float, optional
+            Angles in x, y between the grating surface and the reference surface (MIRROR)
+            in degrees, by default None.
         kcoef : list, optional
-            TODO, by default None
+            Coefficients K1, K2, and K3 to describe the material of the prism,
+            by default None.
         lcoef : list, optional
-            TODO, by default None
+            Coefficients L1, L2, and L3 to describe the material of the prism,
+            by default None.
         tcoef : list, optional
-            TODO, by default None
+            Six constants (D0, D1, D2, E0, E1 and lambdak) to describe
+            the thermal behavior of the glass, by default None.
         pref : float, optional
-            TODO, by default None
+            Pressure (in atm) to compute the change in temperature relative to
+            the reference temperature of the prism glass, by default None.
         tref : float, optional
-            TODO, by default None
-        theta_x : float, optional
-            TODO, by default None
-        theta_y : float, optional
-            TODO, by default None
-        theta_z : float, optional
-            TODO, by default None
+            Temperature (in Kelvin) to compute the change in temperature relative to
+            the reference temperature of the prism glass, by default None.
+        theta_x, theta_y, theta_z : float, optional
+            Element alignment angles in the x-, y-, and z-axes in arcseconds,
+            by default None.
         groovedensity : float, optional
-            TODO, by default None
+            Number of grooves per meter, by default None
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -1070,13 +1072,12 @@ class FilteroffsetModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
-        filters : dict, optional
-            TODO, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
+        filters : list[dict], optional
+            Column and row offsets for each filter in pixels, by default None.
         instrument : str, optional
-            The instrument for which the filter offsets are defined, by default None
+            The instrument for which the filter offsets are defined, by default None.
         **kwargs : dict
             Additional keyword arguments to pass to ReferenceFileModel.
         """
@@ -1128,7 +1129,13 @@ class FilteroffsetModel(ReferenceFileModel):
 
 
 class IFUFOREModel(_SimpleModel):
-    """A model for a NIRSPEC reference file of type "ifufore"."""
+    """
+    A model for a NIRSPEC reference file of type "ifufore".
+
+    This model provides the parameters (Paraxial and distortions coefficients)
+    for the coordinate transforms from the MSA plane (in)
+    to the plane of the IFU slicer.
+    """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifufore.schema"
     reftype = "ifufore"
@@ -1141,7 +1148,7 @@ class IFUFOREModel(_SimpleModel):
 
 
 class CameraModel(_SimpleModel):
-    """A model for a reference file of type "camera"."""
+    """Stores the transforms from the NIRSpec camera to the GWA."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/camera.schema"
     reftype = "camera"
@@ -1156,7 +1163,7 @@ class CameraModel(_SimpleModel):
 
 
 class CollimatorModel(_SimpleModel):
-    """A model for a reference file of type "collimator"."""
+    """Stores the transform through the NIRSpec collimator."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/collimator.schema"
     reftype = "collimator"
@@ -1171,7 +1178,7 @@ class CollimatorModel(_SimpleModel):
 
 
 class OTEModel(_SimpleModel):
-    """A model for a reference file of type "ote"."""
+    """Stores the transform from the Filter Wheel to the Optical Telescope Element."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ote.schema"
     reftype = "ote"
@@ -1186,7 +1193,7 @@ class OTEModel(_SimpleModel):
 
 
 class FOREModel(_SimpleModel):
-    """A model for a reference file of type "fore"."""
+    """Stores the transform from the MSA plane to the Filter Wheel."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fore.schema"
     reftype = "fore"
@@ -1222,7 +1229,7 @@ class FOREModel(_SimpleModel):
 
 
 class WaveCorrModel(ReferenceFileModel):
-    """Model for the reference file for the wavecorr step."""
+    """Wavelength zero-point correction for the position of a point source in a NIRSpec slit."""
 
     reftype = "wavecorr"
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wavecorr.schema"
@@ -1233,11 +1240,15 @@ class WaveCorrModel(ReferenceFileModel):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None, optional
-            The data from which to initialize the model. Can be of any type that
-            is supported by DataModel, by default None
-        apertures : TODO, optional
-            TODO, by default None
+        init : str, None, optional
+            Input file name in ASDF format from which to initialize the model.
+        apertures : list[dict], optional
+            Each aperture is a dict with keys:
+            * aperture_name : str, the name of the aperture.
+            * width : float, the aperture or pitch width in meters.
+            * zero_point_offset : astropy.Tabular2D model,
+              a lookup table for the wavelength correction.
+            * variance : the variance of the correction.
         """
         super().__init__(init, **kwargs)
         if apertures is not None:
