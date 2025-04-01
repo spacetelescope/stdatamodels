@@ -6,10 +6,10 @@ __all__ = ["PixelAreaModel", "NirspecSlitAreaModel", "NirspecMosAreaModel", "Nir
 
 class PixelAreaModel(ReferenceFileModel):
     """
-    A data model for the pixel area map
+    A data model for the pixel area map.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The pixel area array
     """
@@ -19,10 +19,10 @@ class PixelAreaModel(ReferenceFileModel):
 
 class NirspecSlitAreaModel(ReferenceFileModel):
     """
-    A data model for the NIRSpec fixed-slit pixel area reference file
+    A data model for the NIRSpec fixed-slit pixel area reference file.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     area_table : numpy table
          NIRSpec fixed-slit pixel area table
          A table-like object containing row selection criteria made up
@@ -38,10 +38,10 @@ class NirspecSlitAreaModel(ReferenceFileModel):
 
 class NirspecMosAreaModel(ReferenceFileModel):
     """
-    A data model for the NIRSpec MOS pixel area reference file
+    A data model for the NIRSpec MOS pixel area reference file.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     area_table : numpy table
          NIRSpec MOS pixel area table
          A table-like object containing row selection criteria made up
@@ -59,10 +59,10 @@ class NirspecMosAreaModel(ReferenceFileModel):
 
 class NirspecIfuAreaModel(ReferenceFileModel):
     """
-    A data model for the NIRSpec IFU pixel area reference file
+    A data model for the NIRSpec IFU pixel area reference file.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     area_table : numpy table
          NIRSpec IFU pixel area table
          A table-like object containing row selection criteria made up

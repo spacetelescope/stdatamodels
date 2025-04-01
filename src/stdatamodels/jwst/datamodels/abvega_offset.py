@@ -8,10 +8,9 @@ __all__ = ["ABVegaOffsetModel"]
 
 class ABVegaOffsetModel(ReferenceFileModel):
     """
-    A data model containing offsets to convert from AB to Vega
-    magnitudes.
+    A data model containing offsets to convert from AB to Vega magnitudes.
 
-    Parameters
+    Attributes
     ----------
     abvega_offset : `astropy.table.Table`
         An astropy table containing offsets to convert from AB to Vega
@@ -41,7 +40,7 @@ class ABVegaOffsetModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/abvegaoffset.schema"
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         super(ABVegaOffsetModel, self).validate()
         try:
             assert len(self.abvega_offset) > 0

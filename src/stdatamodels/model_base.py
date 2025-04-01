@@ -1,6 +1,4 @@
-"""
-Data model class hierarchy
-"""
+"""Data model class hierarchy."""
 
 import copy
 import datetime
@@ -8,6 +6,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import warnings
+import functools
 
 import numpy as np
 
@@ -50,9 +49,7 @@ _DEFAULT_SCHEMA = {
 
 
 class DataModel(properties.ObjectNode):
-    """
-    Base class of all of the data models.
-    """
+    """Base class of all of the data models."""
 
     schema_url = None
     """
@@ -74,6 +71,8 @@ class DataModel(properties.ObjectNode):
         **kwargs,
     ):
         """
+        Initialize a data model.
+
         Parameters
         ----------
         init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None
@@ -102,7 +101,7 @@ class DataModel(properties.ObjectNode):
             will be used.
 
         memmap : bool
-            Turn memmap of FITS/ASDF file on or off.  (default: False).
+            Turn memmap of FITS/ASDF file on or off.
 
         pass_invalid_values : bool or None
             If `True`, values that do not validate the schema
@@ -134,11 +133,10 @@ class DataModel(properties.ObjectNode):
             contains metadata about extensions that are not available.
             Defaults to `True`.
 
-        kwargs : dict
+        **kwargs
             Additional keyword arguments passed to lower level functions. These arguments
             are generally file format-specific.
         """
-
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
@@ -297,8 +295,7 @@ class DataModel(properties.ObjectNode):
 
     def _migrate_hdulist(self, hdulist):
         """
-        Optional method that can migrate a hdulist for an old (incompatible)
-        format to a new format.
+        Migrate a hdulist for an old (incompatible) format to a new format.
 
         For example, say you have a file with a table that is missing a
         column that is now required. This method can be used to add the
@@ -337,9 +334,10 @@ class DataModel(properties.ObjectNode):
         """
         Get the CRDS observatory code for this model.
 
-        Returns
-        -------
-        str
+        Raises
+        ------
+        NotImplementedError
+            Subclasses should override this method to return a str.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -349,9 +347,10 @@ class DataModel(properties.ObjectNode):
         """
         Get the parameters used by CRDS to select references for this model.
 
-        Returns
-        -------
-        dict
+        Raises
+        ------
+        NotImplementedError
+            Subclasses should override this method to return a dict.
         """
         raise NotImplementedError(
             "The base DataModel class cannot be used to select best references"
@@ -385,8 +384,13 @@ class DataModel(properties.ObjectNode):
 
     @property
     def override_handle(self):
-        """override_handle identifies in-memory models where a filepath
-        would normally be used.
+        """
+        Identify in-memory models where a filepath would normally be used.
+
+        Returns
+        -------
+        str
+            A string that can be used to identify the model as an in-memory model.
         """
         # Arbitrary choice to look something like crds://
         return "override://" + self.__class__.__name__
@@ -398,6 +402,7 @@ class DataModel(properties.ObjectNode):
         self.close()
 
     def close(self):
+        """Close all file references."""
         # This method is called by __del__, which may be invoked
         # even when the model failed to initialize.  Consequently,
         # we can't assume that any attributes have been set.
@@ -409,6 +414,21 @@ class DataModel(properties.ObjectNode):
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
+        """
+        Clone the contents of one model into another.
+
+        Parameters
+        ----------
+        target : DataModel
+            The model to clone into.
+        source : DataModel
+            The model to clone from.
+        deepcopy : bool, optional
+            If `True`, perform a deep copy of the source model.
+            If `False`, perform a shallow copy.
+        memo : dict, optional
+            A dictionary to use as a memoization table for deep copy.
+        """
         if deepcopy:
             instance = copy.deepcopy(source._instance, memo=memo)
             target._asdf = AsdfFile()
@@ -428,7 +448,12 @@ class DataModel(properties.ObjectNode):
 
     def copy(self, memo=None):
         """
-        Returns a deep copy of this model.
+        Return a deep copy of this model.
+
+        Parameters
+        ----------
+        memo : dict, optional
+            A dictionary to use as a memoization table for deep copy.
         """
         result = self.__class__(
             init=None,
@@ -441,15 +466,15 @@ class DataModel(properties.ObjectNode):
     __copy__ = __deepcopy__ = copy
 
     def validate(self):
-        """
-        Re-validate the model instance against its schema
-        """
+        """Validate the model instance against its schema."""
         validate.value_change(str(self), self._instance, self._schema, self)
 
-    def info(self, *args, **kwargs):
+    @functools.wraps(asdf.AsdfFile.info)
+    def info(self, *args, **kwargs):  # noqa: D102
         return self._asdf.info(**kwargs)
 
-    def search(self, *args, **kwargs):
+    @functools.wraps(asdf.AsdfFile.search)
+    def search(self, *args, **kwargs):  # noqa: D102
         return self._asdf.search(*args, **kwargs)
 
     try:
@@ -460,10 +485,18 @@ class DataModel(properties.ObjectNode):
 
     def get_primary_array_name(self):
         """
-        Returns the name "primary" array for this model, which
-        controls the size of other arrays that are implicitly created.
+        Retrieve the name of the "primary" array for this model.
+
+        The primary array controls the size of other arrays that are implicitly created.
+        If the schema has the "data" property, then this method returns "data".
+        Otherwise, it returns an empty string.
         This is intended to be overridden in the subclasses if the
         primary array's name is not "data".
+
+        Returns
+        -------
+        primary_array_name : str
+            The name of the primary array.
         """
         if properties._find_property(self._schema, "data"):
             primary_array_name = "data"
@@ -473,7 +506,7 @@ class DataModel(properties.ObjectNode):
 
     def on_init(self, init):
         """
-        Hook used to customize model attributes at the end of ``__init__``.
+        Customize model attributes at the end of ``__init__``.
 
         Parameters
         ----------
@@ -498,8 +531,9 @@ class DataModel(properties.ObjectNode):
 
     def on_save(self, path=None):
         """
-        This is a hook that is called just before saving the file.
-        It can be used, for example, to update values in the metadata
+        Modify the model just before saving to disk.
+
+        This hook can be used, for example, to update values in the metadata
         that are based on the content of the data.
 
         Override it in the subclass to make it do something, but don't
@@ -528,18 +562,17 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        path : string or func
+        path : str or func
             File path to save to.
             If function, it takes one argument with is
             model.meta.filename and returns the full path string.
-
-        dir_path: string
+        dir_path : str
             Directory to save to. If not None, this will override
             any directory information in the `path`
 
         Returns
         -------
-        output_path: str
+        output_path : str
             The file path the model was saved in.
         """
         if callable(path):
@@ -554,7 +587,7 @@ class DataModel(properties.ObjectNode):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)  # noqa: PTH118
 
-        # TODO: Support gzip-compressed fits
+        # TODO: Support gzip-compressed FITS
         if ext == ".fits":
             # TODO: remove 'clobber' check once depreciated fully in astropy
             if "clobber" not in kwargs:
@@ -570,7 +603,24 @@ class DataModel(properties.ObjectNode):
     @staticmethod
     def open_asdf(init=None, ignore_unrecognized_tag=False, **kwargs):
         """
-        Open an asdf object from a filename or create a new asdf object
+        Open an ASDF object from a filename or create a new ASDF object.
+
+        Parameters
+        ----------
+        init : str, file object, `~asdf.AsdfFile`, dict
+            - str : file path: initialize from the given file
+            - readable file object: Initialize from the given file object
+            - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
+            - dict : Initialize from the given dictionary.
+        ignore_unrecognized_tag : bool
+            If `True`, ignore tags that are not recognized.
+        **kwargs
+            Additional arguments passed to asdf.open.
+
+        Returns
+        -------
+        asdffile : `~asdf.AsdfFile`
+            An ASDF file object.
         """
         warnings.warn(
             "open_asdf is deprecated, use asdf.open instead.", DeprecationWarning, stacklevel=2
@@ -597,9 +647,9 @@ class DataModel(properties.ObjectNode):
             - str : file path: initialize from the given file
             - readable file object: Initialize from the given file object
             - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-        schema :
+        schema : dict
             Same as for `__init__`
-        kwargs : dict
+        **kwargs
             Aadditional arguments passed to lower level functions
 
         Returns
@@ -621,9 +671,10 @@ class DataModel(properties.ObjectNode):
         Parameters
         ----------
         init : file path or file object
-        args : tuple, list
+            The file to write to.
+        *args
             Additional positional arguments passed to `~asdf.AsdfFile.write_to`.
-        kwargs : dict
+        **kwargs
             Any additional keyword arguments are passed along to
             `~asdf.AsdfFile.write_to`.
         """
@@ -649,11 +700,9 @@ class DataModel(properties.ObjectNode):
             - readable file object: Initialize from the given file object
             - astropy.io.fits.HDUList: Initialize from the given
               `~astropy.io.fits.HDUList`.
-
         schema : dict, str
             Same as for `__init__`
-
-        kwargs : dict
+        **kwargs
             Aadditional arguments passed to lower level functions.
 
         Returns
@@ -675,10 +724,11 @@ class DataModel(properties.ObjectNode):
         Parameters
         ----------
         init : file path or file object
-
-        args, kwargs
-            Any additional arguments are passed along to
-            `astropy.io.fits.writeto`.
+            The file to write to.
+        *args
+            Additional positional arguments passed to `astropy.io.fits.writeto`.
+        **kwargs
+            Additional keyword arguments passed to `astropy.io.fits.writeto`.
         """
         self.on_save(init)
 
@@ -696,6 +746,7 @@ class DataModel(properties.ObjectNode):
 
     @property
     def shape(self):
+        """Return the shape of the primary array."""
         if self._shape is None:
             primary_array_name = self.get_primary_array_name()
             if primary_array_name and self.hasattr(primary_array_name):
@@ -711,13 +762,17 @@ class DataModel(properties.ObjectNode):
 
     def extend_schema(self, new_schema):
         """
-        Extend the model's schema using the given schema, by combining
-        it in an "allOf" array.
+        Extend the model's schema using the given schema, by combining it in an "allOf" array.
 
         Parameters
         ----------
         new_schema : dict
             Schema tree.
+
+        Returns
+        -------
+        self : DataModel
+            The datamodel with its schema updated.
         """
         schema = {"allOf": [self._schema, new_schema]}
         self._schema = mschema.merge_property_trees(schema)
@@ -726,8 +781,9 @@ class DataModel(properties.ObjectNode):
 
     def add_schema_entry(self, position, new_schema):
         """
-        Extend the model's schema by placing the given new_schema at
-        the given dot-separated position in the tree.
+        Extend the model's schema.
+
+        Place the given ``new_schema`` at the given dot-separated position in the tree.
 
         Parameters
         ----------
@@ -735,6 +791,11 @@ class DataModel(properties.ObjectNode):
             Dot separated string indicating the position, e.g. ``meta.instrument.name``.
         new_schema : dict
             Schema tree.
+
+        Returns
+        -------
+        self : DataModel
+            The datamodel with the schema entry added.
         """
         parts = position.split(".")
         schema = new_schema
@@ -745,9 +806,9 @@ class DataModel(properties.ObjectNode):
     # return_result retained for backward compatibility
     def find_fits_keyword(self, keyword, return_result=True):
         """
-        Utility function to find a reference to a FITS keyword in this
-        model's schema.  This is intended for interactive use, and not
-        for use within library code.
+        Find a reference to a FITS keyword in this model's schema.
+
+        This is intended for interactive use, and not for use within library code.
 
         Parameters
         ----------
@@ -767,8 +828,7 @@ class DataModel(properties.ObjectNode):
 
     def search_schema(self, substring):
         """
-        Utility function to search the metadata schema for a
-        particular phrase.
+        Search the metadata schema for a particular phrase.
 
         This is intended for interactive use, and not for use within
         library code.
@@ -783,15 +843,14 @@ class DataModel(properties.ObjectNode):
         Returns
         -------
         locations : list of tuples
+            The locations within the schema where the element is found.
         """
         from . import schema
 
         return schema.search_schema(self.schema, substring)
 
-    def __getitem__(self, key):
-        """
-        Get a metadata value using a dotted name.
-        """
+    def __getitem__(self, key):  # numpydoc ignore=RT01
+        """Get a metadata value using a dotted name."""
         assert isinstance(key, str)
         meta = self
         for part in key.split("."):
@@ -802,9 +861,7 @@ class DataModel(properties.ObjectNode):
         return meta
 
     def __setitem__(self, key, value):
-        """
-        Set a metadata value using a dotted name.
-        """
+        """Set a metadata value using a dotted name."""
         assert isinstance(key, str)
         meta = self
         parts = key.split(".")
@@ -829,7 +886,7 @@ class DataModel(properties.ObjectNode):
 
     def items(self):
         """
-        Iterates over all of the schema items in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
 
         Each element is a pair (`key`, `value`).  Each `key` is a
         dot-separated name.  For example, the schema element
@@ -856,26 +913,34 @@ class DataModel(properties.ObjectNode):
 
     def keys(self):
         """
-        Iterates over all of the schema keys in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
 
-        Each result of the iterator is a `key`.  Each `key` is a
-        dot-separated name.  For example, the schema element
-        `meta.observation.date` will end up in the result as the
-        string `"meta.observation.date"`.
+        Yields
+        ------
+        key : str
+            The key of the schema element. Each `key` is a
+            dot-separated name.  For example, the schema element
+            `meta.observation.date` will end up in the result as the
+            string `"meta.observation.date"`.
         """
         for key, _ in self.items():
             yield key
 
     def values(self):
         """
-        Iterates over all of the schema values in a flat way.
+        Iterate over all of the datamodel contents in a flat way.
+
+        Yields
+        ------
+        value : object
+            The value of the schema element.
         """
         for _, val in self.items():
             yield val
 
     def update(self, d, only=None, extra_fits=False):
         """
-        Updates this model with the metadata elements from another model.
+        Update this model with the metadata elements from another model.
 
         Note: The ``update`` method skips a WCS object, if present.
 
@@ -884,10 +949,10 @@ class DataModel(properties.ObjectNode):
         d : `~jwst.datamodels.DataModel` or dictionary-like object
             The model to copy the metadata elements from. Can also be a
             dictionary or dictionary of dictionaries or lists.
-        only: str, None
+        only : str, None
             Update only the named hdu, e.g. ``only='PRIMARY'``. Can either be
             a string or list of hdu names. Default is to update all the hdus.
-        extra_fits : boolean
+        extra_fits : bool
             Update from ``extra_fits``.  Default is False.
         """
 
@@ -998,7 +1063,7 @@ class DataModel(properties.ObjectNode):
 
     def to_flat_dict(self, include_arrays=True):
         """
-        Returns a dictionary of all of the schema items as a flat dictionary.
+        Return a dictionary of all of the datamodel contents as a flat dictionary.
 
         Each dictionary key is a dot-separated name.  For example, the
         schema element `meta.observation.date` will end up in the
@@ -1006,6 +1071,16 @@ class DataModel(properties.ObjectNode):
 
             {"meta.observation.date": "2012-04-22T03:22:05.432"}
 
+        Parameters
+        ----------
+        include_arrays : bool
+            If `True`, include arrays in the output.  If `False`, exclude
+            arrays.  Default is `True`.
+
+        Returns
+        -------
+        flat_dict : dict
+            A dictionary of all of the datamodel contents as a flat dictionary.
         """
 
         def convert_val(val):
@@ -1026,12 +1101,25 @@ class DataModel(properties.ObjectNode):
 
     @property
     def schema(self):
+        """
+        Retrieve the schema for this model.
+
+        Returns
+        -------
+        dict
+            The datamodel schema.
+        """
         return self._schema
 
     @property
     def history(self):
         """
-        Get the history as a list of entries
+        Get the history as a list of entries.
+
+        Returns
+        -------
+        history : `HistoryList`
+            A list of history entries.
         """
         return HistoryList(self._asdf)
 
@@ -1046,7 +1134,6 @@ class DataModel(properties.ObjectNode):
             For FITS files this should be a list of strings.
             For ASDF files use a list of ``HistoryEntry`` object. It can be created
             with `~jwst.datamodels.util.create_history_entry`.
-
         """
         entries = self.history
         entries.clear()
@@ -1054,8 +1141,7 @@ class DataModel(properties.ObjectNode):
 
     def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
         """
-        Get a `astropy.wcs.WCS` object created from the FITS WCS
-        information in the model.
+        Get a `astropy.wcs.WCS` object created from the FITS WCS information in the model.
 
         Note that modifying the returned WCS object will not modify
         the data in this model.  To update the model, use `set_fits_wcs`.
@@ -1066,17 +1152,15 @@ class DataModel(properties.ObjectNode):
             The name of the HDU to get the WCS from.  This must use
             named HDU's, not numerical order HDUs. To get the primary
             HDU, pass ``'PRIMARY'``.
-
+        hdu_ver : int, optional
+            The extension version. Used when there is more than one
+            extension with the same name. The default value, 1,
+            is the first.
         key : str, optional
             The name of a particular WCS transform to use.  This may
             be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
             the ``"a"`` part of the ``CTYPEia`` cards.  *key* may only
             be provided if *header* is also provided.
-
-        hdu_ver: int, optional
-            The extension version. Used when there is more than one
-            extension with the same name. The default value, 1,
-            is the first.
 
         Returns
         -------
@@ -1091,8 +1175,7 @@ class DataModel(properties.ObjectNode):
 
     def set_fits_wcs(self, wcs, hdu_name="SCI"):
         """
-        Sets the FITS WCS information on the model using the given
-        `astropy.wcs.WCS` object.
+        Set the FITS WCS information on the model using the given `astropy.wcs.WCS` object.
 
         Note that the "key" of the WCS is stored in the WCS object
         itself, so it can not be set as a parameter to this method.
@@ -1101,7 +1184,6 @@ class DataModel(properties.ObjectNode):
         ----------
         wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
             The object containing FITS WCS information
-
         hdu_name : str, optional
             The name of the HDU to set the WCS from.  This must use
             named HDU's, not numerical order HDUs.  To set the primary
@@ -1123,21 +1205,48 @@ class DataModel(properties.ObjectNode):
 
         self._instance = properties.merge_tree(self._instance, ff.tree)
 
-    # --------------------------------------------------------
-    # These two method aliases are here for astropy.registry
-    # compatibility and should not be called directly
-    # --------------------------------------------------------
-
     def read(self, *args, **kwargs):
+        """
+        Read the model from a file.
+
+        This method is only defined for compatibility with astropy.registry
+        and should not be called directly.  Use `__init__` instead.
+        This method is deprecated and will be removed in a future version.
+
+        Parameters
+        ----------
+        *args, **kwargs : tuple, dict
+            Additional arguments passed to the model init function.
+
+        Returns
+        -------
+        model : `~jwst.datamodels.DataModel`
+            A data model.
+        """
         warnings.warn("read is deprecated, use __init__ instead.", DeprecationWarning, stacklevel=2)
         return self.__init__(*args, **kwargs)
 
     def write(self, path, *args, **kwargs):
+        """
+        Write the model to a file.
+
+        This method is only defined for compatibility with astropy.registry
+        and should not be called directly.  Use `save` instead.
+        This method is deprecated and will be removed in a future version.
+
+        Parameters
+        ----------
+        path : str
+            The path to the file to write to.
+        *args, **kwargs : tuple, dict
+            Additional arguments passed to the model save function.
+        """
         warnings.warn("write is deprecated, use save instead.", DeprecationWarning, stacklevel=2)
         self.save(path, *args, **kwargs)
 
     def getarray_noinit(self, attribute):
-        """Retrieve array but without initialization
+        """
+        Retrieve array but without initialization.
 
         Arrays initialize when directly referenced if they had
         not previously been initialized. This circumvents the
@@ -1165,9 +1274,9 @@ class DataModel(properties.ObjectNode):
 
 class _FileReference:
     """
-    Reference counter for open file pointers managed by
-    DataModel.  Once decremented to zero the file will
-    be closed.
+    Reference counter for open file pointers managed by DataModel.
+
+    Once decremented to zero the file will be closed.
     """
 
     def __init__(self, file):

@@ -1,0 +1,1 @@
+Add docstring rules to pre-commit hook

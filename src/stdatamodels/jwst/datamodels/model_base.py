@@ -7,6 +7,8 @@ __all__ = ["JwstDataModel"]
 
 
 class JwstDataModel(_DataModel):
+    """Base class for JWST data models."""
+
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/core.schema"
 
     @property
@@ -17,6 +19,7 @@ class JwstDataModel(_DataModel):
         Returns
         -------
         str
+            The observatory code.
         """
         return "jwst"
 
@@ -27,6 +30,7 @@ class JwstDataModel(_DataModel):
         Returns
         -------
         dict
+            Dictionary of CRDS parameters
         """
         return {
             key: val
@@ -36,8 +40,12 @@ class JwstDataModel(_DataModel):
 
     def on_init(self, init):
         """
-        Hook invoked by the base class before returning a newly
-        created model instance.
+        Run a hook before returning a newly created model instance.
+
+        Parameters
+        ----------
+        init : object
+            First argument to __init__.
         """
         super().on_init(init)
 
@@ -46,8 +54,12 @@ class JwstDataModel(_DataModel):
 
     def on_save(self, init):
         """
-        Hook invoked by the base class before writing a model
-        to a file (FITS or ASDF).
+        Run a hook before writing a model to a file (FITS or ASDF).
+
+        Parameters
+        ----------
+        init : str
+            The path to the file that we're about to save to.
         """
         super().on_save(init)
 

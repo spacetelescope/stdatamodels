@@ -1,3 +1,5 @@
+"""Datamodels for JWST pipeline."""
+
 from .model_base import JwstDataModel
 from .abvega_offset import ABVegaOffsetModel
 from .amilg import AmiLgModel

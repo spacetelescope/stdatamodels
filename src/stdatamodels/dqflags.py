@@ -1,6 +1,5 @@
 """
-Implementation
---------------
+Interpret JWST data quality flags.
 
 The flags are implemented as "bit flags": Each flag is assigned a bit position
 in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned
@@ -16,9 +15,10 @@ from stdatamodels.basic_utils import multiple_replace
 
 
 def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
-    """Converts input bit flags to a single integer value (bit mask) or `None`.
+    """
+    Convert input bit flags to a single integer value (bit mask) or `None`.
 
-    Wraps `astropy.nddate.bitmask.interpret_bit_flags`, allowing the
+    Wraps `astropy.nddata.bitmask.interpret_bit_flags`, allowing the
     bit mnemonics to be used in place of integers.
 
     Parameters
@@ -30,7 +30,7 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     flip_bits : bool, None
         See `astropy.nddata.bitmask.interpret_bit_flags`.
 
-    mnemonic_map : {str: int[,...]}
+    mnemonic_map : dict
         Dictionary associating the mnemonic string to an integer value
         representing the set bit for that mnemonic.
 
@@ -54,20 +54,21 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
 
 
 def dqflags_to_mnemonics(dqflags, mnemonic_map):
-    """Interpret value as bit flags and return the mnemonics
+    """
+    Interpret value as bit flags and return the mnemonics.
 
     Parameters
     ----------
     dqflags : int-like
         The value to interpret as DQ flags
 
-    mnemonic_map: {str: int[,...]}
+    mnemonic_map : dict
         Dictionary associating the mnemonic string to an integer value
         representing the set bit for that mnemonic.
 
     Returns
     -------
-    mnemonics : {str[,...]}
+    mnemonics : set
         Set of mnemonics represented by the set bit flags
 
     Examples

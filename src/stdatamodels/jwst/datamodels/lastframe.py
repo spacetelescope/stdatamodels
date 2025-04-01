@@ -10,17 +10,14 @@ class LastFrameModel(ReferenceFileModel):
     """
     A data model for Last frame correction reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Last Frame Correction array
-
     dq : numpy uint32 array
          2-D data quality array
-
     err : numpy float32 array
          Error array
-
     dq_def : numpy table
          DQ flag definitions
     """

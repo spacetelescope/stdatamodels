@@ -1,3 +1,5 @@
+"""Data models for JWST."""
+
 from .model_base import DataModel
 from . import _version
 

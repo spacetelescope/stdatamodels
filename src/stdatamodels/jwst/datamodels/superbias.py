@@ -10,19 +10,16 @@ class SuperBiasModel(ReferenceFileModel):
     """
     A data model for 2D super-bias images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
-         The science data
-
+        The science data
     dq : numpy uint32 array
-         Data quality array
-
+        Data quality array
     err : numpy float32 array
-         Error array
-
+        Error array
     dq_def : numpy table
-         DQ flag definitions
+        DQ flag definitions
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/superbias.schema"

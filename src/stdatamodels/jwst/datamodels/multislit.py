@@ -13,11 +13,11 @@ class MultiSlitModel(JwstDataModel):
     This model has a special member `slits` that can be used to
     deal with an entire slit at a time.  It behaves like a list::
 
-       >>> from stdatamodels.jwst.datamodels import SlitModel
-       >>> multislit_model = MultiSlitModel()
-       >>> multislit_model.slits.append(SlitModel())
-       >>> multislit_model[0]
-       <SlitModel>
+        >>> from stdatamodels.jwst.datamodels import SlitModel
+        >>> multislit_model = MultiSlitModel()
+        >>> multislit_model.slits.append(SlitModel())
+        >>> multislit_model[0]
+        <SlitModel>
 
     If ``init`` is a file name or an ``ImageModel`` or a ``SlitModel``instance,
     an empty ``SlitModel`` will be created and assigned to attribute ``slits[0]``,
@@ -25,49 +25,10 @@ class MultiSlitModel(JwstDataModel):
     attributes from the input file or model will be copied to the
     first element of ``slits``.
 
-    Parameters
-    __________
-    slits.items.data : numpy float32 array
-         The science data
-
-    slits.items.dq : numpy uint32 array
-         Data quality array
-
-    slits.items.err : numpy float32 array
-         Error array
-
-    slits.items.var_poisson : numpy float32 array
-         variance due to poisson noise
-
-    slits.items.var_rnoise : numpy float32 array
-         variance due to read noise
-
-    slits.items.wavelength : numpy float32 array
-         Wavelength array, corrected for zero-point
-
-    slits.items.barshadow : numpy float32 array
-         Bar shadow correction
-
-    slits.items.flatfield_point : numpy float32 array
-         flatfield array for point source
-
-    slits.items.flatfield_uniform : numpy float32 array
-         flatfield array for uniform source
-
-    slits.items.pathloss_point : numpy float32 array
-         pathloss array for point source
-
-    slits.items.pathloss_uniform : numpy float32 array
-         pathloss array for uniform source
-
-    slits.items.photom_point : numpy float32 array
-         photom array for point source
-
-    slits.items.photom_uniform : numpy float32 array
-         photom array for uniform source
-
-    slits.items.area : numpy float32 array
-         Pixel area map array
+    Attributes
+    ----------
+    slits : list of SlitModel
+        The slits in the model; see SlitModel for details.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/multislit.schema"
@@ -84,8 +45,17 @@ class MultiSlitModel(JwstDataModel):
 
     def __getitem__(self, key):
         """
-        Returns a metadata value using a dotted name or
-        a ``SlitModel``.
+        Return a metadata value using a dotted name or a ``SlitModel``.
+
+        Parameters
+        ----------
+        key : str or int
+            A dotted name identifying a metadata field or a slit number.
+
+        Returns
+        -------
+        value : any
+            The value of the metadata field or the ``SlitModel`` instance.
         """
         if isinstance(key, str) and key.split(".")[0] == "meta":
             res = super(MultiSlitModel, self).__getitem__(key)

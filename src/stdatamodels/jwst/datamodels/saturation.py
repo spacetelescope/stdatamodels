@@ -10,14 +10,12 @@ class SaturationModel(ReferenceFileModel):
     """
     A data model for saturation checking information.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Saturation threshold
-
     dq : numpy uint32 array
          2-D data quality array for all planes
-
     dq_def : numpy table
          DQ flag definitions
     """

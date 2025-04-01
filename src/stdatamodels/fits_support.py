@@ -80,9 +80,20 @@ _builtin_regex = re.compile("|".join(f"(^{x}$)" for x in _builtin_regexes))
 
 def is_builtin_fits_keyword(key):
     """
-    Returns `True` if the given `key` is a built-in FITS keyword, i.e.
-    a keyword that is managed by ``astropy.io.fits`` and we wouldn't
-    want to propagate through the `_extra_fits` mechanism.
+    Check if key is a FITS builtin.
+
+    Builtins are those managed by ``astropy.io.fits``, and we don't
+    want to propagate those through the `_extra_fits` mechanism.
+
+    Parameters
+    ----------
+    key : str
+        The keyword to check.
+
+    Returns
+    -------
+    bool
+        `True` if the keyword is a built-in FITS keyword.
     """
     return _builtin_regex.match(key) is not None
 
@@ -142,6 +153,25 @@ def _get_hdu_pair(hdu_name, index=None):
 
 
 def get_hdu(hdulist, hdu_name, index=None, _cache=None):
+    """
+    Retrieve an HDU from an hdulist.
+
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.hdu.hdulist.HDUList
+        A FITS HDUList
+    hdu_name : str
+        The name of the HDU to retrieve
+    index : int, optional
+        The index of the HDU to retrieve
+    _cache : dict, optional
+        Cache of HDUs
+
+    Returns
+    -------
+    hdu : astropy.io.fits.hdu.base._BaseHDU
+        The HDU as represented by astropy.io.fits
+    """
     pair = _get_hdu_pair(hdu_name, index=index)
     if _cache is not None and pair in _cache:
         return _cache[pair]
@@ -262,7 +292,7 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
-    comment = get_short_doc(schema)
+    comment = _get_short_doc(schema)
 
     if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
@@ -437,10 +467,21 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
 
 def _normalize_arrays(tree):
     """
-    Convert arrays in the tree to C-contiguous, since that is
-    how they are written to disk by astropy.io.fits and we
+    Convert arrays in the tree to C-contiguous.
+
+    They are written to disk by astropy.io.fits in C-contiguous, and we
     don't want the asdf library to notice the change in memory
     layout and duplicate the array in the embedded ASDF.
+
+    Parameters
+    ----------
+    tree : dict
+        The ASDF tree.
+
+    Returns
+    -------
+    tree : dict
+        The ASDF tree with all arrays converted to C-contiguous.
     """
 
     def normalize_array(node):
@@ -490,7 +531,23 @@ def _save_history(hdulist, tree):
 
 
 def to_fits(tree, schema, hdulist=None):
-    """Create hdulist and modified ASDF tree"""
+    """
+    Create hdulist and modified ASDF tree.
+
+    Parameters
+    ----------
+    tree : dict
+        The ASDF tree to convert to FITS.
+    schema : dict
+        The schema for the ASDF tree.
+    hdulist : astropy.io.fits.HDUList, optional
+        The HDU list to append to. If not provided, a new HDU list will be created.
+
+    Returns
+    -------
+    hdulist : astropy.io.fits.HDUList
+        The HDU list.
+    """
     if hdulist is None:
         hdulist = fits.HDUList()
         hdulist.append(fits.PrimaryHDU())
@@ -514,7 +571,7 @@ def to_fits(tree, schema, hdulist=None):
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
     # convert all FITS_rec instances to numpy arrays, this is needed as
-    # some arrays loaded from the fits data for old files may not be defined
+    # some arrays loaded from the FITS data for old files may not be defined
     # in the current schemas. These will be loaded as FITS_rec instances but
     # not linked back (and safely converted) on write if they are removed
     # from the schema.
@@ -684,19 +741,24 @@ def _load_history(hdulist, tree):
 
 
 def from_fits(hdulist, schema, context, **kwargs):
-    """Read model information from a FITS HDU list
+    """
+    Read model information from a FITS HDU list.
 
     Parameters
     ----------
     hdulist : astropy.io.fits.HDUList
         The FITS HDUList
-
     schema : dict
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
-
-    context: DataModel
+    context : DataModel
         The `DataModel` to update
+    **kwargs
+        Additional arguments to pass to `from_fits_asdf`
 
+    Returns
+    -------
+    asdf.AsdfFile
+        The ASDF file object
     """
     try:
         ff = from_fits_asdf(hdulist, **kwargs)
@@ -719,7 +781,25 @@ def from_fits(hdulist, schema, context, **kwargs):
 
 def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     """
-    Wrap asdf call to extract optional arguments
+    Open the ASDF extension from a FITS HDUlist.
+
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.HDUList
+        The FITS HDUList
+    ignore_unrecognized_tag : bool
+        When `True`, ignore unrecognized tags in the ASDF file.
+        When `False`, raise an error when an unrecognized tag is found.
+    **kwargs
+        Additional arguments to pass to `asdf.open`
+        - ignore_missing_extensions : bool
+          When `True`, ignore missing extensions in the ASDF file.
+          When `False`, raise an error when an extension is missing.
+
+    Returns
+    -------
+    asdf.AsdfFile
+        The ASDF file object
     """
     ignore_missing_extensions = kwargs.pop("ignore_missing_extensions")
 
@@ -777,7 +857,19 @@ def _map_hdulist_to_arrays(hdulist, af):
 
 def from_fits_hdu(hdu, schema):
     """
-    Read the data from a fits hdu into a numpy ndarray
+    Read the data from a FITS HDU into a numpy ndarray.
+
+    Parameters
+    ----------
+    hdu : astropy.io.fits.hdu.base._BaseHDU
+        The FITS HDU
+    schema : dict
+        The schema for the data
+
+    Returns
+    -------
+    data : numpy.ndarray
+        The data from the FITS HDU
     """
     data = hdu.data
 
@@ -798,7 +890,8 @@ def from_fits_hdu(hdu, schema):
 
 
 def _can_skip_fits_update(hdulist, asdf_struct, context):
-    """Ensure all conditions for skipping FITS updating are true
+    """
+    Ensure all conditions for skipping FITS updating are true.
 
     Returns True if either 1) the FITS hash in the asdf structure matches the input
     FITS structure. Or 2) skipping has been explicitly asked for in `skip_fits_update`.
@@ -807,10 +900,8 @@ def _can_skip_fits_update(hdulist, asdf_struct, context):
     ----------
     hdulist : astropy.io.fits.HDUList
         The input FITS information
-
     asdf_struct : asdf.ASDFFile
         The associated ASDF structure
-
     context : DataModel
         The DataModel being built.
 
@@ -845,7 +936,8 @@ def _can_skip_fits_update(hdulist, asdf_struct, context):
 
 
 def fits_hash(hdulist):
-    """Calculate a hash based on all HDU headers
+    """
+    Calculate a hash based on all HDU headers.
 
     Uses basic SHA-256 hash to calculate.
 
@@ -869,7 +961,7 @@ def fits_hash(hdulist):
     return fits_hash.hexdigest()
 
 
-def get_short_doc(schema):
+def _get_short_doc(schema):
     title = schema.get("title", None)
     description = schema.get("description", None)
     if description is None:

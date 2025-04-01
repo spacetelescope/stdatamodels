@@ -23,11 +23,10 @@ class SpecProfileModel(ReferenceFileModel):
     the first element of `profile`.  `SpecProfileSingleModel` objects can be appended
     to the `profile` attribute by using its `append` method.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     profile.items.data : numpy array
          Spectral profile data
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/specprofile.schema"
@@ -46,8 +45,8 @@ class SpecProfileSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS spectral profile data.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Spectral profile values
     """

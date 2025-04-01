@@ -10,14 +10,12 @@ class PersistenceSatModel(ReferenceFileModel):
     """
     A data model for the persistence saturation value (full well).
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Persistence saturation threshold
-
     dq : numpy uint32 array
          data quality array
-
     dq_def : numpy table
          DQ flag definitions
     """
