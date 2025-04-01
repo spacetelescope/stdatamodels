@@ -27,7 +27,7 @@ class MultiSlitModel(JwstDataModel):
 
     Attributes
     ----------
-    slits : SlitModel
+    slits : list of SlitModel
         The slits in the model; see SlitModel for details.
     """
 

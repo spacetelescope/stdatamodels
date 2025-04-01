@@ -62,13 +62,13 @@ def dqflags_to_mnemonics(dqflags, mnemonic_map):
     dqflags : int-like
         The value to interpret as DQ flags
 
-    mnemonic_map : {str: int[,...]}
+    mnemonic_map : dict
         Dictionary associating the mnemonic string to an integer value
         representing the set bit for that mnemonic.
 
     Returns
     -------
-    mnemonics : {str[,...]}
+    mnemonics : set
         Set of mnemonics represented by the set bit flags
 
     Examples
