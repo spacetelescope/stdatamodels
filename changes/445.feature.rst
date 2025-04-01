@@ -1,0 +1,1 @@
+Add `read_metadata` for reading partial metadata from saved files.
