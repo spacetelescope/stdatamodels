@@ -242,14 +242,13 @@ class DataModel(properties.ObjectNode):
 
             elif file_type == "asdf":
                 asdffile = asdf.open(init, memmap=memmap, **kwargs)
+                self._file_references.append(_FileReference(asdffile))
             else:
                 # TODO handle json files as well
                 raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
             raise ValueError(f"Can't initialize datamodel using {str(type(init))}")
-
-        self._file_references.append(_FileReference(asdffile))
 
         # Initialize object fields as determined from the code above
         self._shape = shape
@@ -410,7 +409,7 @@ class DataModel(properties.ObjectNode):
             for file_reference in self._file_references:
                 file_reference.decrement()
             # Discard the list in case close is called a second time.
-            self._file_references = []
+            self._file_references.clear()
 
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
