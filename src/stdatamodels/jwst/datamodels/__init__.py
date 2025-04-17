@@ -23,7 +23,6 @@ from .flat import FlatModel
 from .fringe import FringeModel
 from .fringefreq import FringeFreqModel
 from .gain import GainModel
-from .gls_rampfit import GLS_RampFitModel
 from .guider import GuiderRawModel, GuiderCalModel
 from .ifucube import IFUCubeModel
 from .ifucubepars import NirspecIFUCubeParsModel, MiriIFUCubeParsModel
@@ -159,7 +158,6 @@ __all__ = [
     "FringeModel",
     "FringeFreqModel",
     "GainModel",
-    "GLS_RampFitModel",
     "GuiderRawModel",
     "GuiderCalModel",
     "IFUCubeModel",
