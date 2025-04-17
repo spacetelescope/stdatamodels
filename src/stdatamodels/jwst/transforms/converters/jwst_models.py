@@ -20,7 +20,7 @@ __all__ = [
     "CoordsConverter",
     "Rotation3DToGWAConverter",
     "Slit2MsaConverter",
-    "Slit2GwaConverter"
+    "Slit2GwaConverter",
 ]
 
 
@@ -140,54 +140,60 @@ class Gwa2SlitConverter(TransformConverterBase):
 
 
 class Slit2GwaConverter(TransformConverterBase):
-
     tags = ["tag:stsci.edu:jwst_pipeline/slit_to_gwa-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Slit2Gwa"]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-
         from stdatamodels.jwst.transforms.models import Slit2Gwa
 
-        return Slit2Gwa(node['slits'], node['models'])
+        return Slit2Gwa(node["slits"], node["models"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {'slits': model._slits,
-                'models': model.models}
+        node = {"slits": model._slits, "models": model.models}
         return node
 
 
 class Slit2MsaConverter(TransformConverterBase):
     tags = ["tag:stsci.edu:jwst_pipeline/slit_to_msa-*"]
 
-    types = ["stdatamodels.jwst.transforms.models.Slit2Msa",
-             "stdatamodels.jwst.transforms.models.Msa2Slit"]
+    types = [
+        "stdatamodels.jwst.transforms.models.Slit2Msa",
+        "stdatamodels.jwst.transforms.models.Msa2Slit",
+    ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Slit2Msa
+        from stdatamodels.jwst.transforms.models import Slit2Msa, Slit2MsaLegacy
 
-        return Slit2Msa(node["slits"], node["models"])
+        if node.get("outputs") == ["x_msa", "y_msa"]:
+            # Handle old-style Slit2Msa transforms
+            return Slit2MsaLegacy(node["slits"], node["models"])
+        else:
+            return Slit2Msa(node["slits"], node["models"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {'slits': model._slits,
-                'models': model.models,}
+        node = {
+            "slits": model._slits,
+            "models": model.models,
+        }
         return node
 
 
 class Msa2SlitConverter(TransformConverterBase):
-
     tags = ["tag:stsci.edu:jwst_pipeline/msa_to_slit-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Msa2Slit"]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-
         from stdatamodels.jwst.transforms.models import Msa2Slit
 
-        return Msa2Slit(node['slits'], node['models'])
+        return Msa2Slit(node["slits"], node["models"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {'slits': model._slits, 'models': model.models,}
+        node = {
+            "slits": model._slits,
+            "models": model.models,
+        }
         return node
 
 
