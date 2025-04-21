@@ -72,6 +72,7 @@ Slit = namedtuple(
         "source_dec",
         "slit_xscale",
         "slit_yscale",
+        "slit_id",
     ],
 )
 """ Nirspec Slit structure definition"""
@@ -97,6 +98,7 @@ Slit.__new__.__defaults__ = (
     0.0,
     1.0,
     1.0,
+    -9999,
 )
 
 
@@ -376,8 +378,15 @@ class Gwa2Slit(Model):
 
     def __init__(self, slits, models):
         if np.iterable(slits[0]):
-            self._slits = [tuple(s) for s in slits]
-            self.slit_ids = [s[0] for s in self._slits]
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -476,9 +485,16 @@ class Slit2Gwa(Model):
     n_outputs = 4
 
     def __init__(self, slits, models):
-        if isiterable(slits[0]):
-            self._slits = [tuple(s) for s in slits]
-            self.slit_ids = [s[0] for s in self._slits]
+        if np.iterable(slits[0]):
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -492,7 +508,7 @@ class Slit2Gwa(Model):
 
     @property
     def slits(self):
-        if isiterable(self._slits[0]):
+        if np.iterable(self._slits[0]):
             return [Slit(*row) for row in self._slits]
         else:
             return self.slit_ids
@@ -536,7 +552,7 @@ class Slit2MsaLegacy(Model):
         """ Name of the slit, x and y coordinates within the virtual slit."""
         self.outputs = ("x_msa", "y_msa")
         """ x and y coordinates in the MSA frame."""
-        if isiterable(slits[0]):
+        if np.iterable(slits[0]):
             self._slits = [tuple(s) for s in slits]
             self.slit_ids = [s[0] for s in self._slits]
         else:
@@ -561,7 +577,7 @@ class Slit2MsaLegacy(Model):
         list
             List of `~stdatamodels.jwst.transforms.models.Slit` objects.
         """
-        if isiterable(self._slits[0]):
+        if np.iterable(self._slits[0]):
             return [Slit(*row) for row in self._slits]
         else:
             return self.slit_ids
@@ -634,8 +650,15 @@ class Slit2Msa(Model):
         self.outputs = ("x_msa", "y_msa", "name")
         """ x and y coordinates in the MSA frame."""
         if np.iterable(slits[0]):
-            self._slits = [tuple(s) for s in slits]
-            self.slit_ids = [s[0] for s in self._slits]
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -728,9 +751,16 @@ class Msa2Slit(Model):
         """ Name of the slit, x and y coordinates within the virtual slit."""
         self.outputs = ("name", "x_msa", "y_msa")
         """ x and y coordinates in the MSA frame."""
-        if isiterable(slits[0]):
-            self._slits = [tuple(s) for s in slits]
-            self.slit_ids = [s[0] for s in self._slits]
+        if np.iterable(slits[0]):
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -738,7 +768,7 @@ class Msa2Slit(Model):
 
     @property
     def slits(self):
-        if isiterable(self._slits[0]):
+        if np.iterable(self._slits[0]):
             return [Slit(*row) for row in self._slits]
         else:
             return self.slit_ids
