@@ -631,7 +631,7 @@ class Slit2Msa(Model):
         super(Slit2Msa, self).__init__()
         self.inputs = ("name", "x_slit", "y_slit")
         """ Name of the slit, x and y coordinates within the virtual slit."""
-        self.outputs = ("name", "x_msa", "y_msa")
+        self.outputs = ("x_msa", "y_msa", "name")
         """ x and y coordinates in the MSA frame."""
         if np.iterable(slits[0]):
             self._slits = [tuple(s) for s in slits]
