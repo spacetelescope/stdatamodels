@@ -631,7 +631,38 @@ def _schema_has_fits_hdu(schema):
     return has_fits_hdu[0]
 
 
-def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
+def _load_from_schema(
+    hdulist, schema, tree, context, skip_fits_update=False, ignore_arrays=False, keep_unknown=True
+):
+    """
+    Read model information from a FITS HDU list.
+
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.HDUList
+        The FITS HDUList from which to read the data.
+    schema : dict
+        The schema defining the mapping between datamodel and FITS.
+    tree : dict
+        The ASDF tree to update.
+    context : DataModel
+        The `DataModel` from which to read context information.
+    skip_fits_update : bool, optional
+        If True, skip updating the tree based on the FITS HDUList.
+    ignore_arrays : bool, optional
+        If True, do not read array-type data.
+    keep_unknown : bool, optional
+        Controls the behavior for keywords that are in the schema but NOT in the input hdulist.
+        If True, the output tree contains the keyword, and the corresponding attribute is None.
+        If False, the keyword is not present in the output tree.
+
+    Returns
+    -------
+    known_keywords : dict
+        Dictionary of FITS keywords that were found in the HDUList.
+    known_datas : set
+        Set of HDUs that were found in the HDUList.
+    """
     known_keywords = {}
     known_datas = set()
 
@@ -663,7 +694,8 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
             )
-
+            if result is None and not keep_unknown:
+                return
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
             else:
@@ -673,8 +705,10 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 else:
                     properties.put_value(path, result, tree)
 
-        elif "fits_hdu" in schema and (
-            "max_ndim" in schema or "ndim" in schema or "datatype" in schema
+        elif (
+            "fits_hdu" in schema
+            and ("max_ndim" in schema or "ndim" in schema or "datatype" in schema)
+            and not ignore_arrays
         ):
             result = _fits_array_loader(
                 hdulist, schema, ctx.get("hdu_index"), known_datas, hdu_cache

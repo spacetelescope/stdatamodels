@@ -12,10 +12,9 @@ import asdf
 
 import numpy as np
 from astropy.io import fits
-from stdatamodels import filetype, properties, fits_support
+from stdatamodels import filetype, fits_support
 from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
-import stdatamodels.schema as mschema
 import stdatamodels.jwst.datamodels as dm
 
 
@@ -417,69 +416,6 @@ def is_association(asn_data):
     return False
 
 
-def _load_fits_meta_from_schema(hdulist, tree, schema):
-    """
-    Load metadata tree without loading entire datamodel into memory, and bypassing validation.
-
-    Parameters
-    ----------
-    hdulist : list
-        List of HDU objects from a FITS file.
-    schema : dict
-        Schema dictionary for the datamodel.
-
-    Returns
-    -------
-    tree : dict
-        Metadata tree.
-    """
-    known_keywords = {}
-
-    # hdulist.__getitem__ is surprisingly slow (2 ms per call on my system
-    # for a nirspec mos file with ~500 extensions) so we use a cache
-    # here to handle repeated accesses. A lru_cache around get_hdu
-    # was not used as hdulist is not hashable.
-    hdu_cache = {}
-
-    def callback(schema, path, combiner, ctx, recurse):
-        """
-        Update ASDF tree with corresponding FITS header values.
-
-        Do not attempt to update anything that is in the ASDF extension but is not mapped
-        to a fits header keyword.
-        Do not include any extra FITS header elements that are not in the schema.
-        Leave any list-like objects loaded from the ASDF extension as-is, e.g. model.slits.
-        Ignore validation.
-        """
-
-        if fits_keyword := schema.get("fits_keyword"):
-            hdu_name = fits_support._get_hdu_name(schema)
-
-            result = fits_support._fits_keyword_loader(
-                hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
-            )
-            try:
-                hdu = fits_support.get_hdu(hdulist, hdu_name, _cache=hdu_cache)
-            except AttributeError:
-                return
-
-            try:
-                result = hdu.header[fits_keyword]
-            except KeyError:
-                return
-
-            # This AttributeError is raised for list-like objects.
-            # Ignoring these means that the asdf extension is not updated with fits keywords
-            # within lists, for example the metadata of model.slits in a multislitmodel
-            try:
-                properties.put_value(path, result, tree)
-            except AttributeError:
-                return
-
-    mschema.walk_schema(schema, callback)
-    return tree
-
-
 def _convert_tagged_strings(tree):
     """Convert TaggedString to string for all values of nested dict."""
 
@@ -504,6 +440,16 @@ def _to_flat_dict(tree):
     For example, a MultiSlitModel with two slits slits will have the attributes::
 
         "slits.0.name", "slits.1.name", etc.
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree to flatten
+
+    Returns
+    -------
+    dict
+        The flattened dictionary
     """
     flat_dict = {}
 
@@ -528,7 +474,7 @@ def _to_flat_dict(tree):
 
 
 def _retrieve_schema(model_type):
-    """Load schema for the input model type."""
+    """Load schema for the input model type."""  # numpydoc ignore=RT01
     try:
         schema_url = getattr(dm, model_type).schema_url
     except AttributeError:
@@ -593,7 +539,23 @@ def read_metadata(fname, model_type=None, flatten=True):
             if model_type is None:
                 model_type = hdulist[0].header["DATAMODL"]
             schema = _retrieve_schema(model_type)
-            tree = _load_fits_meta_from_schema(hdulist, tree, schema)
+
+            # hack to turn off validation without needing an entire datamodel object
+            class PlaceholderCtx:
+                def __init__(self):
+                    self._validate_on_assignment = False
+
+            context = PlaceholderCtx()
+
+            fits_support._load_from_schema(
+                hdulist,
+                schema,
+                tree,
+                context,
+                skip_fits_update=False,
+                ignore_arrays=True,
+                keep_unknown=False,
+            )
 
     elif ext == "asdf":
         tree = asdf.util.load_yaml(fname, tagged=True)

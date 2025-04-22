@@ -6,6 +6,7 @@ from pathlib import Path
 from astropy.time import Time
 import stdatamodels.jwst.datamodels as dm
 from stdatamodels.jwst.datamodels.util import read_metadata
+from astropy.io import fits
 
 
 IMAGEFILE_ROOT = "jwst_image."
@@ -155,6 +156,23 @@ def test_read_metadata_multislit_nested(multislit_path):
     # Ensure the slit metadata is also in here
     assert meta["slits"][0]["name"] == "slit0"
     assert meta["slits"][1]["name"] == "slit1"
+
+
+@pytest.mark.parametrize("multislit_path", ["fits"], indirect=True)
+def test_multislit_fits_update(multislit_path):
+    """Ensure a fits_update is done for slit metadata, even though slits is list-like."""
+    new_slitname = "foo"
+    new_filename = "multislit_modified.fits"
+    new_path = multislit_path.with_name(new_filename)
+    with fits.open(multislit_path) as hdul:
+        hdul[1].header["SLTNAME"] = new_slitname
+        hdul.writeto(new_path)
+    
+    # Load the metadata
+    meta = read_metadata(new_path)
+
+    # ensure the slit name is updated
+    assert meta["slits.0.name"] == new_slitname
 
 
 def test_equivalent_to_get_crds_parameters(multislit_path):
