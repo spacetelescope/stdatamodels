@@ -159,6 +159,7 @@ class Slit2MsaConverter(TransformConverterBase):
 
     types = [
         "stdatamodels.jwst.transforms.models.Slit2Msa",
+        "stdatamodels.jwst.transforms.models.Slit2MsaLegacy",
         "stdatamodels.jwst.transforms.models.Msa2Slit",
     ]
 
