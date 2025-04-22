@@ -6,7 +6,7 @@ from ....properties import ListNode
 
 __all__ = [
     "Gwa2SlitConverter",
-    "Slit2MsaConverter",
+    "Msa2SlitConverter",
     "LogicalConverter",
     "NirissSOSSConverter",
     "RefractionIndexConverter",
@@ -160,7 +160,6 @@ class Slit2MsaConverter(TransformConverterBase):
     types = [
         "stdatamodels.jwst.transforms.models.Slit2Msa",
         "stdatamodels.jwst.transforms.models.Slit2MsaLegacy",
-        "stdatamodels.jwst.transforms.models.Msa2Slit",
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):

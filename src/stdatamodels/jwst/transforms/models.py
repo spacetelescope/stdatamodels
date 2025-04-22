@@ -747,9 +747,9 @@ class Msa2Slit(Model):
 
     def __init__(self, slits, models):
         super(Msa2Slit, self).__init__()
-        self.inputs = ("name", "x_slit", "y_slit")
+        self.inputs = ("x_msa", "y_msa", "name")
         """ Name of the slit, x and y coordinates within the virtual slit."""
-        self.outputs = ("name", "x_msa", "y_msa")
+        self.outputs = ("name", "x_slit", "y_slit")
         """ x and y coordinates in the MSA frame."""
         if np.iterable(slits[0]):
             self.slit_ids = []
@@ -777,7 +777,7 @@ class Msa2Slit(Model):
         index = self.slit_ids.index(name)
         return self.models[index]
 
-    def evaluate(self, name, x, y):
+    def evaluate(self, x, y, name):
         index = self.slit_ids.index(name)
         return (name,) + self.models[index](x, y)
 
