@@ -566,6 +566,34 @@ def read_metadata(fname, model_type=None, flatten=True):
     else:
         raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
 
+    # custom handling of cal_logs object to ensure it ends up as a single string
+    _convert_cal_logs_to_string(tree)
+
     if flatten:
         return _to_flat_dict(tree)
     return tree
+
+
+def _convert_cal_logs_to_string(tree):
+    """
+    Convert cal_logs dictionary into a single string.
+
+    Output format looks similar to what was originally printed to the logs,
+    e.g. a newline-separated log
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree containing the cal_logs dictionary
+    """
+    if "cal_logs" not in tree.keys():
+        return
+
+    cal_str = ""
+    for _key, val in tree["cal_logs"].items():
+        if isinstance(val, dict):
+            val = "\n".join([f"{k}: {v}" for k, v in val.items()])
+        elif isinstance(val, list):
+            val = "\n".join([str(v) for v in val])
+        cal_str += f"{val}\n"
+    tree["cal_logs"] = cal_str
