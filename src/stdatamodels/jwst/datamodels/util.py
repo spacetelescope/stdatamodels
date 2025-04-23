@@ -453,21 +453,23 @@ def _to_flat_dict(tree):
     """
     flat_dict = {}
 
-    def recurse(tree, path):
-        for key, val in tree.items():
+    def recurse(subtree, path):
+        for key, val in subtree.items():
             if key == "wcs":
                 # Skip the WCS object because it is recursive
                 continue
+            current_path = path + [key]
             if isinstance(val, dict):
-                recurse(val, path + [key])
+                recurse(val, current_path)
             elif isinstance(val, (list, tuple)):
-                tree[key] = {}
                 for i, item in enumerate(val):
-                    tree[key][str(i)] = item
+                    indexed_key = f"{key}.{i}"
                     if isinstance(item, (dict, list, tuple)):
-                        recurse(item, path + [key] + [str(i)])
+                        recurse(item, path + [indexed_key])
+                    else:
+                        flat_dict[".".join(path + [indexed_key])] = item
             else:
-                flat_dict[".".join(path + [key])] = val
+                flat_dict[".".join(current_path)] = val
 
     recurse(tree, [])
     return flat_dict

@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 from astropy.time import Time
 import stdatamodels.jwst.datamodels as dm
-from stdatamodels.jwst.datamodels.util import read_metadata
+from stdatamodels.jwst.datamodels.util import read_metadata, _to_flat_dict
 from astropy.io import fits
 
 
@@ -115,6 +115,32 @@ def test_read_metadata_nested(model_path):
     # Ensure the metadata has the expected attributes
     assert meta["meta"]["instrument"]["filter"] == FILT
     assert meta["meta"]["observation"]["date"] == INPUT_TIME
+
+
+@pytest.fixture
+def cal_logs():
+    """Create a cal_logs dictionary to test the flattening."""
+    tree = {
+        "meta": {
+            "instrument": {"name": "MIRI"},
+        },
+        "cal_logs": {
+            "extract_1d": ["foo", "bar"],
+            "assign_wcs": ["baz", "qux"],
+        },
+    }
+    return tree
+
+def test_flatten_cal_logs(cal_logs):
+    """Test that cal_logs key and its nested structure are included in the flattened dictionary."""
+    # Simulate a metadata tree with a cal_logs key
+    flat_dict = _to_flat_dict(cal_logs)
+
+    # Assert that cal_logs and its nested keys are present in the flattened dictionary
+    assert flat_dict["cal_logs.extract_1d.0"] == "foo"
+    assert flat_dict["cal_logs.extract_1d.1"] == "bar"
+    assert flat_dict["cal_logs.assign_wcs.0"] == "baz"
+    assert flat_dict["cal_logs.assign_wcs.1"] == "qux"
 
 
 def test_read_metadata_multislit(multislit_path):
