@@ -5,14 +5,17 @@ import sys
 import warnings
 from pathlib import Path
 import logging
+from asdf.tagged import TaggedString
 
+import io
 import asdf
 
 import numpy as np
 from astropy.io import fits
-from stdatamodels import filetype
+from stdatamodels import filetype, fits_support
 from stdatamodels.model_base import _FileReference
 from stdatamodels.exceptions import NoTypeWarning
+import stdatamodels.jwst.datamodels as dm
 
 
 __all__ = ["open", "is_association"]
@@ -411,3 +414,186 @@ def is_association(asn_data):
         if "asn_id" in asn_data and "asn_pool" in asn_data:
             return True
     return False
+
+
+def _convert_tagged_strings(tree):
+    """Convert TaggedString to string for all values of nested dict."""
+
+    def recurse(tree):
+        for key, val in tree.items():
+            if key == "wcs":
+                # Skip the WCS object because it is recursive
+                continue
+            if isinstance(val, TaggedString):
+                tree[key] = str(val)
+            elif isinstance(val, dict):
+                recurse(val)
+
+    recurse(tree)
+
+
+def _to_flat_dict(tree):
+    """
+    Convert a tree to a flat dictionary.
+
+    Lists are converted to dictionaries with keys equal to their indices as strings.
+    For example, a MultiSlitModel with two slits slits will have the attributes::
+
+        "slits.0.name", "slits.1.name", etc.
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree to flatten
+
+    Returns
+    -------
+    dict
+        The flattened dictionary
+    """
+    flat_dict = {}
+
+    def recurse(subtree, path):
+        for key, val in subtree.items():
+            if key == "wcs":
+                # Skip the WCS object because it is recursive
+                continue
+            current_path = path + [key]
+            if isinstance(val, dict):
+                recurse(val, current_path)
+            elif isinstance(val, (list, tuple)):
+                for i, item in enumerate(val):
+                    indexed_key = f"{key}.{i}"
+                    if isinstance(item, (dict, list, tuple)):
+                        recurse(item, path + [indexed_key])
+                    else:
+                        flat_dict[".".join(path + [indexed_key])] = item
+            else:
+                flat_dict[".".join(current_path)] = val
+
+    recurse(tree, [])
+    return flat_dict
+
+
+def _retrieve_schema(model_type):
+    """Load schema for the input model type."""  # numpydoc ignore=RT01
+    try:
+        schema_url = getattr(dm, model_type).schema_url
+    except AttributeError:
+        raise ValueError(f"Model type {model_type} not found.") from None
+    return asdf.schema.load_schema(schema_url, resolve_references=True)
+
+
+def read_metadata(fname, model_type=None, flatten=True):
+    """
+    Load a metadata tree from a file without loading the entire datamodel into memory.
+
+    The metadata dictionary will be returned in a flat format by default,
+    such that each key is a dot-separated name. For example, the schema element
+    `meta.observation.date` will end up in the result as::
+
+        ("meta.observation.date": "2012-04-22T03:22:05.432")
+
+    If `flatten` is set to False, the metadata will be returned as a nested
+    dictionary, with the keys being the schema elements.
+
+    For FITS files, the output dictionary contains all metadata attributes
+    that are present in the FITS header and mapped to a schema element, as well
+    as any extra attributes that are present in the ASDF extension of the FITS file.
+    (If a header keyword is not mapped to a schema element, it will not be included.)
+
+    For ASDF files, the output dictionary simply contains the entire ASDF tree.
+
+    WCS objects are not loaded, as they can be recursive and can be large.
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    fname : str or Path
+        Path to a JWSTDataModel file.
+    model_type : str, optional
+        The model type used to figure out which schema to load. If not provided,
+        the model type will be determined from the file's header information
+        ("DATAMODL" keyword for FITS files). Has no effect for ASDF input.
+    flatten : bool, optional
+        If True, the metadata will be returned as a flat dictionary. If False,
+        the metadata will be returned as a nested dictionary. Default is True.
+
+    Returns
+    -------
+    dict
+        The metadata tree.
+    """
+    if not isinstance(fname, (Path, str)):
+        raise TypeError("Input must be a file path.")
+
+    ext = filetype.check(str(fname))
+    if ext == "fits":
+        with fits.open(fname) as hdulist:
+            bs = io.BytesIO(hdulist["ASDF"].data.tobytes())
+            tree = asdf.util.load_yaml(bs)
+            if model_type is None:
+                model_type = hdulist[0].header["DATAMODL"]
+            schema = _retrieve_schema(model_type)
+
+            # hack to turn off validation without needing an entire datamodel object
+            class PlaceholderCtx:
+                def __init__(self):
+                    self._validate_on_assignment = False
+
+            context = PlaceholderCtx()
+
+            fits_support._load_from_schema(
+                hdulist,
+                schema,
+                tree,
+                context,
+                skip_fits_update=False,
+                ignore_arrays=True,
+                keep_unknown=False,
+            )
+
+    elif ext == "asdf":
+        tree = asdf.util.load_yaml(fname, tagged=True)
+        _convert_tagged_strings(tree)
+
+    else:
+        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
+
+    # custom handling of cal_logs object to ensure it ends up as a single string
+    _convert_cal_logs_to_string(tree)
+
+    if flatten:
+        return _to_flat_dict(tree)
+    return tree
+
+
+def _convert_cal_logs_to_string(tree):
+    """
+    Convert cal_logs dictionary into a single string.
+
+    Output format looks similar to what was originally printed to the logs,
+    e.g. a newline-separated log
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree containing the cal_logs dictionary
+    """
+    if "cal_logs" not in tree.keys():
+        return
+
+    cal_str = ""
+    for _key, val in tree["cal_logs"].items():
+        if isinstance(val, dict):
+            val = "\n".join([f"{k}: {v}" for k, v in val.items()])
+        elif isinstance(val, list):
+            val = "\n".join([str(v) for v in val])
+        cal_str += f"{val}\n"
+    tree["cal_logs"] = cal_str
