@@ -1,0 +1,107 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spectable.schema"
+title: Extracted spectral data table with WFSS extraction metadata
+fits_hdu: EXTRACT1D
+datatype:
+- name: SOURCE_ID
+  datatype: uint32
+- name: NELEMENTS
+  datatype: uint32
+- name: WAVELENGTH
+  datatype: float64
+- name: FLUX
+  datatype: float64
+- name: FLUX_ERROR
+  datatype: float64
+- name: FLUX_VAR_POISSON
+  datatype: float64
+- name: FLUX_VAR_RNOISE
+  datatype: float64
+- name: FLUX_VAR_FLAT
+  datatype: float64
+- name: SURF_BRIGHT
+  datatype: float64
+- name: SB_ERROR
+  datatype: float64
+- name: SB_VAR_POISSON
+  datatype: float64
+- name: SB_VAR_RNOISE
+  datatype: float64
+- name: SB_VAR_FLAT
+  datatype: float64
+- name: DQ
+  datatype: uint32
+- name: BACKGROUND
+  datatype: float64
+- name: BKGD_ERROR
+  datatype: float64
+- name: BKGD_VAR_POISSON
+  datatype: float64
+- name: BKGD_VAR_RNOISE
+  datatype: float64
+- name: BKGD_VAR_FLAT
+  datatype: float64
+- name: NPIXELS
+  datatype: float64
+
+
+# - name: SLIT_NAME
+#   datatype: string
+# - name: SLITLET_ID
+#   datatype: int32
+# - name: SOURCE_ID
+#   datatype: int32
+# - name: SOURCE_NAME
+#   datatype: string
+# - name: SOURCE_ALIAS
+#   datatype: string
+# - name: STELLARITY
+#   datatype: float64
+# - name: SOURCE_TYPE
+#   datatype: string
+# - name: SOURCE_XPOS
+#   datatype: float64
+# - name: SOURCE_YPOS
+#   datatype: float64
+# - name: SOURCE_RA
+#   datatype: float64
+# - name: SOURCE_DEC
+#   datatype: float64
+# - name: EXTRACTION_CENTER_X
+#   datatype: float64
+# - name: EXTRACTION_CENTER_Y
+#   datatype: float64
+# - name: EXTRACTION_START_X
+#   datatype: float64
+# - name: EXTRACTION_START_Y
+#   datatype: float64
+# - name: EXTRACTION_END_X
+#   datatype: float64
+# - name: EXTRACTION_END_Y
+#   datatype: float64
+# - name: SLIT_RA
+#   datatype: float64
+# - name: SLIT_DEC  
+#   datatype: float64
+# - name: SPECTRAL_ORDER
+#   datatype: int32
+# - name: DISPERSION_DIRECTION
+#   datatype: int32
+# - name: TIME_SYSTEM
+#   datatype: string
+# - name: TIME_UNIT
+#   datatype: string
+# - name: START_TIME_MJD
+#   datatype: float64
+# - name: MID_TIME_MJD
+#   datatype: float64
+# - name: END_TIME_MJD
+#   datatype: float64
+# - name: START_TBD
+#   datatype: float64
+# - name: MID_TBD
+#   datatype: float64
+# - name: END_TBD
+#   datatype: float64

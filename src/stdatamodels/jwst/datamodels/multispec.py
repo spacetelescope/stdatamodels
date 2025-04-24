@@ -2,7 +2,7 @@ from .model_base import JwstDataModel
 from .spec import SpecModel, MRSSpecModel, TSOSpecModel
 
 
-__all__ = ["MultiSpecModel", "MRSMultiSpecModel", "TSOMultiSpecModel"]
+__all__ = ["MultiSpecModel", "MRSMultiSpecModel", "TSOMultiSpecModel", "WFSSMultiSpecModel"]
 
 
 class MultiSpecModel(JwstDataModel):
@@ -107,3 +107,34 @@ class TSOMultiSpecModel(JwstDataModel):
             return
 
         super(TSOMultiSpecModel, self).__init__(init=init, **kwargs)
+
+
+class WFSSMultiSpecModel(JwstDataModel):
+    """
+    A data model for NIRSpec and NIRISS WFSS 1D spectra.
+
+    This model differs from the other MultiSpecModel classes in that
+    it is designed to hold all the spectra from a single WFSS exposure
+    in a "flat" table format. Therefore, it does not have the `spec` attribute
+    that is present in the other MultiSpecModel classes. Instead, it has
+    a `spec_table` attribute that contains the spectral data for all
+    sources in the exposure and a `spec_meta` attribute that contains
+    metadata for the corresponding spectra in the `spec_table`.
+
+    Attributes
+    ----------
+    spec_table : numpy table
+        Table containing the extracted spectral data for all sources in a WFSS exposure.
+        The table still has the standard spectral columns, but also has additional
+        columns for the source ID and source name for ease of indexing.
+    spec_meta : numpy table
+        Metadata table for the spectra.
+        A table with spectral metadata columns corresponding to the spectra in the
+        spec_table. The metadata are similar to, and typically copied from,
+        the metadata in SpecModel.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multispec.schema"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "spec_table"
