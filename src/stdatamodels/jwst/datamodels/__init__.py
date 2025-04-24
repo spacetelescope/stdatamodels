@@ -38,8 +38,9 @@ from .mask import MaskModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
+from .multiexposurespec import WFSSMultiExposureSpecModel
 from .multislit import MultiSlitModel
-from .multispec import MultiSpecModel, MRSMultiSpecModel
+from .multispec import MultiSpecModel, MRSMultiSpecModel, WFSSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
 from .outlierifuoutput import OutlierIFUOutputModel
@@ -249,6 +250,8 @@ __all__ = [
     "WaveMapModel",
     "WaveMapSingleModel",
     "WfssBkgModel",
+    "WFSSMultiExposureSpecModel",
+    "WFSSMultiSpecModel",
 ]
 
 
