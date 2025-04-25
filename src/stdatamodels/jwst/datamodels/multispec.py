@@ -117,9 +117,8 @@ class WFSSMultiSpecModel(JwstDataModel):
     it is designed to hold all the spectra from a single WFSS exposure
     in a "flat" table format. Therefore, it does not have the `spec` attribute
     that is present in the other MultiSpecModel classes. Instead, it has
-    a `spec_table` attribute that contains the spectral data for all
-    sources in the exposure and a `spec_meta` attribute that contains
-    metadata for the corresponding spectra in the `spec_table`.
+    a `spec_table` attribute that contains the spectral data and metadata
+    for all sources in the exposure.
 
     Attributes
     ----------
