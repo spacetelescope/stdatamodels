@@ -5,10 +5,6 @@ id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spectable.schema"
 title: Extracted spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
 datatype:
-- name: SOURCE_ID
-  datatype: uint32
-- name: NELEMENTS
-  datatype: uint32
 - name: WAVELENGTH
   datatype: float64
 - name: FLUX
@@ -45,63 +41,63 @@ datatype:
   datatype: float64
 - name: NPIXELS
   datatype: float64
-
-
-# - name: SLIT_NAME
-#   datatype: string
-# - name: SLITLET_ID
-#   datatype: int32
-# - name: SOURCE_ID
-#   datatype: int32
-# - name: SOURCE_NAME
-#   datatype: string
-# - name: SOURCE_ALIAS
-#   datatype: string
-# - name: STELLARITY
-#   datatype: float64
-# - name: SOURCE_TYPE
-#   datatype: string
-# - name: SOURCE_XPOS
-#   datatype: float64
-# - name: SOURCE_YPOS
-#   datatype: float64
-# - name: SOURCE_RA
-#   datatype: float64
-# - name: SOURCE_DEC
-#   datatype: float64
-# - name: EXTRACTION_CENTER_X
-#   datatype: float64
-# - name: EXTRACTION_CENTER_Y
-#   datatype: float64
-# - name: EXTRACTION_START_X
-#   datatype: float64
-# - name: EXTRACTION_START_Y
-#   datatype: float64
-# - name: EXTRACTION_END_X
-#   datatype: float64
-# - name: EXTRACTION_END_Y
-#   datatype: float64
-# - name: SLIT_RA
-#   datatype: float64
-# - name: SLIT_DEC  
-#   datatype: float64
-# - name: SPECTRAL_ORDER
-#   datatype: int32
-# - name: DISPERSION_DIRECTION
-#   datatype: int32
-# - name: TIME_SYSTEM
-#   datatype: string
-# - name: TIME_UNIT
-#   datatype: string
-# - name: START_TIME_MJD
-#   datatype: float64
-# - name: MID_TIME_MJD
-#   datatype: float64
-# - name: END_TIME_MJD
-#   datatype: float64
-# - name: START_TBD
-#   datatype: float64
-# - name: MID_TBD
-#   datatype: float64
-# - name: END_TBD
-#   datatype: float64
+- name: NELEMENTS
+  datatype: uint32
+- name: NAME
+  datatype: [ascii, 20]
+- name: SLITLET_ID
+  datatype: int32
+- name: SOURCE_ID
+  datatype: int32
+- name: SOURCE_NAME
+  datatype: [ascii, 20]
+- name: SOURCE_ALIAS
+  datatype: [ascii, 20]
+- name: STELLARITY
+  datatype: float64
+- name: SOURCE_TYPE
+  datatype: [ascii, 20]
+- name: SOURCE_XPOS
+  datatype: float64
+- name: SOURCE_YPOS
+  datatype: float64
+- name: SOURCE_RA
+  datatype: float64
+- name: SOURCE_DEC
+  datatype: float64
+- name: EXTRACTION_X
+  datatype: float64
+- name: EXTRACTION_Y
+  datatype: float64
+- name: EXTRACTION_XSTART
+  datatype: float64
+- name: EXTRACTION_YSTART
+  datatype: float64
+- name: EXTRACTION_XSTOP
+  datatype: float64
+- name: EXTRACTION_YSTOP
+  datatype: float64
+- name: SLIT_RA
+  datatype: float64
+- name: SLIT_DEC  
+  datatype: float64
+- name: SPECTRAL_ORDER
+  datatype: int32
+- name: DISPERSION_DIRECTION
+  datatype: int32
+- name: TIME_SYS
+  datatype: [ascii, 20]
+- name: TIME_UNIT
+  datatype: [ascii, 20]
+- name: START_TIME_MJD
+  datatype: float64
+- name: MID_TIME_MJD
+  datatype: float64
+- name: END_TIME_MJD
+  datatype: float64
+- name: START_TBD
+  datatype: float64
+- name: MID_TBD
+  datatype: float64
+- name: END_TBD
+  datatype: float64
