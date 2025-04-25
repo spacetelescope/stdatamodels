@@ -1,0 +1,11 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/tso_spec.schema"
+title: Spectrum data model with multiple integrations for TSO
+allOf:
+- $ref: core.schema
+- type: object
+  properties:
+    spec_table:
+      $ref: tso_spectable.schema

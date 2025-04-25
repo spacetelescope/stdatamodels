@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ["SpecModel", "MRSSpecModel"]
+__all__ = ["SpecModel", "MRSSpecModel", "TSOSpecModel"]
 
 
 class SpecModel(JwstDataModel):
@@ -19,7 +19,7 @@ class SpecModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/spec.schema"
 
 
-class MRSSpecModel(SpecModel):
+class MRSSpecModel(JwstDataModel):
     """
     A data model for MIRI MRS 1D spectra with residual fringe corrections.
 
@@ -33,3 +33,20 @@ class MRSSpecModel(SpecModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mrs_spec.schema"
+
+
+class TSOSpecModel(JwstDataModel):
+    """
+    A data model for TSO 1D spectra with multiple integrations.
+
+    Attributes
+    ----------
+    spec_table : numpy table
+        Extracted spectral data table.
+        A table with the standard spectral columns plus two extra
+        columns for TSO data: segment, integration. Column data
+        is 2D for this model, with each row containing the spectrum
+        for a single integration.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/tso_spec.schema"
