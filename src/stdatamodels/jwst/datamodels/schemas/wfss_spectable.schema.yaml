@@ -49,12 +49,6 @@ datatype:
   datatype: int32
 - name: SOURCE_ID
   datatype: int32
-- name: SOURCE_NAME
-  datatype: [ascii, 20]
-- name: SOURCE_ALIAS
-  datatype: [ascii, 20]
-- name: STELLARITY
-  datatype: float64
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
 - name: SOURCE_XPOS
@@ -64,10 +58,6 @@ datatype:
 - name: SOURCE_RA
   datatype: float64
 - name: SOURCE_DEC
-  datatype: float64
-- name: EXTRACTION_X
-  datatype: float64
-- name: EXTRACTION_Y
   datatype: float64
 - name: EXTRACTION_XSTART
   datatype: float64
@@ -89,15 +79,3 @@ datatype:
   datatype: [ascii, 20]
 - name: TIME_UNIT
   datatype: [ascii, 20]
-- name: START_TIME_MJD
-  datatype: float64
-- name: MID_TIME_MJD
-  datatype: float64
-- name: END_TIME_MJD
-  datatype: float64
-- name: START_TBD
-  datatype: float64
-- name: MID_TBD
-  datatype: float64
-- name: END_TBD
-  datatype: float64
