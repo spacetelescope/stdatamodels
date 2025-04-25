@@ -2,7 +2,7 @@ from .model_base import JwstDataModel
 from .combinedspec import CombinedSpecModel
 
 
-__all__ = ["MultiCombinedSpecModel"]
+__all__ = ["MultiCombinedSpecModel", "WFSSMultiCombinedSpecModel"]
 
 
 class MultiCombinedSpecModel(JwstDataModel):
@@ -42,3 +42,29 @@ class MultiCombinedSpecModel(JwstDataModel):
             return
 
         super(MultiCombinedSpecModel, self).__init__(init=init, **kwargs)
+
+
+class WFSSMultiCombinedSpecModel(JwstDataModel):
+    """
+    A data model for NIRSpec and NIRISS WFSS exposure-averaged 1D spectra.
+
+    This model differs from the other MultiCombinedSpecModel classes in that
+    it is designed to hold the all spectra in a WFSS observation in a single
+    "flat" table format. Therefore, it does not have the `spec` attribute
+    that is present in the other MultiCombinedSpecModel classes. Instead, it has
+    a `spec_table` attribute that contains the spectral data and metadata
+    for all sources in the observation.
+
+    Attributes
+    ----------
+    spec_table : numpy table
+        Table containing the extracted spectral data for all sources in a WFSS exposure.
+        The table still has the standard spectral columns, but also has additional
+        metadata columns that are used to identify the source
+        and the spectral extraction region.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multicombinedspec.schema"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "spec_table"

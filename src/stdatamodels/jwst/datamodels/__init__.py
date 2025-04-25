@@ -36,7 +36,7 @@ from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
 from .mrsxartcorr import MirMrsXArtCorrModel
-from .multicombinedspec import MultiCombinedSpecModel
+from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
 from .multiexposurespec import WFSSMultiExposureSpecModel
 from .multislit import MultiSlitModel
@@ -252,6 +252,7 @@ __all__ = [
     "WaveMapModel",
     "WaveMapSingleModel",
     "WfssBkgModel",
+    "WFSSMultiCombinedSpecModel",
     "WFSSMultiExposureSpecModel",
     "WFSSMultiSpecModel",
 ]
