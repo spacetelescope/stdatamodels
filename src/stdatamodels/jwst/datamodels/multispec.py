@@ -126,12 +126,8 @@ class WFSSMultiSpecModel(JwstDataModel):
     spec_table : numpy table
         Table containing the extracted spectral data for all sources in a WFSS exposure.
         The table still has the standard spectral columns, but also has additional
-        columns for the source ID and source name for ease of indexing.
-    spec_meta : numpy table
-        Metadata table for the spectra.
-        A table with spectral metadata columns corresponding to the spectra in the
-        spec_table. The metadata are similar to, and typically copied from,
-        the metadata in SpecModel.
+        metadata columns that are used to identify the source
+        and the spectral extraction region.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multispec.schema"
