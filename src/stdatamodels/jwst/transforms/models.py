@@ -15,7 +15,6 @@ from astropy.modeling.core import Model
 from astropy.modeling.parameters import Parameter, InputParameterError
 from astropy.modeling.models import Rotation2D, Mapping, Tabular1D, Const1D
 from astropy.modeling.models import math as astmath
-from astropy.utils import isiterable
 from ...properties import ListNode
 
 
@@ -373,7 +372,7 @@ class Gwa2Slit(Model):
     n_outputs = 4
 
     def __init__(self, slits, models):
-        if isiterable(slits[0]):
+        if np.iterable(slits[0]):
             self._slits = [tuple(s) for s in slits]
             self.slit_ids = [s[0] for s in self._slits]
         else:
@@ -399,7 +398,7 @@ class Gwa2Slit(Model):
         list
             List of `~stdatamodels.jwst.transforms.models.Slit` objects.
         """
-        if isiterable(self._slits[0]):
+        if np.iterable(self._slits[0]):
             return [Slit(*row) for row in self._slits]
         else:
             return self.slit_ids
@@ -475,7 +474,7 @@ class Slit2Msa(Model):
         """ Name of the slit, x and y coordinates within the virtual slit."""
         self.outputs = ("x_msa", "y_msa")
         """ x and y coordinates in the MSA frame."""
-        if isiterable(slits[0]):
+        if np.iterable(slits[0]):
             self._slits = [tuple(s) for s in slits]
             self.slit_ids = [s[0] for s in self._slits]
         else:
@@ -493,7 +492,7 @@ class Slit2Msa(Model):
         list
             List of `~stdatamodels.jwst.transforms.models.Slit` objects.
         """
-        if isiterable(self._slits[0]):
+        if np.iterable(self._slits[0]):
             return [Slit(*row) for row in self._slits]
         else:
             return self.slit_ids
