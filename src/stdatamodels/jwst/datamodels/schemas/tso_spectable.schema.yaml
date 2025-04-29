@@ -41,7 +41,9 @@ datatype:
   datatype: float64
 - name: NPIXELS
   datatype: float64
-- name: INTEGRATION
-  datatype: int32
+- name: NELEMENTS
+  datatype: uint32
 - name: SEGMENT
+  datatype: int32
+- name: INTEGRATION
   datatype: int32

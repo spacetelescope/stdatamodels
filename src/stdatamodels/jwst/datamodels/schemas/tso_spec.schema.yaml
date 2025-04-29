@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/tso_spec.schema"
 title: Spectrum data model with multiple integrations for TSO
 allOf:
 - $ref: core.schema
+- $ref: specmeta.schema
 - type: object
   properties:
     spec_table:
