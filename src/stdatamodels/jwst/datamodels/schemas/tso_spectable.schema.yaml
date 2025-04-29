@@ -45,5 +45,17 @@ datatype:
   datatype: uint32
 - name: SEGMENT
   datatype: int32
-- name: INTEGRATION
+- name: INT_NUM
   datatype: int32
+- name: START_TIME_MJD
+  datatype: float64
+- name: MID_TIME_MJD
+  datatype: float64
+- name: END_TIME_MJD
+  datatype: float64
+- name: START_TDB
+  datatype: float64
+- name: MID_TDB
+  datatype: float64
+- name: END_TDB
+  datatype: float64
