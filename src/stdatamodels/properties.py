@@ -243,7 +243,11 @@ def _make_default_array(attr, schema, ctx):
     if default is not None:
         if isinstance(default, list):
             # support multi-valued defaults for when array is recarray
-            default = np.array(tuple(default), dtype=dtype)
+            try:
+                default = np.array(tuple(default), dtype=dtype)
+            except ValueError:
+                msg = f"Invalid default value {default} for recarray dtype {dtype}"
+                raise ValueError(msg) from None
         array[...] = default
     return array
 
