@@ -8,7 +8,6 @@ authors = [
 classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Astronomy",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
@@ -18,6 +17,7 @@ dependencies = [
     "numpy>=1.25",
     "astropy>=6.1",
 ]
+license-files = ["LICENSE"]
 dynamic = [
     "version",
 ]
@@ -25,10 +25,6 @@ dynamic = [
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
-
-[project.license]
-file = "LICENSE"
-content-type = "text/plain"
 
 [project.urls]
 Homepage = "https://github.com/spacetelescope/stdatamodels"
