@@ -241,6 +241,9 @@ def _make_default_array(attr, schema, ctx):
 
     array = np.empty(shape, dtype=dtype)
     if default is not None:
+        if isinstance(default, list):
+            # support multi-valued defaults for when array is recarray
+            default = np.array(tuple(default), dtype=dtype)
         array[...] = default
     return array
 

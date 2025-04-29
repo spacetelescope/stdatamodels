@@ -167,6 +167,23 @@ def test_default_value_anyof_schema():
         assert dm.meta.foo is None
 
 
+def test_multivalued_default_table_schema():
+    """Test setting list-like default values in a table schema"""
+    with TableModel((10,)) as dm:
+        defaults = dm.schema["properties"]["table"]["default"]
+        columns = [col["name"] for col in dm.schema["properties"]["table"]["datatype"]]
+        for default, name in zip(defaults, columns):
+            print(dm.table[name])
+            if default == "NaN":
+                default = np.nan
+            elif isinstance(default, str):
+                # allclose has trouble with string comparisons
+                for elem in dm.table[name]:
+                    assert elem.decode("utf-8") == default
+                continue
+            assert np.allclose(dm.table[name], default, equal_nan=True)
+
+
 def test_secondary_shapes():
     """
     Confirm that a non-primary array takes on the shape
