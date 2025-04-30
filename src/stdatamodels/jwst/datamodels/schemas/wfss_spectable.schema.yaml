@@ -32,6 +32,8 @@ default: [
   NaN, # SOURCE_YPOS
   NaN, # SOURCE_RA
   NaN, # SOURCE_DEC
+  NaN, # SLIT_XSTART
+  NaN, # SLIT_YSTART
   NaN, # EXTRACTION_XSTART
   NaN, # EXTRACTION_YSTART
   NaN, # EXTRACTION_XSTOP
@@ -97,6 +99,10 @@ datatype:
 - name: SOURCE_RA
   datatype: float64
 - name: SOURCE_DEC
+  datatype: float64
+- name: SLIT_XSTART
+  datatype: float64
+- name: SLIT_YSTART
   datatype: float64
 - name: EXTRACTION_XSTART
   datatype: float64
