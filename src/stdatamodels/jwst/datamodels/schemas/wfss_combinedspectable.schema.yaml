@@ -4,6 +4,20 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/wfss_combinedspectable.schema"
 title: Exposure-combined spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
+default: [
+  NaN, # WAVELENGTH
+  NaN, # FLUX
+  NaN, # ERROR
+  NaN, # SURF_BRIGHT
+  NaN, # SB_ERROR
+  0,   # DQ
+  NaN, # WEIGHT
+  NaN, # N_INPUT
+  0,   # NELEMENTS
+  -1,  # SOURCE_ID
+  "",  # SOURCE_TYPE
+  -1,  # SPECTRAL_ORDER
+]
 datatype:
 - name: WAVELENGTH
   datatype: float64
