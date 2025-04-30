@@ -4,8 +4,47 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spectable.schema"
 title: Extracted spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
+default: [
+  NaN, # WAVELENGTH
+  NaN, # FLUX
+  NaN, # FLUX_ERROR
+  NaN, # FLUX_VAR_POISSON
+  NaN, # FLUX_VAR_RNOISE
+  NaN, # FLUX_VAR_FLAT
+  NaN, # SURF_BRIGHT
+  NaN, # SB_ERROR
+  NaN, # SB_VAR_POISSON
+  NaN, # SB_VAR_RNOISE
+  NaN, # SB_VAR_FLAT
+  0,   # DQ
+  NaN, # BACKGROUND
+  NaN, # BKGD_ERROR
+  NaN, # BKGD_VAR_POISSON
+  NaN, # BKGD_VAR_RNOISE
+  NaN, # BKGD_VAR_FLAT
+  NaN, # NPIXELS
+  0,   # NELEMENTS
+  "",  # NAME
+  -1,   # SLITLET_ID
+  -1,   # SOURCE_ID
+  "",  # SOURCE_TYPE
+  NaN, # SOURCE_XPOS
+  NaN, # SOURCE_YPOS
+  NaN, # SOURCE_RA
+  NaN, # SOURCE_DEC
+  NaN, # EXTRACTION_XSTART
+  NaN, # EXTRACTION_YSTART
+  NaN, # EXTRACTION_XSTOP
+  NaN, # EXTRACTION_YSTOP
+  NaN, # SLIT_RA
+  NaN, # SLIT_DEC
+  -1,   # SPECTRAL_ORDER
+  -1,   # DISPERSION_DIRECTION
+  "",  # TIME_SYS
+  "",  # TIME_UNIT
+]
 datatype:
-- name: WAVELENGTH
+- name: WAVELENGTH  
   datatype: float64
 - name: FLUX
   datatype: float64
