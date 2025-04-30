@@ -16,3 +16,17 @@ allOf:
             properties:
               spec_table:
                 $ref: wfss_spectable.schema
+          - type: object
+            properties:
+              filename:
+                title: Filename
+                type: string
+                fits_keyword: FILENAME
+                fits_hdu: EXTRACT1D
+                default: ""
+              exposure_number:
+                title: Exposure number
+                type: integer
+                fits_keyword: EXPOSURE
+                fits_hdu: EXTRACT1D
+                default: -1
