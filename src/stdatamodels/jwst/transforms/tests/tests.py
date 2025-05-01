@@ -4,6 +4,7 @@ Test jwst.transforms
 """
 
 import pytest
+from astropy.modeling.models import Identity
 from numpy.testing import assert_allclose
 
 from stdatamodels.jwst.transforms import models
@@ -63,3 +64,110 @@ def test_refraction_index(wavelength, n):
         wavelength, temp_sys, tref, pref, pressure_sys, kcoef, lcoef, tcoef
     )
     assert_allclose(n_pipeline, n)
+
+
+def test_slit_to_msa_from_ids():
+    slits = list(range(5))
+    transforms = [Identity(2)] * len(slits)
+    slit2msa = models.Slit2Msa(slits, transforms)
+    assert slit2msa.slits == slits
+    assert slit2msa.slit_ids == slits
+
+    # Inverse is another defined model, with opposite input/output
+    assert isinstance(slit2msa.inverse, models.Msa2Slit)
+    assert slit2msa.inputs == slit2msa.inverse.outputs
+    assert slit2msa.outputs == slit2msa.inverse.inputs
+
+    for i in range(len(slits)):
+        # slit name is switched from first input to last output
+        assert slit2msa(i, 200, 200) == (200, 200, i)
+
+        # and the opposite on inverse
+        assert slit2msa.inverse(200, 200, i) == (i, 200, 200)
+
+
+def test_slit_to_msa_from_slits():
+    slits = []
+    for i in range(3):
+        slits.append(models.Slit(i))
+    transforms = [Identity(2)] * 3
+
+    slit2msa = models.Slit2Msa(slits, transforms)
+    assert slit2msa.slits == slits
+    assert slit2msa.slit_ids == list(range(len(slits)))
+
+    # Inverse is another defined model, with opposite input/output
+    assert isinstance(slit2msa.inverse, models.Msa2Slit)
+    assert slit2msa.inputs == slit2msa.inverse.outputs
+    assert slit2msa.outputs == slit2msa.inverse.inputs
+
+    for i in range(len(slits)):
+        # slit name is switched from first input to last output
+        assert slit2msa(i, 200, 200) == (200, 200, i)
+
+        # and the opposite on inverse
+        assert slit2msa.inverse(200, 200, i) == (i, 200, 200)
+
+
+def test_gwa_to_slit_from_ids():
+    slits = list(range(5))
+    transforms = [Identity(3)] * len(slits)
+    gwa2slit = models.Gwa2Slit(slits, transforms)
+    assert gwa2slit.slits == slits
+    assert gwa2slit.slit_ids == slits
+
+    # Inverse is another defined model, with opposite input/output
+    assert isinstance(gwa2slit.inverse, models.Slit2Gwa)
+    assert gwa2slit.inputs == gwa2slit.inverse.outputs
+    assert gwa2slit.outputs == gwa2slit.inverse.inputs
+
+    for i in range(len(slits)):
+        # slit name is passed through as first input and output
+        assert gwa2slit(i, 200, 200, 200) == (i, 200, 200, 200)
+
+        # and the same on inverse
+        assert gwa2slit.inverse(i, 200, 200, 200) == (i, 200, 200, 200)
+
+
+def test_gwa_to_slit_from_slits():
+    slits = []
+    for i in range(3):
+        slits.append(models.Slit(i))
+    transforms = [Identity(3)] * 3
+
+    gwa2slit = models.Gwa2Slit(slits, transforms)
+    assert gwa2slit.slits == slits
+    assert gwa2slit.slit_ids == list(range(len(slits)))
+
+    # Inverse is another defined model, with opposite input/output
+    assert isinstance(gwa2slit.inverse, models.Slit2Gwa)
+    assert gwa2slit.inputs == gwa2slit.inverse.outputs
+    assert gwa2slit.outputs == gwa2slit.inverse.inputs
+
+    for i in range(len(slits)):
+        # slit name is passed through as first input and output
+        assert gwa2slit(i, 200, 200, 200) == (i, 200, 200, 200)
+
+        # and the same on inverse
+        assert gwa2slit.inverse(i, 200, 200, 200) == (i, 200, 200, 200)
+
+
+def test_slit_to_msa_legacy():
+    slits = []
+    for i in range(3):
+        slits.append(models.Slit(i))
+    transforms = [Identity(2)] * 3
+
+    with pytest.warns(DeprecationWarning, match='WCS pipeline may be incomplete'):
+        slit2msa = models.Slit2MsaLegacy(slits, transforms)
+
+    assert slit2msa.slits == slits
+    assert slit2msa.slit_ids == list(range(len(slits)))
+
+    # Legacy model has 2 outputs, no inverse
+    assert not slit2msa.has_inverse()
+    assert slit2msa.n_outputs == 2
+
+    for i in range(len(slits)):
+        # slit name is not propagated to output
+        assert slit2msa(i, 200, 200) == (200, 200)
