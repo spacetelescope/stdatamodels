@@ -40,6 +40,11 @@ _CONVERTERS = [
 # that occur earlier in the list.
 TRANSFORM_EXTENSIONS = [
     ManifestExtension.from_uri(
+        "asdf://stsci.edu/jwst_pipeline/manifests/jwst_transforms-1.2.0",
+        legacy_class_names=["jwst.transforms.jwextension.JWSTExtension"],
+        converters=_CONVERTERS,
+    ),
+    ManifestExtension.from_uri(
         "asdf://stsci.edu/jwst_pipeline/manifests/jwst_transforms-1.1.0",
         legacy_class_names=["jwst.transforms.jwextension.JWSTExtension"],
         converters=_CONVERTERS,
