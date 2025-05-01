@@ -6,7 +6,7 @@ import numpy as np
 
 from stdatamodels import DataModel
 
-from models import BasicModel, AnyOfModel, TableModel, TransformModel, FitsModel
+from models import BasicModel, AnyOfModel, TableModel, TableModelBad, TransformModel, FitsModel
 from stdatamodels.exceptions import ValidationWarning
 
 
@@ -165,6 +165,28 @@ def test_default_value_anyof_schema():
     """Make sure default values are set properly when anyOf in schema"""
     with AnyOfModel() as dm:
         assert dm.meta.foo is None
+
+
+def test_multivalued_default_table_schema():
+    """Test setting list-like default values in a table schema"""
+    with TableModel((10,)) as dm:
+        defaults = dm.schema["properties"]["table"]["default"]
+        columns = [col["name"] for col in dm.schema["properties"]["table"]["datatype"]]
+        for default, name in zip(defaults, columns):
+            if default == "NaN":
+                default = np.nan
+            elif isinstance(default, str):
+                # allclose has trouble with string comparisons
+                for elem in dm.table[name]:
+                    assert elem.decode("utf-8") == default
+                continue
+            assert np.allclose(dm.table[name], default, equal_nan=True)
+
+
+def test_multivalued_default_table_schema_bad():
+    """Test error raise if the default does not match the array type"""
+    with pytest.raises(ValueError):
+        TableModelBad((10,))
 
 
 def test_secondary_shapes():

@@ -56,3 +56,15 @@ class TableModel(DataModel):
     """Model that includes a recarray-style table."""
 
     schema_url = "http://example.com/schemas/table_model"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "table"
+
+
+class TableModelBad(DataModel):
+    """Model that includes a recarray-style table with bad defaults."""
+
+    schema_url = "http://example.com/schemas/table_model_bad_defaults"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "table"

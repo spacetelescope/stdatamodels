@@ -1,0 +1,1 @@
+Add support for multi-valued defaults in table schemas
