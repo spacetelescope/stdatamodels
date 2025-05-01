@@ -1,2 +1,2 @@
 Update NIRSpec transforms to support slit name propagation.
-Add inverse transforms for Slit2Msa and Gwa2Slit and add Slit2MsaLegacy to support reading existing data products.
+Add inverse transforms for Slit2Msa and Gwa2Slit; add Slit2MsaLegacy to support reading existing data products.
