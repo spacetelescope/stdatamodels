@@ -1,6 +1,6 @@
-id: asdf://stsci.edu/jwst_pipeline/manifests/jwst_transforms-1.1.0
-extension_uri: asdf://stsci.edu/jwst_pipeline/extensions/jwst_transforms-1.1.0
-title: JWST Transform extension 1.1.0
+id: asdf://stsci.edu/jwst_pipeline/manifests/jwst_transforms-1.2.0
+extension_uri: asdf://stsci.edu/jwst_pipeline/extensions/jwst_transforms-1.2.0
+title: JWST Transform extension 1.2.0
 description: |-
   A set of tags for serializing data transforms for the JWST pipeline.
 asdf_standard_requirement:
@@ -32,12 +32,26 @@ tags:
     It maps slit to the transform from the Grating Wheel Assembly (GWA)
     to the coordinate frame of the slit, where (0, 0) is the center of
     the slit.
+- tag_uri: "tag:stsci.edu:jwst_pipeline/slit_to_gwa-1.0.0"
+  schema_uri: http://stsci.edu/schemas/jwst_pipeline/slit_to_gwa-1.0.0
+  title: NIRSPEC set of models from slit_frame to GWA.
+  description: |-
+    This model is used by the NIRSPEC WCS pipeline.
+    It stores transforms mapping locations in the virtual slit
+    to locations at the Grating Wheel Assembly (GWA).
+    The center of the slit is at (0, 0).
 - tag_uri: "tag:stsci.edu:jwst_pipeline/slit_to_msa-1.1.0"
   schema_uri: http://stsci.edu/schemas/jwst_pipeline/slit_to_msa-1.1.0
   title: NIRSPEC set of models from slit_frame to the MSA frame.
   description: |-
     This model is used by the NIRSPEC WCS pipeline.
     It maps a slit to its position in the MSA plane.
+- tag_uri: "tag:stsci.edu:jwst_pipeline/msa_to_slit-1.0.0"
+  schema_uri: http://stsci.edu/schemas/jwst_pipeline/msa_to_slit-1.0.0
+  title: NIRSPEC set of models from the MSA to the slit frame.
+  description: |-
+    This model is used by the NIRSPEC WCS pipeline.
+    It stores the transforms from the MSA plane to the slit_frame frame.
 - tag_uri: "tag:stsci.edu:jwst_pipeline/logical-1.1.0"
   schema_uri: http://stsci.edu/schemas/jwst_pipeline/logical-1.1.0
   title: A model performing logical operations on arrays.
