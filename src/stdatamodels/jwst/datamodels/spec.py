@@ -18,6 +18,9 @@ class SpecModel(JwstDataModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/spec.schema"
 
+    def get_primary_array_name(self):  # noqa: D102
+        return "spec_table"
+
 
 class MRSSpecModel(JwstDataModel):
     """
@@ -33,6 +36,9 @@ class MRSSpecModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mrs_spec.schema"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "spec_table"
 
 
 class TSOSpecModel(JwstDataModel):
@@ -50,3 +56,6 @@ class TSOSpecModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/tso_spec.schema"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "spec_table"
