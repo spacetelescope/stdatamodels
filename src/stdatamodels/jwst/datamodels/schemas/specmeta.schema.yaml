@@ -137,6 +137,11 @@ properties:
     type: integer
     fits_keyword: DISPAXIS
     fits_hdu: EXTRACT1D
+  int_num:
+    title: Integration number
+    type: integer
+    fits_keyword: INT_NUM
+    fits_hdu: EXTRACT1D
   time_sys:
     title: "principal time system for time-related keywords"
     type: string
