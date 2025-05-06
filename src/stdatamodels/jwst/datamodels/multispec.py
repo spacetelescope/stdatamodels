@@ -92,9 +92,9 @@ class TSOMultiSpecModel(JwstDataModel):
     one-dimensional for each extension.  For this model, column data is
     two-dimensional.
 
-    In addition, the spectra for this model have additional columns
+    In addition, the spectra for this model have extra columns
     to contain the segment number and integration identifying the spectrum
-    in each row.
+    in each row, as well as the time tags for the integration.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/tso_multispec.schema"
