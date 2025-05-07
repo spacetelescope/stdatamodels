@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/wfss_combinedspectable.schema"
 title: Exposure-combined spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
 default: [
+  -1,  # SOURCE_ID
   NaN, # WAVELENGTH
   NaN, # FLUX
   NaN, # ERROR
@@ -14,11 +15,12 @@ default: [
   NaN, # WEIGHT
   NaN, # N_INPUT
   0,   # NELEMENTS
-  -1,  # SOURCE_ID
   "",  # SOURCE_TYPE
   -1,  # SPECTRAL_ORDER
 ]
 datatype:
+- name: SOURCE_ID
+  datatype: int32
 - name: WAVELENGTH
   datatype: float64
 - name: FLUX
@@ -37,8 +39,6 @@ datatype:
   datatype: float64
 - name: NELEMENTS
   datatype: uint32
-- name: SOURCE_ID
-  datatype: int32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
 - name: SPECTRAL_ORDER
