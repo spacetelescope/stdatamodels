@@ -461,7 +461,7 @@ def _to_flat_dict(tree):
                     continue
                 current_path = path + [key]
                 recurse(val, current_path)
-        elif isinstance(subtree, list):
+        elif isinstance(subtree, (list, tuple)):
             for i, item in enumerate(subtree):
                 indexed_key = f"{path[-1]}.{i}" if path else str(i)
                 recurse(item, path[:-1] + [indexed_key])

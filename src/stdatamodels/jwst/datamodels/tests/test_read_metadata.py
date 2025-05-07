@@ -249,13 +249,21 @@ def test_error_schema_not_found(model_path):
             read_metadata(model_path, model_type="foo")
 
 
-def test_nested_list_to_flat_dict():
+@pytest.mark.parametrize("is_tuple", [True, False])
+def test_nested_list_to_flat_dict(is_tuple):
     """Test that nested lists are flattened correctly."""
     # Create a nested list
-    nested_list = [
-        {"a": 1, "b": [2, 3]},
-        {"c": 4, "d": [5, 6]},
-    ]
+    if is_tuple:
+        nested_list = (
+            {"a": 1, "b": (2, 3)},
+            {"c": 4, "d": (5, 6)},
+        )
+    else:
+        # Use a list of dictionaries instead
+        nested_list = [
+            {"a": 1, "b": [2, 3]},
+            {"c": 4, "d": [5, 6]},
+        ]
 
     # Flatten the list
     flat_dict = _to_flat_dict(nested_list)
