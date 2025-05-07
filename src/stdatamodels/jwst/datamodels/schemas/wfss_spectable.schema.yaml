@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spectable.schema"
 title: Extracted spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
 default: [
+  -1,   # SOURCE_ID
   NaN, # WAVELENGTH
   NaN, # FLUX
   NaN, # FLUX_ERROR
@@ -24,9 +25,7 @@ default: [
   NaN, # BKGD_VAR_FLAT
   NaN, # NPIXELS
   0,   # NELEMENTS
-  "",  # NAME
   -1,   # SLITLET_ID
-  -1,   # SOURCE_ID
   "",  # SOURCE_TYPE
   NaN, # SOURCE_XPOS
   NaN, # SOURCE_YPOS
@@ -46,6 +45,8 @@ default: [
   "",  # TIME_UNIT
 ]
 datatype:
+- name: SOURCE_ID
+  datatype: int32
 - name: WAVELENGTH  
   datatype: float64
 - name: FLUX
@@ -84,11 +85,7 @@ datatype:
   datatype: float64
 - name: NELEMENTS
   datatype: uint32
-- name: NAME
-  datatype: [ascii, 20]
 - name: SLITLET_ID
-  datatype: int32
-- name: SOURCE_ID
   datatype: int32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
