@@ -137,6 +137,11 @@ properties:
     type: integer
     fits_keyword: DISPAXIS
     fits_hdu: EXTRACT1D
+  detector:
+    title: Name of detector used to acquire the data
+    type: string
+    fits_keyword: DETECTOR
+    fits_hdu: EXTRACT1D
   int_num:
     title: Integration number
     type: integer
