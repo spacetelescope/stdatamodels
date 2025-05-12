@@ -16,6 +16,8 @@ default: [
   NaN, # N_INPUT
   0,   # NELEMENTS
   "",  # SOURCE_TYPE
+  NaN, # SOURCE_RA
+  NaN, # SOURCE_DEC
   -1,  # SPECTRAL_ORDER
 ]
 datatype:
@@ -41,5 +43,9 @@ datatype:
   datatype: uint32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
+- name: SOURCE_RA
+  datatype: float64
+- name: SOURCE_DEC
+  datatype: float64
 - name: SPECTRAL_ORDER
   datatype: int32

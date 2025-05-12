@@ -25,24 +25,18 @@ default: [
   NaN, # BKGD_VAR_FLAT
   NaN, # NPIXELS
   0,   # NELEMENTS
-  -1,   # SLITLET_ID
   "",  # SOURCE_TYPE
   NaN, # SOURCE_XPOS
   NaN, # SOURCE_YPOS
   NaN, # SOURCE_RA
   NaN, # SOURCE_DEC
-  NaN, # SLIT_XSTART
-  NaN, # SLIT_YSTART
-  NaN, # EXTRACTION_XSTART
-  NaN, # EXTRACTION_YSTART
-  NaN, # EXTRACTION_XSTOP
-  NaN, # EXTRACTION_YSTOP
-  NaN, # SLIT_RA
-  NaN, # SLIT_DEC
-  -1,   # SPECTRAL_ORDER
-  -1,   # DISPERSION_DIRECTION
-  "",  # TIME_SYS
-  "",  # TIME_UNIT
+  NaN, # EXTRACT2D_XSTART
+  NaN, # EXTRACT2D_YSTART
+  NaN, # EXTRACT1D_XSTART
+  NaN, # EXTRACT1D_YSTART
+  NaN, # EXTRACT1D_XSTOP
+  NaN, # EXTRACT1D_YSTOP
+  -99,   # SPECTRAL_ORDER
 ]
 datatype:
 - name: SOURCE_ID
@@ -85,8 +79,6 @@ datatype:
   datatype: float64
 - name: NELEMENTS
   datatype: uint32
-- name: SLITLET_ID
-  datatype: int32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
 - name: SOURCE_XPOS
@@ -97,27 +89,17 @@ datatype:
   datatype: float64
 - name: SOURCE_DEC
   datatype: float64
-- name: SLIT_XSTART
+- name: EXTRACT2D_XSTART
   datatype: float64
-- name: SLIT_YSTART
+- name: EXTRACT2D_YSTART
   datatype: float64
-- name: EXTRACTION_XSTART
+- name: EXTRACT1D_XSTART
   datatype: float64
-- name: EXTRACTION_YSTART
+- name: EXTRACT1D_YSTART
   datatype: float64
-- name: EXTRACTION_XSTOP
+- name: EXTRACT1D_XSTOP
   datatype: float64
-- name: EXTRACTION_YSTOP
-  datatype: float64
-- name: SLIT_RA
-  datatype: float64
-- name: SLIT_DEC  
+- name: EXTRACT1D_YSTOP
   datatype: float64
 - name: SPECTRAL_ORDER
   datatype: int32
-- name: DISPERSION_DIRECTION
-  datatype: int32
-- name: TIME_SYS
-  datatype: [ascii, 20]
-- name: TIME_UNIT
-  datatype: [ascii, 20]
