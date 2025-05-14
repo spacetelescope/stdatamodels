@@ -46,10 +46,10 @@ class MultiCombinedSpecModel(JwstDataModel):
 
 class WFSSMultiCombinedSpecModel(JwstDataModel):
     """
-    A data model for NIRSpec and NIRISS WFSS exposure-averaged 1D spectra.
+    A data model for NIRCam andNIRISS WFSS exposure-averaged 1D spectra.
 
     This model differs from the other MultiCombinedSpecModel classes in that
-    it is designed to hold the all spectra in a WFSS observation in a single
+    it is designed to hold all the spectra in a WFSS observation in a single
     "flat" table format. Therefore, it does not have the `spec` attribute
     that is present in the other MultiCombinedSpecModel classes. Instead, it has
     a `spec_table` attribute that contains the spectral data and metadata

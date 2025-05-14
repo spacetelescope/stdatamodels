@@ -81,7 +81,7 @@ class MRSMultiSpecModel(JwstDataModel):
 
 class WFSSMultiSpecModel(JwstDataModel):
     """
-    A data model for NIRSpec and NIRISS WFSS 1D spectra.
+    A data model for NIRCam andNIRISS WFSS 1D spectra.
 
     This model differs from the other MultiSpecModel classes in that
     it is designed to hold all the spectra from a single WFSS exposure
