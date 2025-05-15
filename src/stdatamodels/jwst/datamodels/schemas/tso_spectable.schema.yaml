@@ -1,10 +1,11 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
-id: "http://stsci.edu/schemas/jwst_datamodel/spectable.schema"
-title: Extracted spectral data table
+id: "http://stsci.edu/schemas/jwst_datamodel/tso_spectable.schema"
+title: Extracted spectral data table with multiple integrations for TSO
 fits_hdu: EXTRACT1D
 default: [
+  0,    # INT_NUM
   NaN,  # WAVELENGTH
   NaN,  # FLUX
   NaN,  # FLUX_ERROR
@@ -23,8 +24,18 @@ default: [
   NaN,  # BKGD_VAR_RNOISE
   NaN,  # BKGD_VAR_FLAT
   0,    # NPIXELS
+  0,    # NELEMENTS
+  0,    # SEGMENT
+  NaN,  # MJD-BEG
+  NaN,  # MJD-AVG
+  NaN,  # MJD-END
+  NaN,  # TDB-BEG
+  NaN,  # TDB-MID
+  NaN   # TDB-END
 ]
 datatype:
+- name: INT_NUM
+  datatype: int32
 - name: WAVELENGTH
   datatype: float64
 - name: FLUX
@@ -60,4 +71,20 @@ datatype:
 - name: BKGD_VAR_FLAT
   datatype: float64
 - name: NPIXELS
+  datatype: float64
+- name: NELEMENTS
+  datatype: uint32
+- name: SEGMENT
+  datatype: int32
+- name: MJD-BEG
+  datatype: float64
+- name: MJD-AVG
+  datatype: float64
+- name: MJD-END
+  datatype: float64
+- name: TDB-BEG
+  datatype: float64
+- name: TDB-MID
+  datatype: float64
+- name: TDB-END
   datatype: float64
