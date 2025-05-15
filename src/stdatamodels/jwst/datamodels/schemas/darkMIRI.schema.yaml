@@ -27,12 +27,6 @@ allOf:
       default: 0
       ndim: 4
       datatype: uint32
-    err:
-      title: Error array
-      fits_hdu: ERR
-      default: 0.0
-      ndim: 4
-      datatype: float32
     average_dark_current:
       title: Average dark current
       fits_hdu: AVDRKCUR
