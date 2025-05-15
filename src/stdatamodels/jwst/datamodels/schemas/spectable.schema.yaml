@@ -4,7 +4,26 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/spectable.schema"
 title: Extracted spectral data table
 fits_hdu: EXTRACT1D
-default: [NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, 0, NaN, NaN, NaN, NaN, NaN, 0]
+default: [
+  NaN,  # WAVELENGTH
+  NaN,  # FLUX
+  NaN,  # FLUX_ERROR
+  NaN,  # FLUX_VAR_POISSON
+  NaN,  # FLUX_VAR_RNOISE
+  NaN,  # FLUX_VAR_FLAT
+  NaN,  # SURF_BRIGHT
+  NaN,  # SB_ERROR
+  NaN,  # SB_VAR_POISSON
+  NaN,  # SB_VAR_RNOISE
+  NaN,  # SB_VAR_FLAT
+  0,    # DQ
+  NaN,  # BACKGROUND
+  NaN,  # BKGD_ERROR
+  NaN,  # BKGD_VAR_POISSON
+  NaN,  # BKGD_VAR_RNOISE
+  NaN,  # BKGD_VAR_FLAT
+  0,    # NPIXELS
+]
 datatype:
 - name: WAVELENGTH
   datatype: float64
