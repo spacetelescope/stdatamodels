@@ -1,0 +1,1 @@
+Deprecate DataModel.get_fits_wcs and DataModel.set_fits_wcs

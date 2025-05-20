@@ -1145,6 +1145,10 @@ class DataModel(properties.ObjectNode):
         Note that modifying the returned WCS object will not modify
         the data in this model.  To update the model, use `set_fits_wcs`.
 
+        This method is deprecated and will be removed in a future version.
+        To get the SIP approximation, call ``to_fits_sip()`` on the
+        model.meta.wcs attribute.
+
         Parameters
         ----------
         hdu_name : str, optional
@@ -1167,6 +1171,12 @@ class DataModel(properties.ObjectNode):
             The type will depend on what libraries are installed on
             this system.
         """
+        warnings.warn(
+            "get_fits_wcs is deprecated. To get the SIP approximation, "
+            "call ``to_fits_sip()`` on the model.meta.wcs attribute.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         hdulist = fits_support.to_fits(self._instance, self._schema)
         hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver - 1)
         header = hdu.header
@@ -1179,6 +1189,9 @@ class DataModel(properties.ObjectNode):
         Note that the "key" of the WCS is stored in the WCS object
         itself, so it can not be set as a parameter to this method.
 
+        This method is deprecated and will be removed in a future version.
+        The WCS should only be modified by setting model.meta.wcs
+
         Parameters
         ----------
         wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
@@ -1188,6 +1201,11 @@ class DataModel(properties.ObjectNode):
             named HDU's, not numerical order HDUs.  To set the primary
             HDU, pass ``'PRIMARY'``.
         """
+        warnings.warn(
+            "set_fits_wcs is deprecated and will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         header = wcs.to_header()
         if hdu_name == "PRIMARY":
             hdu = fits.PrimaryHDU(header=header)
