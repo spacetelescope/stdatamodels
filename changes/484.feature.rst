@@ -1,0 +1,1 @@
+Allow extra columns in the NrcImgPhotomModel phot_table, to support the ability to specify different values by subarray.
