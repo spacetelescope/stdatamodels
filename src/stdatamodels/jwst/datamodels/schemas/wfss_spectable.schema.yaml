@@ -32,6 +32,8 @@ default: [
   NaN, # SOURCE_DEC
   NaN, # EXTRACT2D_XSTART
   NaN, # EXTRACT2D_YSTART
+  NaN, # EXTRACT2D_XSTOP
+  NaN, # EXTRACT2D_YSTOP
   NaN, # EXTRACT1D_XSTART
   NaN, # EXTRACT1D_YSTART
   NaN, # EXTRACT1D_XSTOP
@@ -92,6 +94,10 @@ datatype:
 - name: EXTRACT2D_XSTART
   datatype: float64
 - name: EXTRACT2D_YSTART
+  datatype: float64
+- name: EXTRACT2D_XSTOP
+  datatype: float64
+- name: EXTRACT2D_YSTOP
   datatype: float64
 - name: EXTRACT1D_XSTART
   datatype: float64
