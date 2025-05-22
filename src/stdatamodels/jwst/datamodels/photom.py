@@ -148,11 +148,14 @@ class NrcImgPhotomModel(ReferenceFileModel):
         A table-like object containing row selection criteria made up
         of instrument mode parameters and photometric conversion
         factors associated with those modes.
+        The subarray column may appear in newer versions of the photom
+        files: it is allowed, but not specified by the schema.
 
         - filter: str[12]
         - pupil: str[12]
         - photmjsr: float32
         - uncertainty: float32
+        - subarray: str[12], optional
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrcimg_photom.schema"
