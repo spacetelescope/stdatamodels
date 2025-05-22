@@ -13,6 +13,7 @@ allOf:
     phot_table:
       title: Photometric flux conversion factors table
       fits_hdu: PHOTOM
+      allow_extra_columns: true
       datatype:
       - name: filter
         datatype: [ascii, 12]
