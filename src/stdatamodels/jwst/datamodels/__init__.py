@@ -126,6 +126,8 @@ from .wcs_ref_models import (
     OTEModel,
     RegionsModel,
     SpecwcsModel,
+    MiriLRSSpecwcsModel,
+    MiriWFSSSpecwcsModel,
     WaveCorrModel,
     WavelengthrangeModel,
 )
@@ -193,6 +195,7 @@ __all__ = [
     "LinearityModel",
     "MaskModel",
     "MiriLRSSpecwcsModel",
+    "MiriWFSSSpecwcsModel",
     "MSAModel",
     "MultiCombinedSpecModel",
     "MultiExposureModel",

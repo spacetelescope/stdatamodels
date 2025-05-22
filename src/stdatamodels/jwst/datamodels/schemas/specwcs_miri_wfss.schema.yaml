@@ -1,0 +1,66 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_wfss.schema"
+title: SPECWCS_MIRI_WFSS reference file model
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_pupil.schema
+- $ref: keyword_exptype.schema
+- type: object
+  properties:
+    displ:
+        description: |
+          MIRI WFSS wavelength dispersion model, instance of astropy.modeling.Model
+        type: array
+        items:
+          type: object
+    dispx:
+        description: |
+          MIRI WFSS row dispersion model, instance of astropy.modeling.Model
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+    dispy:
+        description: |
+          MIRI WFSS column dispersion model, instance of astropy.modeling.Model
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+    invdispl:
+        description: |
+          MIRI WFSS inverse wavelength dispersion model, instance of astropy.modeling.Model
+        type: array
+        items:
+          type: object
+    orders:
+        description: |
+          MIRI WFSS orders, matched to the array locations of the dispersion models
+        type: array
+        items:
+          type: number
+    fwcpos_ref:
+      description: |
+        The reference position for the filter wheel in degrees
+        type: number
+          minItems: 1
+          maxItems: 1
+    meta:
+      type: object
+      properties:
+        input_units:
+          description: |
+            Input units for wavelength
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0
+        output_units:
+          description: |
+            Output units for wavelength
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0

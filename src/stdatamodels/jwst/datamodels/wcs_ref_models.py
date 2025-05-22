@@ -31,6 +31,7 @@ __all__ = [
     "NIRISSGrismModel",
     "WaveCorrModel",
     "MiriLRSSpecwcsModel",
+    "MiriWFSSSpecwcsModel",
 ]
 
 
@@ -448,6 +449,88 @@ class NIRISSGrismModel(ReferenceFileModel):
             assert self.meta.instrument.name == "NIRISS"
             assert self.meta.exposure.type == "NIS_WFSS"
             assert self.meta.instrument.detector == "NIS"
+            assert self.meta.reftype == self.reftype
+        except AssertionError:
+            if self._strict_validation:
+                raise
+            else:
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
+
+    def to_fits(self):
+        raise NotImplementedError("FITS format is not supported for this file.")
+
+
+class MiriWFSSSpecwcsModel(ReferenceFileModel):
+    """A model for a reference file of type "specwcs" for MIRI WFSS."""
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_wfss.schema"
+    reftype = "specwcs"
+
+    def __init__(
+        self,
+        init=None,
+        displ=None,
+        dispx=None,
+        dispy=None,
+        invdispl=None,
+        orders=None,
+        fwcpos_ref=None,
+        **kwargs,
+    ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        init : str, None, optional
+            File name for input file in ASDF format from which to initialize the model.
+        displ : `~astropy.modeling.Model`
+            MIRI WFSS wavelength dispersion model
+        dispx : `~astropy.modeling.Model`
+            MIRI WFSS row dispersion model
+        dispy : `~astropy.modeling.Model`
+            MIRI WFSS column dispersion model
+        invdispl : `~astropy.modeling.Model`
+            MIRI WFSS inverse wavelength dispersion model
+        orders : `~astropy.modeling.Model`
+            MIRI WFSS orders, matched to the array locations of the
+            dispersion models
+        fwcpos_ref : float
+            The reference value for the filter wheel position
+        **kwargs
+            Additional keyword arguments to pass to ReferenceFileModel
+        """
+        super().__init__(init=init, **kwargs)
+
+        if init is None:
+            self.populate_meta()
+        if displ is not None:
+            self.displ = displ
+        if dispx is not None:
+            self.dispx = dispx
+        if dispy is not None:
+            self.dispy = dispy
+        if invdispl is not None:
+            self.invdispl = invdispl
+        if orders is not None:
+            self.orders = orders
+        if fwcpos_ref is not None:
+            self.fwcpos_ref = fwcpos_ref
+
+    def populate_meta(self):
+        self.meta.instrument.name = "MIRI"
+        self.meta.instrument.detector = "MIRIMAGE"
+        self.meta.exposure.type = "MIR_WFSS"
+        self.meta.reftype = self.reftype
+
+    def validate(self):
+        super(MiriWFSSSpecwcsModel, self).validate()
+        try:
+            assert isinstance(self.meta.input_units, (str, u.NamedUnit))
+            assert isinstance(self.meta.output_units, (str, u.NamedUnit))
+            assert self.meta.instrument.name == "MIRI"
+            assert self.meta.exposure.type == "MIR_WFSS"
+            assert self.meta.instrument.detector == "MIRIMAGE"
             assert self.meta.reftype == self.reftype
         except AssertionError:
             if self._strict_validation:
