@@ -1,0 +1,1 @@
+Remove initialization of err array from dark datamodel init methods.
