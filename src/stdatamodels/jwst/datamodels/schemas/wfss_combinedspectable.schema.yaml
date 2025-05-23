@@ -45,7 +45,9 @@ datatype:
   datatype: [ascii, 20]
 - name: SOURCE_RA
   datatype: float64
+  unit: degrees
 - name: SOURCE_DEC
   datatype: float64
+  unit: degrees
 - name: SPECTRAL_ORDER
   datatype: int32
