@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/wfss_multispec.schema"
 title: Table of WFSS-extracted spectra and their associated metadata
 allOf:
 - $ref: core.schema
+- $ref: wfss_multispecmeta.schema
 - type: object
   properties:
     spec_table:
