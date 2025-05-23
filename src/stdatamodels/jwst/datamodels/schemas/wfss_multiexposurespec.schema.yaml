@@ -12,20 +12,7 @@ allOf:
       description: An array of WFSS multispecmodels, one model per exposure.
       items:
         allOf:
-          - type: object
-            properties:
-              filename:
-                title: Filename
-                type: string
-                fits_keyword: FILENAME
-                fits_hdu: EXTRACT1D
-                default: ""
-              exposure_number:
-                title: Exposure number
-                type: string
-                fits_keyword: EXPOSURE
-                fits_hdu: EXTRACT1D
-                default: ""
+          - $ref: wfss_multispecmeta.schema
           - type: object
             properties:
               spec_table:
