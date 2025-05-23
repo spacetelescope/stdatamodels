@@ -6,6 +6,7 @@ title: Extracted spectral data table with WFSS extraction metadata
 fits_hdu: EXTRACT1D
 default: [
   -999,   # SOURCE_ID
+  0,      # NELEMENTS
   NaN, # WAVELENGTH
   NaN, # FLUX
   NaN, # FLUX_ERROR
@@ -24,7 +25,6 @@ default: [
   NaN, # BKGD_VAR_RNOISE
   NaN, # BKGD_VAR_FLAT
   NaN, # NPIXELS
-  0,   # NELEMENTS
   "",  # SOURCE_TYPE
   NaN, # SOURCE_XPOS
   NaN, # SOURCE_YPOS
@@ -43,6 +43,8 @@ default: [
 datatype:
 - name: SOURCE_ID
   datatype: int32
+- name: NELEMENTS
+  datatype: uint32
 - name: WAVELENGTH  
   datatype: float64
 - name: FLUX
@@ -79,8 +81,6 @@ datatype:
   datatype: float64
 - name: NPIXELS
   datatype: float64
-- name: NELEMENTS
-  datatype: uint32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
 - name: SOURCE_XPOS
