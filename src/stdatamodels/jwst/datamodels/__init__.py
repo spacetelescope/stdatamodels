@@ -15,9 +15,7 @@ from .barshadow import BarshadowModel
 from .combinedspec import CombinedSpecModel
 from .contrast import ContrastModel
 from .cube import CubeModel
-from .dark import DarkModel
-from .darkMIRI import DarkMIRIModel
-from .darkNIRSpec import DarkNIRSpecModel
+from .dark import DarkModel, DarkMIRIModel, DarkNirspecModel
 from .emi import EmiModel
 from .extract1d_spec import Extract1dIFUModel
 from .flat import FlatModel
@@ -146,7 +144,7 @@ __all__ = [
     "CubeModel",
     "DarkModel",
     "DarkMIRIModel",
-    "DarkNIRSpecModel",
+    "DarkNirspecModel",
     "DisperserModel",
     "DistortionModel",
     "DistortionMRSModel",
