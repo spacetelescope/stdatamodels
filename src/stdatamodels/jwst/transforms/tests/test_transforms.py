@@ -3,6 +3,7 @@
 Test jwst.transforms
 """
 
+import asdf
 import pytest
 from astropy.modeling.models import Identity
 from numpy.testing import assert_allclose
@@ -66,7 +67,7 @@ def test_refraction_index(wavelength, n):
     assert_allclose(n_pipeline, n)
 
 
-def test_slit_to_msa_from_ids():
+def test_slit_to_msa_from_ids(tmp_path):
     slits = list(range(5))
     transforms = [Identity(2)] * len(slits)
     slit2msa = models.Slit2Msa(slits, transforms)
@@ -85,8 +86,15 @@ def test_slit_to_msa_from_ids():
         # and the opposite on inverse
         assert slit2msa.inverse(200, 200, i) == (i, 200, 200)
 
+    # test roundtrip to file
+    tmp_file = tmp_path / "slit2msa.asdf"
+    asdf.AsdfFile({"model": slit2msa}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].slits == slits
+        assert af["model"].slit_ids == slits
 
-def test_slit_to_msa_from_slits():
+
+def test_slit_to_msa_from_slits(tmp_path):
     slits = []
     for i in range(3):
         slits.append(models.Slit(i))
@@ -108,8 +116,15 @@ def test_slit_to_msa_from_slits():
         # and the opposite on inverse
         assert slit2msa.inverse(200, 200, i) == (i, 200, 200)
 
+    # test roundtrip to file
+    tmp_file = tmp_path / "slit2msa.asdf"
+    asdf.AsdfFile({"model": slit2msa}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].slits == slits
+        assert af["model"].slit_ids == list(range(len(slits)))
 
-def test_gwa_to_slit_from_ids():
+
+def test_gwa_to_slit_from_ids(tmp_path):
     slits = list(range(5))
     transforms = [Identity(3)] * len(slits)
     gwa2slit = models.Gwa2Slit(slits, transforms)
@@ -128,8 +143,15 @@ def test_gwa_to_slit_from_ids():
         # and the same on inverse
         assert gwa2slit.inverse(i, 200, 200, 200) == (i, 200, 200, 200)
 
+    # test roundtrip to file
+    tmp_file = tmp_path / "gwa2slit.asdf"
+    asdf.AsdfFile({"model": gwa2slit}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].slits == slits
+        assert af["model"].slit_ids == slits
 
-def test_gwa_to_slit_from_slits():
+
+def test_gwa_to_slit_from_slits(tmp_path):
     slits = []
     for i in range(3):
         slits.append(models.Slit(i))
@@ -151,8 +173,15 @@ def test_gwa_to_slit_from_slits():
         # and the same on inverse
         assert gwa2slit.inverse(i, 200, 200, 200) == (i, 200, 200, 200)
 
+    # test roundtrip to file
+    tmp_file = tmp_path / "gwa2slit.asdf"
+    asdf.AsdfFile({"model": gwa2slit}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].slits == slits
+        assert af["model"].slit_ids == list(range(len(slits)))
 
-def test_slit_to_msa_legacy():
+
+def test_slit_to_msa_legacy(tmp_path):
     slits = []
     for i in range(3):
         slits.append(models.Slit(i))
@@ -171,3 +200,11 @@ def test_slit_to_msa_legacy():
     for i in range(len(slits)):
         # slit name is not propagated to output
         assert slit2msa(i, 200, 200) == (200, 200)
+
+    # test roundtrip to file
+    tmp_file = tmp_path / "slit2msa_legacy.asdf"
+    asdf.AsdfFile({"model": slit2msa}).write_to(tmp_file)
+    with pytest.warns(DeprecationWarning, match='WCS pipeline may be incomplete'):
+        with asdf.open(tmp_file) as af:
+            assert af["model"].slits == slits
+            assert af["model"].slit_ids == list(range(len(slits)))
