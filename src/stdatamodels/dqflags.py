@@ -12,6 +12,7 @@ the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
 
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
 from stdatamodels.basic_utils import multiple_replace
+import warnings
 
 
 def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
@@ -20,6 +21,9 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
 
     Wraps `astropy.nddata.bitmask.interpret_bit_flags`, allowing the
     bit mnemonics to be used in place of integers.
+
+    This method is deprecated and will be removed in a future version.
+    `astropy.nddata.bitmask.interpret_bit_flags` should be used instead.
 
     Parameters
     ----------
@@ -43,6 +47,12 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
         to `True`), then returned value will have its bits flipped
         (inverse mask).
     """
+    warnings.warn(
+        "The `interpret_bit_flags` function is deprecated and will be removed in a future version. "
+        "Use `astropy.nddata.bitmask.interpret_bit_flags` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if mnemonic_map is None:
         raise TypeError("`mnemonic_map` is a required argument")
     bit_flags_dm = bit_flags
