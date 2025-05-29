@@ -9,7 +9,9 @@ registered with ASDF through entry points.
 """
 
 import math
+import warnings
 from collections import namedtuple
+
 import numpy as np
 from astropy.modeling.core import Model
 from astropy.modeling.parameters import Parameter, InputParameterError
@@ -21,6 +23,7 @@ from ...properties import ListNode
 __all__ = [
     "Gwa2Slit",
     "Slit2Msa",
+    "Slit2MsaLegacy",
     "Logical",
     "NirissSOSSModel",
     "Slit",
@@ -69,6 +72,7 @@ Slit = namedtuple(
         "source_dec",
         "slit_xscale",
         "slit_yscale",
+        "slit_id",
     ],
 )
 """ Nirspec Slit structure definition"""
@@ -94,6 +98,7 @@ Slit.__new__.__defaults__ = (
     0.0,
     1.0,
     1.0,
+    -9999,
 )
 
 
@@ -373,8 +378,15 @@ class Gwa2Slit(Model):
 
     def __init__(self, slits, models):
         if np.iterable(slits[0]):
-            self._slits = [tuple(s) for s in slits]
-            self.slit_ids = [s[0] for s in self._slits]
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -443,9 +455,75 @@ class Gwa2Slit(Model):
         index = self.slit_ids.index(name)
         return (name,) + self.models[index](x, y, z)
 
+    def inverse(self):
+        """Create an inverse model."""
+        inv_models = [m.inverse for m in self.models]
+        return Slit2Gwa(self.slits, inv_models)
 
-class Slit2Msa(Model):
-    """Transform from Nirspec ``slit_frame`` to ``msa_frame``."""
+
+class Slit2Gwa(Model):
+    """
+    NIRSpec slit to GWA transform.
+
+    Parameters
+    ----------
+    slits : list
+        A list of open slits.
+        A slit is a namedtuple of type `~stdatamodels.jwst.transforms.models.Slit`
+        Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
+        "quadrant", "source_id", "shutter_state", "source_name",
+        "source_alias", "stellarity", "source_xpos", "source_ypos",
+        "source_ra", "source_dec"])
+    models : list
+        List of models (`~astropy.modeling.core.Model`) corresponding to the
+        list of slits.
+    """
+
+    _separable = False
+
+    n_inputs = 4
+    n_outputs = 4
+
+    def __init__(self, slits, models):
+        if np.iterable(slits[0]):
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
+        else:
+            self._slits = list(slits)
+            self.slit_ids = self._slits
+
+        self.models = models
+        super(Slit2Gwa, self).__init__()
+        self.outputs = ("name", "angle1", "angle2", "angle3")
+        """Slit name and the three angle coordinates at the GWA going from detector to sky."""
+        self.inputs = ("name", "x_slit", "y_slit", "lam")
+        """Slit name, x and y coordinates within the virtual slit and wavelength."""
+
+    @property
+    def slits(self):
+        if np.iterable(self._slits[0]):
+            return [Slit(*row) for row in self._slits]
+        else:
+            return self.slit_ids
+
+    def get_model(self, name):
+        index = self.slit_ids.index(name)
+        return self.models[index]
+
+    def evaluate(self, name, x, y, z):
+        index = self.slit_ids.index(name)
+        return (name,) + self.models[index](x, y, z)
+
+
+class Slit2MsaLegacy(Model):
+    """Transform from Nirspec ``slit_frame`` to ``msa_frame`` without passing slit name."""
 
     _separable = False
 
@@ -469,7 +547,7 @@ class Slit2Msa(Model):
             List of models (`~astropy.modeling.core.Model`) corresponding to the
             list of slits.
         """
-        super(Slit2Msa, self).__init__()
+        super(Slit2MsaLegacy, self).__init__()
         self.inputs = ("name", "x_slit", "y_slit")
         """ Name of the slit, x and y coordinates within the virtual slit."""
         self.outputs = ("x_msa", "y_msa")
@@ -477,6 +555,110 @@ class Slit2Msa(Model):
         if np.iterable(slits[0]):
             self._slits = [tuple(s) for s in slits]
             self.slit_ids = [s[0] for s in self._slits]
+        else:
+            self._slits = list(slits)
+            self.slit_ids = self._slits
+        self.models = models
+
+        warnings.warn(
+            "This model contains a deprecated Slit2Msa transform. "
+            "The WCS pipeline may be incomplete.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    @property
+    def slits(self):
+        """
+        Return the slits.
+
+        Returns
+        -------
+        list
+            List of `~stdatamodels.jwst.transforms.models.Slit` objects.
+        """
+        if np.iterable(self._slits[0]):
+            return [Slit(*row) for row in self._slits]
+        else:
+            return self.slit_ids
+
+    def get_model(self, name):
+        """
+        Retrieve the model for a given slit.
+
+        Parameters
+        ----------
+        name : str
+            Name of the slit.
+
+        Returns
+        -------
+        `~astropy.modeling.core.Model`
+            Model for the given slit.
+        """
+        index = self.slit_ids.index(name)
+        return self.models[index]
+
+    def evaluate(self, name, x, y):
+        """
+        Compute the x and y coordinates in the MSA frame for a given slit.
+
+        Parameters
+        ----------
+        name : str
+            Name of the slit.
+        x, y : float
+            The x and y coordinates within the virtual slit.
+
+        Returns
+        -------
+        x_msa, y_msa : float
+            The x and y coordinates in the MSA frame.
+        """
+        index = self.slit_ids.index(name)
+        return self.models[index](x, y)
+
+
+class Slit2Msa(Model):
+    """Transform from Nirspec ``slit_frame`` to ``msa_frame``."""
+
+    _separable = False
+
+    n_inputs = 3
+    n_outputs = 3
+
+    def __init__(self, slits, models):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        slits : list
+            A list of open slits.
+            A slit is a namedtuple, `~stdatamodels.jwst.transforms.models.Slit`
+            Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
+            "quadrant", "source_id", "shutter_state", "source_name",
+            "source_alias", "stellarity", "source_xpos", "source_ypos",
+            "source_ra", "source_dec")
+        models : list
+            List of models (`~astropy.modeling.core.Model`) corresponding to the
+            list of slits.
+        """
+        super(Slit2Msa, self).__init__()
+        self.inputs = ("name", "x_slit", "y_slit")
+        """ Name of the slit, x and y coordinates within the virtual slit."""
+        self.outputs = ("x_msa", "y_msa", "name")
+        """ x and y coordinates in the MSA frame."""
+        if np.iterable(slits[0]):
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
         else:
             self._slits = list(slits)
             self.slit_ids = self._slits
@@ -531,7 +713,73 @@ class Slit2Msa(Model):
             The x and y coordinates in the MSA frame.
         """
         index = self.slit_ids.index(name)
-        return self.models[index](x, y)
+        return self.models[index](x, y) + (name,)
+
+    def inverse(self):
+        """Create an inverse model."""
+        models = [m.inverse for m in self.models]
+        inv_model = Msa2Slit(self.slits, models)
+        return inv_model
+
+
+class Msa2Slit(Model):
+    """
+    Transform from Nirspec ``slit_frame`` to ``msa_frame``.
+
+    Parameters
+    ----------
+    slits : list
+        A list of open slits.
+        A slit is a namedtuple, `~stdatamodels.jwst.transforms.models.Slit`
+        Slit("name", "shutter_id", "dither_position", "xcen", "ycen", "ymin", "ymax",
+        "quadrant", "source_id", "shutter_state", "source_name",
+        "source_alias", "stellarity", "source_xpos", "source_ypos",
+        "source_ra", "source_dec")
+    models : list
+        List of models (`~astropy.modeling.core.Model`) corresponding to the
+        list of slits.
+    """
+
+    _separable = False
+
+    n_inputs = 3
+    n_outputs = 3
+
+    def __init__(self, slits, models):
+        super(Msa2Slit, self).__init__()
+        self.inputs = ("x_msa", "y_msa", "name")
+        """ Name of the slit, x and y coordinates within the virtual slit."""
+        self.outputs = ("name", "x_slit", "y_slit")
+        """ x and y coordinates in the MSA frame."""
+        if np.iterable(slits[0]):
+            self.slit_ids = []
+            self._slits = []
+            for slit in slits:
+                slit_tuple = Slit(*slit)
+                if slit_tuple.slit_id == -9999:
+                    self.slit_ids.append(slit_tuple.name)
+                else:
+                    self.slit_ids.append(slit_tuple.slit_id)
+                self._slits.append(tuple(slit_tuple))
+        else:
+            self._slits = list(slits)
+            self.slit_ids = self._slits
+        self.models = models
+
+    @property
+    def slits(self):
+        if np.iterable(self._slits[0]):
+            return [Slit(*row) for row in self._slits]
+        else:
+            return self.slit_ids
+
+    def get_model(self, name):
+        index = self.slit_ids.index(name)
+        return self.models[index]
+
+    def evaluate(self, x, y, name):
+        index = self.slit_ids.index(name)
+        return (name,) + self.models[index](x, y)
 
 
 class NirissSOSSModel(Model):

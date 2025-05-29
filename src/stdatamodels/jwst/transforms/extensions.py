@@ -14,13 +14,17 @@ from .converters.jwst_models import (
     Rotation3DToGWAConverter,
     CoordsConverter,
     V23ToSkyConverter,
+    Msa2SlitConverter,
+    Slit2GwaConverter,
 )
 
 
 _CONVERTERS = [
     CoordsConverter(),
     Gwa2SlitConverter(),
+    Slit2GwaConverter(),
     Slit2MsaConverter(),
+    Msa2SlitConverter(),
     LogicalConverter(),
     NirissSOSSConverter(),
     RefractionIndexConverter(),
