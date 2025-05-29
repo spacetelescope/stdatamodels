@@ -27,9 +27,6 @@ class DarkModel(ReferenceFileModel):
 
         self.dq = dynamic_mask(self, pixel)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-
 
 class DarkMIRIModel(ReferenceFileModel):
     """
@@ -51,9 +48,6 @@ class DarkMIRIModel(ReferenceFileModel):
         super(DarkMIRIModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
 
 
 class DarkNirspecModel(ReferenceFileModel):
@@ -82,6 +76,3 @@ class DarkNirspecModel(ReferenceFileModel):
         super(DarkNirspecModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
