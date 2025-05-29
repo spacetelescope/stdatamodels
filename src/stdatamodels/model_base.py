@@ -244,7 +244,7 @@ class DataModel(properties.ObjectNode):
                 raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
-            raise ValueError(f"Can't initialize datamodel using {str(type(init))}")
+            raise TypeError(f"Can't initialize datamodel using {str(type(init))}")
 
         # Initialize object fields as determined from the code above
         self._shape = shape

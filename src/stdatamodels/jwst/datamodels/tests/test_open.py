@@ -59,38 +59,35 @@ def test_open_from_pathlib():
 
 
 def test_open_from_buffer():
-    """Test opening a model from buffer"""
-    # fits_file = t_path("test.fits")
-    # with open(fits_file, "rb") as f:
-    #     data = f.read()
+    """
+    Test opening a model from buffer.
+    
+    Should raise a TypeError in datamodel __init__
+    """
     buff = io.BytesIO()
     hdul = fits.HDUList(fits.PrimaryHDU())
     hdul.writeto(buff)
     buff.seek(0)
     assert isinstance(buff, io.BytesIO)
-    with pytest.raises(ValueError):
-        # ValueError: Can't initialize datamodel using <class '_io.BytesIO'>
-        # in ModelBase.__init__()
+    with pytest.raises(TypeError):
         JwstDataModel(buff)
     with pytest.raises(TypeError):
-        # TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'BytesIO'
-        # in open, just before filetype.check(), when attempting to cast to Path
         datamodels.open(buff)
 
 
 def test_open_from_bytes():
-    """Test opening a model from bytes"""
+    """
+    Test opening a model from bytes.
+    
+    Should raise ValueError: Unrecognized file type since the bytes do not represent a file path.
+    """
     fits_file = t_path("test.fits")
     with open(fits_file, "rb") as f:
         data = f.read()
     assert isinstance(data, bytes)
     with pytest.raises(ValueError):
-        # ValueError: Unrecognized file type for: SIMPLE  =                    T / Data conform to FITS standard
-        # in filetype.check()
         datamodels.open(data)
     with pytest.raises(ValueError):
-        # ValueError: Unrecognized file type for: SIMPLE  =                    T / Data conform to FITS standard
-        # in filetype.check()
         JwstDataModel(data)
 
 
@@ -128,7 +125,7 @@ def test_open_shape():
 
 
 def test_open_illegal():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         init = 5
         datamodels.open(init)
 
