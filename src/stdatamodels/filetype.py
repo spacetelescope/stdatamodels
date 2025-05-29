@@ -1,5 +1,4 @@
 from pathlib import Path
-import sys
 
 
 def check(init):
@@ -8,7 +7,7 @@ def check(init):
 
     Parameters
     ----------
-    init : str, Path, or bytes
+    init : str or Path
         The input file path.
 
     Returns
@@ -16,12 +15,10 @@ def check(init):
     file_type : str
         A string representing the file type ("asdf", "asn", or "fits")
     """
-    if isinstance(init, bytes):
-        init = init.decode(sys.getfilesystemencoding())
     if isinstance(init, str):
         init = Path(init)
     if not isinstance(init, Path):
-        raise TypeError(f"Input must be a str, Path, or bytes, not {type(init)}")
+        raise TypeError(f"Input must be a str or Path, not {type(init)}")
 
     # Could be the file is zipped; consider last 2 suffixes
     suffixes = init.suffixes[-2:]
