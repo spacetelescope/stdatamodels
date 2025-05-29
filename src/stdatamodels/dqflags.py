@@ -24,6 +24,9 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
 
     .. deprecated:: 3.0
        Use `astropy.nddata.bitmask.interpret_bit_flags` instead.
+       Note that the `mnemonic_map` parameter is named `flag_name_map` in the astropy version.
+       Note also that the astropy version does not support whitespace between flags,
+       e.g., "DO_NOT_USE+WARM" will work as expected, but "DO_NOT_USE + WARM" will not.
 
     Wraps `astropy.nddata.bitmask.interpret_bit_flags`, allowing the
     bit mnemonics to be used in place of integers.
@@ -31,7 +34,7 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     Parameters
     ----------
     bit_flags : int, str, list, None
-        See `astropy.nddate.bitmask.interpret_bit_flags`.
+        See `astropy.nddata.bitmask.interpret_bit_flags`.
         Also allows strings using Roman mnemonics
 
     flip_bits : bool, None
