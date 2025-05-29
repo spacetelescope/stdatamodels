@@ -1,1 +1,2 @@
 Drop support for initializing datamodels from buffer (was already raising errors)
+Drop support for initializing datamodels from byte strings

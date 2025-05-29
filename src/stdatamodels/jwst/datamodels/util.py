@@ -1,7 +1,6 @@
 """Various utility functions and data types."""
 
 from collections.abc import Sequence
-import sys
 import warnings
 from pathlib import Path
 import logging
@@ -86,12 +85,8 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
-    elif isinstance(init, (str, bytes, Path)):
+    elif isinstance(init, (str, Path)):
         # If given a string, presume its a file path.
-        # if it has a read method, assume a file descriptor
-
-        if isinstance(init, bytes):
-            init = init.decode(sys.getfilesystemencoding())
 
         file_name = Path(init).name
         file_type = filetype.check(init)
@@ -139,7 +134,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     elif isinstance(init, fits.HDUList):
         hdulist = init
 
-    elif is_association(init) or isinstance(init, Sequence):
+    elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
@@ -148,6 +143,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             ) from err
 
         return ModelContainer(init, **kwargs)
+
+    else:
+        raise TypeError(f"Unsupported type for init argument to open {type(init)}")
 
     # If we have it, determine the shape from the science hdu
     if hdulist:

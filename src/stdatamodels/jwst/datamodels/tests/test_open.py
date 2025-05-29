@@ -85,9 +85,9 @@ def test_open_from_bytes():
     with open(fits_file, "rb") as f:
         data = f.read()
     assert isinstance(data, bytes)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         datamodels.open(data)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         JwstDataModel(data)
 
 
@@ -95,12 +95,10 @@ def test_open_from_filename_as_bytes():
     """Test opening a model where the filename is passed as a byte string"""
     fname = t_path("test.fits").as_posix().encode("utf-8")
     assert isinstance(fname, bytes)
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", "model_type not found")
-        with datamodels.open(fname) as model:
-            assert isinstance(model, JwstDataModel)
-        model = JwstDataModel(fname)
-        model.close()
+    with pytest.raises(TypeError):
+        datamodels.open(fname)
+    with pytest.raises(TypeError):
+        JwstDataModel(fname)
 
 
 def test_open_fits():

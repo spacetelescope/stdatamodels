@@ -227,7 +227,7 @@ class DataModel(properties.ObjectNode):
             init = self._migrate_hdulist(init)
             asdffile = fits_support.from_fits(init, self._schema, self._ctx, **kwargs)
 
-        elif isinstance(init, (str, bytes, PurePath)):
+        elif isinstance(init, (str, PurePath)):
             file_type = filetype.check(init)
 
             if file_type == "fits":
