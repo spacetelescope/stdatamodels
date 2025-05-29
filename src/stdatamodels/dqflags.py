@@ -14,6 +14,8 @@ from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
 from stdatamodels.basic_utils import multiple_replace
 import warnings
 
+__all__ = ["interpret_bit_flags", "dqflags_to_mnemonics"]
+
 
 def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     """
