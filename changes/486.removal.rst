@@ -1,1 +1,1 @@
-Deprecate dqflags.interpret_bit_flags in favor of directly calling the Astropy version
+Deprecate dqflags.interpret_bit_flags in favor of astropy.nddata.bitmask.interpret_bit_flags

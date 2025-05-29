@@ -10,9 +10,10 @@ which provides 32 bits. Bits of an integer are most easily referred to using
 the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
 """
 
+import warnings
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
 from stdatamodels.basic_utils import multiple_replace
-import warnings
+
 
 __all__ = ["interpret_bit_flags", "dqflags_to_mnemonics"]
 
@@ -50,8 +51,8 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
         (inverse mask).
     """
     warnings.warn(
-        "The `interpret_bit_flags` function is deprecated and will be removed in a future version. "
-        "Use `astropy.nddata.bitmask.interpret_bit_flags` instead.",
+        "The interpret_bit_flags function is deprecated and will be removed in a future version. "
+        "Use astropy.nddata.bitmask.interpret_bit_flags instead.",
         DeprecationWarning,
         stacklevel=2,
     )
