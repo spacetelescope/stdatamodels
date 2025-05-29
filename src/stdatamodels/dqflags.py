@@ -19,11 +19,11 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     """
     Convert input bit flags to a single integer value (bit mask) or `None`.
 
+    .. deprecated:: 3.0
+       Use `astropy.nddata.bitmask.interpret_bit_flags` instead.
+
     Wraps `astropy.nddata.bitmask.interpret_bit_flags`, allowing the
     bit mnemonics to be used in place of integers.
-
-    This method is deprecated and will be removed in a future version.
-    `astropy.nddata.bitmask.interpret_bit_flags` should be used instead.
 
     Parameters
     ----------
