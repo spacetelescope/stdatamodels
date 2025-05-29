@@ -228,10 +228,6 @@ class DataModel(properties.ObjectNode):
             asdffile = fits_support.from_fits(init, self._schema, self._ctx, **kwargs)
 
         elif isinstance(init, (str, bytes, PurePath)):
-            if isinstance(init, PurePath):
-                init = str(init)
-            if isinstance(init, bytes):
-                init = init.decode(sys.getfilesystemencoding())
             file_type = filetype.check(init)
 
             if file_type == "fits":

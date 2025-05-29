@@ -3,6 +3,7 @@ Test datamodel.open
 """
 
 import os
+import io
 from pathlib import Path, PurePath
 import warnings
 
@@ -55,6 +56,54 @@ def test_open_from_pathlib():
         warnings.filterwarnings("ignore", "model_type not found")
         with datamodels.open(path) as model:
             assert isinstance(model, JwstDataModel)
+
+
+def test_open_from_buffer():
+    """Test opening a model from buffer"""
+    # fits_file = t_path("test.fits")
+    # with open(fits_file, "rb") as f:
+    #     data = f.read()
+    buff = io.BytesIO()
+    hdul = fits.HDUList(fits.PrimaryHDU())
+    hdul.writeto(buff)
+    buff.seek(0)
+    assert isinstance(buff, io.BytesIO)
+    with pytest.raises(ValueError):
+        # ValueError: Can't initialize datamodel using <class '_io.BytesIO'>
+        # in ModelBase.__init__()
+        JwstDataModel(buff)
+    with pytest.raises(TypeError):
+        # TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'BytesIO'
+        # in open, just before filetype.check(), when attempting to cast to Path
+        datamodels.open(buff)
+
+
+def test_open_from_bytes():
+    """Test opening a model from bytes"""
+    fits_file = t_path("test.fits")
+    with open(fits_file, "rb") as f:
+        data = f.read()
+    assert isinstance(data, bytes)
+    with pytest.raises(ValueError):
+        # ValueError: Unrecognized file type for: SIMPLE  =                    T / Data conform to FITS standard
+        # in filetype.check()
+        datamodels.open(data)
+    with pytest.raises(ValueError):
+        # ValueError: Unrecognized file type for: SIMPLE  =                    T / Data conform to FITS standard
+        # in filetype.check()
+        JwstDataModel(data)
+
+
+def test_open_from_filename_as_bytes():
+    """Test opening a model where the filename is passed as a byte string"""
+    fname = t_path("test.fits").as_posix().encode("utf-8")
+    assert isinstance(fname, bytes)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "model_type not found")
+        with datamodels.open(fname) as model:
+            assert isinstance(model, JwstDataModel)
+        model = JwstDataModel(fname)
+        model.close()
 
 
 def test_open_fits():
