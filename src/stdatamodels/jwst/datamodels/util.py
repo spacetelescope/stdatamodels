@@ -1,7 +1,6 @@
 """Various utility functions and data types."""
 
 from collections.abc import Sequence
-import sys
 import warnings
 from pathlib import Path
 import logging
@@ -31,16 +30,13 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
 
     Parameters
     ----------
-    init : shape tuple, file path, file object, astropy.io.fits.HDUList,
-           numpy array, dict, None
+    init : shape tuple, file path, astropy.io.fits.HDUList, numpy array, dict, None
 
         - None: A default data model with no shape
 
         - shape tuple: Initialize with empty data of the given shape
 
         - file path: Initialize from the given file (FITS, JSON or ASDF)
-
-        - readable file object: Initialize from the given file object
 
         - astropy.io.fits.HDUList: Initialize from the given
           `~astropy.io.fits.HDUList`
@@ -82,9 +78,6 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     # Get special cases for opening a model out of the way
     # all special cases return a model if they match
 
-    if isinstance(init, Path):
-        init = str(init)
-
     if init is None:
         return model_base.JwstDataModel(None, **kwargs)
 
@@ -92,12 +85,8 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
-    elif isinstance(init, (str, bytes)) or hasattr(init, "read"):
+    elif isinstance(init, (str, Path)):
         # If given a string, presume its a file path.
-        # if it has a read method, assume a file descriptor
-
-        if isinstance(init, bytes):
-            init = init.decode(sys.getfilesystemencoding())
 
         file_name = Path(init).name
         file_type = filetype.check(init)
@@ -145,7 +134,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     elif isinstance(init, fits.HDUList):
         hdulist = init
 
-    elif is_association(init) or isinstance(init, Sequence):
+    elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
@@ -154,6 +143,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             ) from err
 
         return ModelContainer(init, **kwargs)
+
+    else:
+        raise TypeError(f"Unsupported type for init argument to open {type(init)}")
 
     # If we have it, determine the shape from the science hdu
     if hdulist:

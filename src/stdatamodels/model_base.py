@@ -227,11 +227,7 @@ class DataModel(properties.ObjectNode):
             init = self._migrate_hdulist(init)
             asdffile = fits_support.from_fits(init, self._schema, self._ctx, **kwargs)
 
-        elif isinstance(init, (str, bytes, PurePath)):
-            if isinstance(init, PurePath):
-                init = str(init)
-            if isinstance(init, bytes):
-                init = init.decode(sys.getfilesystemencoding())
+        elif isinstance(init, (str, PurePath)):
             file_type = filetype.check(init)
 
             if file_type == "fits":
@@ -248,7 +244,7 @@ class DataModel(properties.ObjectNode):
                 raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
-            raise ValueError(f"Can't initialize datamodel using {str(type(init))}")
+            raise TypeError(f"Can't initialize datamodel using {str(type(init))}")
 
         # Initialize object fields as determined from the code above
         self._shape = shape

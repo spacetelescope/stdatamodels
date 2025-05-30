@@ -33,29 +33,15 @@ def test_unsupported_filename(filename):
 
 
 def test_seekable_file_object():
+    """Not a supported init type for a datamodel."""
     buff = io.BytesIO()
     with asdf.AsdfFile() as af:
         af.write_to(buff)
     buff.seek(0)
-    assert check(buff) == "asdf"
-
-    buff = io.BytesIO()
-    hdul = fits.HDUList(fits.PrimaryHDU())
-    hdul.writeto(buff)
-    buff.seek(0)
-    assert check(buff) == "fits"
-
-    buff = io.BytesIO()
-    buff.write(json.dumps({"foo": "bar"}).encode("utf-8"))
-    buff.seek(0)
-    assert check(buff) == "asn"
-
-    # Too short
-    buff = io.BytesIO(b"FOO")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         check(buff)
 
 
 def test_non_seekable_object():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         check(object())

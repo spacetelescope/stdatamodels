@@ -3,6 +3,7 @@ Test datamodel.open
 """
 
 import os
+import io
 from pathlib import Path, PurePath
 import warnings
 
@@ -57,6 +58,49 @@ def test_open_from_pathlib():
             assert isinstance(model, JwstDataModel)
 
 
+def test_open_from_buffer():
+    """
+    Test opening a model from buffer.
+    
+    Should raise a TypeError in datamodel __init__
+    """
+    buff = io.BytesIO()
+    hdul = fits.HDUList(fits.PrimaryHDU())
+    hdul.writeto(buff)
+    buff.seek(0)
+    assert isinstance(buff, io.BytesIO)
+    with pytest.raises(TypeError):
+        JwstDataModel(buff)
+    with pytest.raises(TypeError):
+        datamodels.open(buff)
+
+
+def test_open_from_bytes():
+    """
+    Test opening a model from bytes.
+    
+    Should raise ValueError: Unrecognized file type since the bytes do not represent a file path.
+    """
+    fits_file = t_path("test.fits")
+    with open(fits_file, "rb") as f:
+        data = f.read()
+    assert isinstance(data, bytes)
+    with pytest.raises(TypeError):
+        datamodels.open(data)
+    with pytest.raises(TypeError):
+        JwstDataModel(data)
+
+
+def test_open_from_filename_as_bytes():
+    """Test opening a model where the filename is passed as a byte string"""
+    fname = t_path("test.fits").as_posix().encode("utf-8")
+    assert isinstance(fname, bytes)
+    with pytest.raises(TypeError):
+        datamodels.open(fname)
+    with pytest.raises(TypeError):
+        JwstDataModel(fname)
+
+
 def test_open_fits():
     """Test opening a model from a FITS file"""
     with warnings.catch_warnings():
@@ -79,7 +123,7 @@ def test_open_shape():
 
 
 def test_open_illegal():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         init = 5
         datamodels.open(init)
 
