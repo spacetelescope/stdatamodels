@@ -137,6 +137,11 @@ properties:
     type: integer
     fits_keyword: DISPAXIS
     fits_hdu: EXTRACT1D
+  detector:
+    title: Name of detector used to acquire the data
+    type: string
+    fits_keyword: DETECTOR
+    fits_hdu: EXTRACT1D
   int_num:
     title: Integration number
     type: integer
@@ -153,36 +158,6 @@ properties:
     type: string
     default: 's'
     fits_keyword: TIMEUNIT
-    fits_hdu: EXTRACT1D
-  start_time_mjd:
-    title: "[d] integration start time in MJD"
-    type: number
-    fits_keyword: MJD-BEG
-    fits_hdu: EXTRACT1D
-  mid_time_mjd:
-    title: "[d] integration mid-point in MJD"
-    type: number
-    fits_keyword: MJD-AVG
-    fits_hdu: EXTRACT1D
-  end_time_mjd:
-    title: "[d] integration end time in MJD"
-    type: number
-    fits_keyword: MJD-END
-    fits_hdu: EXTRACT1D
-  start_tdb:
-    title: "TDB at start of integration [MJD]"
-    type: number
-    fits_keyword: TDB-BEG
-    fits_hdu: EXTRACT1D
-  mid_tdb:
-    title: "TDB at middle of integration [MJD]"
-    type: number
-    fits_keyword: TDB-MID
-    fits_hdu: EXTRACT1D
-  end_tdb:
-    title: "TDB at end of integration [MJD]"
-    type: number
-    fits_keyword: TDB-END
     fits_hdu: EXTRACT1D
   wavelength_corrected:
     title: Wavelength corrected (T/F)
