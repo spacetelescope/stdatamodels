@@ -1,22 +1,28 @@
 """
 Interpret JWST data quality flags.
 
-The flags are implemented as "bit flags": Each flag is assigned a bit position
-in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned
-to that bit is interpreted as being set or active.
-
-The data structure that stores bit flags is just the standard Python `int`,
-which provides 32 bits. Bits of an integer are most easily referred to using
-the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
+The flags are binary-packed structures representing information about a given element
+(a bit field): Each flag is assigned a bit position in a 32-bit mask.
+If a given bit is set, the flag assigned to that bit is interpreted as being set or active.
 """
 
+import warnings
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
 from stdatamodels.basic_utils import multiple_replace
+
+
+__all__ = ["interpret_bit_flags", "dqflags_to_mnemonics"]
 
 
 def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     """
     Convert input bit flags to a single integer value (bit mask) or `None`.
+
+    .. deprecated:: 3.0
+       Use `astropy.nddata.bitmask.interpret_bit_flags` instead.
+       Note that the ``mnemonic_map`` parameter is named ``flag_name_map`` in the astropy version.
+       Note also that the astropy version does not support whitespace between flags,
+       e.g., "DO_NOT_USE+WARM" will work as expected, but "DO_NOT_USE + WARM" will not.
 
     Wraps `astropy.nddata.bitmask.interpret_bit_flags`, allowing the
     bit mnemonics to be used in place of integers.
@@ -24,7 +30,7 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
     Parameters
     ----------
     bit_flags : int, str, list, None
-        See `astropy.nddate.bitmask.interpret_bit_flags`.
+        See `astropy.nddata.bitmask.interpret_bit_flags`.
         Also allows strings using Roman mnemonics
 
     flip_bits : bool, None
@@ -43,6 +49,12 @@ def interpret_bit_flags(bit_flags, flip_bits=None, mnemonic_map=None):
         to `True`), then returned value will have its bits flipped
         (inverse mask).
     """
+    warnings.warn(
+        "The interpret_bit_flags function is deprecated and will be removed in a future version. "
+        "Use astropy.nddata.bitmask.interpret_bit_flags instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if mnemonic_map is None:
         raise TypeError("`mnemonic_map` is a required argument")
     bit_flags_dm = bit_flags

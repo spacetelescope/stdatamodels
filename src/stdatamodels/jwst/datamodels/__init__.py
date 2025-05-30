@@ -39,7 +39,7 @@ from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
 from .multislit import MultiSlitModel
-from .multispec import MultiSpecModel, MRSMultiSpecModel
+from .multispec import MultiSpecModel, MRSMultiSpecModel, TSOMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
 from .outlierifuoutput import OutlierIFUOutputModel
@@ -77,7 +77,7 @@ from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .spec import SpecModel, MRSSpecModel
+from .spec import SpecModel, MRSSpecModel, TSOSpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
 from .specpsf import SpecPsfModel
@@ -184,6 +184,7 @@ __all__ = [
     "MultiSlitModel",
     "MultiSpecModel",
     "MRSMultiSpecModel",
+    "TSOMultiSpecModel",
     "NIRCAMGrismModel",
     "NIRISSGrismModel",
     "OTEModel",
@@ -227,6 +228,7 @@ __all__ = [
     "SlitModel",
     "SpecModel",
     "MRSSpecModel",
+    "TSOSpecModel",
     "SegmentationMapModel",
     "SossExtractModel",
     "SossWaveGridModel",
