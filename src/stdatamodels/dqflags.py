@@ -1,13 +1,9 @@
 """
 Interpret JWST data quality flags.
 
-The flags are implemented as "bit flags": Each flag is assigned a bit position
-in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned
-to that bit is interpreted as being set or active.
-
-The data structure that stores bit flags is just the standard Python `int`,
-which provides 32 bits. Bits of an integer are most easily referred to using
-the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
+The flags are binary-packed structures representing information about a given element
+(a bit field): Each flag is assigned a bit position in a 32-bit mask.
+If a given bit is set, the flag assigned to that bit is interpreted as being set or active.
 """
 
 import warnings
