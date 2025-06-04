@@ -18,7 +18,6 @@ default: [
   "",  # SOURCE_TYPE
   NaN, # SOURCE_RA
   NaN, # SOURCE_DEC
-  -999,  # SPECTRAL_ORDER
 ]
 datatype:
 - name: SOURCE_ID
@@ -49,5 +48,3 @@ datatype:
 - name: SOURCE_DEC
   datatype: float64
   unit: degrees
-- name: SPECTRAL_ORDER
-  datatype: int32

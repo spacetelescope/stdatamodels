@@ -34,7 +34,6 @@ default: [
   0, # EXTRACT2D_YSTART
   0, # EXTRACT2D_XSTOP
   0, # EXTRACT2D_YSTOP
-  -999,   # SPECTRAL_ORDER
 ]
 datatype:
 - name: SOURCE_ID
@@ -103,5 +102,3 @@ datatype:
 - name: EXTRACT2D_YSTOP
   datatype: uint32
   unit: pixels
-- name: SPECTRAL_ORDER
-  datatype: int32
