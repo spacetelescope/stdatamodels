@@ -23,7 +23,7 @@ default: [
   NaN, # BKGD_VAR_POISSON
   NaN, # BKGD_VAR_RNOISE
   NaN, # BKGD_VAR_FLAT
-  NaN, # N_CROSSDISP
+  NaN, # NPIXELS
   0,   # N_ALONGDISP
   "",  # SOURCE_TYPE
   NaN, # SOURCE_XPOS
@@ -34,10 +34,6 @@ default: [
   0, # EXTRACT2D_YSTART
   0, # EXTRACT2D_XSTOP
   0, # EXTRACT2D_YSTOP
-  0, # EXTRACT1D_XSTART
-  0, # EXTRACT1D_YSTART
-  0, # EXTRACT1D_XSTOP
-  0, # EXTRACT1D_YSTOP
   -999,   # SPECTRAL_ORDER
 ]
 datatype:
@@ -77,7 +73,7 @@ datatype:
   datatype: float64
 - name: BKGD_VAR_FLAT
   datatype: float64
-- name: N_CROSSDISP
+- name: NPIXELS
   datatype: float64
 - name: N_ALONGDISP
   datatype: uint32
