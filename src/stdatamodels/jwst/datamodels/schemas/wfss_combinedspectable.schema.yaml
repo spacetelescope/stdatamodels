@@ -11,10 +11,10 @@ default: [
   NaN, # ERROR
   NaN, # SURF_BRIGHT
   NaN, # SB_ERROR
-  0,   # DQ
+  1,   # DQ
   NaN, # WEIGHT
   NaN, # N_INPUT
-  0,   # NELEMENTS
+  0,   # N_ALONGDISP
   "",  # SOURCE_TYPE
   NaN, # SOURCE_RA
   NaN, # SOURCE_DEC
@@ -39,7 +39,7 @@ datatype:
   datatype: float64
 - name: N_INPUT
   datatype: float64
-- name: NELEMENTS
+- name: N_ALONGDISP
   datatype: uint32
 - name: SOURCE_TYPE
   datatype: [ascii, 20]
