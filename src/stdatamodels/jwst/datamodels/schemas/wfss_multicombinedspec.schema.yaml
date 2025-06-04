@@ -5,21 +5,26 @@ id: "http://stsci.edu/schemas/jwst_datamodel/wfss_multicombinedspec.schema"
 title: Table of exposure-averaged WFSS-extracted spectra and their associated metadata
 allOf:
 - $ref: core.schema
+- $ref: int_times.schema
 - type: object
   properties:
-    spectral_order:
-      title: Spectral order number
-      type: integer
-      default: -999
-      fits_keyword: SPORDER
-      fits_hdu: COMBINE1D
-    dispersion_direction:
-      title: Dispersion direction
-      type: integer
-      fits_keyword: DISPAXIS
-      fits_hdu: COMBINE1D
-      default: -999
-- type: object
-  properties:
-    spec_table:
-      $ref: wfss_combinedspectable.schema
+    spec:
+      type: array
+      title: An array of spectra
+      items:
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order number
+            type: integer
+            default: -999
+            fits_keyword: SPORDER
+            fits_hdu: COMBINE1D
+          dispersion_direction:
+            title: Dispersion direction
+            type: integer
+            fits_keyword: DISPAXIS
+            fits_hdu: COMBINE1D
+            default: -999
+          spec_table:
+            $ref: wfss_combinedspectable.schema
