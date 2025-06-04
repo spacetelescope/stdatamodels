@@ -12,7 +12,7 @@ from .apcorr import NrcWfssApcorrModel, NisWfssApcorrModel
 from .apcorr import NrsMosApcorrModel, NrsIfuApcorrModel, NrsFsApcorrModel
 from .asn import AsnModel
 from .barshadow import BarshadowModel
-from .combinedspec import CombinedSpecModel
+from .combinedspec import CombinedSpecModel, WFSSCombinedSpecModel
 from .contrast import ContrastModel
 from .cube import CubeModel
 from .dark import DarkModel
@@ -252,6 +252,7 @@ __all__ = [
     "WaveMapModel",
     "WaveMapSingleModel",
     "WfssBkgModel",
+    "WFSSCombinedSpecModel",
     "WFSSMultiCombinedSpecModel",
     "WFSSMultiExposureSpecModel",
     "WFSSMultiSpecModel",
