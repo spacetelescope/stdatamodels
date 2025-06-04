@@ -22,3 +22,9 @@ properties:
     fits_keyword: DISPAXIS
     fits_hdu: EXTRACT1D
     default: -999
+  spectral_order:
+    title: Spectral order
+    type: integer
+    fits_keyword: SPORDER
+    fits_hdu: EXTRACT1D
+    default: -999
