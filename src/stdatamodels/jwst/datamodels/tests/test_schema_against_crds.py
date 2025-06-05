@@ -65,6 +65,11 @@ area_model_map = {
     "other": dm.PixelAreaModel,
 }
 
+bkg_model_map = {
+    "NIS_WFSS": dm.WfssBkgModel,
+    "NIS_SOSS": dm.SossBkgModel,
+}
+
 cubepar_model_map = {
     "NIRSPEC": dm.NirspecIFUCubeParsModel,
     "MIRI": dm.MiriIFUCubeParsModel,
@@ -123,6 +128,7 @@ specwcs_model_map = {
 ref_to_multiples_dict = {
     "apcorr": apcorr_model_map,
     "area": area_model_map,
+    "bkg": bkg_model_map,
     "cubepar": cubepar_model_map,
     "distortion": distortion_model_map,
     "flat": flat_model_map,
@@ -135,7 +141,6 @@ ref_to_multiples_dict = {
 ref_to_datamodel_dict = {
     "abvegaoffset": dm.ABVegaOffsetModel,
     "barshadow": dm.BarshadowModel,
-    "bkg": dm.WfssBkgModel,
     "camera": dm.CameraModel,
     "collimator": dm.CollimatorModel,
     "dark": dm.DarkModel,

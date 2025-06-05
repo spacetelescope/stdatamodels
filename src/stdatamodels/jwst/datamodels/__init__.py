@@ -11,6 +11,7 @@ from .apcorr import MirLrsApcorrModel, MirMrsApcorrModel
 from .apcorr import NrcWfssApcorrModel, NisWfssApcorrModel
 from .apcorr import NrsMosApcorrModel, NrsIfuApcorrModel, NrsFsApcorrModel
 from .asn import AsnModel
+from .background import SossBkgModel, WfssBkgModel
 from .barshadow import BarshadowModel
 from .combinedspec import CombinedSpecModel
 from .contrast import ContrastModel
@@ -112,7 +113,6 @@ from .wcs_ref_models import (
     MiriLRSSpecwcsModel,
     WaveCorrModel,
 )
-from .wfssbkg import WfssBkgModel
 from .util import open, read_metadata  # noqa: A004
 
 
@@ -230,6 +230,7 @@ __all__ = [
     "MRSSpecModel",
     "TSOSpecModel",
     "SegmentationMapModel",
+    "SossBkgModel",
     "SossExtractModel",
     "SossWaveGridModel",
     "SpecKernelModel",
