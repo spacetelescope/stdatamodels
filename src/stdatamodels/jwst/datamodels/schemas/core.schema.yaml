@@ -1796,6 +1796,15 @@ properties:
                 type: string
                 fits_keyword: R_AREA
                 blend_table: True
+          bkg:
+            title: Background reference file information
+            type: object
+            properties:
+              name:
+                title: Background reference file name
+                type: string
+                fits_keyword: R_BKG
+                blend_table: True
           badshutter:
             title: NIRSpec bad shutter reference file information
             type: object
