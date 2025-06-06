@@ -1,8 +1,8 @@
 from .model_base import JwstDataModel
-from .spec import SpecModel, MRSSpecModel, TSOSpecModel
+from .spec import SpecModel, MRSSpecModel, TSOSpecModel, WFSSSpecModel
 
 
-__all__ = ["MultiSpecModel", "MRSMultiSpecModel", "TSOMultiSpecModel"]
+__all__ = ["MultiSpecModel", "MRSMultiSpecModel", "TSOMultiSpecModel", "WFSSMultiSpecModel"]
 
 
 class MultiSpecModel(JwstDataModel):
@@ -107,3 +107,23 @@ class TSOMultiSpecModel(JwstDataModel):
             return
 
         super(TSOMultiSpecModel, self).__init__(init=init, **kwargs)
+
+
+class WFSSMultiSpecModel(JwstDataModel):
+    """
+    A data model for a collection of spectra from multiple exposures and/or spectral orders.
+
+    Attributes
+    ----------
+    spec : list of `~jwst.datamodels.WFSSSpecModel`
+        A list of WFSSSpecModel objects, each containing the
+        spectra from a single exposure.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multispec.schema"
+
+    def __init__(self, init=None, **kwargs):
+        if isinstance(init, WFSSSpecModel):
+            # If init is a WFSSSpecModel, convert it to a list
+            init = [init]
+        super().__init__(init=init, **kwargs)
