@@ -24,7 +24,7 @@ default: [
   NaN,  # BKGD_VAR_RNOISE
   NaN,  # BKGD_VAR_FLAT
   0,    # NPIXELS
-  0,    # NELEMENTS
+  0,    # N_ALONGDISP
   0,    # SEGMENT
   NaN,  # MJD-BEG
   NaN,  # MJD-AVG
@@ -72,7 +72,7 @@ datatype:
   datatype: float64
 - name: NPIXELS
   datatype: float64
-- name: NELEMENTS
+- name: N_ALONGDISP
   datatype: uint32
 - name: SEGMENT
   datatype: int32

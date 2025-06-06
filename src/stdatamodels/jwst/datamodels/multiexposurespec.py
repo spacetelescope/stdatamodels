@@ -1,7 +1,7 @@
 """Datamodels holding spectra from multiple exposures."""
 
 from .model_base import JwstDataModel
-from .multispec import WFSSMultiSpecModel
+from .spec import WFSSSpecModel
 
 __all__ = ["WFSSMultiExposureSpecModel"]
 
@@ -20,7 +20,7 @@ class WFSSMultiExposureSpecModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multiexposurespec.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, WFSSMultiSpecModel):
-            # If init is a WFSSMultiSpecModel, convert it to a list
+        if isinstance(init, WFSSSpecModel):
+            # If init is a WFSSSpecModel, convert it to a list
             init = [init]
         super().__init__(init=init, **kwargs)
