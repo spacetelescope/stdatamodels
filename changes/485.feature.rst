@@ -1,0 +1,1 @@
+Added new nirspec_dark model with dark_rate and dark_rate_unc and added p_gratin to dark and superbias models
