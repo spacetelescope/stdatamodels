@@ -10,10 +10,10 @@ properties:
     fits_keyword: FILENAME
     fits_hdu: EXTRACT1D
     default: ""
-  exposure_number:
-    title: Exposure number
+  group_id:
+    title: Exposure group ID
     type: string
-    fits_keyword: EXPOSURE
+    fits_keyword: EXPGRPID
     fits_hdu: EXTRACT1D
     default: ""
   dispersion_direction:
