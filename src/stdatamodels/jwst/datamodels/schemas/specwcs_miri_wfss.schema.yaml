@@ -5,8 +5,10 @@ id: "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_wfss.schema"
 title: SPECWCS_MIRI_WFSS reference file model
 allOf:
 - $ref: referencefile.schema
-- $ref: keyword_pupil.schema
 - $ref: keyword_exptype.schema
+- $ref: subarray.schema
+- $ref: keyword_channel.schema
+- $ref: keyword_filter.schema
 - type: object
   properties:
     displ:
