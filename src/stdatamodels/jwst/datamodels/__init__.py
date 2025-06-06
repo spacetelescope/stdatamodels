@@ -40,7 +40,7 @@ from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecMode
 from .multiexposure import MultiExposureModel
 from .multiexposurespec import WFSSMultiExposureSpecModel
 from .multislit import MultiSlitModel
-from .multispec import MultiSpecModel, MRSMultiSpecModel, TSOMultiSpecModel, WFSSMultiSpecModel
+from .multispec import MultiSpecModel, MRSMultiSpecModel, TSOMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
 from .outlierifuoutput import OutlierIFUOutputModel
@@ -78,7 +78,7 @@ from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .spec import SpecModel, MRSSpecModel, TSOSpecModel
+from .spec import SpecModel, MRSSpecModel, TSOSpecModel, WFSSSpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
 from .specpsf import SpecPsfModel
@@ -255,7 +255,7 @@ __all__ = [
     "WFSSCombinedSpecModel",
     "WFSSMultiCombinedSpecModel",
     "WFSSMultiExposureSpecModel",
-    "WFSSMultiSpecModel",
+    "WFSSSpecModel",
 ]
 
 

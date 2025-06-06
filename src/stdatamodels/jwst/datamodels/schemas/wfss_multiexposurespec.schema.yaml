@@ -12,7 +12,7 @@ allOf:
       description: An array of WFSS multispecmodels, one model per exposure.
       items:
         allOf:
-          - $ref: wfss_multispecmeta.schema
+          - $ref: wfss_specmeta.schema
           - type: object
             properties:
               spec_table:
