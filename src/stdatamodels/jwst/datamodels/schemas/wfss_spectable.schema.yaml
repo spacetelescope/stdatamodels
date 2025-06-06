@@ -1,0 +1,104 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spectable.schema"
+title: Extracted spectral data table with WFSS extraction metadata
+fits_hdu: EXTRACT1D
+default: [
+  -999,   # SOURCE_ID
+  NaN, # WAVELENGTH
+  NaN, # FLUX
+  NaN, # FLUX_ERROR
+  NaN, # FLUX_VAR_POISSON
+  NaN, # FLUX_VAR_RNOISE
+  NaN, # FLUX_VAR_FLAT
+  NaN, # SURF_BRIGHT
+  NaN, # SB_ERROR
+  NaN, # SB_VAR_POISSON
+  NaN, # SB_VAR_RNOISE
+  NaN, # SB_VAR_FLAT
+  1,   # DQ
+  NaN, # BACKGROUND
+  NaN, # BKGD_ERROR
+  NaN, # BKGD_VAR_POISSON
+  NaN, # BKGD_VAR_RNOISE
+  NaN, # BKGD_VAR_FLAT
+  NaN, # NPIXELS
+  0,   # N_ALONGDISP
+  "",  # SOURCE_TYPE
+  NaN, # SOURCE_XPOS
+  NaN, # SOURCE_YPOS
+  NaN, # SOURCE_RA
+  NaN, # SOURCE_DEC
+  0, # EXTRACT2D_XSTART
+  0, # EXTRACT2D_YSTART
+  0, # EXTRACT2D_XSTOP
+  0, # EXTRACT2D_YSTOP
+]
+datatype:
+- name: SOURCE_ID
+  datatype: int32
+- name: WAVELENGTH  
+  datatype: float64
+- name: FLUX
+  datatype: float64
+- name: FLUX_ERROR
+  datatype: float64
+- name: FLUX_VAR_POISSON
+  datatype: float64
+- name: FLUX_VAR_RNOISE
+  datatype: float64
+- name: FLUX_VAR_FLAT
+  datatype: float64
+- name: SURF_BRIGHT
+  datatype: float64
+- name: SB_ERROR
+  datatype: float64
+- name: SB_VAR_POISSON
+  datatype: float64
+- name: SB_VAR_RNOISE
+  datatype: float64
+- name: SB_VAR_FLAT
+  datatype: float64
+- name: DQ
+  datatype: uint32
+- name: BACKGROUND
+  datatype: float64
+- name: BKGD_ERROR
+  datatype: float64
+- name: BKGD_VAR_POISSON
+  datatype: float64
+- name: BKGD_VAR_RNOISE
+  datatype: float64
+- name: BKGD_VAR_FLAT
+  datatype: float64
+- name: NPIXELS
+  datatype: float64
+- name: N_ALONGDISP
+  datatype: uint32
+- name: SOURCE_TYPE
+  datatype: [ascii, 20]
+- name: SOURCE_XPOS
+  datatype: float64
+  unit: pixels
+- name: SOURCE_YPOS
+  datatype: float64
+  unit: pixels
+- name: SOURCE_RA
+  datatype: float64
+  unit: degrees
+- name: SOURCE_DEC
+  datatype: float64
+  unit: degrees
+- name: EXTRACT2D_XSTART
+  datatype: uint32
+  unit: pixels
+- name: EXTRACT2D_YSTART
+  datatype: uint32
+  unit: pixels
+- name: EXTRACT2D_XSTOP
+  datatype: uint32
+  unit: pixels
+- name: EXTRACT2D_YSTOP
+  datatype: uint32
+  unit: pixels

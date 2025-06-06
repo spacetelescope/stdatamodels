@@ -12,7 +12,7 @@ from .apcorr import NrcWfssApcorrModel, NisWfssApcorrModel
 from .apcorr import NrsMosApcorrModel, NrsIfuApcorrModel, NrsFsApcorrModel
 from .asn import AsnModel
 from .barshadow import BarshadowModel
-from .combinedspec import CombinedSpecModel
+from .combinedspec import CombinedSpecModel, WFSSCombinedSpecModel
 from .contrast import ContrastModel
 from .cube import CubeModel
 from .dark import DarkModel
@@ -36,10 +36,10 @@ from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
 from .mrsxartcorr import MirMrsXArtCorrModel
-from .multicombinedspec import MultiCombinedSpecModel
+from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
 from .multislit import MultiSlitModel
-from .multispec import MultiSpecModel, MRSMultiSpecModel, TSOMultiSpecModel
+from .multispec import MultiSpecModel, MRSMultiSpecModel, TSOMultiSpecModel, WFSSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
 from .outlierifuoutput import OutlierIFUOutputModel
@@ -77,7 +77,7 @@ from .slit import SlitModel, SlitDataModel
 from .pastasossmodel import PastasossModel
 from .sossextractmodel import SossExtractModel
 from .sosswavegrid import SossWaveGridModel
-from .spec import SpecModel, MRSSpecModel, TSOSpecModel
+from .spec import SpecModel, MRSSpecModel, TSOSpecModel, WFSSSpecModel
 from .speckernel import SpecKernelModel
 from .specprofile import SpecProfileModel, SpecProfileSingleModel
 from .specpsf import SpecPsfModel
@@ -251,6 +251,10 @@ __all__ = [
     "WaveMapModel",
     "WaveMapSingleModel",
     "WfssBkgModel",
+    "WFSSCombinedSpecModel",
+    "WFSSMultiCombinedSpecModel",
+    "WFSSMultiSpecModel",
+    "WFSSSpecModel",
 ]
 
 
