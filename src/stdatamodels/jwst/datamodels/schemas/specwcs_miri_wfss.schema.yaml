@@ -43,12 +43,6 @@ allOf:
         type: array
         items:
           type: number
-    fwcpos_ref:
-      description: |
-        The reference position for the filter wheel in degrees
-        type: number
-          minItems: 1
-          maxItems: 1
     meta:
       type: object
       properties:
