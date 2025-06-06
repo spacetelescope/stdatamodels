@@ -63,13 +63,11 @@ class TSOSpecModel(JwstDataModel):
 
 class WFSSSpecModel(JwstDataModel):
     """
-    A data model for NIRCam andNIRISS WFSS 1D spectra.
+    A data model for NIRCam and NIRISS WFSS 1D spectra.
 
-    This model differs from the other MultiSpecModel classes in that
-    it is designed to hold all the spectra from a single WFSS exposure
-    in a "flat" table format. Therefore, it does not have the `spec` attribute
-    that is present in the other MultiSpecModel classes. Instead, it has
-    a `spec_table` attribute that contains the spectral data and metadata
+    This model differs from the SpecModel base class in that
+    it is designed to hold all the spectra from a single WFSS exposure.
+    Its `spec_table` attribute contains the spectral data and metadata
     for all sources in the exposure.
 
     Attributes
