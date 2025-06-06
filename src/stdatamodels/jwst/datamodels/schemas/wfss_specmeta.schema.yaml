@@ -28,3 +28,15 @@ properties:
     fits_keyword: SPORDER
     fits_hdu: EXTRACT1D
     default: -999
+  exposure_time:
+    title: Exposure time
+    type: number
+    fits_keyword: EFFEXPTM
+    fits_hdu: EXTRACT1D
+    default: 0.0
+  integration_time:
+    title: Integration time
+    type: number
+    fits_keyword: EFFINTTM
+    fits_hdu: EXTRACT1D
+    default: 0.0
