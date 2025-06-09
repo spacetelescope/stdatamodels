@@ -17,7 +17,6 @@ allOf:
           spectral_order:
             title: Spectral order number
             type: integer
-            default: -999
             fits_keyword: SPORDER
             fits_hdu: COMBINE1D
           dispersion_direction:
@@ -25,6 +24,5 @@ allOf:
             type: integer
             fits_keyword: DISPAXIS
             fits_hdu: COMBINE1D
-            default: -999
           spec_table:
             $ref: wfss_combinedspectable.schema

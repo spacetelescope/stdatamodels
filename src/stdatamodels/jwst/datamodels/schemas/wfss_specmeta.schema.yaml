@@ -9,34 +9,28 @@ properties:
     type: string
     fits_keyword: FILENAME
     fits_hdu: EXTRACT1D
-    default: ""
   group_id:
     title: Exposure group ID
     type: string
     fits_keyword: EXPGRPID
     fits_hdu: EXTRACT1D
-    default: ""
   dispersion_direction:
     title: Dispersion direction
     type: integer
     fits_keyword: DISPAXIS
     fits_hdu: EXTRACT1D
-    default: -999
   spectral_order:
     title: Spectral order
     type: integer
     fits_keyword: SPORDER
     fits_hdu: EXTRACT1D
-    default: -999
   exposure_time:
     title: Exposure time
     type: number
     fits_keyword: EFFEXPTM
     fits_hdu: EXTRACT1D
-    default: 0.0
   integration_time:
     title: Integration time
     type: number
     fits_keyword: EFFINTTM
     fits_hdu: EXTRACT1D
-    default: 0.0
