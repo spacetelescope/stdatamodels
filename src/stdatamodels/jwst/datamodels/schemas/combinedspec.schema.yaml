@@ -20,7 +20,6 @@ allOf:
       type: integer
       fits_keyword: DISPAXIS
       fits_hdu: COMBINE1D
-      default: -999
     source_id:
       title: Source ID
       type: integer
