@@ -491,7 +491,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             MIRI WFSS column dispersion model
         invdispl : `~astropy.modeling.Model`
             MIRI WFSS inverse wavelength dispersion model
-        orders : `~astropy.modeling.Model`
+        orders : list of int
             MIRI WFSS orders, matched to the array locations of the
             dispersion models
         **kwargs

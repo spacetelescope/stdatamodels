@@ -1,1 +1,1 @@
-added datamodel for MIRI WFSS specwcs reference file
+Added datamodel for MIRI WFSS specwcs reference file
