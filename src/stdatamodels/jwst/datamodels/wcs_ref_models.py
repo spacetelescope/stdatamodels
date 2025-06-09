@@ -474,7 +474,6 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
         dispy=None,
         invdispl=None,
         orders=None,
-        fwcpos_ref=None,
         **kwargs,
     ):
         """
@@ -495,8 +494,6 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
         orders : `~astropy.modeling.Model`
             MIRI WFSS orders, matched to the array locations of the
             dispersion models
-        fwcpos_ref : float
-            The reference value for the filter wheel position
         **kwargs
             Additional keyword arguments to pass to ReferenceFileModel
         """
@@ -514,8 +511,6 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             self.invdispl = invdispl
         if orders is not None:
             self.orders = orders
-        if fwcpos_ref is not None:
-            self.fwcpos_ref = fwcpos_ref
 
     def populate_meta(self):
         self.meta.instrument.name = "MIRI"
