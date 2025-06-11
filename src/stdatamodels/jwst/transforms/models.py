@@ -18,6 +18,8 @@ from astropy.modeling.parameters import Parameter, InputParameterError
 from astropy.modeling.models import Rotation2D, Mapping, Tabular1D, Const1D
 from astropy.modeling.models import math as astmath
 from ...properties import ListNode
+from functools import partial
+from scipy.optimize import newton
 
 
 __all__ = [
@@ -1557,18 +1559,25 @@ class NIRCAMBackwardGrismDispersion(Model):
         f : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(0.0, 1.0, 40)
-        t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
-
         if len(model) == 2:
-            xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
+
+            def _trace_linear(t, x0, y0, model):
+                """Map pixel offset value t to the wavelength solution using a linear model."""
+                return model[0](x0, y0) + model[1](x0, y0) * t
+
+            trace_function = partial(_trace_linear, model=model)
+
         elif len(model) == 3:
-            xr = (
-                (np.ones_like(t_re) * model[0](x0, y0))
-                + (t_re * model[1](x0, y0))
-                + (t_re**2 * model[2](x0, y0))
-            )
+
+            def _trace_quadratic(t, x0, y0, model):
+                """Map pixel offset value t to the wavelength solution using a quadratic model."""
+                return model[0](x0, y0) + model[1](x0, y0) * t + model[2](x0, y0) * t**2
+
+            trace_function = partial(_trace_quadratic, model=model)
+
         else:
+            # Handle legacy versions of the trace mode
+            t0 = np.linspace(0.0, 1.0, 40)
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
             else:
@@ -1578,10 +1587,34 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
-        so = np.argsort(xr, axis=1)
-        f = np.zeros_like(wavelength)
-        for i, w in enumerate(wavelength):
-            f[i] = np.interp(w, np.take_along_axis(xr, so, axis=1)[:, i], t0)
+        def _optimize_function(t, x0, y0, wavelength):
+            """
+            Find the value of the trace function that matches the wavelength.
+
+            Parameters
+            ----------
+            t : float
+                The pixel offset value to optimize
+            x0, y0 : float
+                Source object x-center, y-center
+            wavelength : float
+                The target wavelength to match
+
+            Returns
+            -------
+            float
+                The squared difference between the trace function output and the wavelength
+            """
+            xr = trace_function(t, x0, y0)
+            return (xr - wavelength) ** 2
+
+        f = newton(
+            partial(_optimize_function, x0=x0, y0=y0, wavelength=wavelength),
+            np.zeros_like(wavelength),
+            tol=1e-6,
+            maxiter=100,
+            full_output=False,
+        )
         return f
 
 
