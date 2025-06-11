@@ -15,6 +15,7 @@ dependencies = [
     "asdf-transform-schemas>=0.6.0",
     "asdf-astropy>=0.6.0",
     "numpy>=1.25",
+    "scipy>=1.14.1",
     "astropy>=6.1",
 ]
 license-files = ["LICENSE"]
