@@ -1576,7 +1576,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             trace_function = partial(_trace_quadratic, model=model)
 
         else:
-            # Handle legacy versions of the trace mode
+            # Handle legacy versions of the trace model
             t0 = np.linspace(0.0, 1.0, 40)
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
@@ -1595,7 +1595,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         f = newton(
             partial(_optimize_function, x0=x0, y0=y0, wavelength=wavelength),
             np.zeros_like(wavelength),
-            tol=1e-6,
+            tol=1e-3,
             maxiter=100,
             full_output=False,
         )

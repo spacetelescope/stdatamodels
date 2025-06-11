@@ -6,6 +6,7 @@ Test jwst.transforms
 import asdf
 import pytest
 from astropy.modeling.models import Identity
+import numpy as np
 from numpy.testing import assert_allclose
 
 from stdatamodels.jwst.transforms import models
@@ -208,3 +209,31 @@ def test_slit_to_msa_legacy(tmp_path):
         with asdf.open(tmp_file) as af:
             assert af["model"].slits == slits
             assert af["model"].slit_ids == list(range(len(slits)))
+
+
+@pytest.mark.parametrize("n_coeffs", [2, 3])
+def test_nircam_backward_grism_dispersion(n_coeffs):
+    """Smoke test and regression test for NIRCAM backward grism dispersion model."""
+    # lmodel output needs to be the coefficients of a quadratic fit
+    # "derived" from input x, y
+    def _mock_coeff(x,y):
+        return 1.0
+    lmodel = [_mock_coeff]*n_coeffs
+
+    orders = [1,2]
+    lmodels = [lmodel] * len(orders)
+    xmodels = [Identity(1)] * len(orders)
+    ymodels = [Identity(1)] * len(orders)
+
+    order = np.array([1])
+    x0 = np.linspace(100, 200, 11)
+    y0 = np.linspace(100, 200, 11)
+    wl = np.linspace(1.5e-6, 1.5e-6, 11)  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    xr, yr, x, y, order_out = model.evaluate(x0, y0, wl, order)
+    assert_allclose(x, x0)
+    assert_allclose(y, y0)
+    assert order == order_out
+    if n_coeffs == 3:
+        assert np.isclose(xr[0], 99.54216276)
+        assert np.isclose(yr[-1], 199.54216276)
