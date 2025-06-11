@@ -1571,6 +1571,7 @@ class NIRCAMBackwardGrismDispersion(Model):
 
             def _trace_quadratic(t, x0, y0, model):
                 """Map pixel offset value t to the wavelength solution using a quadratic model."""
+                # print(t, model[1](x0, y0))
                 return model[0](x0, y0) + model[1](x0, y0) * t + model[2](x0, y0) * t**2
 
             trace_function = partial(_trace_quadratic, model=model)
