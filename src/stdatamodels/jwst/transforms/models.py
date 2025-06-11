@@ -1588,23 +1588,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             return f
 
         def _optimize_function(t, x0, y0, wavelength):
-            """
-            Find the value of the trace function that matches the wavelength.
-
-            Parameters
-            ----------
-            t : float
-                The pixel offset value to optimize
-            x0, y0 : float
-                Source object x-center, y-center
-            wavelength : float
-                The target wavelength to match
-
-            Returns
-            -------
-            float
-                The squared difference between the trace function output and the wavelength
-            """
+            """Find value of trace function that matches the wavelength."""  # numpydoc ignore=RT01
             xr = trace_function(t, x0, y0)
             return (xr - wavelength) ** 2
 
