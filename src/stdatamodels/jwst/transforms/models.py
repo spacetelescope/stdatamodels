@@ -19,7 +19,6 @@ from astropy.modeling.models import Rotation2D, Mapping, Tabular1D, Const1D
 from astropy.modeling.models import math as astmath
 from ...properties import ListNode
 from functools import partial
-from scipy.optimize import newton
 
 
 __all__ = [
@@ -1506,9 +1505,12 @@ class NIRCAMBackwardGrismDispersion(Model):
         Parameters
         ----------
         x, y : float
-            Input x, y pixel
+            Input x, y pixel(s).
+            If these are 2D arrays, it is assumed that the model is being called on a grid
+            where all wavelengths are the same in one dimension, and all the x,y coordinates
+            are the same in the other dimension.
         wavelength : float
-            Wavelength in angstroms
+            Wavelength(s) in angstroms
         order : int
             Input spectral order
 
@@ -1541,7 +1543,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         dy = assess_model(ymodel, x, y, t)
         return x + dx, y + dy, x, y, order
 
-    def invdisp_interp(self, model, x0, y0, wavelength):
+    def invdisp_interp(self, model, x0, y0, wavelength, sampling=40):
         """
         Make a polynomial fit to lmodel and interpolate to find the inverse dispersion.
 
@@ -1553,6 +1555,11 @@ class NIRCAMBackwardGrismDispersion(Model):
             Source object x-center, y-center.
         wavelength : float
             Wavelength in angstroms
+        sampling : int, optional
+            Number of sampling points in t to use.
+            The output values of t will only contain points on the sampling grid,
+            i.e. for a sampling of 10 the possible values of t will be
+            [0.0, 0.1, 0.2, ..., 0.9, 1.0].
 
         Returns
         -------
@@ -1563,16 +1570,32 @@ class NIRCAMBackwardGrismDispersion(Model):
 
             def _trace_linear(t, x0, y0, model):
                 """Map pixel offset value t to the wavelength solution using a linear model."""
-                return model[0](x0, y0) + model[1](x0, y0) * t
+                t = np.expand_dims(t, axis=1)
+                return (
+                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
+                    + t @ model[1](x0, y0)[np.newaxis, :]
+                )
 
             trace_function = partial(_trace_linear, model=model)
 
         elif len(model) == 3:
 
             def _trace_quadratic(t, x0, y0, model):
-                """Map pixel offset value t to the wavelength solution using a quadratic model."""
-                # print(t, model[1](x0, y0))
-                return model[0](x0, y0) + model[1](x0, y0) * t + model[2](x0, y0) * t**2
+                """
+                Map pixel offset value t to the wavelength solution using a quadratic model.
+
+                t, x0, and y0 MUST be 1D arrays.
+                t.shape does not have to equal x0.shape and y0.shape,
+                but x0.shape must equal y.shape
+
+                return has shape (n_x0, n_t) where n_t == sampling
+                """
+                t = np.expand_dims(t, axis=1)
+                return (
+                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
+                    + t @ model[1](x0, y0)[np.newaxis, :]
+                    + t**2 @ model[2](x0, y0)[np.newaxis, :]
+                )
 
             trace_function = partial(_trace_quadratic, model=model)
 
@@ -1588,19 +1611,82 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
-        def _optimize_function(t, x0, y0, wavelength):
-            """Find value of trace function that matches the wavelength."""  # numpydoc ignore=RT01
-            xr = trace_function(t, x0, y0)
-            return (xr - wavelength) ** 2
+        if x0.ndim == 2:
+            # Assume we're calling this on a grid where all wavelengths are the same
+            # in one dimension, and all the x,y coordinates are the same in the other dimension.
+            x0 = x0[0].flatten()
+            y0 = y0[0].flatten()
+            wavelength = wavelength[:, 0].flatten()
 
-        f = newton(
-            partial(_optimize_function, x0=x0, y0=y0, wavelength=wavelength),
-            np.zeros_like(wavelength),
-            tol=1e-3,
-            maxiter=100,
-            full_output=False,
-        )
-        return f
+        t0 = np.linspace(0.0, 1.0, int(sampling))
+        wave_grid = trace_function(t0, x0, y0)
+        t_out = np.empty((len(wavelength), len(x0)))
+        for i, w in enumerate(wavelength):
+            # do a first order interpolation to find the t0 where residuals are minimized
+            # at each x,y location
+            resid = (wave_grid - w) ** 2
+            t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
+
+        return t_out
+
+
+def _find_min_with_linear_interpolation(resid, t0):
+    """
+    Vectorize linear interpolation over the 0th axis to find the minimum value.
+
+    Parameters
+    ----------
+    resid : ndarray
+        The residuals to minimize, shape (n_t, n_points)
+    t0 : ndarray
+        The t values corresponding to the first axis of resid, shape (n_t,)
+
+    Returns
+    -------
+    this_t : ndarray
+        The t values which minimize the residuals, shape (n_points,)
+    """
+    min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
+
+    # When the residuals are minimized near t=0 or t=1, just use those values
+    # instead of doing a linear interpolation
+    this_t = np.empty(resid.shape[1], dtype=float)
+    this_t[min_ind == 0] = 0.0
+    this_t[min_ind == resid.shape[0] - 1] = 1.0
+
+    # for all other indices, calculate the t value based on
+    # linearly interpolating the derivative to guess where it should cross zero
+    good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
+    good_ind = np.expand_dims(min_ind[good], axis=0)
+    resid_good = resid[:, good]
+    grad_good = np.gradient(resid_good, axis=0)
+    grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
+    grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
+    grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
+
+    # if the gradient is positive, then the minimum is to the left
+    # if the gradient is negative, then the minimum is to the right
+    grad_right[grad_center < 0] = grad_center[grad_center < 0]
+    grad_left[grad_center > 0] = grad_center[grad_center > 0]
+
+    t_left = t0[good_ind - 1][0]
+    t_right = t0[good_ind + 1][0]
+    t_center = t0[good_ind][0]
+    t_right[grad_center < 0] = t_center[grad_center < 0]
+    t_left[grad_center > 0] = t_center[grad_center > 0]
+
+    # given points (t_left, grad_left) and (t_right, grad_right),
+    # find the x-intercept, which is the value of t where the gradient
+    # is identically zero under the linear approximation
+    m = (grad_right - grad_left) / (t_right - t_left)
+    b = grad_right - m * t_right
+    x_intercept = -b / m
+
+    # make grad_center == 0 case exact
+    x_intercept[grad_center == 0] = t_center[grad_center == 0]
+
+    this_t[good] = x_intercept
+    return this_t
 
 
 class NIRISSBackwardGrismDispersion(Model):
