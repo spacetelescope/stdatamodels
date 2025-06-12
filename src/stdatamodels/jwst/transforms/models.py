@@ -1611,6 +1611,12 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
+        if isinstance(x0, (int, float)):
+            x0 = np.array([x0])
+        if isinstance(y0, (int, float)):
+            y0 = np.array([y0])
+        if isinstance(wavelength, (int, float)):
+            wavelength = np.array([wavelength])
         if x0.ndim == 2:
             # Assume we're calling this on a grid where all wavelengths are the same
             # in one dimension, and all the x,y coordinates are the same in the other dimension.
