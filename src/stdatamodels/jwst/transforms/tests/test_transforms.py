@@ -237,9 +237,8 @@ def _invdisp_interp_old(model, x0, y0, wavelength):
 
 @pytest.mark.parametrize("n_coeffs", [2, 3])
 def test_nircam_backward_grism_dispersion(n_coeffs):
-    """Smoke test and regression test for NIRCAM backward grism dispersion model."""
-    # lmodel output needs to be the coefficients of a quadratic fit
-    # "derived" from input x, y
+    """Ensure algorithm change works similarly to legacy code."""
+
     def _mock_coeff(x,y):
         """
         Simulate dependence of the polynomial coefficients on the detector position.
@@ -272,3 +271,27 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
         t2_out[i] = t2
 
     assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
+
+
+def test_nircam_backward_grism_dispersion_single():
+    """Smoke test to ensure works on single-valued inputs as well."""
+    def _mock_coeff(x,y):
+        return (x/100)*1e-6
+
+    lmodel = [_mock_coeff]*2
+
+    orders = np.array([1])
+    lmodels = [lmodel] * len(orders)
+    xmodels = [Identity(1)] * len(orders)
+    ymodels = [Identity(1)] * len(orders)
+
+    x0 = 150
+    y0 = 140
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == wl.size
+    assert yi.size == wl.size
+    assert x == x0
+    assert y == y0
+    assert_allclose(order, orders[0])
