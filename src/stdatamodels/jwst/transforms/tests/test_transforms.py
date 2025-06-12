@@ -211,15 +211,45 @@ def test_slit_to_msa_legacy(tmp_path):
             assert af["model"].slit_ids == list(range(len(slits)))
 
 
+def _invdisp_interp_old(model, x0, y0, wavelength):
+    """
+    Legacy interpolation function for NIRCAM backward grism dispersion.
+
+    This function is used to ensure that the new model's output is identical to the
+    legacy model's output for the same inputs (to within some tolerance).
+    """
+    t0 = np.linspace(0.0, 1.0, 40)
+    t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
+    if len(model) == 2:
+        xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
+    elif len(model) == 3:
+        xr = (
+            (np.ones_like(t_re) * model[0](x0, y0))
+            + (t_re * model[1](x0, y0))
+            + (t_re**2 * model[2](x0, y0))
+        )
+    so = np.argsort(xr, axis=1)
+    f = np.zeros_like(wavelength)
+    for i, w in enumerate(wavelength):
+        f[i] = np.interp(w, np.take_along_axis(xr, so, axis=1)[:, i], t0)
+    return f
+
+
 @pytest.mark.parametrize("n_coeffs", [2, 3])
 def test_nircam_backward_grism_dispersion(n_coeffs):
     """Smoke test and regression test for NIRCAM backward grism dispersion model."""
     # lmodel output needs to be the coefficients of a quadratic fit
     # "derived" from input x, y
     def _mock_coeff(x,y):
-        # need to scale so the quadratic function returns values somewhere near a wavelength
-        # in microns, so we scale by 1e-6
+        """
+        Simulate dependence of the polynomial coefficients on the detector position.
+
+        The output of ldmodel should be a list of coefficients that are each themselves
+        a polynomial function of x and y. The output should be scaled to return values
+        that are in the range of wavelengths in microns.
+        """
         return (x/100)*1e-6
+
     lmodel = [_mock_coeff]*n_coeffs
 
     orders = [1,2]
@@ -227,19 +257,18 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     xmodels = [Identity(1)] * len(orders)
     ymodels = [Identity(1)] * len(orders)
 
-    order = np.array([1])
+    sampling = 80
     x0 = np.linspace(100, 200, 11)
     y0 = np.linspace(90, 190, 11)
-    wl = np.linspace(1.5e-6, 1.5e-6, 11)  # 2 microns
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
     model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
-    xr, yr, x, y, order_out = model.evaluate(x0, y0, wl, order)
-    assert_allclose(x, x0)
-    assert_allclose(y, y0)
-    assert order == order_out
-    if n_coeffs == 3:
-        # The fact that these are not all the same decimal offset gives us some confidence
-        # that the optimizer is actually working on each pixel individually
-        assert np.isclose(xr[0], 100.36602372)
-        assert np.isclose(xr[1], 110.28334798)
-        assert np.isclose(yr[-2], 179.69868645)
-        assert np.isclose(yr[-1], 189.50390444)
+    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl, sampling=sampling)
+
+    # for this version we need to make x0, y0, wl all have same shape
+    t2_out = np.empty_like(t_out)
+    for i, this_wl in enumerate(wl):
+        wl2 = this_wl * np.ones_like(x0)
+        t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
+        t2_out[i] = t2
+
+    assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
