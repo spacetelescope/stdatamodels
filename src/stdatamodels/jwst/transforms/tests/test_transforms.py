@@ -257,8 +257,16 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     ymodels = [Identity(1)] * len(orders)
 
     sampling = 80
-    x0 = np.linspace(100, 200, 11)
-    y0 = np.linspace(90, 190, 11)
+    # imagine we are dispersing a square 5x5 source
+    # then x0, y0 are expected to be flattened arrays of the grid
+    # such that each (x0[i], y0[i]) corresponds to a unique pixel in the source
+    # but x0 or y0 itself can and usually will have repeated values
+    x = np.linspace(100, 200, 5)
+    y = np.linspace(90, 190, 5)
+    x0, y0 = np.meshgrid(x, y, indexing='ij')
+    x0 = x0.flatten()
+    y0 = y0.flatten()
+
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
     model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
     t_out = model.invdisp_interp(lmodels[0], x0, y0, wl, sampling=sampling)
