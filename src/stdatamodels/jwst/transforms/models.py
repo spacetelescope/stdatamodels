@@ -1523,6 +1523,19 @@ class NIRCAMBackwardGrismDispersion(Model):
         order : int
             Output spectral order, same as input
         """
+        if isinstance(x, (int, float)):
+            x = np.array([x])
+        if isinstance(y, (int, float)):
+            y = np.array([y])
+        if isinstance(wavelength, (int, float)):
+            wavelength = np.array([wavelength])
+        if x.ndim == 2:
+            # Assume we're calling this on a grid where all wavelengths are the same
+            # in one dimension, and all the x,y coordinates are the same in the other dimension.
+            x = x[0].flatten()
+            y = y[0].flatten()
+            wavelength = wavelength[:, 0].flatten()
+
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
         except KeyError as err:
@@ -1549,12 +1562,19 @@ class NIRCAMBackwardGrismDispersion(Model):
 
         Parameters
         ----------
-        model : astropy.modeling.Model
-            The model governing the wavelength solution for a given order
-        x0, y0 : float
-            Source object x-center, y-center.
-        wavelength : float
-            Wavelength in angstroms
+        model : list of astropy.modeling.Model
+            The models encoding the x, y dependence of the trace model's
+            polynomial coefficients.
+        x0, y0 : float or np.ndarray
+            Source object x-center, y-center. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
+        wavelength : float or np.ndarray
+            Wavelength(s) in angstroms. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
         sampling : int, optional
             Number of sampling points in t to use.
             The output values of t will only contain points on the sampling grid,
@@ -1569,7 +1589,12 @@ class NIRCAMBackwardGrismDispersion(Model):
         if len(model) == 2:
 
             def _trace_linear(t, x0, y0, model):
-                """Map pixel offset value t to the wavelength solution using a linear model."""
+                """
+                Map pixel offset value t to the wavelength solution using a linear model.
+
+                Identical call and return structure to _trace_quadratic;
+                see that docstring for details.
+                """
                 t = np.expand_dims(t, axis=1)
                 return (
                     np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
@@ -1584,11 +1609,22 @@ class NIRCAMBackwardGrismDispersion(Model):
                 """
                 Map pixel offset value t to the wavelength solution using a quadratic model.
 
-                t, x0, and y0 MUST be 1D arrays.
-                t.shape does not have to equal x0.shape and y0.shape,
-                but x0.shape must equal y.shape
+                Parameters
+                ----------
+                t : 1-D np.ndarray
+                    The pixel offset value(s) in the dispersion direction.
+                x0, y0 : 1-D np.ndarray
+                    The x and y coordinates of the source object.
+                    x0 and y0 must have the same shape, but this can be different from t.
+                model : list of astropy.modeling.Model
+                    The models encoding the x, y dependence of the trace model's
+                    polynomial coefficients. Must have length 3.
 
-                return has shape (n_x0, n_t) where n_t == sampling
+                Returns
+                -------
+                f : 2-D np.ndarray
+                    The spatially-varying wavelength solutions for the given t, x0, and y0,
+                    shape (n_x0, n_t) where n_t == sampling
                 """
                 t = np.expand_dims(t, axis=1)
                 return (
@@ -1611,19 +1647,6 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
-        if isinstance(x0, (int, float)):
-            x0 = np.array([x0])
-        if isinstance(y0, (int, float)):
-            y0 = np.array([y0])
-        if isinstance(wavelength, (int, float)):
-            wavelength = np.array([wavelength])
-        if x0.ndim == 2:
-            # Assume we're calling this on a grid where all wavelengths are the same
-            # in one dimension, and all the x,y coordinates are the same in the other dimension.
-            x0 = x0[0].flatten()
-            y0 = y0[0].flatten()
-            wavelength = wavelength[:, 0].flatten()
-
         t0 = np.linspace(0.0, 1.0, int(sampling))
         wave_grid = trace_function(t0, x0, y0)
         t_out = np.empty((len(wavelength), len(x0)))
@@ -1633,6 +1656,8 @@ class NIRCAMBackwardGrismDispersion(Model):
             resid = (wave_grid - w) ** 2
             t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
 
+        if t_out.shape[0] == 1:
+            t_out = t_out[0, :]
         return t_out
 
 
