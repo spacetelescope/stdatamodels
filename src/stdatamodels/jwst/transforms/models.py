@@ -1505,12 +1505,15 @@ class NIRCAMBackwardGrismDispersion(Model):
         Parameters
         ----------
         x, y : float
-            Input x, y pixel(s).
-            If these are 2D arrays, it is assumed that the model is being called on a grid
-            where all wavelengths are the same in one dimension, and all the x,y coordinates
-            are the same in the other dimension.
+            Input x, y pixel(s). If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
         wavelength : float
-            Wavelength(s) in angstroms
+            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
         order : int
             Input spectral order
 
@@ -1529,12 +1532,6 @@ class NIRCAMBackwardGrismDispersion(Model):
             y = np.array([y])
         if isinstance(wavelength, (int, float)):
             wavelength = np.array([wavelength])
-        if x.ndim == 2:
-            # Assume we're calling this on a grid where all wavelengths are the same
-            # in one dimension, and all the x,y coordinates are the same in the other dimension.
-            x = x[0].flatten()
-            y = y[0].flatten()
-            wavelength = wavelength[:, 0].flatten()
 
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
@@ -1571,15 +1568,12 @@ class NIRCAMBackwardGrismDispersion(Model):
             and all the x,y coordinates are the same along the second axis. In this case,
             x0, y0, and wavelength must all have the same shape.
         wavelength : float or np.ndarray
-            Wavelength(s) in angstroms. If a 2-D array, it is assumed that the model
+            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
             is being called on a grid where all wavelengths are the same along the first axis,
             and all the x,y coordinates are the same along the second axis. In this case,
             x0, y0, and wavelength must all have the same shape.
         sampling : int, optional
-            Number of sampling points in t to use.
-            The output values of t will only contain points on the sampling grid,
-            i.e. for a sampling of 10 the possible values of t will be
-            [0.0, 0.1, 0.2, ..., 0.9, 1.0].
+            Number of sampling points in t to use; these will be linearly interpolated.
 
         Returns
         -------
@@ -1590,7 +1584,7 @@ class NIRCAMBackwardGrismDispersion(Model):
 
             def _trace_linear(t, x0, y0, model):
                 """
-                Map pixel offset value t to the wavelength solution using a linear model.
+                Map trace parameter t to the wavelength solution using a linear model.
 
                 Identical call and return structure to _trace_quadratic;
                 see that docstring for details.
@@ -1607,12 +1601,16 @@ class NIRCAMBackwardGrismDispersion(Model):
 
             def _trace_quadratic(t, x0, y0, model):
                 """
-                Map pixel offset value t to the wavelength solution using a quadratic model.
+                Map trace parameter t to the wavelength solution using a quadratic model.
+
+                t defines a parametric curve representing the trace, (x(t), y(t)).
+                Its values go between 0 and 1, where 0 corresponds to the start of the trace
+                and 1 corresponds to the end of the trace.
 
                 Parameters
                 ----------
                 t : 1-D np.ndarray
-                    The pixel offset value(s) in the dispersion direction.
+                    The trace parameter(s) in the dispersion direction.
                 x0, y0 : 1-D np.ndarray
                     The x and y coordinates of the source object.
                     x0 and y0 must have the same shape, but this can be different from t.
@@ -1647,6 +1645,13 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
+        if x0.ndim == 2:
+            # Assume we're calling this on a grid where all wavelengths are the same
+            # in one dimension, and all the x,y coordinates are the same in the other dimension.
+            x0 = x0[0].flatten()
+            y0 = y0[0].flatten()
+            wavelength = wavelength[:, 0].flatten()
+
         t0 = np.linspace(0.0, 1.0, int(sampling))
         wave_grid = trace_function(t0, x0, y0)
         t_out = np.empty((len(wavelength), len(x0)))
@@ -1668,14 +1673,14 @@ def _find_min_with_linear_interpolation(resid, t0):
     Parameters
     ----------
     resid : ndarray
-        The residuals to minimize, shape (n_t, n_points)
+        The residuals to minimize along the 0th axis, shape (n_t, n_points)
     t0 : ndarray
-        The t values corresponding to the first axis of resid, shape (n_t,)
+        The t-values corresponding to the first axis of resid, shape (n_t,)
 
     Returns
     -------
     this_t : ndarray
-        The t values which minimize the residuals, shape (n_points,)
+        The t-values that minimize the residuals at each pixel, shape (n_points,)
     """
     min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
 
