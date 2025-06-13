@@ -2385,7 +2385,7 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MTWCS
             blend_table: True
-          back_sub:
+          bkg_subtract:
             title: Background subtraction
             type: string
             enum: [SKIPPED, COMPLETE]
