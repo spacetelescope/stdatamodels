@@ -285,6 +285,7 @@ def test_nircam_backward_grism_dispersion_single():
     xmodels = [Identity(1)] * len(orders)
     ymodels = [Identity(1)] * len(orders)
 
+    # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
@@ -295,3 +296,12 @@ def test_nircam_backward_grism_dispersion_single():
     assert x == x0
     assert y == y0
     assert_allclose(order, orders[0])
+
+    # many x0, y0, single wavelength
+    x0 = np.linspace(100, 200, 11)
+    y0 = np.linspace(90, 190, 11)
+    wl = 2e-6  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == x0.size
+    assert yi.size == y0.size
