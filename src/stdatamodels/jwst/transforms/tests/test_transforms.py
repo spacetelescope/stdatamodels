@@ -6,6 +6,7 @@ Test jwst.transforms
 import asdf
 import pytest
 from astropy.modeling.models import Identity
+import numpy as np
 from numpy.testing import assert_allclose
 
 from stdatamodels.jwst.transforms import models
@@ -208,3 +209,107 @@ def test_slit_to_msa_legacy(tmp_path):
         with asdf.open(tmp_file) as af:
             assert af["model"].slits == slits
             assert af["model"].slit_ids == list(range(len(slits)))
+
+
+def _invdisp_interp_old(model, x0, y0, wavelength):
+    """
+    Legacy interpolation function for NIRCAM backward grism dispersion.
+
+    This function is used to ensure that the new model's output is identical to the
+    legacy model's output for the same inputs (to within some tolerance).
+    """
+    t0 = np.linspace(0.0, 1.0, 40)
+    t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
+    if len(model) == 2:
+        xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
+    elif len(model) == 3:
+        xr = (
+            (np.ones_like(t_re) * model[0](x0, y0))
+            + (t_re * model[1](x0, y0))
+            + (t_re**2 * model[2](x0, y0))
+        )
+    so = np.argsort(xr, axis=1)
+    f = np.zeros_like(wavelength)
+    for i, w in enumerate(wavelength):
+        f[i] = np.interp(w, np.take_along_axis(xr, so, axis=1)[:, i], t0)
+    return f
+
+
+@pytest.mark.parametrize("n_coeffs", [2, 3])
+def test_nircam_backward_grism_dispersion(n_coeffs):
+    """Ensure algorithm change works similarly to legacy code."""
+
+    def _mock_coeff(x,y):
+        """
+        Simulate dependence of the polynomial coefficients on the detector position.
+
+        The output of ldmodel should be a list of coefficients that are each themselves
+        a polynomial function of x and y. The output should be scaled to return values
+        that are in the range of wavelengths in microns.
+        """
+        return (x/100)*1e-6
+
+    lmodel = [_mock_coeff]*n_coeffs
+
+    orders = [1,2]
+    lmodels = [lmodel] * len(orders)
+    xmodels = [Identity(1)] * len(orders)
+    ymodels = [Identity(1)] * len(orders)
+
+    sampling = 80
+    # imagine we are dispersing a square 5x5 source
+    # then x0, y0 are expected to be flattened arrays of the grid
+    # such that each (x0[i], y0[i]) corresponds to a unique pixel in the source
+    # but x0 or y0 itself can and usually will have repeated values
+    x = np.linspace(100, 200, 5)
+    y = np.linspace(90, 190, 5)
+    x0, y0 = np.meshgrid(x, y, indexing='ij')
+    x0 = x0.flatten()
+    y0 = y0.flatten()
+
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl, sampling=sampling)
+
+    # for this version we need to make x0, y0, wl all have same shape
+    t2_out = np.empty_like(t_out)
+    for i, this_wl in enumerate(wl):
+        wl2 = this_wl * np.ones_like(x0)
+        t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
+        t2_out[i] = t2
+
+    assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
+
+
+def test_nircam_backward_grism_dispersion_single():
+    """Smoke test to ensure works on single-valued inputs as well."""
+    def _mock_coeff(x,y):
+        return (x/100)*1e-6
+
+    lmodel = [_mock_coeff]*2
+
+    orders = np.array([1])
+    lmodels = [lmodel] * len(orders)
+    xmodels = [Identity(1)] * len(orders)
+    ymodels = [Identity(1)] * len(orders)
+
+    # many wavelengths, single x0, y0
+    x0 = 150
+    y0 = 140
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == wl.size
+    assert yi.size == wl.size
+    assert x == x0
+    assert y == y0
+    assert_allclose(order, orders[0])
+
+    # many x0, y0, single wavelength
+    x0 = np.linspace(100, 200, 11)
+    y0 = np.linspace(90, 190, 11)
+    wl = 2e-6  # 2 microns
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == x0.size
+    assert yi.size == y0.size

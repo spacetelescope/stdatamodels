@@ -18,6 +18,7 @@ from astropy.modeling.parameters import Parameter, InputParameterError
 from astropy.modeling.models import Rotation2D, Mapping, Tabular1D, Const1D
 from astropy.modeling.models import math as astmath
 from ...properties import ListNode
+from functools import partial
 
 
 __all__ = [
@@ -1504,9 +1505,15 @@ class NIRCAMBackwardGrismDispersion(Model):
         Parameters
         ----------
         x, y : float
-            Input x, y pixel
+            Input x, y pixel(s). If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
         wavelength : float
-            Wavelength in angstroms
+            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
         order : int
             Input spectral order
 
@@ -1519,6 +1526,10 @@ class NIRCAMBackwardGrismDispersion(Model):
         order : int
             Output spectral order, same as input
         """
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
+        wavelength = np.atleast_1d(wavelength)
+
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
         except KeyError as err:
@@ -1539,36 +1550,89 @@ class NIRCAMBackwardGrismDispersion(Model):
         dy = assess_model(ymodel, x, y, t)
         return x + dx, y + dy, x, y, order
 
-    def invdisp_interp(self, model, x0, y0, wavelength):
+    def invdisp_interp(self, model, x0, y0, wavelength, sampling=40):
         """
         Make a polynomial fit to lmodel and interpolate to find the inverse dispersion.
 
         Parameters
         ----------
-        model : astropy.modeling.Model
-            The model governing the wavelength solution for a given order
-        x0, y0 : float
-            Source object x-center, y-center.
-        wavelength : float
-            Wavelength in angstroms
+        model : list of astropy.modeling.Model
+            The models encoding the x, y dependence of the trace model's
+            polynomial coefficients.
+        x0, y0 : float or np.ndarray
+            Source object x-center, y-center. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
+        wavelength : float or np.ndarray
+            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
+            is being called on a grid where all wavelengths are the same along the first axis,
+            and all the x,y coordinates are the same along the second axis. In this case,
+            x0, y0, and wavelength must all have the same shape.
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
 
         Returns
         -------
         f : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(0.0, 1.0, 40)
-        t_re = np.reshape(t0, [len(t0), *map(int, np.ones_like(np.shape(x0)))])
-
+        t0 = np.linspace(0.0, 1.0, int(sampling))
         if len(model) == 2:
-            xr = (np.ones_like(t_re) * model[0](x0, y0)) + (t_re * model[1](x0, y0))
+
+            def _trace_linear(t, x0, y0, model):
+                """
+                Map trace parameter t to the wavelength solution using a linear model.
+
+                Identical call and return structure to _trace_quadratic;
+                see that docstring for details.
+                """
+                t = np.expand_dims(t, axis=1)
+                return (
+                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
+                    + t @ model[1](x0, y0)[np.newaxis, :]
+                )
+
+            trace_function = partial(_trace_linear, model=model)
+
         elif len(model) == 3:
-            xr = (
-                (np.ones_like(t_re) * model[0](x0, y0))
-                + (t_re * model[1](x0, y0))
-                + (t_re**2 * model[2](x0, y0))
-            )
+
+            def _trace_quadratic(t, x0, y0, model):
+                """
+                Map trace parameter t to the wavelength solution using a quadratic model.
+
+                t defines a parametric curve representing the trace, (x(t), y(t)).
+                Its values go between 0 and 1, where 0 corresponds to the start of the trace
+                and 1 corresponds to the end of the trace.
+
+                Parameters
+                ----------
+                t : 1-D np.ndarray
+                    The trace parameter(s) in the dispersion direction.
+                x0, y0 : 1-D np.ndarray
+                    The x and y coordinates of the source object.
+                    x0 and y0 must have the same shape, but this can be different from t.
+                model : list of astropy.modeling.Model
+                    The models encoding the x, y dependence of the trace model's
+                    polynomial coefficients. Must have length 3.
+
+                Returns
+                -------
+                f : 2-D np.ndarray
+                    The spatially-varying wavelength solutions for the given t, x0, and y0,
+                    shape (n_x0, n_t) where n_t == sampling
+                """
+                t = np.expand_dims(t, axis=1)
+                return (
+                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
+                    + t @ model[1](x0, y0)[np.newaxis, :]
+                    + t**2 @ model[2](x0, y0)[np.newaxis, :]
+                )
+
+            trace_function = partial(_trace_quadratic, model=model)
+
         else:
+            # Handle legacy versions of the trace model
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
             else:
@@ -1578,11 +1642,83 @@ class NIRCAMBackwardGrismDispersion(Model):
                 f[i] = np.interp(w, xr, t0)
             return f
 
-        so = np.argsort(xr, axis=1)
-        f = np.zeros_like(wavelength)
+        if x0.ndim == 2:
+            # Assume we're calling this on a grid where all wavelengths are the same
+            # in one dimension, and all the x,y coordinates are the same in the other dimension.
+            x0 = x0[0].flatten()
+            y0 = y0[0].flatten()
+            wavelength = wavelength[:, 0].flatten()
+
+        wave_grid = trace_function(t0, x0, y0)
+        t_out = np.empty((len(wavelength), len(x0)))
         for i, w in enumerate(wavelength):
-            f[i] = np.interp(w, np.take_along_axis(xr, so, axis=1)[:, i], t0)
-        return f
+            # do a first order interpolation to find the t0 where residuals are minimized
+            # at each x,y location
+            resid = (wave_grid - w) ** 2
+            t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
+
+        if t_out.shape[0] == 1:
+            t_out = t_out[0, :]
+        return t_out
+
+
+def _find_min_with_linear_interpolation(resid, t0):
+    """
+    Vectorize linear interpolation over the 0th axis to find the minimum value.
+
+    Parameters
+    ----------
+    resid : ndarray
+        The residuals to minimize along the 0th axis, shape (n_t, n_points)
+    t0 : ndarray
+        The t-values corresponding to the first axis of resid, shape (n_t,)
+
+    Returns
+    -------
+    this_t : ndarray
+        The t-values that minimize the residuals at each pixel, shape (n_points,)
+    """
+    min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
+
+    # When the residuals are minimized near t=0 or t=1, just use those values
+    # instead of doing a linear interpolation
+    this_t = np.empty(resid.shape[1], dtype=float)
+    this_t[min_ind == 0] = 0.0
+    this_t[min_ind == resid.shape[0] - 1] = 1.0
+
+    # for all other indices, calculate the t value based on
+    # linearly interpolating the derivative to guess where it should cross zero
+    good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
+    good_ind = np.expand_dims(min_ind[good], axis=0)
+    resid_good = resid[:, good]
+    grad_good = np.gradient(resid_good, axis=0)
+    grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
+    grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
+    grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
+
+    # if the gradient is positive, then the minimum is to the left
+    # if the gradient is negative, then the minimum is to the right
+    grad_right[grad_center < 0] = grad_center[grad_center < 0]
+    grad_left[grad_center > 0] = grad_center[grad_center > 0]
+
+    t_left = t0[good_ind - 1][0]
+    t_right = t0[good_ind + 1][0]
+    t_center = t0[good_ind][0]
+    t_right[grad_center < 0] = t_center[grad_center < 0]
+    t_left[grad_center > 0] = t_center[grad_center > 0]
+
+    # given points (t_left, grad_left) and (t_right, grad_right),
+    # find the x-intercept, which is the value of t where the gradient
+    # is identically zero under the linear approximation
+    m = (grad_right - grad_left) / (t_right - t_left)
+    b = grad_right - m * t_right
+    x_intercept = -b / m
+
+    # make grad_center == 0 case exact
+    x_intercept[grad_center == 0] = t_center[grad_center == 0]
+
+    this_t[good] = x_intercept
+    return this_t
 
 
 class NIRISSBackwardGrismDispersion(Model):
