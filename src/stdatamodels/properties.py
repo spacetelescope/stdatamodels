@@ -13,8 +13,7 @@ from . import schema as mschema
 
 import logging
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+log = logging.getLogger("stpipe.stdatamodels")
 
 
 __all__ = ["ObjectNode", "ListNode"]

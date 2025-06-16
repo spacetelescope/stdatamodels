@@ -19,7 +19,7 @@ from crds.client.api import cache_references, dump_files  # noqa: E402
 from crds.core.exceptions import IrrelevantReferenceTypeError  # noqa: E402
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("stpipe.stdatamodels.jwst.datamodels.tests")
 
 
 def flatten(xs):

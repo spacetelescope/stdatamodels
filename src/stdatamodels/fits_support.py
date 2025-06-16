@@ -27,8 +27,7 @@ from . import validate
 
 import logging
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+log = logging.getLogger("stpipe.stdatamodels")
 
 
 __all__ = ["to_fits", "from_fits", "get_hdu", "is_builtin_fits_keyword"]

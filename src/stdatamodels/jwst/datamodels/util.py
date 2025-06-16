@@ -20,8 +20,7 @@ import stdatamodels.jwst.datamodels as dm
 __all__ = ["open", "is_association"]
 
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+log = logging.getLogger("stpipe.stdatamodels.jwst.datamodels")
 
 
 def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001

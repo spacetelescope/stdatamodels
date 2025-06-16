@@ -2,9 +2,7 @@ import numpy as np
 
 import logging
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.NullHandler())
+log = logging.getLogger("stpipe.stdatamodels")
 
 
 def dynamic_mask(input_model, mnemonic_map, inv=False):
