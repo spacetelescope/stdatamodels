@@ -1577,6 +1577,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         f : float
             The inverse dispersion value for the given wavelength
         """
+        t0 = np.linspace(0.0, 1.0, int(sampling))
         if len(model) == 2:
 
             def _trace_linear(t, x0, y0, model):
@@ -1632,7 +1633,6 @@ class NIRCAMBackwardGrismDispersion(Model):
 
         else:
             # Handle legacy versions of the trace model
-            t0 = np.linspace(0.0, 1.0, 40)
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
             else:
@@ -1649,7 +1649,6 @@ class NIRCAMBackwardGrismDispersion(Model):
             y0 = y0[0].flatten()
             wavelength = wavelength[:, 0].flatten()
 
-        t0 = np.linspace(0.0, 1.0, int(sampling))
         wave_grid = trace_function(t0, x0, y0)
         t_out = np.empty((len(wavelength), len(x0)))
         for i, w in enumerate(wavelength):
