@@ -1,0 +1,28 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wfss_multicombinedspec.schema"
+title: Table of exposure-averaged WFSS-extracted spectra and their associated metadata
+allOf:
+- $ref: core.schema
+- $ref: int_times.schema
+- type: object
+  properties:
+    spec:
+      type: array
+      title: An array of spectra
+      items:
+        type: object
+        properties:
+          spectral_order:
+            title: Spectral order number
+            type: integer
+            fits_keyword: SPORDER
+            fits_hdu: COMBINE1D
+          dispersion_direction:
+            title: Dispersion direction
+            type: integer
+            fits_keyword: DISPAXIS
+            fits_hdu: COMBINE1D
+          spec_table:
+            $ref: wfss_combinedspectable.schema
