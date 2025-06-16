@@ -1526,12 +1526,9 @@ class NIRCAMBackwardGrismDispersion(Model):
         order : int
             Output spectral order, same as input
         """
-        if isinstance(x, (int, float)):
-            x = np.array([x])
-        if isinstance(y, (int, float)):
-            y = np.array([y])
-        if isinstance(wavelength, (int, float)):
-            wavelength = np.array([wavelength])
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
+        wavelength = np.atleast_1d(wavelength)
 
         try:
             iorder = self._order_mapping[int(order.flatten()[0])]
