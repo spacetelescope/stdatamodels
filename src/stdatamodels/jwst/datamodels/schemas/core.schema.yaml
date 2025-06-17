@@ -1744,22 +1744,26 @@ properties:
           fgs_v2_ref:
             title: "[arcsec] Telescope V2 coord of reference point"
             type: number
-            fits_keyword: FGSV2REF
+            fits_keyword: V2_REF
+            fits_hdu: PRIMARY
             blend_table: True
           fgs_v3_ref:
             title: "[arcsec] Telescope V3 coord of reference point"
             type: number
-            fits_keyword: FGSV3REF
+            fits_keyword: V3_REF
+            fits_hdu: PRIMARY
             blend_table: True
           fgs_v3yangle:
-              title: "[deg] Angle from V3 axis to Ideal y axis"
-              type: number
-              fits_keyword: FGSV3YAN
-              blend_table: True
+            title: "[deg] Angle from V3 axis to Ideal y axis"
+            type: number
+            fits_keyword: V3I_YANG
+            fits_hdu: PRIMARY
+            blend_table: True
           fgs_vparity:
             title: Relative sense of rotation between Ideal xy and V2V3
             type: integer
-            fits_keyword: FGS_VPAR
+            fits_keyword: VPARITY
+            fits_hdu: PRIMARY
             blend_table: True
           data_start:
             title: "[d] MJD start time of guider data in this file"
