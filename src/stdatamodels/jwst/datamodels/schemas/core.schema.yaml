@@ -1753,6 +1753,12 @@ properties:
             fits_keyword: V3_REF
             fits_hdu: PRIMARY
             blend_table: True
+          fgs_roll_ref:
+            title: "[deg] V3 roll angle at the ref point (N over E)"
+            type: number
+            fits_keyword: ROLL_REF
+            fits_hdu: PRIMARY
+            blend_table: True
           fgs_v3yangle:
             title: "[deg] Angle from V3 axis to Ideal y axis"
             type: number
