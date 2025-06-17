@@ -1731,13 +1731,13 @@ properties:
             type: string
             fits_keyword: FGS_APER
             blend_table: True
-          fgs_ideal_x:
-            title: 
+          gs_ideal_x:
+            title: Guide star ideal y coordinate
             type: float
             fits_keyword: GSIDL_X
             blend_table: True
-          fgs_ideal_y:
-            title:
+          gs_ideal_y:
+            title: Guide star ideal y coordinate
             type: float
             fits_keyword: GSIDL_Y
             blend_table: True
