@@ -101,12 +101,12 @@ def test_ami_wcsinfo():
     """
     wcsinfo_schema = mschema.load_schema("http://stsci.edu/schemas/jwst_datamodel/wcsinfo.schema")
     ami_schema = mschema.load_schema("http://stsci.edu/schemas/jwst_datamodel/ami.schema")
-    ami_def = ami_schema["allOf"][1]["properties"]["meta"]["properties"]["ami"]["properties"]
+    ami_def = ami_schema["allOf"][1]["properties"]["meta"]["properties"]["guidestar"]["properties"]
     wcsinfo_def = wcsinfo_schema["properties"]["meta"]["properties"]["wcsinfo"]["properties"]
     for keyword in ("roll_ref", "v3yangle", "vparity"):
-        ami = ami_def[keyword]
+        ami = ami_def["fgs_"+keyword]
         wcsinfo = wcsinfo_def[keyword]
-        for key in set(ami.keys()) | set(wcsinfo.keys()) - {"fits_hdu"}:
+        for key in (set(ami.keys()) | set(wcsinfo.keys())) - {"fits_hdu"}:
             assert ami[key] == wcsinfo[key]
 
 

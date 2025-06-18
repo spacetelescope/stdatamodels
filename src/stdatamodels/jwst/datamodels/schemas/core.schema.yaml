@@ -1726,6 +1726,51 @@ properties:
             title: Observatory UTC time at guider function end
             type: string
             fits_keyword: GF_END
+          fgs_aperture:
+            title: Aperture used for guide star acquisition
+            type: string
+            fits_keyword: FGS_APER
+            blend_table: True
+          gs_ideal_x:
+            title: Guide star ideal y coordinate
+            type: number
+            fits_keyword: GSIDL_X
+            blend_table: True
+          gs_ideal_y:
+            title: Guide star ideal y coordinate
+            type: number
+            fits_keyword: GSIDL_Y
+            blend_table: True
+          fgs_v2_ref:
+            title: "[arcsec] Telescope V2 coord of reference point"
+            type: number
+            fits_keyword: V2_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_v3_ref:
+            title: "[arcsec] Telescope V3 coord of reference point"
+            type: number
+            fits_keyword: V3_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_roll_ref:
+            title: "[deg] V3 roll angle at the ref point (N over E)"
+            type: number
+            fits_keyword: ROLL_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_v3yangle:
+            title: "[deg] Angle from V3 axis to Ideal y axis"
+            type: number
+            fits_keyword: V3I_YANG
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_vparity:
+            title: Relative sense of rotation between Ideal xy and V2V3
+            type: integer
+            fits_keyword: VPARITY
+            fits_hdu: PRIMARY
+            blend_table: False
           data_start:
             title: "[d] MJD start time of guider data in this file"
             type: number
