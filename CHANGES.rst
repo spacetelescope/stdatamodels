@@ -1,3 +1,84 @@
+3.1.0 (2025-06-18)
+==================
+
+Bug Fixes
+---------
+
+- Remove file-less AsdfFile instances from DataModel file reference tracking.
+  (`#461 <https://github.com/spacetelescope/stdatamodels/issues/461>`_)
+- Allow read_metadata to handle nested lists from extra_fits (`#476
+  <https://github.com/spacetelescope/stdatamodels/issues/476>`_)
+
+
+New Features
+------------
+
+- Add new informational processing status keywords to slit and spectral
+  datamodels for NIRSpec multi-slit data. (`#431
+  <https://github.com/spacetelescope/stdatamodels/issues/431>`_)
+- Add `read_metadata` for reading partial metadata from saved files. (`#445
+  <https://github.com/spacetelescope/stdatamodels/issues/445>`_)
+- Update NIRSpec transforms to support slit name propagation.
+  Add inverse transforms for Slit2Msa and Gwa2Slit; add Slit2MsaLegacy to
+  support reading existing data products. (`#465
+  <https://github.com/spacetelescope/stdatamodels/issues/465>`_)
+- Add flat file format for WFSS multi-source x1d and c1d products (`#466
+  <https://github.com/spacetelescope/stdatamodels/issues/466>`_)
+- Add support for multi-valued defaults in table schemas (`#469
+  <https://github.com/spacetelescope/stdatamodels/issues/469>`_)
+- Add new spectral models for TSO spectral data, intended to combine all
+  integrations into a single flat table rather than multiple FITS extensions.
+  (`#477 <https://github.com/spacetelescope/stdatamodels/issues/477>`_)
+- Add a new data array in the ``regions`` attribute to IFUImageModel, to hold a
+  pixel-to-slice map for NIRSpec IFU data. (`#479
+  <https://github.com/spacetelescope/stdatamodels/issues/479>`_)
+- Update transform schemas to use new asdf-transform-schemas. (`#483
+  <https://github.com/spacetelescope/stdatamodels/issues/483>`_)
+- Allow extra columns in the NrcImgPhotomModel phot_table, to support the
+  ability to specify different values by subarray. (`#484
+  <https://github.com/spacetelescope/stdatamodels/issues/484>`_)
+- Added new nirspec_dark model with dark_rate and dark_rate_unc extensions.
+  Added p_gratin to dark and superbias models to support selecting different
+  reference files based on p_gratin in CRDS. (`#485
+  <https://github.com/spacetelescope/stdatamodels/issues/485>`_)
+- Add new datamodel SossBkgModel to support background reference files for
+  NIRISS SOSS data. (`#492
+  <https://github.com/spacetelescope/stdatamodels/issues/492>`_)
+- Change background alias to bkg_subtract to fix conflicting aliases for the
+  step. The new alias is the one currently used for running the step or
+  changing parameters from the stage2 pipeline. (`#495
+  <https://github.com/spacetelescope/stdatamodels/issues/495>`_)
+- Vectorize NIRCAMBackwardGrismDispersion transform (`#497
+  <https://github.com/spacetelescope/stdatamodels/issues/497>`_)
+- Add guidestar-related header keywords to core schema (`#500
+  <https://github.com/spacetelescope/stdatamodels/issues/500>`_)
+
+
+Misc
+----
+
+- Add docstring rules to pre-commit hook (`#406
+  <https://github.com/spacetelescope/stdatamodels/issues/406>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Remove unused GLS_RampFitModel (`#464
+  <https://github.com/spacetelescope/stdatamodels/issues/464>`_)
+- Remove initialization of err array from dark datamodel init methods. (`#480
+  <https://github.com/spacetelescope/stdatamodels/issues/480>`_)
+- Deprecate DataModel.get_fits_wcs and DataModel.set_fits_wcs (`#482
+  <https://github.com/spacetelescope/stdatamodels/issues/482>`_)
+- Deprecate dqflags.interpret_bit_flags in favor of
+  astropy.nddata.bitmask.interpret_bit_flags (`#486
+  <https://github.com/spacetelescope/stdatamodels/issues/486>`_)
+- Drop support for initializing datamodels from buffer (was already raising
+  errors)
+  Drop support for initializing datamodels from byte strings (`#487
+  <https://github.com/spacetelescope/stdatamodels/issues/487>`_)
+
+
 3.0.2 (2025-03-31)
 ==================
 

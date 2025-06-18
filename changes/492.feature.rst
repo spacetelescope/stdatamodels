@@ -1,1 +1,0 @@
-Add new datamodel SossBkgModel to support background reference files for NIRISS SOSS data.

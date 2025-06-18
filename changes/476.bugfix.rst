@@ -1,1 +1,0 @@
-Allow read_metadata to handle nested lists from extra_fits

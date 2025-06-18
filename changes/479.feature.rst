@@ -1,1 +1,0 @@
-Add a new data array in the ``regions`` attribute to IFUImageModel, to hold a pixel-to-slice map for NIRSpec IFU data.

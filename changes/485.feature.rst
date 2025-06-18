@@ -1,2 +1,0 @@
-Added new nirspec_dark model with dark_rate and dark_rate_unc extensions. 
-Added p_gratin to dark and superbias models to support selecting different reference files based on p_gratin in CRDS. 
