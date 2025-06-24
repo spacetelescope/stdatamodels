@@ -1,7 +1,7 @@
 from .model_base import JwstDataModel
 
 
-__all__ = ["SpecModel", "MRSSpecModel", "TSOSpecModel", "WFSSSpecModel"]
+__all__ = ["SpecModel", "MRSSpecModel", "TSOSpecModel"]
 
 
 class SpecModel(JwstDataModel):
@@ -56,30 +56,6 @@ class TSOSpecModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/tso_spec.schema"
-
-    def get_primary_array_name(self):  # noqa: D102
-        return "spec_table"
-
-
-class WFSSSpecModel(JwstDataModel):
-    """
-    A data model for NIRCam and NIRISS WFSS 1D spectra.
-
-    This model differs from the SpecModel base class in that
-    it is designed to hold all the spectra from a single WFSS exposure.
-    Its `spec_table` attribute contains the spectral data and metadata
-    for all sources in the exposure.
-
-    Attributes
-    ----------
-    spec_table : numpy table
-        Table containing the extracted spectral data for all sources in a WFSS exposure.
-        The table still has the standard spectral columns, but also has additional
-        metadata columns that are used to identify the source
-        and the spectral extraction region.
-    """
-
-    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_spec.schema"
 
     def get_primary_array_name(self):  # noqa: D102
         return "spec_table"
