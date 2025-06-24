@@ -62,7 +62,6 @@ class DataModel(properties.ObjectNode):
         self,
         init=None,
         schema=None,
-        memmap=False,
         pass_invalid_values=None,
         strict_validation=None,
         validate_on_assignment=None,
@@ -99,9 +98,6 @@ class DataModel(properties.ObjectNode):
             The schema to use to understand the elements on the model.
             If not provided, the schema associated with this class
             will be used.
-
-        memmap : bool
-            Turn memmap of FITS/ASDF file on or off.
 
         pass_invalid_values : bool or None
             If `True`, values that do not validate the schema
@@ -231,13 +227,13 @@ class DataModel(properties.ObjectNode):
             file_type = filetype.check(init)
 
             if file_type == "fits":
-                hdulist = fits.open(init, memmap=memmap)
+                hdulist = fits.open(init, memmap=False)
                 self._file_references.append(_FileReference(hdulist))
                 hdulist = self._migrate_hdulist(hdulist)
                 asdffile = fits_support.from_fits(hdulist, self._schema, self._ctx, **kwargs)
 
             elif file_type == "asdf":
-                asdffile = asdf.open(init, memmap=memmap, **kwargs)
+                asdffile = asdf.open(init, memmap=False, **kwargs)
                 self._file_references.append(_FileReference(asdffile))
             else:
                 # TODO handle json files as well
