@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
+def open(init=None, guess=True, **kwargs):  # noqa: A001
     """
     Create a DataModel from a number of different types.
 
@@ -49,8 +49,6 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
-    memmap : bool
-        Turn memmap of file on or off.
     **kwargs
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
@@ -92,7 +90,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
         file_type = filetype.check(init)
 
         if file_type == "fits":
-            hdulist = fits.open(init, memmap=memmap)
+            hdulist = fits.open(init, memmap=False)
             file_to_close = hdulist
 
         elif file_type == "asn":
@@ -107,7 +105,7 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
-            asdffile = asdf.open(init, memmap=memmap)
+            asdffile = asdf.open(init, memmap=False)
 
             # Detect model type, then get defined model, and call it.
             new_class = _class_from_model_type(asdffile)
