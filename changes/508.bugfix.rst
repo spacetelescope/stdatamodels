@@ -1,0 +1,1 @@
+Add time-related metadata back to MultiSpecModel and SpecModel schemas, for backward compatibility for existing time series spectral products.
