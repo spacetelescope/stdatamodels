@@ -133,6 +133,15 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments passed to lower level functions. These arguments
             are generally file format-specific.
         """
+        if "memmap" in kwargs:
+            warnings.warn(
+                "Memory mapping is no longer supported; memmap is hard-coded to False "
+                "and the keyword argument no longer has any effect.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            kwargs.pop("memmap")
+
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
