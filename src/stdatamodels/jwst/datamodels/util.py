@@ -66,6 +66,15 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     """
     from . import model_base
 
+    if "memmap" in kwargs:
+        warnings.warn(
+            "Memory mapping is no longer supported; memmap is hard-coded to False "
+            "and the keyword argument no longer has any effect.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        kwargs.pop("memmap")
+
     # Initialize variables used to select model class
 
     hdulist = {}
