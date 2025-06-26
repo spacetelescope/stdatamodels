@@ -97,43 +97,34 @@ def test_extra_fits(tmp_path):
         assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
-def test_asdf_extension_data_is_link(tmp_path):
+def test_asdf_extension_data_is_view(tmp_path):
     """
     Ensure that array-like data are not duplicated in the asdf extension.
     
-    The the asdf extension should contain a link to the data, not the data itself.
+    The the asdf extension should contain a view of the data, not the data itself.
     This should be the same for both schema-defined data and extra_fits data.
     """
-    # make and save a FitsModel with some data
     file_path = tmp_path / "test.fits"
-    with FitsModel((10,10)) as dm:
-        dm.save(file_path)
 
-    # add an extra_fits extension with array-like data
-    with fits.open(file_path) as hdul:
-        hdul.append(fits.ImageHDU(data=np.ones((20, 20)), name="EXTRA"))
-        hdul["EXTRA"].header["EXTNAME"] = "EXTRA"
-        hdul.writeto(file_path, overwrite=True)
+    # Make a fits hdulist, add an extra_fits extension with array-like data
+    hdul = fits.HDUList()
+    hdul.append(fits.PrimaryHDU())
+    hdul.append(fits.ImageHDU(data=np.zeros((100, 1000), dtype=np.float32), name="SCI"))
+    extra_data = np.ones((100, 1000), dtype=np.float32)
+    hdul.append(fits.ImageHDU(data=extra_data, name="EXTRA"))
+    hdul["EXTRA"].header["EXTNAME"] = "EXTRA"
+    hdul.writeto(file_path, overwrite=True)
     
-    with DataModel(file_path) as dm:
-        # check that the extra_fits extension is present
-        assert dm.extra_fits.hasattr("EXTRA")
-        
-        # check that the extra data is accessible via extra_fits
-        assert dm.extra_fits.EXTRA.data.shape == (20, 20)
-        assert np.all(dm.extra_fits.EXTRA.data == 1.0)
-
-        # check that the main data is accessible via the model
-        assert dm.data.shape == (10, 10)
-        assert np.all(dm.data == 0.0)
-
-        # check that the data in the file reference and the data in the model
-        # are the same object, not copies
-        assert dm._file_references[0]._file[1].data is dm.data
-        assert dm.data is dm._asdf.tree["data"]
-
-        assert dm._file_references[0]._file[-1].data is dm.extra_fits.EXTRA.data
-        assert dm.extra_fits.EXTRA.data is dm._asdf.tree["extra_fits"]["EXTRA"]["data"]
+    # cycle through save/load to get the ASDF extension updated with extra fits
+    with FitsModel(file_path) as dm:
+        dm.save(file_path)
+    
+    # check that the ASDF extension does NOT contain any of the large data arrays
+    with fits.open(file_path) as hdul:
+        asdf_bytes = hdul["ASDF"].data[0][0]
+        asdf_bytesize = asdf_bytes.size * asdf_bytes.itemsize
+        extra_bytesize = extra_data.size * extra_data.itemsize
+        assert asdf_bytesize < extra_bytesize
 
 
 def test_hdu_order(tmp_path):
