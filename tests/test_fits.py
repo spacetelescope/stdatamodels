@@ -97,6 +97,43 @@ def test_extra_fits(tmp_path):
         assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
+def test_asdf_extension_data_is_link(tmp_path):
+    """
+    Ensure that array-like data are not duplicated in the asdf extension.
+    
+    The the asdf extension should contain a link to the data, not the data itself.
+    This should be the same for both schema-defined data and extra_fits data.
+    """
+    # make and save a FitsModel with some data
+    file_path = tmp_path / "test.fits"
+    with FitsModel((10,10)) as dm:
+        dm.save(file_path)
+
+    # add an extra_fits extension with array-like data
+    with fits.open(file_path) as hdul:
+        hdul.append(fits.ImageHDU(data=np.ones((20, 20)), name="EXTRA"))
+        hdul["EXTRA"].header["EXTNAME"] = "EXTRA"
+        hdul.writeto(file_path, overwrite=True)
+    
+    with DataModel(file_path) as dm:
+        # check that the extra_fits extension is present
+        assert dm.extra_fits.hasattr("EXTRA")
+        
+        # check that the extra data is accessible via extra_fits
+        assert dm.extra_fits.EXTRA.data.shape == (20, 20)
+        assert np.all(dm.extra_fits.EXTRA.data == 1.0)
+
+        # check that the main data is accessible via the model
+        assert dm.data.shape == (10, 10)
+        assert np.all(dm.data == 0.0)
+
+        # check that the extra_fits data is the same as the asdf extension data
+        assert dm._asdf.tree["extra_fits"]["EXTRA"]["data"] is dm.extra_fits.EXTRA.data
+
+        # check the same for the schema-defined data
+        assert dm._asdf.tree["data"] is dm.data
+
+
 def test_hdu_order(tmp_path):
     file_path = tmp_path / "test.fits"
 
