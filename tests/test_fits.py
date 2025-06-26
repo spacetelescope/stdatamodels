@@ -106,13 +106,13 @@ def test_asdf_extension_data_is_view(tmp_path):
     """
     file_path = tmp_path / "test.fits"
 
-    # Make a fits hdulist, add an extra_fits extension with array-like data
+    # Make a fits hdulist, add a SCI extension and an extra_fits extension
+    # both with array-like data
     hdul = fits.HDUList()
     hdul.append(fits.PrimaryHDU())
-    hdul.append(fits.ImageHDU(data=np.zeros((100, 1000), dtype=np.float32), name="SCI"))
-    extra_data = np.ones((100, 1000), dtype=np.float32)
+    hdul.append(fits.ImageHDU(data=np.zeros((100, 100), dtype=np.float32), name="SCI"))
+    extra_data = np.ones((100, 100), dtype=np.float32)
     hdul.append(fits.ImageHDU(data=extra_data, name="EXTRA"))
-    hdul["EXTRA"].header["EXTNAME"] = "EXTRA"
     hdul.writeto(file_path, overwrite=True)
     
     # cycle through save/load to get the ASDF extension updated with extra fits
