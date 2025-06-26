@@ -1,3 +1,14 @@
+3.1.1 (2025-06-26)
+==================
+
+Bug Fixes
+---------
+
+- Add time-related metadata back to MultiSpecModel and SpecModel schemas, for
+  backward compatibility for existing time series spectral products. (`#508
+  <https://github.com/spacetelescope/stdatamodels/issues/508>`_)
+
+
 3.1.0 (2025-06-18)
 ==================
 
