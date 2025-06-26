@@ -62,7 +62,6 @@ class DataModel(properties.ObjectNode):
         self,
         init=None,
         schema=None,
-        memmap=False,
         pass_invalid_values=None,
         strict_validation=None,
         validate_on_assignment=None,
@@ -100,9 +99,6 @@ class DataModel(properties.ObjectNode):
             If not provided, the schema associated with this class
             will be used.
 
-        memmap : bool
-            Turn memmap of FITS/ASDF file on or off.
-
         pass_invalid_values : bool or None
             If `True`, values that do not validate the schema
             will be added to the metadata. If `False`, they will be set to `None`.
@@ -137,6 +133,15 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments passed to lower level functions. These arguments
             are generally file format-specific.
         """
+        if "memmap" in kwargs:
+            warnings.warn(
+                "Memory mapping is no longer supported; memmap is hard-coded to False "
+                "and the keyword argument no longer has any effect.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            kwargs.pop("memmap")
+
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
@@ -231,13 +236,13 @@ class DataModel(properties.ObjectNode):
             file_type = filetype.check(init)
 
             if file_type == "fits":
-                hdulist = fits.open(init, memmap=memmap)
+                hdulist = fits.open(init, memmap=False)
                 self._file_references.append(_FileReference(hdulist))
                 hdulist = self._migrate_hdulist(hdulist)
                 asdffile = fits_support.from_fits(hdulist, self._schema, self._ctx, **kwargs)
 
             elif file_type == "asdf":
-                asdffile = asdf.open(init, memmap=memmap, **kwargs)
+                asdffile = asdf.open(init, memmap=False, **kwargs)
                 self._file_references.append(_FileReference(asdffile))
             else:
                 # TODO handle json files as well
