@@ -127,11 +127,13 @@ def test_asdf_extension_data_is_link(tmp_path):
         assert dm.data.shape == (10, 10)
         assert np.all(dm.data == 0.0)
 
-        # check that the extra_fits data is the same as the asdf extension data
-        assert dm._asdf.tree["extra_fits"]["EXTRA"]["data"] is dm.extra_fits.EXTRA.data
+        # check that the data in the file reference and the data in the model
+        # are the same object, not copies
+        assert dm._file_references[0]._file[1].data is dm.data
+        assert dm.data is dm._asdf.tree["data"]
 
-        # check the same for the schema-defined data
-        assert dm._asdf.tree["data"] is dm.data
+        assert dm._file_references[0]._file[-1].data is dm.extra_fits.EXTRA.data
+        assert dm.extra_fits.EXTRA.data is dm._asdf.tree["extra_fits"]["EXTRA"]["data"]
 
 
 def test_hdu_order(tmp_path):
