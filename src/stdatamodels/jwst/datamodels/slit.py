@@ -124,7 +124,8 @@ class SlitModel(JwstDataModel):
             self.data = init.data
             self.dq = init.dq
             self.err = init.err
-            self.area = init.area
+            if init.hasattr("area"):
+                self.area = init.area
             if init.hasattr("var_poisson"):
                 self.var_poisson = init.var_poisson
             if init.hasattr("var_rnoise"):
