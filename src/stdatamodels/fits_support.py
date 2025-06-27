@@ -509,6 +509,17 @@ def _save_extra_fits(hdulist, tree):
                     continue
                 hdu.header.append((key, val, comment), end=True)
 
+    def callback(node):
+        if isinstance(node, (np.ndarray, NDArrayType)):
+            # replace extra_fits arrays with special source values
+            # that represent links to that array in the FITS extension
+            for hdu_index, hdu in enumerate(hdulist):
+                if hdu.data is not None and node is hdu.data:
+                    return _create_tagged_dict_for_fits_array(hdu, hdu_index)
+        return node
+
+    return treeutil.walk_and_modify(tree, callback)
+
 
 def _save_history(hdulist, tree):
     if "history" not in tree:
@@ -554,7 +565,7 @@ def to_fits(tree, schema, hdulist=None):
 
     tree = _normalize_arrays(tree)
     tree = _save_from_schema(hdulist, tree, schema)
-    _save_extra_fits(hdulist, tree)
+    tree = _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
 
     # Store the FITS hash in the tree

@@ -3,7 +3,7 @@ import re
 import pytest
 from astropy.io import fits
 import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal, assert_allclose
 import asdf.schema
 
 from stdatamodels import DataModel
@@ -125,6 +125,10 @@ def test_asdf_extension_data_is_view(tmp_path):
         asdf_bytesize = asdf_bytes.size * asdf_bytes.itemsize
         extra_bytesize = extra_data.size * extra_data.itemsize
         assert asdf_bytesize < extra_bytesize
+    
+    # check that the ASDF extension contains a view of the extra_fits data
+    with FitsModel(file_path) as dm2:
+        assert_allclose(dm2._asdf.tree["extra_fits"]["EXTRA"]["data"], extra_data)
 
 
 def test_hdu_order(tmp_path):
