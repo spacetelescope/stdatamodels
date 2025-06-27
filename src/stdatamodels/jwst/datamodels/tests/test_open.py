@@ -307,7 +307,7 @@ def test_memmap_deprecation(tmp_path):
 
 
 def test_open_does_not_clear_wht():
-    """Coverage for a bug where the open function cleared the wht attribute."""
+    """Cover a bug where the open function cleared the wht attribute in SlitModel."""
     m0 = SlitModel((27, 1299))
     m0.wht[:] = 1
 

@@ -258,16 +258,17 @@ def test_slit_from_image():
     # assert not hasattr(slit_dm, 'meta')
 
     slit = SlitModel(im)
+    assert isinstance(slit, SlitModel)
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
     assert hasattr(slit, "wavelength")
     assert slit.meta.instrument.name == "MIRI"
 
     im = ImageModel(slit)
-    assert type(im) is ImageModel
+    assert isinstance(im, ImageModel)
 
     im = ImageModel(slit_dm)
-    assert type(im) is ImageModel
+    assert isinstance(im, ImageModel)
 
 
 def test_ifuimage():
