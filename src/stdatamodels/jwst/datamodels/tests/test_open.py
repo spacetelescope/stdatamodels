@@ -22,6 +22,7 @@ from stdatamodels.jwst.datamodels import (
     ReferenceImageModel,
     ReferenceCubeModel,
     ReferenceQuadModel,
+    SlitModel
 )
 from stdatamodels.jwst import datamodels
 from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
@@ -290,3 +291,15 @@ def test_open_kwargs_fits(tmp_path):
     with pytest.raises(ValidationError):
         with datamodels.open(file_path, strict_validation=True) as model:
             model.validate()
+
+
+def test_open_does_not_clear_wht():
+    """Cover a bug where the open function cleared the wht attribute in SlitModel."""
+    m0 = SlitModel((27, 1299))
+    m0.wht[:] = 1
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.wht, 1)
+
+    m2 = datamodels.SlitModel(m0)
+    np.testing.assert_equal(m2.wht, 1)
