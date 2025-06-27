@@ -1,0 +1,1 @@
+Fix SlitModel deleting wht attribute, populating zero-filled area array on init from an already-open datamodel
