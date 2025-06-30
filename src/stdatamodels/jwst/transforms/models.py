@@ -1197,7 +1197,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
 
         return x0, y0, l_poly, order
 
-    def invdisp_interp(self, order, x0, y0, dx):
+    def invdisp_interp(self, order, x0, y0, dx, sampling=40):
         """
         Make a polynomial fit to xmodel and interpolate to find the wavelength.
 
@@ -1209,6 +1209,8 @@ class NIRCAMForwardRowGrismDispersion(Model):
             Source object x-center, y-center.
         dx : float
             The offset from x0 in the dispersion direction
+        sampling : int, optional
+            Number of points to sample for the interpolation (default is 40)
 
         Returns
         -------
@@ -1218,8 +1220,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t_len = dx.shape[0]
-        t0 = np.linspace(0.0, 1.0, t_len)
+        t0 = np.linspace(0.0, 1.0, sampling)
 
         if isinstance(self.xmodels[order], (ListNode, list)):
             if len(self.xmodels[order]) == 2:
@@ -1372,7 +1373,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
 
         return x0, y0, l_poly, order
 
-    def invdisp_interp(self, model, order, x0, y0, dy):
+    def invdisp_interp(self, model, order, x0, y0, dy, sampling=40):
         """
         Make a polynomial fit to ymodel and interpolate to find the wavelength.
 
@@ -1386,6 +1387,8 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             Source object x-center, y-center.
         dy : float
             The offset from y0 in the dispersion direction
+        sampling : int, optional
+            Number of points to sample for interpolation. Default is 40.
 
         Returns
         -------
@@ -1395,8 +1398,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         if len(dy.shape) == 2:
             dy = dy[0, :]
 
-        t_len = dy.shape[0]
-        t0 = np.linspace(0.0, 1.0, t_len)
+        t0 = np.linspace(0.0, 1.0, sampling)
 
         if isinstance(model, (ListNode, list)):
             if len(model[order]) == 2:
@@ -1804,6 +1806,9 @@ class NIRISSBackwardGrismDispersion(Model):
         usu. taken to be the different between fwcpos_ref in the specwcs
         reference file and fwcpos from the input image.
         """
+        wavelength = np.atleast_1d(wavelength)
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
         if (wavelength < 0).any():
             raise ValueError("Wavelength should be greater than zero")
         try:
