@@ -243,6 +243,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                                 warnings.simplefilter(
                                     "ignore", asdf.exceptions.AsdfConversionWarning
                                 )
+
                             with dm.open(refs[reftype]) as model:
                                 try:
                                     ref_exptype = model.meta.exposure.type
@@ -264,6 +265,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     if ref_model is None:
                         log.warning(f"No datamodel found for {reftype}: skipping...")
                         break
+
                     # No need to actually load the reference file into the datamodel!
                     with ref_model() as m:
                         for key in parkeys:
