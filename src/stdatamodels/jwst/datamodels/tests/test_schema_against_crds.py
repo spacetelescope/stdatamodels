@@ -66,6 +66,7 @@ area_model_map = {
 }
 
 bkg_model_map = {
+    "NRC_WFSS": dm.WfssBkgModel,
     "NIS_WFSS": dm.WfssBkgModel,
     "NIS_SOSS": dm.SossBkgModel,
 }
