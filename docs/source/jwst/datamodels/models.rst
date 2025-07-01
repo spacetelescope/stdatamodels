@@ -296,19 +296,20 @@ Extra FITS keywords
 
 When loading arbitrary FITS files, there may be keywords that are not
 listed in the schema for that data model.  These "extra" FITS keywords
-are put into the model in the `extra_fits` namespace.
+are put into the model in the ``extra_fits`` namespace.
 
-Under the `extra_fits` namespace is a section for each FITS extension
+Under the ``extra_fits`` namespace is a section for each FITS extension
 that contains schema-unmapped header information or data,
 and within those are the extra FITS keywords.  For example, if
-the FITS file contains a keyword `FOO` in the primary header that is
-undefined in the schema, its value can be obtained using::
+the FITS file contains keywords ``FOO="bar"`` and ``BAZ="qux"`` in the primary header
+that are not defined in the schema, they will be loaded as follows::
 
-    model.extra_fits.PRIMARY.FOO
+    >>> print(model.extra_fits.PRIMARY.header)
+    [['FOO', 'bar', ''], ['BAZ', 'qux', '']]
 
-The `extra_fits` namespace may also hold entire hdus that are not
+The ``extra_fits`` namespace may also hold entire hdus that are not
 mapped to a data model.  For example, if the FITS file contains an
-extension called `EXTRA`, it can be accessed using::
+extension called ``EXTRA``, it can be accessed using::
 
     model.extra_fits.EXTRA
 
@@ -316,17 +317,20 @@ and its data array can be accessed using::
 
     model.extra_fits.EXTRA.data
 
-To get a list of everything in `extra_fits` as a dictionary, use::
+To get a list of everything in ``extra_fits`` as a dictionary, use::
 
-    model.extra_fits._instance
+    model.extra_fits.instance
 
-(`_instance` can be used at any node in the tree, not just `extra_fits`,
+(``instance`` can be used at any node in the tree, not just ``extra_fits``,
 to return a dictionary of rest of the tree structure at that node.)
 
-Note to developers: the `jwst` pipeline never directly accesses information
-from `extra_fits`, as this would bypass the schema validation and partly defeat
-the purpose of the data model. It is strongly recommended to define any new
-(meta)data in the datamodel schema early on in the development process.
+.. note::
+
+    The ``jwst`` pipeline never directly accesses information
+    from ``extra_fits``, as this would bypass the schema validation and partly defeat
+    the purpose of the data model. If you are developing a model for pipeline use, 
+    it is strongly recommended to define any new
+    (meta)data in the datamodel schema early on in the development process.
 
 Environment Variables
 ---------------------
