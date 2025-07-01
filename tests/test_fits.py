@@ -101,7 +101,7 @@ def test_asdf_extension_data_is_view(tmp_path):
     """
     Ensure that array-like data are not duplicated in the asdf extension.
     
-    The the asdf extension should contain a view of the data, not the data itself.
+    The asdf extension should contain a view of the data, not the data itself.
     This should be the same for both schema-defined data and extra_fits data.
     """
     file_path = tmp_path / "test.fits"

@@ -502,6 +502,8 @@ def _save_extra_fits(hdulist, tree):
         if "data" in parts:
             hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
             hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
+            node = _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+            tree["extra_fits"][hdu_name]["data"] = node
         if "header" in parts:
             hdu = _get_or_make_hdu(hdulist, hdu_name)
             for key, val, comment in parts["header"]:
@@ -509,16 +511,7 @@ def _save_extra_fits(hdulist, tree):
                     continue
                 hdu.header.append((key, val, comment), end=True)
 
-    def callback(node):
-        if isinstance(node, (np.ndarray, NDArrayType)):
-            # replace extra_fits arrays with special source values
-            # that represent links to that array in the FITS extension
-            for hdu_index, hdu in enumerate(hdulist):
-                if hdu.data is not None and node is hdu.data:
-                    return _create_tagged_dict_for_fits_array(hdu, hdu_index)
-        return node
-
-    return treeutil.walk_and_modify(tree, callback)
+    return tree
 
 
 def _save_history(hdulist, tree):
