@@ -485,6 +485,86 @@ def test_nircam_grism_roundtrip(direction):
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
+def test_legacy_nircam_grism_roundtrip(direction):
+    """
+    Test that the legacy NIRCAM grism dispersion model roundtrips correctly.
+
+    This model has no dependence of the polynomial coefficients on the detector position,
+    so the polynomial model is simply a function of t that gives the wavelength.
+    """
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    # mock_invl = Polynomial1D(degree=1, c0=-0.48387097, c1=0.64516129)
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+    xmodel = [mock_x,] * 3
+    ymodel = [mock_x,] * 3
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    # invlmodels = [mock_invl] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # single x0, y0, wl
+    x0 = 150
+    y0 = 140
+    wl = 2.0
+
+    if direction == "row":
+        forward = models.NIRCAMForwardRowGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    elif direction == "column":
+        forward = models.NIRCAMForwardColumnGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    backward = models.NIRCAMBackwardGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
+    np.testing.assert_allclose(ordersi, orders)
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+def test_nircam_grism_raise_not_quadratic(direction):
+    """Only quadratic polynomials x(t), y(t) are supported for NIRCAM grism dispersion."""
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)  # not quadratic
+    xmodel = [mock_x,] * 2
+    ymodel = [mock_x,] * 2
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    if direction == "row":
+        ForwardModel = models.NIRCAMForwardRowGrismDispersion
+    elif direction == "column":
+        ForwardModel = models.NIRCAMForwardColumnGrismDispersion
+    with pytest.raises(Exception):
+        ForwardModel(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+        ).evaluate(150, 140, 153, 143, orders)
+    
+
+@pytest.mark.parametrize("direction", ["row", "column"])
 def test_niriss_grism_roundtrip(direction):
     """
     Do a forward grism transform for NIRISS where dispersion is in the columnwise direction,
@@ -510,7 +590,7 @@ def test_niriss_grism_roundtrip(direction):
     xmodels = [xmodel] * len(orders)
     ymodels = [ymodel] * len(orders)
 
-    # many wavelengths, single x0, y0
+    # single x0, y0, wl
     x0 = 150
     y0 = 140
     wl = 2.0
@@ -544,7 +624,41 @@ def test_niriss_grism_roundtrip(direction):
     np.testing.assert_allclose(xi, x0)
     np.testing.assert_allclose(yi, y0)
     np.testing.assert_allclose(wli, wl, rtol=1e-4)
-    np.testing.assert_allclose(ordersi, orders)    
+    np.testing.assert_allclose(ordersi, orders)
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+@pytest.mark.parametrize("instrument", ["nircam", "niriss"])
+def test_grism_error_raises(direction, instrument):
+
+    if instrument == "nircam" and direction == "row":
+        ForwardModel = models.NIRCAMForwardRowGrismDispersion
+    elif instrument == "nircam" and direction == "column":
+        ForwardModel = models.NIRCAMForwardColumnGrismDispersion
+    elif instrument == "niriss" and direction == "row":
+        ForwardModel = models.NIRISSForwardRowGrismDispersion
+    elif instrument == "niriss" and direction == "column":
+        ForwardModel = models.NIRISSForwardColumnGrismDispersion
+    if instrument == "nircam":
+        BackwardModel = models.NIRCAMBackwardGrismDispersion
+    elif instrument == "niriss":
+        BackwardModel = models.NIRISSBackwardGrismDispersion
+
+    orders = np.array([1, 2])
+    x0 = 150
+    y0 = 140
+    wl = 2.0
+    forward = ForwardModel(orders)
+    backward = BackwardModel(orders)
+
+    # raise for order not in the list
+    with pytest.raises(ValueError, match="Specified order is not available"):
+        forward.evaluate(x0, y0, x0, y0, np.array([-1]))
+    with pytest.raises(ValueError, match="Specified order is not available"):
+        backward.evaluate(x0, y0, wl, np.array([-1]))
+    # raise for negative wavelength
+    with pytest.raises(ValueError, match="Wavelength should be greater than zero"):
+        backward.evaluate(x0, y0, -wl, orders)
 
 
 def test_v23tosky():

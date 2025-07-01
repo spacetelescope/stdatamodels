@@ -1105,6 +1105,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         inv_ymodels=None,
         name=None,
         meta=None,
+        sampling=40,
     ):
         """
         Initialize the model.
@@ -1129,6 +1130,8 @@ class NIRCAMForwardRowGrismDispersion(Model):
             Name of the model
         meta : dict, optional
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.orders = orders
         self.lmodels = lmodels
@@ -1138,6 +1141,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         self.inv_xmodels = inv_xmodels
         self.inv_ymodels = inv_ymodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.sampling = sampling
         meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_row_grism_dispersion"
@@ -1197,7 +1201,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
 
         return x0, y0, l_poly, order
 
-    def invdisp_interp(self, order, x0, y0, dx, sampling=40):
+    def invdisp_interp(self, order, x0, y0, dx):
         """
         Make a polynomial fit to xmodel and interpolate to find the wavelength.
 
@@ -1209,31 +1213,25 @@ class NIRCAMForwardRowGrismDispersion(Model):
             Source object x-center, y-center.
         dx : float
             The offset from x0 in the dispersion direction
-        sampling : int, optional
-            Number of points to sample for the interpolation (default is 40)
 
         Returns
         -------
         f : float
             The wavelength solution for the given dx
         """
+        dx = np.atleast_1d(dx)
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t0 = np.linspace(0.0, 1.0, sampling)
+        t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(self.xmodels[order], (ListNode, list)):
-            if len(self.xmodels[order]) == 2:
-                xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
-            elif len(self.xmodels[order]) == 3:
+            if len(self.xmodels[order]) == 3:
                 xr = (
                     self.xmodels[order][0](x0, y0)
                     + t0 * self.xmodels[order][1](x0, y0)
                     + t0**2 * self.xmodels[order][2](x0, y0)
                 )
-            elif len(self.xmodels[order][0].inputs) == 1:
-                xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
-                return xr
             else:
                 raise Exception  # noqa: TRY002
         else:
@@ -1280,6 +1278,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         inv_ymodels=None,
         name=None,
         meta=None,
+        sampling=40,
     ):
         """
         Initialize the model.
@@ -1304,6 +1303,8 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             Name of the model
         meta : dict, optional
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.orders = orders
         self.lmodels = lmodels
@@ -1313,6 +1314,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         self.inv_xmodels = inv_xmodels
         self.inv_ymodels = inv_ymodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.sampling = sampling
         meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_column_grism_dispersion"
@@ -1373,7 +1375,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
 
         return x0, y0, l_poly, order
 
-    def invdisp_interp(self, model, order, x0, y0, dy, sampling=40):
+    def invdisp_interp(self, model, order, x0, y0, dy):
         """
         Make a polynomial fit to ymodel and interpolate to find the wavelength.
 
@@ -1387,31 +1389,25 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             Source object x-center, y-center.
         dy : float
             The offset from y0 in the dispersion direction
-        sampling : int, optional
-            Number of points to sample for interpolation. Default is 40.
 
         Returns
         -------
         f : float
             The wavelength solution for the given dy
         """
+        dy = np.atleast_1d(dy)
         if len(dy.shape) == 2:
             dy = dy[0, :]
 
-        t0 = np.linspace(0.0, 1.0, sampling)
+        t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(model, (ListNode, list)):
-            if len(model[order]) == 2:
-                xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
-            elif len(model[order]) == 3:
+            if len(model[order]) == 3:
                 xr = (
                     model[order][0](x0, y0)
                     + t0 * model[order][1](x0, y0)
                     + t0**2 * model[order][2](x0, y0)
                 )
-            elif len(model[order][0].inputs) == 1:
-                xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
-                return xr
             else:
                 raise Exception  # noqa: TRY002
         else:
@@ -1542,7 +1538,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             raise ValueError("Specified order is not available") from err
 
         if (wavelength < 0).any():
-            raise ValueError("wavelength should be greater than zero")
+            raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
