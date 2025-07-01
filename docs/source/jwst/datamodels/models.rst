@@ -302,10 +302,11 @@ Under the ``extra_fits`` namespace is a section for each FITS extension
 that contains schema-unmapped header information or data,
 and within those are the extra FITS keywords.  For example, if
 the FITS file contains keywords ``FOO="bar"`` and ``BAZ="qux"`` in the primary header
-that are not defined in the schema, they will be loaded as follows::
+that are not defined in the schema, they will be loaded into::
+    
+    model.extra_fits.PRIMARY.header
 
-    >>> print(model.extra_fits.PRIMARY.header)
-    [['FOO', 'bar', ''], ['BAZ', 'qux', '']]
+as a list-of-lists: ``[['FOO', 'bar', ''], ['BAZ', 'qux', '']]``.
 
 The ``extra_fits`` namespace may also hold entire hdus that are not
 mapped to a data model.  For example, if the FITS file contains an
