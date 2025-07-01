@@ -502,12 +502,16 @@ def _save_extra_fits(hdulist, tree):
         if "data" in parts:
             hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
             hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
+            node = _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+            tree["extra_fits"][hdu_name]["data"] = node
         if "header" in parts:
             hdu = _get_or_make_hdu(hdulist, hdu_name)
             for key, val, comment in parts["header"]:
                 if is_builtin_fits_keyword(key):
                     continue
                 hdu.header.append((key, val, comment), end=True)
+
+    return tree
 
 
 def _save_history(hdulist, tree):
@@ -554,7 +558,7 @@ def to_fits(tree, schema, hdulist=None):
 
     tree = _normalize_arrays(tree)
     tree = _save_from_schema(hdulist, tree, schema)
-    _save_extra_fits(hdulist, tree)
+    tree = _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
 
     # Store the FITS hash in the tree
