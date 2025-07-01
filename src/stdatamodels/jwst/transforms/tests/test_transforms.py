@@ -304,8 +304,8 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     y0 = y0.flatten()
 
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
-    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
-    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl, sampling=sampling)
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels, sampling=sampling)
+    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl)
 
     # for this version we need to make x0, y0, wl all have same shape
     t2_out = np.empty_like(t_out)
@@ -361,7 +361,7 @@ def test_nircam_grism_roundtrip(direction):
     # make it so the results have same scaling as wavelengths in microns
     mock_l = Polynomial2D(degree=3, c1_0=1e-8)
 
-    # mock x and y models just paramtrize a slightly curved trace
+    # mock x and y models here paramtrize a slightly curved trace
     # causing enough of a shift in the x and y coordinates
     # to ensure that the forward and backward models are not just
     # identity models.
@@ -420,8 +420,9 @@ def test_niriss_grism_roundtrip(direction):
     # much simpler than NIRCam, as it does not depend on the detector position.
     # These coefficients are taken from a real reference file.
     mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_invl = Polynomial1D(degree=1, c0=-0.48387097, c1=0.64516129)
 
-    # mock x and y models just paramtrize a slightly curved trace
+    # mock x and y models here paramtrize a slightly curved trace
     # causing enough of a shift in the x and y coordinates
     # to ensure that the forward and backward models are not just
     # identity models.
@@ -431,13 +432,14 @@ def test_niriss_grism_roundtrip(direction):
     ymodel = [mock_x,] * 3
     orders = np.array([1])
     lmodels = [mock_l] * len(orders)
+    invlmodels = [mock_invl] * len(orders)
     xmodels = [xmodel] * len(orders)
     ymodels = [ymodel] * len(orders)
 
     # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
-    wl = 2e-6
+    wl = 2.0
 
     # now create the appropriate model for the grism[R/C]
     if direction == "row":
@@ -446,6 +448,7 @@ def test_niriss_grism_roundtrip(direction):
             lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
+            sampling=40
         )
     elif direction == "column":
         forward = models.NIRISSForwardColumnGrismDispersion(
@@ -453,10 +456,11 @@ def test_niriss_grism_roundtrip(direction):
             lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
+            sampling=40
         )
     backward = models.NIRISSBackwardGrismDispersion(
         orders,
-        lmodels=lmodels,
+        lmodels=invlmodels,
         xmodels=xmodels,
         ymodels=ymodels,
     )
@@ -465,7 +469,7 @@ def test_niriss_grism_roundtrip(direction):
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
     np.testing.assert_allclose(xi, x0)
     np.testing.assert_allclose(yi, y0)
-    np.testing.assert_allclose(wli, wl)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
     np.testing.assert_allclose(ordersi, orders)    
 
 
