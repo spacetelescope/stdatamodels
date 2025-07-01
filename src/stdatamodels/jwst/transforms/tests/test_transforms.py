@@ -5,12 +5,60 @@ Test jwst.transforms
 
 import asdf
 import pytest
-from astropy.modeling.models import Identity
+from astropy.modeling.models import Identity, Mapping
 import numpy as np
 from numpy.testing import assert_allclose
 
 from astropy.modeling.models import Polynomial2D, Polynomial1D
 from stdatamodels.jwst.transforms import models
+
+
+@pytest.mark.parametrize(
+    ("beta_zero", "beta_del", "channel", "expected"),
+    [
+        (-1.77210143797, 0.177210143797, 1, 111),
+        (-2.23774549066, 0.279718186333, 2, 209),
+    ]
+)
+def test_miri_ab2slice(beta_zero, beta_del, channel, expected):
+    model = models.MIRI_AB2Slice()
+    beta = 0.0
+    result = model.evaluate(beta, beta_zero, beta_del, channel)
+    assert result == expected
+
+
+def test_refractionindexfromprism():
+
+    prism_angle = -16.5 # degrees
+    prism_angle_rad = np.deg2rad(prism_angle)
+    alpha_in = np.pi / 8  # angle of incidence in radians
+    beta_in = np.pi / 8  # angle of incidence in radians
+    alpha_out = np.pi / 16  # angle of refraction in radians
+
+    # unclear why the model requires the prism angle in degrees on init
+    # and also requires the prism angle in radians on evaluation
+    model = models.RefractionIndexFromPrism(prism_angle)
+    n = model.evaluate(alpha_in, beta_in, alpha_out, prism_angle_rad)
+    assert np.isclose(n, 1.113583608571748)
+
+
+def test_nirisssossmodel():
+
+    spectral_orders = [1, 2]
+    # model is unphysical but does have 2 inputs and 3 outputs like NIRISS SOSS would expect
+    order_models = [Identity(2) | Mapping((0, 1, 1))] * len(spectral_orders)
+
+    sossmodel = models.NirissSOSSModel(spectral_orders, order_models)
+    assert sossmodel.spectral_orders == spectral_orders
+    assert isinstance(sossmodel.models, dict)
+
+    xout, yout, yout2 = sossmodel.evaluate(10, 20, np.array([1]))
+    assert xout == 10
+    assert yout == 20
+    assert yout2 == 20
+
+    with pytest.raises(ValueError, match="Spectral order is not between"):
+        sossmodel.evaluate(10, 20, -1)
 
 
 def test_logical():
@@ -36,6 +84,12 @@ def test_logical():
     l = models.Logical('NE', .5, 10)
     res = l(x)
     assert_allclose(res, np.where(x != .5, 10, x))
+
+    # test comparing to array
+    compareto = x[::-1]
+    l = models.Logical('GT', compareto, compareto)
+    res = l(x)
+    assert_allclose(res, np.where(x > compareto, compareto, x))
 
 
 def test_ideal_to_v23_roundtrip():
@@ -84,6 +138,26 @@ def test_refraction_index_and_snell(wavelength, n, xval, zval):
     assert np.isclose(xout, xval)
     assert np.isclose(yout, -0.39269908169872414)
     assert np.isclose(zout, zval)
+
+
+def test_refraction_index_large_delt():
+    """
+    Test the case where the temperature difference is large.
+    
+    If delta T is larger than 20, the refraction index of the air will be recomputed.
+    """
+    wavelength = 2e-6
+    temp_sys = 65. # in K
+    tref = 35  # in K
+    pref = 0  # in atm
+    pressure_sys = 0  # in atm
+    kcoef = [0.58339748, 0.46085267, 3.8915394]
+    lcoef = [0.00252643, 0.010078333, 1200.556]
+    tcoef = [-2.66e-05, 0.0, 0.0, 0.0, 0.0, 0.0]
+    n_pipeline = models.Snell.compute_refraction_index(
+        wavelength, temp_sys, tref, pref, pressure_sys, kcoef, lcoef, tcoef
+    )
+    assert np.isclose(n_pipeline, 1.4254647475849418)
 
 
 def test_grating_equation():
