@@ -403,3 +403,8 @@ def test_from_fits_deprecation():
 def test_from_asdf_deprecation():
     with pytest.warns(DeprecationWarning, match="from_asdf is deprecated"):
         DataModel.from_asdf({})
+
+
+def test_memmap_deprecation():
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        DataModel(memmap=True)

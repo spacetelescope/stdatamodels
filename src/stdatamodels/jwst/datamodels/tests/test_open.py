@@ -290,3 +290,16 @@ def test_open_kwargs_fits(tmp_path):
     with pytest.raises(ValidationError):
         with datamodels.open(file_path, strict_validation=True) as model:
             model.validate()
+
+
+def test_memmap_deprecation(tmp_path):
+    """
+    Test that the deprecation warning for memmap=True is raised.
+    """
+    path = str(tmp_path / "test.fits")
+    model = ImageModel((10, 10))
+    model.save(path)
+
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        with datamodels.open(path, memmap=True):
+            pass
