@@ -487,9 +487,9 @@ def test_nircam_grism_roundtrip(direction):
 @pytest.mark.parametrize("direction", ["row", "column"])
 def test_legacy_nircam_grism_roundtrip(direction):
     """
-    Test that the legacy NIRCAM grism dispersion model roundtrips correctly.
+    Test that the legacy NIRCAM grism dispersion lmodel roundtrips correctly.
 
-    This model has no dependence of the polynomial coefficients on the detector position,
+    This lmodel has no dependence of the polynomial coefficients on the detector position,
     so the polynomial model is simply a function of t that gives the wavelength.
     """
     mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
@@ -540,12 +540,12 @@ def test_legacy_nircam_grism_roundtrip(direction):
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
-def test_nircam_grism_raise_not_quadratic(direction):
-    """Only quadratic polynomials x(t), y(t) are supported for NIRCAM grism dispersion."""
+def test_nircam_grism_raise_unsupported(direction):
+    """Test attempting to use an unsupported model type raises an error."""
     mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
     mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)  # not quadratic
-    xmodel = [mock_x,] * 2
-    ymodel = [mock_x,] * 2
+    xmodel = [mock_x,] * 4
+    ymodel = [mock_x,] * 4
     orders = np.array([1])
     lmodels = [mock_l] * len(orders)
     xmodels = [xmodel] * len(orders)
@@ -562,6 +562,43 @@ def test_nircam_grism_raise_not_quadratic(direction):
             xmodels=xmodels,
             ymodels=ymodels,
         ).evaluate(150, 140, 153, 143, orders)
+
+
+def test_nircam_grism_1d_linear():
+    """
+    Test case where model coeffs do NOT have dependence on x0, y0.
+    
+    This is used in the pipeline for at least some versions of dispy.
+    """
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_x = Polynomial1D(degree=1, c0=0.1, c1=0.01)
+    xmodel = [mock_x,] * 1
+    ymodel = [mock_x,] * 1
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    forward = models.NIRCAMForwardRowGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+        sampling=40
+    )
+    backward = models.NIRCAMBackwardGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(150, 140, 2.0, orders)
+    np.testing.assert_allclose(xi, 150)
+    np.testing.assert_allclose(yi, 140)
+    np.testing.assert_allclose(wli, 2.0)
+    np.testing.assert_allclose(ordersi, orders)
     
 
 @pytest.mark.parametrize("direction", ["row", "column"])

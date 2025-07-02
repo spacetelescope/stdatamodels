@@ -1226,12 +1226,17 @@ class NIRCAMForwardRowGrismDispersion(Model):
         t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(self.xmodels[order], (ListNode, list)):
+            # if len(self.xmodels[order]) == 2:
+            #     xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
             if len(self.xmodels[order]) == 3:
                 xr = (
                     self.xmodels[order][0](x0, y0)
                     + t0 * self.xmodels[order][1](x0, y0)
                     + t0**2 * self.xmodels[order][2](x0, y0)
                 )
+            elif len(self.xmodels[order][0].inputs) == 1:
+                xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
+                return xr
             else:
                 raise Exception  # noqa: TRY002
         else:
@@ -1402,12 +1407,17 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(model, (ListNode, list)):
+            # if len(model[order]) == 2:
+            #     xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
             if len(model[order]) == 3:
                 xr = (
                     model[order][0](x0, y0)
                     + t0 * model[order][1](x0, y0)
                     + t0**2 * model[order][2](x0, y0)
                 )
+            elif len(model[order][0].inputs) == 1:
+                xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
+                return xr
             else:
                 raise Exception  # noqa: TRY002
         else:
