@@ -173,7 +173,7 @@ In addition to the standard JSON Schema keywords, ``jwst.datamodels``
 also supports the following additional keywords.
 
 Arrays
-''''''
+------
 
 The following keywords have to do with validating n-dimensional arrays:
 
@@ -211,7 +211,7 @@ since this would make files less portable).
     or a list of integers.
 
 FITS-specific Schema Attributes
-'''''''''''''''''''''''''''''''
+-------------------------------
 
 `jwst.datamodels` also adds some new keys to the schema language in
 order to handle reading and writing FITS files.  These attributes all
