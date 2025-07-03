@@ -555,7 +555,7 @@ Other
 -----
 
 - Update ``RefractionIndexFromPrism`` converting single element ndarrays
-  to scalar values before use to avoid ``DeprecationWarning``s introduced
+  to scalar values before use to avoid ``DeprecationWarning`` introduced
   in numpy 1.25 [#210]
 
 - Add band to ``GainModel`` schema to account for miri crds file updates
@@ -714,7 +714,7 @@ Other
   on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
 
 - Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
-  catching ``ResourceWarning``s. [#152]
+  catching ``ResourceWarning`` instances. [#152]
 
 - Fix open file handles, which were previously ignored by ``pytest-openfiles``, but which raise
   blocked ``ResourceWarning`` errors. [#153]

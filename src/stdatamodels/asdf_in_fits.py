@@ -16,14 +16,14 @@ def write(filename, tree, hdulist=None, **kwargs):
     filename : str or path
         Filename where the resulting fits file containing the ASDF
         data will be saved. This is passed on to
-        :func:`astropy.io.fits.HDUList.writeto`
+        :meth:`astropy.io.fits.HDUList.writeto`
     tree : ASDF tree or dict
         ASDF data to save in the fits file
     hdulist : `astropy.io.fits.HDUList`
         Optional HDUList to write the ASDF data to. If not provided,
         a new HDUList will be created.
     **kwargs
-        Additional keyword arguments to pass to :func:`astropy.io.fits.HDUList.writeto`
+        Additional keyword arguments to pass to :meth:`astropy.io.fits.HDUList.writeto`
     """
     hdulist = fits_support.to_fits(tree, None, hdulist=hdulist)  # no custom schema
     hdulist.writeto(filename, **kwargs)

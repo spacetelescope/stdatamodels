@@ -1238,6 +1238,7 @@ class WaveCorrModel(ReferenceFileModel):
             File name for input file in ASDF format from which to initialize the model.
         apertures : list[dict], optional
             Each aperture is a dict with keys:
+
             * aperture_name : str, the name of the aperture.
             * width : float, the aperture or pitch width in meters.
             * zero_point_offset : astropy.Tabular2D model,
