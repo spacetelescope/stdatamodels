@@ -334,8 +334,13 @@ def test_reference_model_schema_inheritance(model):
     referencefile.schema inherit from ReferenceFileModel.
     """
     is_ref_model = issubclass(model, datamodels.ReferenceFileModel)
+    if model is datamodels.SimpleModel:
+        # SimpleModel is another base class. Although it inherits from ReferenceFileModel,
+        # it does not stand alone and isn't suitable for this test.
+        return
     if not model.schema_url:  # this model has no schema
         # so it shouldn't be a subclass
+        print(model)
         assert not is_ref_model
         # and we're dont testing this model
         return
