@@ -91,7 +91,6 @@ from .trapsfilled import TrapsFilledModel
 from .tsophot import TsoPhotModel
 from .wavemap import WaveMapModel, WaveMapSingleModel
 from .wcs_ref_models import (
-    SimpleModel,
     DistortionModel,
     DistortionMRSModel,
     SpecwcsModel,
@@ -224,7 +223,6 @@ __all__ = [
     "MiriResolutionModel",
     "RSCDModel",
     "SaturationModel",
-    "SimpleModel",
     "SIRSKernelModel",
     "SlitDataModel",
     "SlitModel",
