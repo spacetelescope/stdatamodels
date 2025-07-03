@@ -34,3 +34,8 @@ properties:
     type: number
     fits_keyword: EFFINTTM
     fits_hdu: EXTRACT1D
+  s_region:
+    title: Footprint of direct image matched to grism observation
+    type: string
+    fits_keyword: S_REGION
+    fits_hdu: EXTRACT1D
