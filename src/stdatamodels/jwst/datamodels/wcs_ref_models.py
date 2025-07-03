@@ -10,7 +10,6 @@ from stdatamodels.exceptions import ValidationWarning
 from .reference import ReferenceFileModel
 
 __all__ = [
-    "_SimpleModel",
     "DistortionModel",
     "DistortionMRSModel",
     "SpecwcsModel",
