@@ -10,6 +10,7 @@ from stdatamodels.exceptions import ValidationWarning
 from .reference import ReferenceFileModel
 
 __all__ = [
+    "SimpleModel",
     "DistortionModel",
     "DistortionMRSModel",
     "SpecwcsModel",
@@ -33,7 +34,7 @@ __all__ = [
 ]
 
 
-class _SimpleModel(ReferenceFileModel):
+class SimpleModel(ReferenceFileModel):
     """A DataModel for a reference file that includes an astropy.modeling.Model."""
 
     schema_url = None
@@ -55,7 +56,7 @@ class _SimpleModel(ReferenceFileModel):
         output_units : str or `~astropy.units.NamedUnit`, optional
             The units of the output
         """
-        super(_SimpleModel, self).__init__(init=init, **kwargs)
+        super(SimpleModel, self).__init__(init=init, **kwargs)
         if model is not None:
             self.model = model
         if input_units is not None:
@@ -114,7 +115,7 @@ class _SimpleModel(ReferenceFileModel):
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
-class DistortionModel(_SimpleModel):
+class DistortionModel(SimpleModel):
     """A model for a reference file of type "distortion"."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/distortion.schema"
@@ -252,7 +253,7 @@ class DistortionMRSModel(ReferenceFileModel):
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
 
-class SpecwcsModel(_SimpleModel):
+class SpecwcsModel(SimpleModel):
     """
     A model for a reference file of type "specwcs".
 
@@ -1122,7 +1123,7 @@ class FilteroffsetModel(ReferenceFileModel):
                 )
 
 
-class IFUFOREModel(_SimpleModel):
+class IFUFOREModel(SimpleModel):
     """
     A model for a NIRSPEC reference file of type "ifufore".
 
@@ -1141,7 +1142,7 @@ class IFUFOREModel(_SimpleModel):
         self.meta.exposure.p_exptype = "NRS_IFU"
 
 
-class CameraModel(_SimpleModel):
+class CameraModel(SimpleModel):
     """Stores the transforms from the NIRSpec camera to the GWA."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/camera.schema"
@@ -1156,7 +1157,7 @@ class CameraModel(_SimpleModel):
         self.meta.exposure.type = "N/A"
 
 
-class CollimatorModel(_SimpleModel):
+class CollimatorModel(SimpleModel):
     """Stores the transform through the NIRSpec collimator."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/collimator.schema"
@@ -1171,7 +1172,7 @@ class CollimatorModel(_SimpleModel):
         self.meta.exposure.type = "N/A"
 
 
-class OTEModel(_SimpleModel):
+class OTEModel(SimpleModel):
     """Stores the transform from the Filter Wheel to the Optical Telescope Element."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ote.schema"
@@ -1186,7 +1187,7 @@ class OTEModel(_SimpleModel):
         self.meta.exposure.type = "N/A"
 
 
-class FOREModel(_SimpleModel):
+class FOREModel(SimpleModel):
     """Stores the transform from the MSA plane to the Filter Wheel."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fore.schema"
