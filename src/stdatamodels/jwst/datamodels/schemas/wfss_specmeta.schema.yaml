@@ -35,7 +35,7 @@ properties:
     fits_keyword: EFFINTTM
     fits_hdu: EXTRACT1D
   s_region:
-    title: Footprint of direct image matched to grism observation
+    title: Footprint of direct image(s) matched to grism observations
     type: string
     fits_keyword: S_REGION
     fits_hdu: EXTRACT1D
