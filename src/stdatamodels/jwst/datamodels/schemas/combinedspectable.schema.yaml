@@ -4,6 +4,16 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/combinedspectable.schema"
 title: Combined, extracted spectral data table
 fits_hdu: COMBINE1D
+default: [
+  NaN, # WAVELENGTH
+  NaN, # FLUX
+  NaN, # ERROR
+  NaN, # SURF_BRIGHT
+  NaN, # SB_ERROR
+  1,   # DQ
+  NaN, # WEIGHT
+  NaN, # N_INPUT
+]
 datatype:
 - name: WAVELENGTH
   datatype: float64
