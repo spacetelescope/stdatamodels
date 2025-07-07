@@ -44,12 +44,6 @@ class SlitDataModel(JwstDataModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(SlitDataModel, self).__init__(init=init, **kwargs)
-        if kwargs:
-            for key in kwargs:
-                setattr(self, key, kwargs[key])
-
 
 class SlitModel(JwstDataModel):
     """
@@ -92,9 +86,3 @@ class SlitModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slit.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(SlitModel, self).__init__(init=init, **kwargs)
-        if kwargs:
-            for key in kwargs:
-                setattr(self, key, kwargs[key])
