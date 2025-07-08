@@ -1105,6 +1105,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         inv_ymodels=None,
         name=None,
         meta=None,
+        sampling=40,
     ):
         """
         Initialize the model.
@@ -1129,6 +1130,8 @@ class NIRCAMForwardRowGrismDispersion(Model):
             Name of the model
         meta : dict, optional
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.orders = orders
         self.lmodels = lmodels
@@ -1138,6 +1141,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         self.inv_xmodels = inv_xmodels
         self.inv_ymodels = inv_ymodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.sampling = sampling
         meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_row_grism_dispersion"
@@ -1215,16 +1219,16 @@ class NIRCAMForwardRowGrismDispersion(Model):
         f : float
             The wavelength solution for the given dx
         """
+        dx = np.atleast_1d(dx)
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t_len = dx.shape[0]
-        t0 = np.linspace(0.0, 1.0, t_len)
+        t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(self.xmodels[order], (ListNode, list)):
-            if len(self.xmodels[order]) == 2:
-                xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
-            elif len(self.xmodels[order]) == 3:
+            # if len(self.xmodels[order]) == 2:
+            #     xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
+            if len(self.xmodels[order]) == 3:
                 xr = (
                     self.xmodels[order][0](x0, y0)
                     + t0 * self.xmodels[order][1](x0, y0)
@@ -1279,6 +1283,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         inv_ymodels=None,
         name=None,
         meta=None,
+        sampling=40,
     ):
         """
         Initialize the model.
@@ -1303,6 +1308,8 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             Name of the model
         meta : dict, optional
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.orders = orders
         self.lmodels = lmodels
@@ -1312,6 +1319,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         self.inv_xmodels = inv_xmodels
         self.inv_ymodels = inv_ymodels
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.sampling = sampling
         meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_column_grism_dispersion"
@@ -1392,16 +1400,16 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         f : float
             The wavelength solution for the given dy
         """
+        dy = np.atleast_1d(dy)
         if len(dy.shape) == 2:
             dy = dy[0, :]
 
-        t_len = dy.shape[0]
-        t0 = np.linspace(0.0, 1.0, t_len)
+        t0 = np.linspace(0.0, 1.0, self.sampling)
 
         if isinstance(model, (ListNode, list)):
-            if len(model[order]) == 2:
-                xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
-            elif len(model[order]) == 3:
+            # if len(model[order]) == 2:
+            #     xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
+            if len(model[order]) == 3:
                 xr = (
                     model[order][0](x0, y0)
                     + t0 * model[order][1](x0, y0)
@@ -1455,6 +1463,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         inv_ymodels=None,
         name=None,
         meta=None,
+        sampling=40,
     ):
         """
         Initialize the model.
@@ -1482,6 +1491,8 @@ class NIRCAMBackwardGrismDispersion(Model):
             Name of the model
         meta : dict
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.orders = orders
@@ -1491,6 +1502,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         self.inv_lmodels = inv_lmodels
         self.inv_xmodels = inv_xmodels
         self.inv_ymodels = inv_ymodels
+        self.sampling = sampling
         meta = {"orders": orders}
         if name is None:
             name = "nircam_backward_grism_dispersion"
@@ -1536,7 +1548,7 @@ class NIRCAMBackwardGrismDispersion(Model):
             raise ValueError("Specified order is not available") from err
 
         if (wavelength < 0).any():
-            raise ValueError("wavelength should be greater than zero")
+            raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
@@ -1550,7 +1562,7 @@ class NIRCAMBackwardGrismDispersion(Model):
         dy = assess_model(ymodel, x, y, t)
         return x + dx, y + dy, x, y, order
 
-    def invdisp_interp(self, model, x0, y0, wavelength, sampling=40):
+    def invdisp_interp(self, model, x0, y0, wavelength):
         """
         Make a polynomial fit to lmodel and interpolate to find the inverse dispersion.
 
@@ -1569,15 +1581,13 @@ class NIRCAMBackwardGrismDispersion(Model):
             is being called on a grid where all wavelengths are the same along the first axis,
             and all the x,y coordinates are the same along the second axis. In this case,
             x0, y0, and wavelength must all have the same shape.
-        sampling : int, optional
-            Number of sampling points in t to use; these will be linearly interpolated.
 
         Returns
         -------
         f : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(0.0, 1.0, int(sampling))
+        t0 = np.linspace(0.0, 1.0, int(self.sampling))
         if len(model) == 2:
 
             def _trace_linear(t, x0, y0, model):
@@ -1750,7 +1760,9 @@ class NIRISSBackwardGrismDispersion(Model):
         orders : list
             The list of orders which are available to the model
         lmodels : list
-            The list of models for the polynomial model in l
+            The list of models governing the wavelength solution.
+            Each model should be a callable that takes in the wavelength
+            and returns the trace parameter t.
         xmodels : list[tuple]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuple]
@@ -1804,6 +1816,9 @@ class NIRISSBackwardGrismDispersion(Model):
         usu. taken to be the different between fwcpos_ref in the specwcs
         reference file and fwcpos from the input image.
         """
+        wavelength = np.atleast_1d(wavelength)
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
         if (wavelength < 0).any():
             raise ValueError("Wavelength should be greater than zero")
         try:
@@ -1848,7 +1863,15 @@ class NIRISSForwardRowGrismDispersion(Model):
     n_outputs = 4
 
     def __init__(
-        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None
+        self,
+        orders,
+        lmodels=None,
+        xmodels=None,
+        ymodels=None,
+        theta=0.0,
+        name=None,
+        meta=None,
+        sampling=10,
     ):
         """
         Initialize the model.
@@ -1858,7 +1881,9 @@ class NIRISSForwardRowGrismDispersion(Model):
         orders : list
             The list of orders which are available to the model
         lmodels : list
-            The list of models for the polynomial model in l
+            The list of models governing the wavelength solution.
+            Each model should be a callable that takes in the trace parameter t
+            and returns the wavelength.
         xmodels : list[tuples]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuples]
@@ -1869,6 +1894,8 @@ class NIRISSForwardRowGrismDispersion(Model):
             Name of the model
         meta : dict
             Unused
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
@@ -1876,6 +1903,7 @@ class NIRISSForwardRowGrismDispersion(Model):
         self.lmodels = lmodels
         self.theta = theta
         self.orders = orders
+        self.sampling = sampling
         meta = {"orders": orders}
         if name is None:
             name = "niriss_forward_row_grism_dispersion"
@@ -1921,7 +1949,7 @@ class NIRISSForwardRowGrismDispersion(Model):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, 10)  # sample t
+        t = np.linspace(0, 1, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
@@ -1933,9 +1961,14 @@ class NIRISSForwardRowGrismDispersion(Model):
             rotate = Rotation2D(self.theta)
             dx, dy = rotate(dx, dy)
 
+        # make a lookup table for t as a function of dx
         so = np.argsort(dx)
         tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
 
+        # wavelength model takes in x, x0.
+        # it then subtracts them to get dx; that's what SubtractUfunc does
+        # next it finds the t value for that dx from the lookup table, interpolating linearly
+        # finally it applies the lmodel of t to get the wavelength
         dxr = astmath.SubtractUfunc()
         wavelength = dxr | tab | lmodel
         model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
@@ -1970,6 +2003,7 @@ class NIRISSForwardColumnGrismDispersion(Model):
         theta=None,
         name=None,
         meta=None,
+        sampling=10,
     ):
         """
         Initialize the model.
@@ -1979,7 +2013,9 @@ class NIRISSForwardColumnGrismDispersion(Model):
         orders : list
             The list of orders which are available to the model.
         lmodels : list
-            The list of models for the polynomial model in wavelength.
+            The list of models governing the wavelength solution.
+            Each model should be a callable that takes in the trace parameter t
+            and returns the wavelength.
         xmodels : list[tuple]
             The list of tuple(models) for the polynomial model in x
         ymodels : list[tuple]
@@ -1990,6 +2026,8 @@ class NIRISSForwardColumnGrismDispersion(Model):
             The name of the model
         meta : dict
             Unused.
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
@@ -1997,6 +2035,7 @@ class NIRISSForwardColumnGrismDispersion(Model):
         self.lmodels = lmodels
         self.orders = orders
         self.theta = theta
+        self.sampling = sampling
         meta = {"orders": orders}
         if name is None:
             name = "niriss_forward_column_grism_dispersion"
@@ -2041,7 +2080,7 @@ class NIRISSForwardColumnGrismDispersion(Model):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, 10)
+        t = np.linspace(0, 1, self.sampling)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
@@ -2051,8 +2090,15 @@ class NIRISSForwardColumnGrismDispersion(Model):
         if self.theta != 0.0:
             rotate = Rotation2D(self.theta)
             dx, dy = rotate(dx, dy)
+
+        # make a lookup table for t as a function of dy
         so = np.argsort(dy)
         tab = Tabular1D(dy[so], t[so], bounds_error=False, fill_value=None)
+
+        # wavelength model takes in y, y0.
+        # it then subtracts them to get dy; that's what SubtractUfunc does
+        # next it finds the t value for that dy from the lookup table, interpolating linearly
+        # finally it applies the lmodel of t to get the wavelength
         dyr = astmath.SubtractUfunc()
         wavelength = dyr | tab | lmodel
         model = Mapping((2, 3, 1, 3, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
