@@ -44,6 +44,17 @@ class SlitDataModel(JwstDataModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
 
+    def __init__(self, init=None, **kwargs):
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitDataModel, self).__init__(init=init, **kwargs)
+        if kwargs:
+            for key in kwargs:
+                setattr(self, key, kwargs[key])
+
 
 class SlitModel(JwstDataModel):
     """
@@ -86,3 +97,14 @@ class SlitModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slit.schema"
+
+    def __init__(self, init=None, **kwargs):
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitModel, self).__init__(init=init, **kwargs)
+        if kwargs:
+            for key in kwargs:
+                setattr(self, key, kwargs[key])

@@ -74,7 +74,6 @@ class MultiSlitModel(JwstDataModel):
                 if not key.startswith(("meta", "extra_fits")):
                     kwargs[key] = items[key]
             s = SlitModel(**kwargs)
-            s.update(slit._instance)
             s.update(self)
 
             if slit.meta.hasattr("wcs"):
