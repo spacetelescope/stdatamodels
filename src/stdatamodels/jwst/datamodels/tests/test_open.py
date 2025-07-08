@@ -22,6 +22,7 @@ from stdatamodels.jwst.datamodels import (
     ReferenceImageModel,
     ReferenceCubeModel,
     ReferenceQuadModel,
+    SlitModel
 )
 from stdatamodels.jwst import datamodels
 from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
@@ -303,3 +304,15 @@ def test_memmap_deprecation(tmp_path):
     with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
         with datamodels.open(path, memmap=True):
             pass
+
+
+def test_open_does_not_clear_wht():
+    """Coverage for a bug where the open function cleared the wht attribute."""
+    m0 = SlitModel((27, 1299))
+    m0.wht[:] = 1
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.wht, 1)
+
+    m2 = datamodels.SlitModel(m0)
+    np.testing.assert_equal(m2.wht, 1)
