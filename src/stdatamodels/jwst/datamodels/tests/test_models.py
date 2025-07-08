@@ -258,6 +258,7 @@ def test_slit_from_image():
     # assert not hasattr(slit_dm, 'meta')
 
     slit = SlitModel(im)
+    assert type(slit) is SlitModel
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
     assert hasattr(slit, "wavelength")

@@ -1,0 +1,3 @@
+Fix SlitModel deleting wht attribute on init from an already-open datamodel.
+Fix IFUImageModel deleting zeroframe attribute on init from an already-open datamodel.
+Fix SlitModel populating zero-filled area array on init.

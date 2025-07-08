@@ -1,5 +1,4 @@
 from .model_base import JwstDataModel
-from .image import ImageModel
 
 
 __all__ = ["IFUImageModel"]
@@ -36,24 +35,6 @@ class IFUImageModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuimage.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, ImageModel):
-            super(IFUImageModel, self).__init__(init=None, **kwargs)
-            self.update(init)
-            self.data = init.data
-            self.dq = init.dq
-            self.err = init.err
-            if init.hasattr("var_poisson"):
-                self.var_poisson = init.var_poisson
-            if init.hasattr("var_rnoise"):
-                self.var_rnoise = init.var_rnoise
-            if init.hasattr("area"):
-                self.area = init.area
-            if init.hasattr("pathloss_point"):
-                self.pathloss_point = init.pathloss_point
-            if init.hasattr("pathloss_uniform"):
-                self.pathloss_uniform = init.pathloss_uniform
-            return
-
         super(IFUImageModel, self).__init__(init=init, **kwargs)
 
         # Implicitly create arrays
