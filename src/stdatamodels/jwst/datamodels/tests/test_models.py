@@ -238,6 +238,7 @@ def test_multislit_model():
     ms = MultiSlitModel()
     ms.slits.append(s0)
     ms.slits.append(s1)
+    print(ms.slits[0])
     ms.meta.instrument.name = "NIRSPEC"
     ms.meta.exposure.type = "NRS_IMAGE"
     slit1 = ms[1]
