@@ -318,3 +318,16 @@ def test_open_does_not_clear_zeroframe(InitClass):
 
     m2 = datamodels.IFUImageModel(m0)
     np.testing.assert_equal(m2.zeroframe, 1)
+
+
+def test_memmap_deprecation(tmp_path):
+    """
+    Test that the deprecation warning for memmap=True is raised.
+    """
+    path = str(tmp_path / "test.fits")
+    model = ImageModel((10, 10))
+    model.save(path)
+
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        with datamodels.open(path, memmap=True):
+            pass
