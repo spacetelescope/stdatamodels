@@ -36,6 +36,7 @@ __all__ = [
     "NIRISSForwardRowGrismDispersion",
     "NIRISSForwardColumnGrismDispersion",
     "NIRISSBackwardGrismDispersion",
+    "MIRIWFSSBackwardDispersion",
     "V2V3ToIdeal",
     "IdealToV2V3",
     "RefractionIndexFromPrism",
@@ -1987,6 +1988,90 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
             "for models depending on x, y, and t."
         )
     raise TypeError(f"Expected a model or list of models, but got {type(model)}. ")
+
+
+class MIRIWFSSBackwardDispersion(Model):
+    """
+    Calculate the dispersion extent of MIRI WFSS pixels.
+    """
+
+    standard_broadcasting = False
+    _separable = False
+    fittable = False
+    linear = False
+
+    n_inputs = 4
+    n_outputs = 5
+
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of models for the polynomial model in l
+        xmodels : list[tuple]
+            The list of tuple(models) for the polynomial model in x
+        ymodels : list[tuple]
+            The list of tuple(models) for the polynomial model in y
+        name : str, optional
+            Name of the model
+        meta : dict
+            Unused
+        """
+        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.xmodels = xmodels
+        self.ymodels = ymodels
+        self.lmodels = lmodels
+        self.orders = orders
+
+        meta = {"orders": orders}
+        if name is None:
+            name = "miri_wfss_backward_dispersion"
+        super(MIRIWFSSBackwardDispersion, self).__init__(name=name, meta=meta)
+        self.inputs = ("x", "y", "order")
+        self.outputs = ("x", "y", "x0", "y0", "order")
+
+    def evaluate(self, x, y, order):
+        """
+        Transform from the direct image plane to the dispersed plane.
+
+        Parameters
+        ----------
+        x, y : float
+            Input x, y location
+        order : int
+            Input spectral order
+
+        Returns
+        -------
+        x, y : float
+            The x, y values in the dispersed plane.
+        x0, y0 : float
+            Source object x-center, y-center. Same as input x, y.
+        order : int
+            Output spectral order, same as input
+        """
+        try:
+            iorder = self._order_mapping[int(order.flatten()[0])]
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
+
+        #t = self.lmodels[iorder](wavelength)
+        t = np.linspace(0,1,10)
+        
+        xmodel = self.xmodels[iorder]
+        ymodel = self.ymodels[iorder]
+
+        dx0 = xmodel[0].c0.value
+        dx1 = xmodel[1].c0.value
+        dx = dx0 + (dx1 - dx0) * t
+        dy = ymodel[0](x00, y00) + dx * ymodel[1](x00, y00) + dx**2 * ymodel[2](x00, y00)
+
+        return x + dx, y + dy, x, y, order
 
 
 class Rotation3DToGWA(Model):
