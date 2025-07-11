@@ -16,12 +16,14 @@ from stdatamodels.validate import ValidationError
 from stdatamodels.jwst.datamodels import (
     JwstDataModel,
     ImageModel,
+    IFUImageModel,
     RampModel,
     CubeModel,
     ReferenceFileModel,
     ReferenceImageModel,
     ReferenceCubeModel,
     ReferenceQuadModel,
+    SlitModel
 )
 from stdatamodels.jwst import datamodels
 from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
@@ -290,3 +292,42 @@ def test_open_kwargs_fits(tmp_path):
     with pytest.raises(ValidationError):
         with datamodels.open(file_path, strict_validation=True) as model:
             model.validate()
+
+
+@pytest.mark.parametrize("InitClass", [SlitModel, ImageModel])
+def test_open_does_not_clear_wht(InitClass):
+    """Cover a bug where the open function cleared the wht attribute in SlitModel."""
+    m0 = InitClass((27, 1299))
+    m0.wht[:] = 1
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.wht, 1)
+
+    m2 = datamodels.SlitModel(m0)
+    np.testing.assert_equal(m2.wht, 1)
+
+
+@pytest.mark.parametrize("InitClass", [IFUImageModel, ImageModel])
+def test_open_does_not_clear_zeroframe(InitClass):
+    """Cover a bug where the open function cleared the zeroframe attribute in IFUImageModel."""
+    m0 = InitClass((10,10))
+    m0.zeroframe = np.ones((10, 10))
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.zeroframe, 1)
+
+    m2 = datamodels.IFUImageModel(m0)
+    np.testing.assert_equal(m2.zeroframe, 1)
+
+
+def test_memmap_deprecation(tmp_path):
+    """
+    Test that the deprecation warning for memmap=True is raised.
+    """
+    path = str(tmp_path / "test.fits")
+    model = ImageModel((10, 10))
+    model.save(path)
+
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        with datamodels.open(path, memmap=True):
+            pass
