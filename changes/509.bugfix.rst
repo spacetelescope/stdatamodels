@@ -1,1 +1,0 @@
-Turn non-schema-mapped data arrays in ASDF extension into links on save instead of duplicating them, saving disk space and memory on re-load

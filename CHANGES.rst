@@ -1,3 +1,35 @@
+4.0.0 (2025-07-11)
+==================
+
+Bug Fixes
+---------
+
+- Turn non-schema-mapped data arrays in ASDF extension into links on save
+  instead of duplicating them, saving disk space and memory on re-load (`#509
+  <https://github.com/spacetelescope/stdatamodels/issues/509>`_)
+- Fix SlitModel deleting wht attribute on init from an already-open datamodel.
+  Fix IFUImageModel deleting zeroframe attribute on init from an already-open
+  datamodel.
+  Fix SlitModel populating zero-filled area array on init. (`#511
+  <https://github.com/spacetelescope/stdatamodels/issues/511>`_)
+- Add channel and band keywords to specpsf schema. (`#513
+  <https://github.com/spacetelescope/stdatamodels/issues/513>`_)
+
+
+New Features
+------------
+
+- Add S_REGION keyword to WFSS spectral metadata schema. (`#524
+  <https://github.com/spacetelescope/stdatamodels/issues/524>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Drop support for memory mapping when opening datamodels (`#507
+  <https://github.com/spacetelescope/stdatamodels/issues/507>`_)
+
+
 3.1.1 (2025-06-26)
 ==================
 

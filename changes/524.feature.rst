@@ -1,1 +1,0 @@
-Add S_REGION keyword to WFSS spectral metadata schema.
