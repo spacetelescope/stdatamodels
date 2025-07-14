@@ -2003,7 +2003,7 @@ class MIRIWFSSBackwardDispersion(Model):
     n_inputs = 2
     n_outputs = 4
 
-    def __init__(self, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
+    def __init__(self, lmodels=None, xmodels=None, ymodels=None, name=None):
         """
         Initialize the model.
 
@@ -2017,8 +2017,6 @@ class MIRIWFSSBackwardDispersion(Model):
             The list of tuple(models) for the polynomial model in y
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         """
         self.xmodels = xmodels
         self.ymodels = ymodels
@@ -2026,7 +2024,7 @@ class MIRIWFSSBackwardDispersion(Model):
 
         if name is None:
             name = "miriwfss_backward_dispersion"
-        super(MIRIWFSSBackwardDispersion, self).__init__(name=name, meta=meta)
+        super(MIRIWFSSBackwardDispersion, self).__init__(name=name)
         self.inputs = ("x", "y")
         self.outputs = ("x", "y", "x0", "y0")
 
@@ -2055,12 +2053,12 @@ class MIRIWFSSBackwardDispersion(Model):
         dx0 = xmodel[0].c0.value
         dx1 = xmodel[1].c0.value
         dx = dx0 + (dx1 - dx0) * t
-        print('ymodel',ymodel[0], ymodel[1], ymodel[2])
+        #print('ymodel',ymodel[0], ymodel[1], ymodel[2])
         
         dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
 
-        print(' test dx',dx)
-        print('test dy', dy)
+        #print(' test dx',dx)
+        #print('test dy', dy)
         return x + dx, dy, x, y
 
 
