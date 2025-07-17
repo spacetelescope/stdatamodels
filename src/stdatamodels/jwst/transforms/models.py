@@ -36,6 +36,7 @@ __all__ = [
     "NIRISSForwardRowGrismDispersion",
     "NIRISSForwardColumnGrismDispersion",
     "NIRISSBackwardGrismDispersion",
+    "MIRIWFSSBackwardDispersion",
     "V2V3ToIdeal",
     "IdealToV2V3",
     "RefractionIndexFromPrism",
@@ -2103,6 +2104,77 @@ class NIRISSForwardColumnGrismDispersion(Model):
         wavelength = dyr | tab | lmodel
         model = Mapping((2, 3, 1, 3, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
         return model(x, y, x0, y0, order)
+
+
+class MIRIWFSSBackwardDispersion(Model):
+    """
+    Calculate the dispersion extent of MIRI WFSS pixels.
+    """
+
+    standard_broadcasting = False
+    _separable = False
+    fittable = False
+    linear = False
+
+    n_inputs = 2
+    n_outputs = 4
+
+    def __init__(self, lmodels=None, xmodels=None, ymodels=None, name=None):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        lmodels : list
+            The list of models for the polynomial model in l
+        xmodels : list[tuple]
+            The list of tuple(models) for the polynomial model in x
+        ymodels : list[tuple]
+            The list of tuple(models) for the polynomial model in y
+        name : str, optional
+            Name of the model
+        """
+        self.xmodels = xmodels
+        self.ymodels = ymodels
+        self.lmodels = lmodels
+
+        if name is None:
+            name = "miriwfss_backward_dispersion"
+        super(MIRIWFSSBackwardDispersion, self).__init__(name=name)
+        self.inputs = ("x", "y")
+        self.outputs = ("x", "y", "x0", "y0")
+
+    def evaluate(self, x, y):
+        """
+        Transform from the direct image plane to the dispersed plane.
+
+        Parameters
+        ----------
+        x, y : float
+            Input x, y location
+
+        Returns
+        -------
+        x+dx, yy : float
+            The x, y values in the dispersed plane.
+        x, y : float
+            Source object x-center, y-center. Same as input x, y.
+        """
+        t = np.linspace(0, 1, 10)
+
+        xmodel = self.xmodels[0]
+        ymodel = self.ymodels[0]
+
+        dx0 = xmodel[0].c0.value
+        dx1 = xmodel[1].c0.value
+        dx = dx0 + (dx1 - dx0) * t
+        # print('ymodel',ymodel[0], ymodel[1], ymodel[2])
+
+        dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
+
+        # print(' test dx',dx)
+        # print('test dy', dy)
+        return x + dx, dy, x, y
 
 
 class Rotation3DToGWA(Model):
