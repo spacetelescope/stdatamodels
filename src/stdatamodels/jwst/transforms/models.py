@@ -1235,14 +1235,14 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
 
         if isinstance(model, (ListNode, list)):
             if len(model[0].inputs) == 2:
-                xr = _poly_with_spatial_dependence(model, x0, y0, t0)
+                xr = _poly_with_spatial_dependence(t0, x0, y0, model)
             elif len(model[0].inputs) == 1:
                 xr = (dx - model[0].c0.value) / model[0].c1.value
                 return xr
             else:
-                raise Exception  # noqa: TRY002
+                raise ValueError(f"Unexpected model coefficients: {model}")
         else:
-            xr = (dx - self.xmodels[order].c0.value) / self.xmodels[order].c1.value
+            xr = (dx - model.c0.value) / self.model.c1.value
             return xr
 
         if len(xr.shape) > 1:
@@ -1524,60 +1524,8 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             The inverse dispersion value for the given wavelength
         """
         t0 = np.linspace(0.0, 1.0, int(self.sampling))
-        if len(model) == 2:
 
-            def _trace_linear(t, x0, y0, model):
-                """
-                Map trace parameter t to the wavelength solution using a linear model.
-
-                Identical call and return structure to _trace_quadratic;
-                see that docstring for details.
-                """
-                t = np.expand_dims(t, axis=1)
-                return (
-                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
-                    + t @ model[1](x0, y0)[np.newaxis, :]
-                )
-
-            trace_function = partial(_trace_linear, model=model)
-
-        elif len(model) == 3:
-
-            def _trace_quadratic(t, x0, y0, model):
-                """
-                Map trace parameter t to the wavelength solution using a quadratic model.
-
-                t defines a parametric curve representing the trace, (x(t), y(t)).
-                Its values go between 0 and 1, where 0 corresponds to the start of the trace
-                and 1 corresponds to the end of the trace.
-
-                Parameters
-                ----------
-                t : 1-D np.ndarray
-                    The trace parameter(s) in the dispersion direction.
-                x0, y0 : 1-D np.ndarray
-                    The x and y coordinates of the source object.
-                    x0 and y0 must have the same shape, but this can be different from t.
-                model : list of astropy.modeling.Model
-                    The models encoding the x, y dependence of the trace model's
-                    polynomial coefficients. Must have length 3.
-
-                Returns
-                -------
-                f : 2-D np.ndarray
-                    The spatially-varying wavelength solutions for the given t, x0, and y0,
-                    shape (n_x0, n_t) where n_t == sampling
-                """
-                t = np.expand_dims(t, axis=1)
-                return (
-                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
-                    + t @ model[1](x0, y0)[np.newaxis, :]
-                    + t**2 @ model[2](x0, y0)[np.newaxis, :]
-                )
-
-            trace_function = partial(_trace_quadratic, model=model)
-
-        else:
+        if len(model) < 2:
             # Handle legacy versions of the trace model
             if isinstance(model, (ListNode, list)):
                 xr = model[0](t0)
@@ -1595,7 +1543,12 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             y0 = y0[0].flatten()
             wavelength = wavelength[:, 0].flatten()
 
-        wave_grid = trace_function(t0, x0, y0)
+        trace_function = partial(_poly_with_spatial_dependence, model=model)
+
+        # Create a grid of t0, x0, and y0 values
+        tt, yy = np.meshgrid(t0, y0, indexing="ij")
+        xx = np.meshgrid(t0, x0, indexing="ij")[1]
+        wave_grid = trace_function(tt, xx, yy)
         t_out = np.empty((len(wavelength), len(x0)))
         for i, w in enumerate(wavelength):
             # do a first order interpolation to find the t0 where residuals are minimized
@@ -1752,8 +1705,8 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = _poly_with_spatial_dependence(xmodel, x, y, t)
-        dy = _poly_with_spatial_dependence(ymodel, x, y, t)
+        dx = _poly_with_spatial_dependence(t, x, y, xmodel)
+        dy = _poly_with_spatial_dependence(t, x, y, ymodel)
 
         # rotate by theta
         if self.theta != 0.0:
@@ -1822,8 +1775,8 @@ class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
 
-        dx = _poly_with_spatial_dependence(xmodel, x00, y00, t)
-        dy = _poly_with_spatial_dependence(ymodel, x00, y00, t)
+        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
+        dy = _poly_with_spatial_dependence(t, x00, y00, ymodel)
 
         if self.theta != 0.0:
             rotate = Rotation2D(self.theta)
@@ -1967,18 +1920,18 @@ class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
         )
 
 
-def _poly_with_spatial_dependence(model, x0, y0, t):
+def _poly_with_spatial_dependence(t, x0, y0, model):
     """
     Evaluate a polynomial of any order with model coefficients that depend on x0, y0.
 
     Parameters
     ----------
-    model : list of astropy.modeling.Model
-        The models encoding the x, y dependence of the polynomial coefficients.
-    x0, y0 : float or np.ndarray
-        The x, y coordinates at which to evaluate the polynomial.
     t : float or np.ndarray
         The trace parameter(s) in the dispersion direction, which can be a scalar or an array.
+    x0, y0 : float or np.ndarray
+        The x, y coordinates at which to evaluate the polynomial.
+    model : list of astropy.modeling.Model
+        The models encoding the x, y dependence of the polynomial coefficients.
 
     Returns
     -------
@@ -1989,10 +1942,13 @@ def _poly_with_spatial_dependence(model, x0, y0, t):
 
 
 def assess_model(model, x=0, y=0, t=0):
+    # TODO: this logic tree is confusing because it mixes the assumed behavior
+    # of x/y models and t models
+    # It might be better to have two functions, one for x/y models and one for t models.
     if isinstance(model, (ListNode, list)):
         ninputs = len(model[0].inputs)
         if ninputs == 2:
-            output = _poly_with_spatial_dependence(model, x, y, t)
+            output = _poly_with_spatial_dependence(t, x, y, model)
         elif ninputs == 1:
             if len(model) == 1:
                 output = model[0](t)
