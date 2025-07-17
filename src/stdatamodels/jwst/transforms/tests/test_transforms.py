@@ -539,6 +539,7 @@ def test_legacy_nircam_grism_roundtrip(direction):
     np.testing.assert_allclose(ordersi, orders)
 
 
+@pytest.mark.xfail(reason="Adding support for poly of any order")
 @pytest.mark.parametrize("direction", ["row", "column"])
 def test_nircam_grism_raise_unsupported(direction):
     """Test attempting to use an unsupported model type raises an error."""
