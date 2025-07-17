@@ -13,6 +13,7 @@ __all__ = [
     "MIRI_AB2SliceConverter",
     "NIRCAMGrismDispersionConverter",
     "NIRISSGrismDispersionConverter",
+    "MIRIWFSSDispersionConverter",
     "Rotation3DToGWAConverter",
     "GratingEquationConverter",
     "V23ToSkyConverter",
@@ -119,6 +120,35 @@ class NIRISSGrismDispersionConverter(TransformConverterBase):
             "ymodels": yll,
             "lmodels": list(model.lmodels),
             "theta": model.theta,
+            "model_type": type(model).name,
+        }
+        return node
+
+
+class MIRIWFSSDispersionConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/miriwfss_dispersion-*"]
+
+    types = [
+        "stdatamodels.jwst.transforms.models.MIRIWFSSBackwardGrismDispersion",
+    ]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        from stdatamodels.jwst.transforms import models
+
+        _fname = getattr(models, node["model_type"])
+        return _fname(
+            list(node["lmodels"]),
+            list(node["xmodels"]),
+            list(node["ymodels"]),
+        )
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        xll = [list(m) for m in model.xmodels]
+        yll = [list(m) for m in model.ymodels]
+        node = {
+            "xmodels": xll,
+            "ymodels": yll,
+            "lmodels": list(model.lmodels),
             "model_type": type(model).name,
         }
         return node
