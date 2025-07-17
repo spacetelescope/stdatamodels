@@ -1075,24 +1075,13 @@ def _toindex(value):
     return indx
 
 
-class NIRCAMForwardRowGrismDispersion(Model):
-    """
-    Return the transform from grism to image for the given spectral order.
-
-    Notes
-    -----
-    The evaluation here is linear currently because higher orders have not yet been
-    defined for NIRCAM (NIRCAM polynomials currently do not have any field
-    dependence)
-    """
+class GrismDispersionBase(Model):
+    """Base class for grism dispersion models."""
 
     standard_broadcasting = False
     _separable = False
     fittable = False
     linear = False
-
-    n_inputs = 5
-    n_outputs = 4
 
     def __init__(
         self,
@@ -1104,7 +1093,66 @@ class NIRCAMForwardRowGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
+        sampling=40,
+    ):
+        self.orders = orders
+        self.lmodels = lmodels
+        self.xmodels = xmodels
+        self.ymodels = ymodels
+        self.inv_lmodels = inv_lmodels
+        self.inv_xmodels = inv_xmodels
+        self.inv_ymodels = inv_ymodels
+        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.sampling = sampling
+        meta = {"orders": orders}  # informational for users
+        super().__init__(name=name, meta=meta)
+
+
+class ForwardGrismDispersionBase(GrismDispersionBase):
+    """Base class for forward grism dispersion models."""
+
+    n_inputs = 5
+    n_outputs = 4
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inputs = ("x", "y", "x0", "y0", "order")
+        self.outputs = ("x", "y", "wavelength", "order")
+
+
+class BackwardGrismDispersionBase(GrismDispersionBase):
+    """Base class for backward grism dispersion models."""
+
+    n_inputs = 4
+    n_outputs = 5
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inputs = ("x", "y", "wavelength", "order")
+        self.outputs = ("x", "y", "x0", "y0", "order")
+
+
+class NIRCAMForwardRowGrismDispersion(ForwardGrismDispersionBase):
+    """
+    Return the transform from grism to image for the given spectral order.
+
+    Notes
+    -----
+    The evaluation here is linear currently because higher orders have not yet been
+    defined for NIRCAM (NIRCAM polynomials currently do not have any field
+    dependence)
+    """
+
+    def __init__(
+        self,
+        orders,
+        lmodels=None,
+        xmodels=None,
+        ymodels=None,
+        inv_lmodels=None,
+        inv_xmodels=None,
+        inv_ymodels=None,
+        name=None,
         sampling=40,
     ):
         """
@@ -1128,26 +1176,22 @@ class NIRCAMForwardRowGrismDispersion(Model):
             List of models which will be used if inverse ymodels cannot be analytically derived
         name : str, optional
             Name of the model
-        meta : dict, optional
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self.orders = orders
-        self.lmodels = lmodels
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.inv_lmodels = inv_lmodels
-        self.inv_xmodels = inv_xmodels
-        self.inv_ymodels = inv_ymodels
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.sampling = sampling
-        meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_row_grism_dispersion"
-        super(NIRCAMForwardRowGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -1253,7 +1297,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
         return f
 
 
-class NIRCAMForwardColumnGrismDispersion(Model):
+class NIRCAMForwardColumnGrismDispersion(ForwardGrismDispersionBase):
     """
     Return the transform from grism to image for the given spectral order.
 
@@ -1263,14 +1307,6 @@ class NIRCAMForwardColumnGrismDispersion(Model):
     defined for NIRCAM (NIRCAM polynomials currently do not have any field
     dependence)
     """
-
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
 
     def __init__(
         self,
@@ -1282,7 +1318,6 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
         sampling=40,
     ):
         """
@@ -1306,26 +1341,22 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             List of models which will be used if inverse ymodels cannot be analytically derived
         name : str, optional
             Name of the model
-        meta : dict, optional
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self.orders = orders
-        self.lmodels = lmodels
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.inv_lmodels = inv_lmodels
-        self.inv_xmodels = inv_xmodels
-        self.inv_ymodels = inv_ymodels
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.sampling = sampling
-        meta = {"orders": orders}  # informational for users
         if name is None:
             name = "nircam_forward_column_grism_dispersion"
-        super(NIRCAMForwardColumnGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -1434,7 +1465,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         return f
 
 
-class NIRCAMBackwardGrismDispersion(Model):
+class NIRCAMBackwardGrismDispersion(BackwardGrismDispersionBase):
     """
     Calculate the dispersion extent of NIRCAM pixels.
 
@@ -1443,14 +1474,6 @@ class NIRCAMBackwardGrismDispersion(Model):
     The evaluation here is linear because higher orders have not yet been defined for NIRCAM
     (NIRCAM polynomials currently do not have any field dependence)
     """
-
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 4
-    n_outputs = 5
 
     def __init__(
         self,
@@ -1462,7 +1485,6 @@ class NIRCAMBackwardGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
         sampling=40,
     ):
         """
@@ -1489,26 +1511,22 @@ class NIRCAMBackwardGrismDispersion(Model):
             cannot be analytically derived
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.orders = orders
-        self.lmodels = lmodels
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.inv_lmodels = inv_lmodels
-        self.inv_xmodels = inv_xmodels
-        self.inv_ymodels = inv_ymodels
-        self.sampling = sampling
-        meta = {"orders": orders}
         if name is None:
             name = "nircam_backward_grism_dispersion"
-        super(NIRCAMBackwardGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "wavelength", "order")
-        self.outputs = ("x", "y", "x0", "y0", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, wavelength, order):
         """
@@ -1731,7 +1749,7 @@ def _find_min_with_linear_interpolation(resid, t0):
     return this_t
 
 
-class NIRISSBackwardGrismDispersion(Model):
+class NIRISSBackwardGrismDispersion(BackwardGrismDispersionBase):
     """
     Calculate the dispersion extent of NIRISS pixels.
 
@@ -1741,17 +1759,7 @@ class NIRISSBackwardGrismDispersion(Model):
     2t x 6(xy)th order polynomial currently used by NIRISS.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 4
-    n_outputs = 5
-
-    def __init__(
-        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None
-    ):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None):
         """
         Initialize the model.
 
@@ -1771,21 +1779,17 @@ class NIRISSBackwardGrismDispersion(Model):
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.orders = orders
         self.theta = theta
-        meta = {"orders": orders}
         if name is None:
             name = "niriss_backward_grism_dispersion"
-        super(NIRISSBackwardGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "wavelength", "order")
-        self.outputs = ("x", "y", "x0", "y0", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
 
     def evaluate(self, x, y, wavelength, order):
         """
@@ -1841,7 +1845,7 @@ class NIRISSBackwardGrismDispersion(Model):
         return x + dx, y + dy, x, y, order
 
 
-class NIRISSForwardRowGrismDispersion(Model):
+class NIRISSForwardRowGrismDispersion(ForwardGrismDispersionBase):
     """
     Calculate the wavelengths of vertically dispersed NIRISS grism data.
 
@@ -1854,14 +1858,6 @@ class NIRISSForwardRowGrismDispersion(Model):
     2t x 6(xy)th order polynomial currently used by NIRISS.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
-
     def __init__(
         self,
         orders,
@@ -1870,7 +1866,6 @@ class NIRISSForwardRowGrismDispersion(Model):
         ymodels=None,
         theta=0.0,
         name=None,
-        meta=None,
         sampling=10,
     ):
         """
@@ -1892,25 +1887,20 @@ class NIRISSForwardRowGrismDispersion(Model):
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
         self.theta = theta
-        self.orders = orders
-        self.sampling = sampling
-        meta = {"orders": orders}
         if name is None:
             name = "niriss_forward_row_grism_dispersion"
-        super(NIRISSForwardRowGrismDispersion, self).__init__(name=name, meta=meta)
-        # starts with the backwards pixel and calculates the forward pixel
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -1976,7 +1966,7 @@ class NIRISSForwardRowGrismDispersion(Model):
         return model(x, y, x0, y0, order)
 
 
-class NIRISSForwardColumnGrismDispersion(Model):
+class NIRISSForwardColumnGrismDispersion(ForwardGrismDispersionBase):
     """
     Calculate the wavelengths for horizontally dispersed NIRISS grism data.
 
@@ -1986,14 +1976,6 @@ class NIRISSForwardColumnGrismDispersion(Model):
     in degrees.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
-
     def __init__(
         self,
         orders,
@@ -2002,7 +1984,6 @@ class NIRISSForwardColumnGrismDispersion(Model):
         ymodels=None,
         theta=None,
         name=None,
-        meta=None,
         sampling=10,
     ):
         """
@@ -2024,25 +2005,20 @@ class NIRISSForwardColumnGrismDispersion(Model):
             Angle [deg] - defines the NIRISS filter wheel position
         name : str
             The name of the model
-        meta : dict
-            Unused.
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.orders = orders
         self.theta = theta
-        self.sampling = sampling
-        meta = {"orders": orders}
         if name is None:
             name = "niriss_forward_column_grism_dispersion"
-        super(NIRISSForwardColumnGrismDispersion, self).__init__(name=name, meta=meta)
-        # starts with the backwards pixel and calculates the forward pixel
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, x0, y0, order):
         """
