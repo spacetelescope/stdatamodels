@@ -2044,21 +2044,20 @@ class MIRIWFSSBackwardDispersion(Model):
         x, y : float
             Source object x-center, y-center. Same as input x, y.
         """
+        t = np.linspace(0, 1, 10)
 
-        t = np.linspace(0,1,10)
-        
         xmodel = self.xmodels[0]
         ymodel = self.ymodels[0]
 
         dx0 = xmodel[0].c0.value
         dx1 = xmodel[1].c0.value
         dx = dx0 + (dx1 - dx0) * t
-        #print('ymodel',ymodel[0], ymodel[1], ymodel[2])
-        
+        # print('ymodel',ymodel[0], ymodel[1], ymodel[2])
+
         dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
 
-        #print(' test dx',dx)
-        #print('test dy', dy)
+        # print(' test dx',dx)
+        # print('test dy', dy)
         return x + dx, dy, x, y
 
 
