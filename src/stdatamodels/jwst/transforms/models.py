@@ -1238,7 +1238,7 @@ class NIRCAMForwardRowGrismDispersion(Model):
                 xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
                 return xr
             else:
-                raise Exception  # noqa: TRY002
+                raise ValueError(f"Unexpected model coefficients: {self.xmodels[order]}")
         else:
             xr = (dx - self.xmodels[order].c0.value) / self.xmodels[order].c1.value
             return xr
@@ -1419,7 +1419,7 @@ class NIRCAMForwardColumnGrismDispersion(Model):
                 xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
                 return xr
             else:
-                raise Exception  # noqa: TRY002
+                raise ValueError(f"Unexpected model coefficients: {model[order]}")
         else:
             xr = (dy - model[order].c0.value) / model[order].c1.value
             return xr

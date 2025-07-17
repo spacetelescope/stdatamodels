@@ -555,7 +555,7 @@ def test_nircam_grism_raise_unsupported(direction):
         ForwardModel = models.NIRCAMForwardRowGrismDispersion
     elif direction == "column":
         ForwardModel = models.NIRCAMForwardColumnGrismDispersion
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError, match="Unexpected model coefficients"):
         ForwardModel(
             orders,
             lmodels=lmodels,
