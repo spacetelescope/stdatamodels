@@ -1,3 +1,35 @@
+4.0.0 (2025-07-11)
+==================
+
+Bug Fixes
+---------
+
+- Turn non-schema-mapped data arrays in ASDF extension into links on save
+  instead of duplicating them, saving disk space and memory on re-load (`#509
+  <https://github.com/spacetelescope/stdatamodels/issues/509>`_)
+- Fix SlitModel deleting wht attribute on init from an already-open datamodel.
+  Fix IFUImageModel deleting zeroframe attribute on init from an already-open
+  datamodel.
+  Fix SlitModel populating zero-filled area array on init. (`#511
+  <https://github.com/spacetelescope/stdatamodels/issues/511>`_)
+- Add channel and band keywords to specpsf schema. (`#513
+  <https://github.com/spacetelescope/stdatamodels/issues/513>`_)
+
+
+New Features
+------------
+
+- Add S_REGION keyword to WFSS spectral metadata schema. (`#524
+  <https://github.com/spacetelescope/stdatamodels/issues/524>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Drop support for memory mapping when opening datamodels (`#507
+  <https://github.com/spacetelescope/stdatamodels/issues/507>`_)
+
+
 3.1.1 (2025-06-26)
 ==================
 
@@ -555,7 +587,7 @@ Other
 -----
 
 - Update ``RefractionIndexFromPrism`` converting single element ndarrays
-  to scalar values before use to avoid ``DeprecationWarning``s introduced
+  to scalar values before use to avoid ``DeprecationWarning`` introduced
   in numpy 1.25 [#210]
 
 - Add band to ``GainModel`` schema to account for miri crds file updates
@@ -714,7 +746,7 @@ Other
   on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
 
 - Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
-  catching ``ResourceWarning``s. [#152]
+  catching ``ResourceWarning`` instances. [#152]
 
 - Fix open file handles, which were previously ignored by ``pytest-openfiles``, but which raise
   blocked ``ResourceWarning`` errors. [#153]

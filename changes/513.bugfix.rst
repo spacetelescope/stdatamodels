@@ -1,1 +1,0 @@
-Add channel and band keywords to specpsf schema.

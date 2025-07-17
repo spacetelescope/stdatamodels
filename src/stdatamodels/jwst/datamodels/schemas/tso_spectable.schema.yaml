@@ -17,7 +17,7 @@ default: [
   NaN,  # SB_VAR_POISSON
   NaN,  # SB_VAR_RNOISE
   NaN,  # SB_VAR_FLAT
-  0,    # DQ
+  1,    # DQ
   NaN,  # BACKGROUND
   NaN,  # BKGD_ERROR
   NaN,  # BKGD_VAR_POISSON

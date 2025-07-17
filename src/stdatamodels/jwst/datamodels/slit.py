@@ -1,5 +1,4 @@
 from .model_base import JwstDataModel
-from .image import ImageModel
 
 
 __all__ = ["SlitModel", "SlitDataModel"]
@@ -46,32 +45,15 @@ class SlitDataModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, (SlitModel, ImageModel)):
-            super(SlitDataModel, self).__init__(init=None, **kwargs)
-            self.data = init.data
-            self.dq = init.dq
-            self.err = init.err
-            self.area = init.area
-            if init.hasattr("var_poisson"):
-                self.var_poisson = init.var_poisson
-            if init.hasattr("var_rnoise"):
-                self.var_rnoise = init.var_rnoise
-            if init.hasattr("var_flat"):
-                self.var_flat = init.var_flat
-            if init.hasattr("wavelength"):
-                self.wavelength = init.wavelength
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitDataModel, self).__init__(init=init, **kwargs)
+        if kwargs:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
-
-            if init.meta.hasattr("wcs"):
-                self.meta.wcs = init.meta.wcs
-            else:
-                self.meta.wcs = None
-        else:
-            super(SlitDataModel, self).__init__(init=init, **kwargs)
-            if kwargs:
-                for key in kwargs:
-                    setattr(self, key, kwargs[key])
 
 
 class SlitModel(JwstDataModel):
@@ -117,29 +99,12 @@ class SlitModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slit.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, (SlitModel, ImageModel)):
-            super(SlitModel, self).__init__(init=None, **kwargs)
-            self.update(init)
-            self.data = init.data
-            self.dq = init.dq
-            self.err = init.err
-            self.area = init.area
-            if init.hasattr("var_poisson"):
-                self.var_poisson = init.var_poisson
-            if init.hasattr("var_rnoise"):
-                self.var_rnoise = init.var_rnoise
-            if init.hasattr("var_flat"):
-                self.var_flat = init.var_flat
-            if init.hasattr("wavelength"):
-                self.wavelength = init.wavelength
-            if init.hasattr("int_times"):
-                self.int_times = init.int_times
-            if init.meta.hasattr("wcs"):
-                self.meta.wcs = init.meta.wcs
-            else:
-                self.meta.wcs = None
-        else:
-            super(SlitModel, self).__init__(init=init, **kwargs)
-            if kwargs:
-                for key in kwargs:
-                    setattr(self, key, kwargs[key])
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitModel, self).__init__(init=init, **kwargs)
+        if kwargs:
+            for key in kwargs:
+                setattr(self, key, kwargs[key])
