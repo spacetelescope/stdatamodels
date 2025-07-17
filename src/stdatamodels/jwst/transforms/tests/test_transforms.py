@@ -5,36 +5,91 @@ Test jwst.transforms
 
 import asdf
 import pytest
-from astropy.modeling.models import Identity
+from astropy.modeling.models import Identity, Mapping
 import numpy as np
 from numpy.testing import assert_allclose
 
+from astropy.modeling.models import Polynomial2D, Polynomial1D
 from stdatamodels.jwst.transforms import models
 
 
-# _RANDOM_SEED = 0x1337
+@pytest.mark.parametrize(
+    ("beta_zero", "beta_del", "channel", "expected"),
+    [
+        (-1.77210143797, 0.177210143797, 1, 111),
+        (-2.23774549066, 0.279718186333, 2, 209),
+    ]
+)
+def test_miri_ab2slice(beta_zero, beta_del, channel, expected):
+    model = models.MIRI_AB2Slice()
+    beta = 0.0
+    result = model.evaluate(beta, beta_zero, beta_del, channel)
+    assert result == expected
 
-"""
+
+def test_refractionindexfromprism():
+
+    prism_angle = -16.5 # degrees
+    prism_angle_rad = np.deg2rad(prism_angle)
+    alpha_in = np.pi / 8  # angle of incidence in radians
+    beta_in = np.pi / 8  # angle of incidence in radians
+    alpha_out = np.pi / 16  # angle of refraction in radians
+
+    # unclear why the model requires the prism angle in degrees on init
+    # and also requires the prism angle in radians on evaluation
+    model = models.RefractionIndexFromPrism(prism_angle)
+    n = model.evaluate(alpha_in, beta_in, alpha_out, prism_angle_rad)
+    assert np.isclose(n, 1.113583608571748)
+
+
+def test_nirisssossmodel():
+
+    spectral_orders = [1, 2]
+    # model is unphysical but does have 2 inputs and 3 outputs like NIRISS SOSS would expect
+    order_models = [Identity(2) | Mapping((0, 1, 1))] * len(spectral_orders)
+
+    sossmodel = models.NirissSOSSModel(spectral_orders, order_models)
+    assert sossmodel.spectral_orders == spectral_orders
+    assert isinstance(sossmodel.models, dict)
+
+    xout, yout, yout2 = sossmodel.evaluate(10, 20, np.array([1]))
+    assert xout == 10
+    assert yout == 20
+    assert yout2 == 20
+
+    with pytest.raises(ValueError, match="Spectral order is not between"):
+        sossmodel.evaluate(10, 20, -1)
+
+
 def test_logical():
 
-    with NumpyRNGContext(0x1337):
-        compareto = np.random.randn(10)
-    with NumpyRNGContext(0x1338):
-        val = np.random.randn(10)
-    with NumpyRNGContext(0x1339):
-        x = np.random.randn(10)
+    # model where if value is greater than 0.5, it is set to 10
     l = models.Logical('GT', .5, 10)
 
+    x = np.linspace(0, 1, 11)
     res = l(x)
-    y = x.copy()
-    y[np.greater(x, .5)] = 10
-    assert_allclose(res, npres)
-    l = models.Logical('lt', compareto, val)
-    cond = np.less(x, compareto)
-    y = x.copy()
-    y[cond] = val[cond]
-    assert_allclose(res, npres)
-"""
+    assert_allclose(res, np.where(x > .5, 10, x))
+
+    # model where if value is less than 0.5, it is set to 10
+    l = models.Logical('LT', .5, 10)
+    res = l(x)
+    assert_allclose(res, np.where(x < .5, 10, x))
+
+    # model where if value is equal to 0.5, it is set to 10
+    l = models.Logical('EQ', .5, 10)
+    res = l(x)
+    assert_allclose(res, np.where(x == .5, 10, x))
+
+    # model where if value is not equal to 0.5, it is set to 10
+    l = models.Logical('NE', .5, 10)
+    res = l(x)
+    assert_allclose(res, np.where(x != .5, 10, x))
+
+    # test comparing to array
+    compareto = x[::-1]
+    l = models.Logical('GT', compareto, compareto)
+    res = l(x)
+    assert_allclose(res, np.where(x > compareto, compareto, x))
 
 
 def test_ideal_to_v23_roundtrip():
@@ -47,13 +102,19 @@ def test_ideal_to_v23_roundtrip():
 
 
 @pytest.mark.parametrize(
-    ("wavelength", "n"), [(1e-6, 1.43079543), (2e-6, 1.42575377), (5e-6, 1.40061966)]
+    ("wavelength", "n", "xval", "zval"),
+    [(1e-6, 1.43079543, 0.08197709799990752, 0.9160061062222742),
+     (2e-6, 1.42575377, 0.08010546703309275, 0.916171678990564),
+     (5e-6, 1.40061966, 0.07075688081985915, 0.9169410532033251),
+    ]
 )
-def test_refraction_index(wavelength, n):
+def test_refraction_index_and_snell(wavelength, n, xval, zval):
     """
     Tests the computation of the refraction index.
     True values are from the ESA pipeline.
     Reference values are from the PRISM reference file from CV3.
+
+    Also test refraction index computation within the Snell model.
     """
     temp_sys = 37.06107795068881  # in K
     tref = 35  # in K
@@ -66,6 +127,55 @@ def test_refraction_index(wavelength, n):
         wavelength, temp_sys, tref, pref, pressure_sys, kcoef, lcoef, tcoef
     )
     assert_allclose(n_pipeline, n)
+
+    # Test Snell's Law model
+    angle = 10.0  # prism angle in degrees
+    alpha_in = np.pi/8  # angle of incidence in radians
+    beta_in = np.pi/8  # angle of incidence in radians
+    z = 0.0  # z-coordinate, not used in this model
+    model = models.Snell(angle, kcoef, lcoef, tcoef, tref, pref, temp_sys, pressure_sys)
+    xout, yout, zout = model.evaluate(wavelength, alpha_in, beta_in, z)
+    assert np.isclose(xout, xval)
+    assert np.isclose(yout, -0.39269908169872414)
+    assert np.isclose(zout, zval)
+
+
+def test_refraction_index_large_delt():
+    """
+    Test the case where the temperature difference is large.
+    
+    If delta T is larger than 20, the refraction index of the air will be recomputed.
+    """
+    wavelength = 2e-6
+    temp_sys = 65. # in K
+    tref = 35  # in K
+    pref = 0  # in atm
+    pressure_sys = 0  # in atm
+    kcoef = [0.58339748, 0.46085267, 3.8915394]
+    lcoef = [0.00252643, 0.010078333, 1200.556]
+    tcoef = [-2.66e-05, 0.0, 0.0, 0.0, 0.0, 0.0]
+    n_pipeline = models.Snell.compute_refraction_index(
+        wavelength, temp_sys, tref, pref, pressure_sys, kcoef, lcoef, tcoef
+    )
+    assert np.isclose(n_pipeline, 1.4254647475849418)
+
+
+def test_grating_equation():
+    """Test consistency between WavelengthFromGratingEquation and AngleFromGratingEquation."""
+    lam = 2.0e-6  # wavelength in meters
+    groovedensity = 1000.0  # grooves per meter
+    order = 1  # diffraction order
+    alpha_in = np.array([np.pi/8, np.pi/8])  # angle of incidence in radians
+    beta_in = np.array([np.pi/8, np.pi/8])  # angle of incidence in radians
+    z = np.array([0.0, 0.0])  # z-coordinate, not used in this model
+
+    angle_transform = models.AngleFromGratingEquation(groovedensity, order)
+    alpha_out, beta_out, _zout = angle_transform.evaluate(lam, alpha_in, beta_in, z, groovedensity, order)
+    np.testing.assert_allclose(beta_out, -beta_in)
+
+    wavelength_transform = models.WavelengthFromGratingEquation(groovedensity, order)
+    lam_out = wavelength_transform.evaluate(alpha_in, beta_in, alpha_out, groovedensity, order)
+    np.testing.assert_allclose(lam_out, lam)
 
 
 def test_slit_to_msa_from_ids(tmp_path):
@@ -268,8 +378,8 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     y0 = y0.flatten()
 
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
-    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
-    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl, sampling=sampling)
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels, sampling=sampling)
+    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl)
 
     # for this version we need to make x0, y0, wl all have same shape
     t2_out = np.empty_like(t_out)
@@ -313,3 +423,294 @@ def test_nircam_backward_grism_dispersion_single():
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == x0.size
     assert yi.size == y0.size
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+def test_nircam_grism_roundtrip(direction):
+    """
+    Do a forward grism transform for NIRCam,
+    then inverse, and check that the output is the same as the input.
+    """
+    # Create mock polynomial models for the grism dispersion
+    # make it so the results have same scaling as wavelengths in microns
+    mock_l = Polynomial2D(degree=3, c1_0=1e-8)
+
+    # mock x and y models here paramtrize a slightly curved trace
+    # causing enough of a shift in the x and y coordinates
+    # to ensure that the forward and backward models are not just
+    # identity models.
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+
+    lmodel = [mock_l,] * 2
+    xmodel = [mock_x,] * 3
+    ymodel = [mock_x,] * 3
+    orders = np.array([1])
+    lmodels = [lmodel] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # many wavelengths, single x0, y0
+    x0 = 150
+    y0 = 140
+    wl = 2.0e-6
+
+    # now create the appropriate model for the grism[R/C]
+    if direction == "row":
+        forward = models.NIRCAMForwardRowGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+        )
+    elif direction == "column":
+        forward = models.NIRCAMForwardColumnGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+        )
+    backward = models.NIRCAMBackwardGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl)
+    np.testing.assert_allclose(ordersi, orders)
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+def test_legacy_nircam_grism_roundtrip(direction):
+    """
+    Test that the legacy NIRCAM grism dispersion lmodel roundtrips correctly.
+
+    This lmodel has no dependence of the polynomial coefficients on the detector position,
+    so the polynomial model is simply a function of t that gives the wavelength.
+    """
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    # mock_invl = Polynomial1D(degree=1, c0=-0.48387097, c1=0.64516129)
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+    xmodel = [mock_x,] * 3
+    ymodel = [mock_x,] * 3
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    # invlmodels = [mock_invl] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # single x0, y0, wl
+    x0 = 150
+    y0 = 140
+    wl = 2.0
+
+    if direction == "row":
+        forward = models.NIRCAMForwardRowGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    elif direction == "column":
+        forward = models.NIRCAMForwardColumnGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    backward = models.NIRCAMBackwardGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
+    np.testing.assert_allclose(ordersi, orders)
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+def test_nircam_grism_raise_unsupported(direction):
+    """Test attempting to use an unsupported model type raises an error."""
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)  # not quadratic
+    xmodel = [mock_x,] * 4
+    ymodel = [mock_x,] * 4
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    if direction == "row":
+        ForwardModel = models.NIRCAMForwardRowGrismDispersion
+    elif direction == "column":
+        ForwardModel = models.NIRCAMForwardColumnGrismDispersion
+    with pytest.raises(Exception):
+        ForwardModel(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+        ).evaluate(150, 140, 153, 143, orders)
+
+
+def test_nircam_grism_1d_linear():
+    """
+    Test case where model coeffs do NOT have dependence on x0, y0.
+    
+    This is used in the pipeline for at least some versions of dispy.
+    """
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_x = Polynomial1D(degree=1, c0=0.1, c1=0.01)
+    xmodel = [mock_x,] * 1
+    ymodel = [mock_x,] * 1
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    forward = models.NIRCAMForwardRowGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+        sampling=40
+    )
+    backward = models.NIRCAMBackwardGrismDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(150, 140, 2.0, orders)
+    np.testing.assert_allclose(xi, 150)
+    np.testing.assert_allclose(yi, 140)
+    np.testing.assert_allclose(wli, 2.0)
+    np.testing.assert_allclose(ordersi, orders)
+    
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+def test_niriss_grism_roundtrip(direction):
+    """
+    Do a forward grism transform for NIRISS where dispersion is in the columnwise direction,
+    then inverse, and check that the output is the same as the input.
+    """
+    # Create mock polynomial models for the grism dispersion
+    # much simpler than NIRCam, as it does not depend on the detector position.
+    # These coefficients are taken from a real reference file.
+    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    mock_invl = Polynomial1D(degree=1, c0=-0.48387097, c1=0.64516129)
+
+    # mock x and y models here paramtrize a slightly curved trace
+    # causing enough of a shift in the x and y coordinates
+    # to ensure that the forward and backward models are not just
+    # identity models.
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+
+    xmodel = [mock_x,] * 3
+    ymodel = [mock_x,] * 3
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    invlmodels = [mock_invl] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # single x0, y0, wl
+    x0 = 150
+    y0 = 140
+    wl = 2.0
+
+    # now create the appropriate model for the grism[R/C]
+    if direction == "row":
+        forward = models.NIRISSForwardRowGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    elif direction == "column":
+        forward = models.NIRISSForwardColumnGrismDispersion(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            sampling=40
+        )
+    backward = models.NIRISSBackwardGrismDispersion(
+        orders,
+        lmodels=invlmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
+    np.testing.assert_allclose(ordersi, orders)
+
+
+@pytest.mark.parametrize("direction", ["row", "column"])
+@pytest.mark.parametrize("instrument", ["nircam", "niriss"])
+def test_grism_error_raises(direction, instrument):
+
+    if instrument == "nircam" and direction == "row":
+        ForwardModel = models.NIRCAMForwardRowGrismDispersion
+    elif instrument == "nircam" and direction == "column":
+        ForwardModel = models.NIRCAMForwardColumnGrismDispersion
+    elif instrument == "niriss" and direction == "row":
+        ForwardModel = models.NIRISSForwardRowGrismDispersion
+    elif instrument == "niriss" and direction == "column":
+        ForwardModel = models.NIRISSForwardColumnGrismDispersion
+    if instrument == "nircam":
+        BackwardModel = models.NIRCAMBackwardGrismDispersion
+    elif instrument == "niriss":
+        BackwardModel = models.NIRISSBackwardGrismDispersion
+
+    orders = np.array([1, 2])
+    x0 = 150
+    y0 = 140
+    wl = 2.0
+    forward = ForwardModel(orders)
+    backward = BackwardModel(orders)
+
+    # raise for order not in the list
+    with pytest.raises(ValueError, match="Specified order is not available"):
+        forward.evaluate(x0, y0, x0, y0, np.array([-1]))
+    with pytest.raises(ValueError, match="Specified order is not available"):
+        backward.evaluate(x0, y0, wl, np.array([-1]))
+    # raise for negative wavelength
+    with pytest.raises(ValueError, match="Wavelength should be greater than zero"):
+        backward.evaluate(x0, y0, -wl, orders)
+
+
+def test_v23tosky():
+    """
+    Test V2V3ToSky transform model.
+
+    This is currently unused by JWST - skip adding tests for now, as it may get removed.
+    """
+    pass
+
+
+def test_dircos2unitless_roundtrip():
+    """
+    Test DirCos2Unitless transform model.
+    """
+    tr = models.Unitless2DirCos()
+    x, y = np.sqrt(2)/2, np.sqrt(2)/2
+    assert_allclose(tr.inverse(*tr(x, y)), (x, y))

@@ -46,6 +46,7 @@ test = [
     "pytest-doctestplus",
     "crds>=11.17.1",
     "requests",
+    "scipy>=1.9.2", # same as astropy
 ]
 docs = [
     "sphinx",
