@@ -19,150 +19,150 @@ allOf:
         datatype: [ascii, 31]
       - name: reference_star_ra
         datatype: float64
-        unit: degrees
+        unit: deg
       - name: reference_star_dec
         datatype: float64
-        unit: degrees
+        unit: deg
       - name: reference_star_mag
         datatype: float64
-        unit: magnitude
+        unit: mag
       - name: catalog_name
         datatype: [ascii, 30]
       - name: planned_v2
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: planned_v3
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: desired_v2
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: desired_v3
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: extract_col_start
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: extract_row_start
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: ref_star_detector
         datatype: [ascii, 4]
       - name: background_value
         datatype: float32
-        unit: counts
+        unit: count
       - name: box_peak_value
         datatype: float32
-        unit: counts
+        unit: count
       - name: box_peak_col
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: box_peak_row
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: box_total_value
         datatype: float64
-        unit: counts
+        unit: count
       - name: iterations
         datatype: int16
       - name: final_iter_col_diff
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: final_iter_row_diff
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: corrected_col
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: corrected_row
         datatype: int32
-        unit: pixels
+        unit: pix
       - name: image_centroid_col
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: image_centroid_row
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: detector_centroid_col
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: detector_centroid_row
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: sci_x_centroid
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: sci_y_centroid
         datatype: float64
-        unit: pixels
+        unit: pix
       - name: col_second_moment
         datatype: float64
-        unit: pixels^2
+        unit: pix2
       - name: row_second_moment
         datatype: float64
-        unit: pixels^2
+        unit: pix2
       - name: col_third_moment
         datatype: float64
-        unit: pixels^3
+        unit: pix3
       - name: row_third_moment
         datatype: float64
-        unit: pixels^3
+        unit: pix3
       - name: convergence_status
         datatype: [ascii, 20]
       - name: found_status
         datatype: [ascii, 10]
       - name: found_v2
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: found_v3
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: found_msa_x
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: found_msa_y
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: lsf_removed_status
         datatype: [ascii, 12]
       - name: lsf_removed_reason
         datatype: [ascii, 14]
       - name: lsf_removed_x
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: lsf_removed_y
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: fit_offset_v2
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: fit_offset_v3
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: x_rel
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: y_rel
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: xrot_rel
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: yrot_rel
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: v2_new_from_fit
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: v3_new_from_fit
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: v2_fit_residual
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
       - name: v3_fit_residual
         datatype: float64
-        unit: arcseconds
+        unit: arcsec
 - type: object
   properties:
     msa_targ_ref_stars_number:
