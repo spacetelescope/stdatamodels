@@ -539,32 +539,6 @@ def test_legacy_nircam_grism_roundtrip(direction):
     np.testing.assert_allclose(ordersi, orders)
 
 
-@pytest.mark.xfail(reason="Adding support for poly of any order")
-@pytest.mark.parametrize("direction", ["row", "column"])
-def test_nircam_grism_raise_unsupported(direction):
-    """Test attempting to use an unsupported model type raises an error."""
-    mock_l = Polynomial1D(degree=1, c0=0.75, c1=1.55)
-    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)  # not quadratic
-    xmodel = [mock_x,] * 4
-    ymodel = [mock_x,] * 4
-    orders = np.array([1])
-    lmodels = [mock_l] * len(orders)
-    xmodels = [xmodel] * len(orders)
-    ymodels = [ymodel] * len(orders)
-
-    if direction == "row":
-        ForwardModel = models.NIRCAMForwardRowGrismDispersion
-    elif direction == "column":
-        ForwardModel = models.NIRCAMForwardColumnGrismDispersion
-    with pytest.raises(ValueError, match="Unexpected model coefficients"):
-        ForwardModel(
-            orders,
-            lmodels=lmodels,
-            xmodels=xmodels,
-            ymodels=ymodels,
-        ).evaluate(150, 140, 153, 143, orders)
-
-
 def test_nircam_grism_1d_linear():
     """
     Test case where model coeffs do NOT have dependence on x0, y0.
@@ -697,6 +671,42 @@ def test_grism_error_raises(direction, instrument):
     # raise for negative wavelength
     with pytest.raises(ValueError, match="Wavelength should be greater than zero"):
         backward.evaluate(x0, y0, -wl, orders)
+
+
+def test_error_raises_bad_transforms():
+    """Test error raises for unsupported transform types."""
+
+    x0 = 150
+    y0 = 140
+    t = 0.5
+
+    poly1d = Polynomial1D(degree=1, c0=0.75, c1=1.55)
+    poly2d = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+
+    # Not a model or list of models
+    with pytest.raises(TypeError, match="Expected a model or list of models, but got"):
+        models._evaluate_transform_guess_form("bad_model_type", x=x0, y=y0, t=t)
+
+    # Is a list, but not all models are valid
+    with pytest.raises(
+        TypeError,
+        match="Expected a model or list of models, but got a list containing non-model elements."
+    ):
+        models._evaluate_transform_guess_form([poly1d, "bad_model_type"], x=x0, y=y0, t=t)
+    
+    # Is a single-element list, but takes in more than one input
+    with pytest.raises(
+        ValueError,
+        match="Received a transform with an unexpected number of inputs"
+    ):
+        models._evaluate_transform_guess_form([poly2d,], x=x0, y=y0, t=t)
+
+    # Is a multi-element list, but takes in only one input
+    with pytest.raises(
+        ValueError,
+        match="Received a transform with an unexpected number of inputs"
+    ):
+        models._evaluate_transform_guess_form([poly1d,]*3, x=x0, y=y0, t=t)
 
 
 def test_v23tosky():

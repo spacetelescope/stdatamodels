@@ -1189,22 +1189,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
             t = self.inv_alongdisp_models[iorder](dist)
 
         lmodel = self.lmodels[iorder]
-
-        def apply_poly(coeff_model, inputs, t):
-            # Determine order of polynomial in t
-            ord_t = len(coeff_model)
-            if ord_t == 1:
-                if isinstance(coeff_model, (ListNode, list)):
-                    sumval = coeff_model[0](t)
-                else:
-                    sumval = coeff_model(t)
-            else:
-                sumval = 0.0
-                for i in range(ord_t):
-                    sumval += t**i * coeff_model[i](*inputs[: coeff_model[i].n_inputs])
-            return sumval
-
-        l_poly = apply_poly(lmodel, (x0, y0), t)
+        l_poly = _evaluate_transform_guess_form(lmodel, x=x0, y=y0, t=t)
 
         return x0, y0, l_poly, order
 
@@ -1233,6 +1218,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
 
         t0 = np.linspace(0.0, 1.0, self.sampling)
 
+        # handle multiple inverse model types
         if isinstance(model, (ListNode, list)):
             if len(model[0].inputs) == 2:
                 xr = _poly_with_spatial_dependence(t0, x0, y0, model)
@@ -1490,12 +1476,13 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
         else:
             lmodel = self.inv_lmodels[iorder]
-            t = assess_model(lmodel, x=x, y=y, t=wavelength)
+            t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = assess_model(xmodel, x, y, t)
-        dy = assess_model(ymodel, x, y, t)
+        dx = _evaluate_transform_guess_form(xmodel, x=x, y=y, t=t)
+        dy = _evaluate_transform_guess_form(ymodel, x=x, y=y, t=t)
+
         return x + dx, y + dy, x, y, order
 
     def invdisp_interp(self, model, x0, y0, wavelength):
@@ -1527,10 +1514,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
 
         if len(model) < 2:
             # Handle legacy versions of the trace model
-            if isinstance(model, (ListNode, list)):
-                xr = model[0](t0)
-            else:
-                xr = model(t0)
+            xr = _evaluate_transform_guess_form(model, x=x0, y=y0, t=t0)
             f = np.zeros_like(wavelength)
             for i, w in enumerate(wavelength):
                 f[i] = np.interp(w, xr, t0)
@@ -1800,6 +1784,7 @@ class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
         dxr = astmath.SubtractUfunc()
         wavelength = dxr | tab | lmodel
         model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
+
         return model(x, y, x0, y0, order)
 
 
@@ -1941,30 +1926,67 @@ def _poly_with_spatial_dependence(t, x0, y0, model):
     return sum(c(x0, y0) * t**i for i, c in enumerate(model))
 
 
-def assess_model(model, x=0, y=0, t=0):
-    # TODO: this logic tree is confusing because it mixes the assumed behavior
-    # of x/y models and t models
-    # It might be better to have two functions, one for x/y models and one for t models.
+def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
+    """
+    Evaluate the transform model at the given x, y, and t coordinates.
+
+    If a list of models of length >1 is provided, it is assumed that the trace function
+    is a polynomial of arbitrary order, where each model in the list represents
+    a polynomial coefficient (0th order first) with spatial dependence on x, y.
+    Therefore each model in the list should have two inputs (x, y).
+
+    If a single model (or length-1 list) is provided,
+    it is assumed to depend only on t, and the model is evaluated directly on t.
+
+    Parameters
+    ----------
+    model : astropy.modeling.Model or list of astropy.modeling.Model
+        The transform model(s) to evaluate.
+    x : int, optional
+        The x coordinate, by default 0
+    y : int, optional
+        The y coordinate, by default 0
+    t : int, optional
+        The trace parameter, by default 0.
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    if isinstance(model, (ListNode, list)) and len(model) == 1:
+        model = model[0]
+
+    if isinstance(model, Model):
+        # model that depends only on t
+        # e.g. NIRCam dispx, NIRISS displ, invdispl
+        ninputs = len(model.inputs)
+        if ninputs != 1:
+            raise ValueError(
+                f"Received a transform with an unexpected number of inputs ({ninputs}); "
+                "expected 1 input for models depending only on t, or 2 inputs per coefficient "
+                "for models depending on x, y, and t."
+            )
+        return model(t)
+
     if isinstance(model, (ListNode, list)):
+        # model with coefficients that depend on x, y
+        # e.g. NIRCam dispy, displ, NIRISS dispx, dispy
+        if any(not isinstance(m, Model) for m in model):
+            raise TypeError(
+                "Expected a model or list of models, but got a list containing non-model elements."
+            )
+
         ninputs = len(model[0].inputs)
         if ninputs == 2:
-            output = _poly_with_spatial_dependence(t, x, y, model)
-        elif ninputs == 1:
-            if len(model) == 1:
-                output = model[0](t)
-            elif len(model) == 2:
-                output = model[0](x) + t * model[1](x)
-        else:
-            raise ValueError(f"{model} has incorrect number of inputs required.")
-    else:
-        ninputs = len(model.inputs)
-        if ninputs == 2:
-            output = model(x, y)
-        elif ninputs == 1:
-            output = model(t)
-        else:
-            raise ValueError(f"{model} has incorrect number of inputs required.")
-    return output
+            return _poly_with_spatial_dependence(t, x, y, model)
+
+        raise ValueError(
+            f"Received a transform with an unexpected number of inputs ({ninputs}); "
+            "expected 1 input for models depending only on t, or 2 inputs per coefficient "
+            "for models depending on x, y, and t."
+        )
+    raise TypeError(f"Expected a model or list of models, but got {type(model)}. ")
 
 
 class Rotation3DToGWA(Model):
