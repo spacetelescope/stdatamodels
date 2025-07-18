@@ -1242,7 +1242,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
             else:
                 raise ValueError(f"Unexpected model coefficients: {model}")
         else:
-            xr = (dx - model.c0.value) / self.model.c1.value
+            xr = (dx - model.c0.value) / model.c1.value
             return xr
 
         if len(xr.shape) > 1:
