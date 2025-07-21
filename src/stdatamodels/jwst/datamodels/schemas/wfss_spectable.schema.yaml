@@ -80,25 +80,25 @@ datatype:
   datatype: [ascii, 20]
 - name: SOURCE_XPOS
   datatype: float64
-  unit: pixels
+  unit: pix
 - name: SOURCE_YPOS
   datatype: float64
-  unit: pixels
+  unit: pix
 - name: SOURCE_RA
   datatype: float64
-  unit: degrees
+  unit: deg
 - name: SOURCE_DEC
   datatype: float64
-  unit: degrees
+  unit: deg
 - name: EXTRACT2D_XSTART
   datatype: uint32
-  unit: pixels
+  unit: pix
 - name: EXTRACT2D_YSTART
   datatype: uint32
-  unit: pixels
+  unit: pix
 - name: EXTRACT2D_XSTOP
   datatype: uint32
-  unit: pixels
+  unit: pix
 - name: EXTRACT2D_YSTOP
   datatype: uint32
-  unit: pixels
+  unit: pix
