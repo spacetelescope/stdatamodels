@@ -1,3 +1,13 @@
+4.0.1 (2025-07-21)
+==================
+
+Bug Fixes
+---------
+
+- Updated units in WFSS tables to adhere to FITS standard. (`#529
+  <https://github.com/spacetelescope/stdatamodels/issues/529>`_)
+
+
 4.0.0 (2025-07-11)
 ==================
 
