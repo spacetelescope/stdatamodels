@@ -22,8 +22,6 @@ allOf:
           MIRI WFSS row dispersion model, instance of astropy.modeling.Model
         type: array
         items:
-          type: array
-          items:
             type: object
     dispy:
         description: |
