@@ -1991,44 +1991,47 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
 
 
 class MIRIWFSSBackwardDispersion(Model):
-    """
-    Calculate the dispersion extent of MIRI WFSS pixels.
-    """
+    """Calculate the dispersion extent of MIRI WFSS pixels."""
 
     standard_broadcasting = False
     _separable = False
     fittable = False
     linear = False
 
-    n_inputs = 2
-    n_outputs = 4
+    n_inputs = 4
+    n_outputs = 5
 
-    def __init__(self, lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
         """
         Initialize the model.
 
         Parameters
         ----------
+        orders : list
+            The list of orders which are available to the model. For MIRIWFSS orders = 1.
         lmodels : list
-            The list of models for the polynomial model in l
-        xmodels : list[tuple]
-            The list of tuple(models) for the polynomial model in x
+            The list of models for the polynomial model in t (inverse dispersion)
+        xmodels : list
+            The list of models for the polynomial model in x
         ymodels : list[tuple]
             The list of tuple(models) for the polynomial model in y
         name : str, optional
             Name of the model
+        meta : dict
+            Unused
         """
+        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
         self.ymodels = ymodels
         self.lmodels = lmodels
-
+        meta = {"orders": orders}
         if name is None:
             name = "miriwfss_backward_dispersion"
-        super(MIRIWFSSBackwardDispersion, self).__init__(name=name)
-        self.inputs = ("x", "y")
-        self.outputs = ("x", "y", "x0", "y0")
+        super(MIRIWFSSBackwardDispersion, self).__init__(name=name, meta=meta)
+        self.inputs = ("x", "y", "wavelength", "order")
+        self.outputs = ("x", "y", "x0", "y0", "order")
 
-    def evaluate(self, x, y):
+    def evaluate(self, x, y, wavelength, order):
         """
         Transform from the direct image plane to the dispersed plane.
 
@@ -2036,29 +2039,35 @@ class MIRIWFSSBackwardDispersion(Model):
         ----------
         x, y : float
             Input x, y location
+        wavelength : float
+            Wavelength in angstroms
+        order : int
+            Input spectral order
 
         Returns
         -------
-        x+dx, yy : float
-            The x, y values in the dispersed plane.
         x, y : float
+            The x, y values in the dispersed plane.
+        x0 y0 : float
             Source object x-center, y-center. Same as input x, y.
+        order : int
+            Output spectral order, same as input
         """
-        t = np.linspace(0, 1, 10)
+        if (wavelength < 0).any():
+            raise ValueError("Wavelength should be greater than zero")
+        try:
+            iorder = self._order_mapping[int(order.flatten()[0])]
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
+        # t is trace normalization parameters (it was values of 0 to 1)
+        t = self.tmodels[iorder](wavelength)
+        xmodel = self.xmodels[iorder]
+        ymodel = self.ymodels[iorder]
 
-        xmodel = self.xmodels[0]
-        ymodel = self.ymodels[0]
-
-        dx0 = xmodel[0].c0.value
-        dx1 = xmodel[1].c0.value
-        dx = dx0 + (dx1 - dx0) * t
-        # print('ymodel',ymodel[0], ymodel[1], ymodel[2])
-
+        dx = xmodel(t)
         dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
 
-        # print(' test dx',dx)
-        # print('test dy', dy)
-        return x + dx, dy, x, y
+        return x + dx, dy, x, y, order
 
 
 class Rotation3DToGWA(Model):
