@@ -1075,24 +1075,13 @@ def _toindex(value):
     return indx
 
 
-class NIRCAMForwardRowGrismDispersion(Model):
-    """
-    Return the transform from grism to image for the given spectral order.
-
-    Notes
-    -----
-    The evaluation here is linear currently because higher orders have not yet been
-    defined for NIRCAM (NIRCAM polynomials currently do not have any field
-    dependence)
-    """
+class _GrismDispersionBase(Model):
+    """Base class for grism dispersion models."""
 
     standard_broadcasting = False
     _separable = False
     fittable = False
     linear = False
-
-    n_inputs = 5
-    n_outputs = 4
 
     def __init__(
         self,
@@ -1104,35 +1093,8 @@ class NIRCAMForwardRowGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
         sampling=40,
     ):
-        """
-        Initialize the model.
-
-        Parameters
-        ----------
-        orders : list [int]
-            List of orders which are available
-        lmodels : list [astropy.modeling.Model]
-            List of models which govern the wavelength solutions
-        xmodels : list [astropy.modeling.Model]
-            List of models which govern the x solutions
-        ymodels : list [astropy.modeling.Model]
-            List of models which govern the y solutions
-        inv_lmodels : list [astropy.modeling.Model]
-            List of models which will be used if inverse lmodels cannot be analytically derived
-        inv_xmodels : list [astropy.modeling.Model]
-            List of models which will be used if inverse xmodels cannot be analytically derived
-        inv_ymodels : list [astropy.modeling.Model]
-            List of models which will be used if inverse ymodels cannot be analytically derived
-        name : str, optional
-            Name of the model
-        meta : dict, optional
-            Unused
-        sampling : int, optional
-            Number of sampling points in t to use; these will be linearly interpolated.
-        """
         self.orders = orders
         self.lmodels = lmodels
         self.xmodels = xmodels
@@ -1143,11 +1105,51 @@ class NIRCAMForwardRowGrismDispersion(Model):
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.sampling = sampling
         meta = {"orders": orders}  # informational for users
-        if name is None:
-            name = "nircam_forward_row_grism_dispersion"
-        super(NIRCAMForwardRowGrismDispersion, self).__init__(name=name, meta=meta)
+        super().__init__(name=name, meta=meta)
+
+
+class _ForwardGrismDispersionBase(_GrismDispersionBase):
+    """Base class for forward grism dispersion models."""
+
+    n_inputs = 5
+    n_outputs = 4
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.inputs = ("x", "y", "x0", "y0", "order")
         self.outputs = ("x", "y", "wavelength", "order")
+
+
+class _BackwardGrismDispersionBase(_GrismDispersionBase):
+    """Base class for backward grism dispersion models."""
+
+    n_inputs = 4
+    n_outputs = 5
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inputs = ("x", "y", "wavelength", "order")
+        self.outputs = ("x", "y", "x0", "y0", "order")
+
+
+class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
+    """Return the transform from grism to image for the given spectral order."""
+
+    def __init__(self, dispaxis, *args, **kwargs):
+        self.dispaxis = dispaxis
+        super().__init__(*args, **kwargs)
+        if self.dispaxis == "row":
+            self.alongdisp_models = self.xmodels
+            self.acrossdisp_models = self.ymodels
+            self.inv_alongdisp_models = self.inv_xmodels
+            self.inv_acrossdisp_models = self.inv_ymodels
+        elif self.dispaxis == "column":
+            self.alongdisp_models = self.ymodels
+            self.acrossdisp_models = self.xmodels
+            self.inv_alongdisp_models = self.inv_ymodels
+            self.inv_acrossdisp_models = self.inv_xmodels
+        else:
+            raise ValueError(f"Invalid dispaxis: {dispaxis}. Must be 'row' or 'column'.")
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -1176,28 +1178,18 @@ class NIRCAMForwardRowGrismDispersion(Model):
         except KeyError as err:
             raise ValueError("Specified order is not available") from err
 
+        if self.dispaxis == "row":
+            dist = x - x0
+        elif self.dispaxis == "column":
+            dist = y - y0
+
         if not self.inv_xmodels:
-            t = self.invdisp_interp(iorder, x0, y0, (x - x0))
+            t = self.invdisp_interp(iorder, x0, y0, dist)
         else:
-            t = self.inv_xmodels[iorder](x - x0)
+            t = self.inv_alongdisp_models[iorder](dist)
 
         lmodel = self.lmodels[iorder]
-
-        def apply_poly(coeff_model, inputs, t):
-            # Determine order of polynomial in t
-            ord_t = len(coeff_model)
-            if ord_t == 1:
-                if isinstance(coeff_model, (ListNode, list)):
-                    sumval = coeff_model[0](t)
-                else:
-                    sumval = coeff_model(t)
-            else:
-                sumval = 0.0
-                for i in range(ord_t):
-                    sumval += t**i * coeff_model[i](*inputs[: coeff_model[i].n_inputs])
-            return sumval
-
-        l_poly = apply_poly(lmodel, (x0, y0), t)
+        l_poly = _evaluate_transform_guess_form(lmodel, x=x0, y=y0, t=t)
 
         return x0, y0, l_poly, order
 
@@ -1219,28 +1211,24 @@ class NIRCAMForwardRowGrismDispersion(Model):
         f : float
             The wavelength solution for the given dx
         """
+        model = self.alongdisp_models[order]
         dx = np.atleast_1d(dx)
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
         t0 = np.linspace(0.0, 1.0, self.sampling)
 
-        if isinstance(self.xmodels[order], (ListNode, list)):
-            # if len(self.xmodels[order]) == 2:
-            #     xr = self.xmodels[order][0](x0, y0) + t0 * self.xmodels[order][1](x0, y0)
-            if len(self.xmodels[order]) == 3:
-                xr = (
-                    self.xmodels[order][0](x0, y0)
-                    + t0 * self.xmodels[order][1](x0, y0)
-                    + t0**2 * self.xmodels[order][2](x0, y0)
-                )
-            elif len(self.xmodels[order][0].inputs) == 1:
-                xr = (dx - self.xmodels[order][0].c0.value) / self.xmodels[order][0].c1.value
+        # handle multiple inverse model types
+        if isinstance(model, (ListNode, list)):
+            if len(model[0].inputs) == 2:
+                xr = _poly_with_spatial_dependence(t0, x0, y0, model)
+            elif len(model[0].inputs) == 1:
+                xr = (dx - model[0].c0.value) / model[0].c1.value
                 return xr
             else:
-                raise ValueError(f"Unexpected model coefficients: {self.xmodels[order]}")
+                raise ValueError(f"Unexpected model coefficients: {model}")
         else:
-            xr = (dx - self.xmodels[order].c0.value) / self.xmodels[order].c1.value
+            xr = (dx - model.c0.value) / model.c1.value
             return xr
 
         if len(xr.shape) > 1:
@@ -1253,24 +1241,16 @@ class NIRCAMForwardRowGrismDispersion(Model):
         return f
 
 
-class NIRCAMForwardColumnGrismDispersion(Model):
+class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
     """
-    Return the transform from grism to image for the given spectral order.
+    Forward grism dispersion model for NIRCAM (row-wise).
 
     Notes
     -----
-    The evaluation here is linear because higher orders have not yet been
+    The evaluation here is linear currently because higher orders have not yet been
     defined for NIRCAM (NIRCAM polynomials currently do not have any field
     dependence)
     """
-
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
 
     def __init__(
         self,
@@ -1282,7 +1262,6 @@ class NIRCAMForwardColumnGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
         sampling=40,
     ):
         """
@@ -1306,151 +1285,36 @@ class NIRCAMForwardColumnGrismDispersion(Model):
             List of models which will be used if inverse ymodels cannot be analytically derived
         name : str, optional
             Name of the model
-        meta : dict, optional
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self.orders = orders
-        self.lmodels = lmodels
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.inv_lmodels = inv_lmodels
-        self.inv_xmodels = inv_xmodels
-        self.inv_ymodels = inv_ymodels
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.sampling = sampling
-        meta = {"orders": orders}  # informational for users
+        dispaxis = "row"
         if name is None:
-            name = "nircam_forward_column_grism_dispersion"
-        super(NIRCAMForwardColumnGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
-
-    def evaluate(self, x, y, x0, y0, order):
-        """
-        Transform from the grism plane to the image plane.
-
-        Parameters
-        ----------
-        x, y :  int, float, list
-            Input x, y location
-        x0, y0 : int, float, list
-            Source object x-center, y-center
-        order : int
-            Input spectral order
-
-        Returns
-        -------
-        x0, y0 : float
-            Coordinates of image plane x-center, y-center, same as input.
-        l_poly : float
-            Wavelength solution for the given spectral order.
-        order : int
-            The spectral order, same as input.
-        """
-
-        def apply_poly(coeff_model, inputs, t):
-            # Determine order of polynomial in t
-            ord_t = len(coeff_model)
-            if ord_t == 1:
-                if isinstance(coeff_model, (ListNode, list)):
-                    sumval = coeff_model[0](t)
-                else:
-                    sumval = coeff_model(t)
-            else:
-                sumval = 0.0
-                for i in range(ord_t):
-                    sumval += t**i * coeff_model[i](*inputs[2 - coeff_model[i].n_inputs :])
-            return sumval
-
-        try:
-            iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError as err:
-            raise ValueError("Specified order is not available") from err
-
-        lmodel = self.lmodels[iorder]
-
-        if not self.inv_ymodels:
-            t = self.invdisp_interp(self.ymodels, iorder, x0, y0, (y - y0))
-        else:
-            t = self.inv_ymodels[iorder](y - y0)
-
-        l_poly = apply_poly(lmodel, (x0, y0), t)
-
-        return x0, y0, l_poly, order
-
-    def invdisp_interp(self, model, order, x0, y0, dy):
-        """
-        Make a polynomial fit to ymodel and interpolate to find the wavelength.
-
-        Parameters
-        ----------
-        model : astropy.modeling.Model
-            The model governing the y-solutions, indexable by order.
-        order : int
-            The input spectral order
-        x0, y0 : float
-            Source object x-center, y-center.
-        dy : float
-            The offset from y0 in the dispersion direction
-
-        Returns
-        -------
-        f : float
-            The wavelength solution for the given dy
-        """
-        dy = np.atleast_1d(dy)
-        if len(dy.shape) == 2:
-            dy = dy[0, :]
-
-        t0 = np.linspace(0.0, 1.0, self.sampling)
-
-        if isinstance(model, (ListNode, list)):
-            # if len(model[order]) == 2:
-            #     xr = model[order][0](x0, y0) + t0 * model[order][1](x0, y0)
-            if len(model[order]) == 3:
-                xr = (
-                    model[order][0](x0, y0)
-                    + t0 * model[order][1](x0, y0)
-                    + t0**2 * model[order][2](x0, y0)
-                )
-            elif len(model[order][0].inputs) == 1:
-                xr = (dy - model[order][0].c0.value) / model[order][0].c1.value
-                return xr
-            else:
-                raise ValueError(f"Unexpected model coefficients: {model[order]}")
-        else:
-            xr = (dy - model[order].c0.value) / model[order].c1.value
-            return xr
-
-        if len(xr.shape) > 1:
-            xr = xr[0, :]
-
-        so = np.argsort(xr)
-        f = np.interp(dy, xr[so], t0[so])
-
-        f = np.broadcast_to(f, dy.shape)
-        return f
+            name = "nircam_forward_row_grism_dispersion"
+        super().__init__(
+            dispaxis,
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
 
-class NIRCAMBackwardGrismDispersion(Model):
+class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
     """
-    Calculate the dispersion extent of NIRCAM pixels.
+    Forward grism dispersion model for NIRCAM (column-wise).
 
     Notes
     -----
-    The evaluation here is linear because higher orders have not yet been defined for NIRCAM
-    (NIRCAM polynomials currently do not have any field dependence)
+    The evaluation here is linear currently because higher orders have not yet been
+    defined for NIRCAM (NIRCAM polynomials currently do not have any field
+    dependence)
     """
-
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 4
-    n_outputs = 5
 
     def __init__(
         self,
@@ -1462,7 +1326,69 @@ class NIRCAMBackwardGrismDispersion(Model):
         inv_xmodels=None,
         inv_ymodels=None,
         name=None,
-        meta=None,
+        sampling=40,
+    ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list [int]
+            List of orders which are available
+        lmodels : list [astropy.modeling.Model]
+            List of models which govern the wavelength solutions
+        xmodels : list [astropy.modeling.Model]
+            List of models which govern the x solutions
+        ymodels : list [astropy.modeling.Model]
+            List of models which govern the y solutions
+        inv_lmodels : list [astropy.modeling.Model]
+            List of models which will be used if inverse lmodels cannot be analytically derived
+        inv_xmodels : list [astropy.modeling.Model]
+            List of models which will be used if inverse xmodels cannot be analytically derived
+        inv_ymodels : list [astropy.modeling.Model]
+            List of models which will be used if inverse ymodels cannot be analytically derived
+        name : str, optional
+            Name of the model
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
+        """
+        dispaxis = "column"
+        if name is None:
+            name = "nircam_forward_column_grism_dispersion"
+        super().__init__(
+            dispaxis,
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
+
+
+class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
+    """
+    Calculate the dispersion extent of NIRCAM pixels.
+
+    Notes
+    -----
+    The evaluation here is linear because higher orders have not yet been defined for NIRCAM
+    (NIRCAM polynomials currently do not have any field dependence)
+    """
+
+    def __init__(
+        self,
+        orders,
+        lmodels=None,
+        xmodels=None,
+        ymodels=None,
+        inv_lmodels=None,
+        inv_xmodels=None,
+        inv_ymodels=None,
+        name=None,
         sampling=40,
     ):
         """
@@ -1489,26 +1415,22 @@ class NIRCAMBackwardGrismDispersion(Model):
             cannot be analytically derived
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.orders = orders
-        self.lmodels = lmodels
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.inv_lmodels = inv_lmodels
-        self.inv_xmodels = inv_xmodels
-        self.inv_ymodels = inv_ymodels
-        self.sampling = sampling
-        meta = {"orders": orders}
         if name is None:
             name = "nircam_backward_grism_dispersion"
-        super(NIRCAMBackwardGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "wavelength", "order")
-        self.outputs = ("x", "y", "x0", "y0", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            inv_lmodels=inv_lmodels,
+            inv_xmodels=inv_xmodels,
+            inv_ymodels=inv_ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
     def evaluate(self, x, y, wavelength, order):
         """
@@ -1554,12 +1476,13 @@ class NIRCAMBackwardGrismDispersion(Model):
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
         else:
             lmodel = self.inv_lmodels[iorder]
-            t = assess_model(lmodel, x=x, y=y, t=wavelength)
+            t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = assess_model(xmodel, x, y, t)
-        dy = assess_model(ymodel, x, y, t)
+        dx = _evaluate_transform_guess_form(xmodel, x=x, y=y, t=t)
+        dy = _evaluate_transform_guess_form(ymodel, x=x, y=y, t=t)
+
         return x + dx, y + dy, x, y, order
 
     def invdisp_interp(self, model, x0, y0, wavelength):
@@ -1588,65 +1511,10 @@ class NIRCAMBackwardGrismDispersion(Model):
             The inverse dispersion value for the given wavelength
         """
         t0 = np.linspace(0.0, 1.0, int(self.sampling))
-        if len(model) == 2:
 
-            def _trace_linear(t, x0, y0, model):
-                """
-                Map trace parameter t to the wavelength solution using a linear model.
-
-                Identical call and return structure to _trace_quadratic;
-                see that docstring for details.
-                """
-                t = np.expand_dims(t, axis=1)
-                return (
-                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
-                    + t @ model[1](x0, y0)[np.newaxis, :]
-                )
-
-            trace_function = partial(_trace_linear, model=model)
-
-        elif len(model) == 3:
-
-            def _trace_quadratic(t, x0, y0, model):
-                """
-                Map trace parameter t to the wavelength solution using a quadratic model.
-
-                t defines a parametric curve representing the trace, (x(t), y(t)).
-                Its values go between 0 and 1, where 0 corresponds to the start of the trace
-                and 1 corresponds to the end of the trace.
-
-                Parameters
-                ----------
-                t : 1-D np.ndarray
-                    The trace parameter(s) in the dispersion direction.
-                x0, y0 : 1-D np.ndarray
-                    The x and y coordinates of the source object.
-                    x0 and y0 must have the same shape, but this can be different from t.
-                model : list of astropy.modeling.Model
-                    The models encoding the x, y dependence of the trace model's
-                    polynomial coefficients. Must have length 3.
-
-                Returns
-                -------
-                f : 2-D np.ndarray
-                    The spatially-varying wavelength solutions for the given t, x0, and y0,
-                    shape (n_x0, n_t) where n_t == sampling
-                """
-                t = np.expand_dims(t, axis=1)
-                return (
-                    np.ones_like(t) @ model[0](x0, y0)[np.newaxis, :]
-                    + t @ model[1](x0, y0)[np.newaxis, :]
-                    + t**2 @ model[2](x0, y0)[np.newaxis, :]
-                )
-
-            trace_function = partial(_trace_quadratic, model=model)
-
-        else:
+        if len(model) < 2:
             # Handle legacy versions of the trace model
-            if isinstance(model, (ListNode, list)):
-                xr = model[0](t0)
-            else:
-                xr = model(t0)
+            xr = _evaluate_transform_guess_form(model, x=x0, y=y0, t=t0)
             f = np.zeros_like(wavelength)
             for i, w in enumerate(wavelength):
                 f[i] = np.interp(w, xr, t0)
@@ -1659,7 +1527,12 @@ class NIRCAMBackwardGrismDispersion(Model):
             y0 = y0[0].flatten()
             wavelength = wavelength[:, 0].flatten()
 
-        wave_grid = trace_function(t0, x0, y0)
+        trace_function = partial(_poly_with_spatial_dependence, model=model)
+
+        # Create a grid of t0, x0, and y0 values
+        tt, yy = np.meshgrid(t0, y0, indexing="ij")
+        xx = np.meshgrid(t0, x0, indexing="ij")[1]
+        wave_grid = trace_function(tt, xx, yy)
         t_out = np.empty((len(wavelength), len(x0)))
         for i, w in enumerate(wavelength):
             # do a first order interpolation to find the t0 where residuals are minimized
@@ -1731,7 +1604,7 @@ def _find_min_with_linear_interpolation(resid, t0):
     return this_t
 
 
-class NIRISSBackwardGrismDispersion(Model):
+class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
     """
     Calculate the dispersion extent of NIRISS pixels.
 
@@ -1741,17 +1614,7 @@ class NIRISSBackwardGrismDispersion(Model):
     2t x 6(xy)th order polynomial currently used by NIRISS.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 4
-    n_outputs = 5
-
-    def __init__(
-        self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None, meta=None
-    ):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None):
         """
         Initialize the model.
 
@@ -1771,21 +1634,17 @@ class NIRISSBackwardGrismDispersion(Model):
             Angle [deg] - defines the NIRISS filter wheel position
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.orders = orders
         self.theta = theta
-        meta = {"orders": orders}
         if name is None:
             name = "niriss_backward_grism_dispersion"
-        super(NIRISSBackwardGrismDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "wavelength", "order")
-        self.outputs = ("x", "y", "x0", "y0", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
 
     def evaluate(self, x, y, wavelength, order):
         """
@@ -1830,8 +1689,8 @@ class NIRISSBackwardGrismDispersion(Model):
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = xmodel[0](x, y) + t * xmodel[1](x, y) + t**2 * xmodel[2](x, y)
-        dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t**2 * ymodel[2](x, y)
+        dx = _poly_with_spatial_dependence(t, x, y, xmodel)
+        dy = _poly_with_spatial_dependence(t, x, y, ymodel)
 
         # rotate by theta
         if self.theta != 0.0:
@@ -1841,76 +1700,22 @@ class NIRISSBackwardGrismDispersion(Model):
         return x + dx, y + dy, x, y, order
 
 
-class NIRISSForwardRowGrismDispersion(Model):
-    """
-    Calculate the wavelengths of vertically dispersed NIRISS grism data.
-
-    The dispersion polynomial is relative to the input x,y pixels
-    in the direct image for a given wavelength.
-
-    Notes
-    -----
-    This model needs to be generalized, at the moment it satisfies the
-    2t x 6(xy)th order polynomial currently used by NIRISS.
-    """
-
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
-
-    def __init__(
-        self,
-        orders,
-        lmodels=None,
-        xmodels=None,
-        ymodels=None,
-        theta=0.0,
-        name=None,
-        meta=None,
-        sampling=10,
-    ):
-        """
-        Initialize the model.
-
-        Parameters
-        ----------
-        orders : list
-            The list of orders which are available to the model
-        lmodels : list
-            The list of models governing the wavelength solution.
-            Each model should be a callable that takes in the trace parameter t
-            and returns the wavelength.
-        xmodels : list[tuples]
-            The list of tuple(models) for the polynomial model in x
-        ymodels : list[tuples]
-            The list of tuple(models) for the polynomial model in y
-        theta : float
-            Angle [deg] - defines the NIRISS filter wheel position
-        name : str, optional
-            Name of the model
-        meta : dict
-            Unused
-        sampling : int, optional
-            Number of sampling points in t to use; these will be linearly interpolated.
-        """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.theta = theta
-        self.orders = orders
-        self.sampling = sampling
-        meta = {"orders": orders}
-        if name is None:
-            name = "niriss_forward_row_grism_dispersion"
-        super(NIRISSForwardRowGrismDispersion, self).__init__(name=name, meta=meta)
-        # starts with the backwards pixel and calculates the forward pixel
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
+    def __init__(self, dispaxis, *args, **kwargs):
+        self.dispaxis = dispaxis
+        super().__init__(*args, **kwargs)
+        if self.dispaxis == "row":
+            self.alongdisp_models = self.xmodels
+            self.acrossdisp_models = self.ymodels
+            self.inv_alongdisp_models = self.inv_xmodels
+            self.inv_acrossdisp_models = self.inv_ymodels
+        elif self.dispaxis == "column":
+            self.alongdisp_models = self.ymodels
+            self.acrossdisp_models = self.xmodels
+            self.inv_alongdisp_models = self.inv_ymodels
+            self.inv_acrossdisp_models = self.inv_xmodels
+        else:
+            raise ValueError(f"Invalid dispaxis: {dispaxis}. Must be 'row' or 'column'.")
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -1954,16 +1759,23 @@ class NIRISSForwardRowGrismDispersion(Model):
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
 
-        dx = xmodel[0](x00, y00) + t * xmodel[1](x00, y00) + t**2 * xmodel[2](x00, y00)
-        dy = ymodel[0](x00, y00) + t * ymodel[1](x00, y00) + t**2 * ymodel[2](x00, y00)
+        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
+        dy = _poly_with_spatial_dependence(t, x00, y00, ymodel)
 
         if self.theta != 0.0:
             rotate = Rotation2D(self.theta)
             dx, dy = rotate(dx, dy)
 
+        if self.dispaxis == "row":
+            alongdisp = dx
+            mapping = Mapping((2, 3, 0, 2, 4))
+        elif self.dispaxis == "column":
+            alongdisp = dy
+            mapping = Mapping((2, 3, 1, 3, 4))
+
         # make a lookup table for t as a function of dx
-        so = np.argsort(dx)
-        tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
+        so = np.argsort(alongdisp)
+        tab = Tabular1D(alongdisp[so], t[so], bounds_error=False, fill_value=None)
 
         # wavelength model takes in x, x0.
         # it then subtracts them to get dx; that's what SubtractUfunc does
@@ -1971,12 +1783,72 @@ class NIRISSForwardRowGrismDispersion(Model):
         # finally it applies the lmodel of t to get the wavelength
         dxr = astmath.SubtractUfunc()
         wavelength = dxr | tab | lmodel
-        model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
-        # returns x0, y0, lam, order
+        model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
+
         return model(x, y, x0, y0, order)
 
 
-class NIRISSForwardColumnGrismDispersion(Model):
+class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
+    """
+    Calculate the wavelengths of vertically dispersed NIRISS grism data.
+
+    The dispersion polynomial is relative to the input x,y pixels
+    in the direct image for a given wavelength.
+
+    Notes
+    -----
+    This model needs to be generalized, at the moment it satisfies the
+    2t x 6(xy)th order polynomial currently used by NIRISS.
+    """
+
+    def __init__(
+        self,
+        orders,
+        lmodels=None,
+        xmodels=None,
+        ymodels=None,
+        theta=0.0,
+        name=None,
+        sampling=10,
+    ):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of models governing the wavelength solution.
+            Each model should be a callable that takes in the trace parameter t
+            and returns the wavelength.
+        xmodels : list[tuples]
+            The list of tuple(models) for the polynomial model in x
+        ymodels : list[tuples]
+            The list of tuple(models) for the polynomial model in y
+        theta : float
+            Angle [deg] - defines the NIRISS filter wheel position
+        name : str, optional
+            Name of the model
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
+        """
+        self.theta = theta
+        dispaxis = "row"
+        if name is None:
+            name = "niriss_forward_row_grism_dispersion"
+        super().__init__(
+            dispaxis,
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+            sampling=sampling,
+        )
+
+
+class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
     """
     Calculate the wavelengths for horizontally dispersed NIRISS grism data.
 
@@ -1986,14 +1858,6 @@ class NIRISSForwardColumnGrismDispersion(Model):
     in degrees.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
-
     def __init__(
         self,
         orders,
@@ -2002,7 +1866,6 @@ class NIRISSForwardColumnGrismDispersion(Model):
         ymodels=None,
         theta=None,
         name=None,
-        meta=None,
         sampling=10,
     ):
         """
@@ -2024,85 +1887,106 @@ class NIRISSForwardColumnGrismDispersion(Model):
             Angle [deg] - defines the NIRISS filter wheel position
         name : str
             The name of the model
-        meta : dict
-            Unused.
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.orders = orders
         self.theta = theta
-        self.sampling = sampling
-        meta = {"orders": orders}
+        dispaxis = "column"
         if name is None:
             name = "niriss_forward_column_grism_dispersion"
-        super(NIRISSForwardColumnGrismDispersion, self).__init__(name=name, meta=meta)
-        # starts with the backwards pixel and calculates the forward pixel
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            dispaxis,
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+            sampling=sampling,
+        )
 
-    def evaluate(self, x, y, x0, y0, order):
-        """
-        Transform from the dispersed plane into the direct image plane.
 
-        Parameters
-        ----------
-        x, y :  int, float
-            Input x,y location
-        x0, y0 : int, float
-            Source object x-center, y-center
-        order : int
-            Input spectral order
+def _poly_with_spatial_dependence(t, x0, y0, model):
+    """
+    Evaluate a polynomial of any order with model coefficients that depend on x0, y0.
 
-        Returns
-        -------
-        x, y : float
-            The x, y values in the direct image, same as x0, y0.
-        lambda : float
-            Wavelength in angstroms
-        order : int
-            Output spectral order, same as input.
+    Parameters
+    ----------
+    t : float or np.ndarray
+        The trace parameter(s) in the dispersion direction, which can be a scalar or an array.
+    x0, y0 : float or np.ndarray
+        The x, y coordinates at which to evaluate the polynomial.
+    model : list of astropy.modeling.Model
+        The models encoding the x, y dependence of the polynomial coefficients.
 
-        Notes
-        -----
-        There's spatial dependence for NIRISS as well as rotation for the filter wheel
-        """
-        try:
-            iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError as err:
-            raise ValueError("Specified order is not available") from err
+    Returns
+    -------
+    float or np.ndarray
+        The evaluated polynomial at the given x0, y0, and t.
+    """
+    return sum(c(x0, y0) * t**i for i, c in enumerate(model))
 
-        # The next two lines are to get around the fact that
-        # modeling.standard_broadcasting=False does not work.
-        x00 = x0.flatten()[0]
-        y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, self.sampling)
-        xmodel = self.xmodels[iorder]
-        ymodel = self.ymodels[iorder]
-        lmodel = self.lmodels[iorder]
-        dx = xmodel[0](x00, y00) + t * xmodel[1](x00, y00) + t**2 * xmodel[2](x00, y00)
-        dy = ymodel[0](x00, y00) + t * ymodel[1](x00, y00) + t**2 * ymodel[2](x00, y00)
+def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
+    """
+    Evaluate the transform model at the given x, y, and t coordinates.
 
-        if self.theta != 0.0:
-            rotate = Rotation2D(self.theta)
-            dx, dy = rotate(dx, dy)
+    If a list of models of length >1 is provided, it is assumed that the trace function
+    is a polynomial of arbitrary order, where each model in the list represents
+    a polynomial coefficient (0th order first) with spatial dependence on x, y.
+    Therefore each model in the list should have two inputs (x, y).
 
-        # make a lookup table for t as a function of dy
-        so = np.argsort(dy)
-        tab = Tabular1D(dy[so], t[so], bounds_error=False, fill_value=None)
+    If a single model (or length-1 list) is provided,
+    it is assumed to depend only on t, and the model is evaluated directly on t.
 
-        # wavelength model takes in y, y0.
-        # it then subtracts them to get dy; that's what SubtractUfunc does
-        # next it finds the t value for that dy from the lookup table, interpolating linearly
-        # finally it applies the lmodel of t to get the wavelength
-        dyr = astmath.SubtractUfunc()
-        wavelength = dyr | tab | lmodel
-        model = Mapping((2, 3, 1, 3, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
-        return model(x, y, x0, y0, order)
+    Parameters
+    ----------
+    model : astropy.modeling.Model or list of astropy.modeling.Model
+        The transform model(s) to evaluate.
+    x : int, optional
+        The x coordinate, by default 0
+    y : int, optional
+        The y coordinate, by default 0
+    t : int, optional
+        The trace parameter, by default 0.
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    if isinstance(model, (ListNode, list)) and len(model) == 1:
+        model = model[0]
+
+    if isinstance(model, Model):
+        # model that depends only on t
+        # e.g. NIRCam dispx, NIRISS displ, invdispl
+        ninputs = len(model.inputs)
+        if ninputs != 1:
+            raise ValueError(
+                f"Received a transform with an unexpected number of inputs ({ninputs}); "
+                "expected 1 input for models depending only on t, or 2 inputs per coefficient "
+                "for models depending on x, y, and t."
+            )
+        return model(t)
+
+    if isinstance(model, (ListNode, list)):
+        # model with coefficients that depend on x, y
+        # e.g. NIRCam dispy, displ, NIRISS dispx, dispy
+        if any(not isinstance(m, Model) for m in model):
+            raise TypeError(
+                "Expected a model or list of models, but got a list containing non-model elements."
+            )
+
+        ninputs = len(model[0].inputs)
+        if ninputs == 2:
+            return _poly_with_spatial_dependence(t, x, y, model)
+
+        raise ValueError(
+            f"Received a transform with an unexpected number of inputs ({ninputs}); "
+            "expected 1 input for models depending only on t, or 2 inputs per coefficient "
+            "for models depending on x, y, and t."
+        )
+    raise TypeError(f"Expected a model or list of models, but got {type(model)}. ")
 
 
 class Rotation3DToGWA(Model):
@@ -2830,26 +2714,3 @@ class DirCos2Unitless(Model):
 
     def inverse(self):
         return Unitless2DirCos()
-
-
-def assess_model(model, x=0, y=0, t=0):
-    if isinstance(model, (ListNode, list)):
-        ninputs = len(model[0].inputs)
-        if ninputs == 2:
-            output = model[0](x, y) + t * model[1](x, y) + t**2 * model[2](x, y)
-        elif ninputs == 1:
-            if len(model) == 1:
-                output = model[0](t)
-            elif len(model) == 2:
-                output = model[0](x) + t * model[1](x)
-        else:
-            raise ValueError(f"{model} has incorrect number of inputs required.")
-    else:
-        ninputs = len(model.inputs)
-        if ninputs == 2:
-            output = model(x, y)
-        elif ninputs == 1:
-            output = model(t)
-        else:
-            raise ValueError(f"{model} has incorrect number of inputs required.")
-    return output
