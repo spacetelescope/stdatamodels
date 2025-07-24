@@ -37,6 +37,7 @@ __all__ = [
     "NIRISSForwardColumnGrismDispersion",
     "NIRISSBackwardGrismDispersion",
     "MIRIWFSSBackwardDispersion",
+    "MIRIWFSSForwardDispersion",
     "V2V3ToIdeal",
     "IdealToV2V3",
     "RefractionIndexFromPrism",
@@ -2068,6 +2069,102 @@ class MIRIWFSSBackwardDispersion(Model):
         dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
 
         return x + dx, dy, x, y, order
+
+
+class MIRIWFSSForwardDispersion(Model):
+    """
+    Calculate the wavelengths of vertically dispersed MIRIWFSS data.
+
+    The dispersion polynomial is relative to the input x,y pixels
+    in the direct image for a given wavelength.
+    """
+
+    standard_broadcasting = False
+    _separable = False
+    fittable = False
+    linear = False
+
+    n_inputs = 5
+    n_outputs = 4
+
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of models for the polynomial model in l
+        xmodels : list[tuples]
+            The list of tuple(models) for the polynomial model in x
+        ymodels : list[tuples]
+            The list of tuple(models) for the polynomial model in y
+            Name of the model
+        meta : dict
+            Unused
+        """
+        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
+        self.xmodels = xmodels
+        self.ymodels = ymodels
+        self.lmodels = lmodels
+        self.orders = orders
+        meta = {"orders": orders}
+        if name is None:
+            name = "miriwfss_forward_dispersion"
+        super(MIRIWFSSForwardDispersion, self).__init__(name=name, meta=meta)
+        # starts with the backwards pixel and calculates the forward pixel
+        self.inputs = ("x", "y", "x0", "y0", "order")
+        self.outputs = ("x", "y", "wavelength", "order")
+
+    def evaluate(self, x, y, x0, y0, order):
+        """
+        Transform from the dispersed plane into the direct image plane.
+
+        Parameters
+        ----------
+        x, y :  int, float, list
+            Input x, y location
+        x0, y0 : int, float, list
+            Source object x-center, y-center
+        order : int
+            Input spectral order
+
+        Returns
+        -------
+        x, y : float
+            The x, y values in the direct image, same as x0, y0.
+        lambda : float
+            Wavelength in angstroms
+        order : int
+            Output spectral order, same as input
+        """
+        try:
+            iorder = self._order_mapping[int(order.flatten()[0])]
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
+
+        # The next two lines are to get around the fact that
+        # modeling.standard_broadcasting=False does not work.
+        x00 = x0.flatten()[0]
+        y00 = y0.flatten()[0]
+
+        t = np.linspace(0, 1, 10)  # sample t
+        xmodel = self.xmodels[iorder]
+        # ymodel = self.ymodels[iorder]
+        lmodel = self.lmodels[iorder]
+
+        dx = xmodel(t)
+        # dy = ymodel[0](x00, y00) + dx * ymodel[1](x00, y00) + dx**2 * ymodel[2](x00, y00)
+
+        so = np.argsort(dx)
+        tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
+
+        dxr = astmath.SubtractUfunc()
+        wavelength = dxr | tab | lmodel
+        model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
+        return model(x, y, x0, y0, order)
 
 
 class Rotation3DToGWA(Model):
