@@ -127,7 +127,7 @@ class NIRISSGrismDispersionConverter(TransformConverterBase):
 
 
 class MIRIWFSSDispersionConverter(TransformConverterBase):
-    tags = ["tag:stsci.edu:jwst_pipeline/miriwfss_dispersion-*"]
+    tags = ["tag:stsci.edu:jwst_pipeline/miri_wfss_dispersion-*"]
 
     types = [
         "stdatamodels.jwst.transforms.models.MIRIWFSSBackwardDispersion",
