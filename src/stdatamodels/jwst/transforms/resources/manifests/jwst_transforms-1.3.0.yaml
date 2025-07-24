@@ -6,8 +6,8 @@ description: |-
 asdf_standard_requirement:
   gte: 1.6.0
 tags:
-- tag_uri: "tag:stsci.edu:jwst_pipeline/miriwfss_dispersion-1.2.0"
-  schema_uri: http://stsci.edu/schemas/jwst_pipeline/miriwfss_dispersion-1.2.0
+- tag_uri: "tag:stsci.edu:jwst_pipeline/miri_wfss_dispersion-1.2.0"
+  schema_uri: http://stsci.edu/schemas/jwst_pipeline/miri_wfss_dispersion-1.2.0
   title: MIRI WFSS dispersion model
   description: |-
     Supports two models:

@@ -2027,7 +2027,7 @@ class MIRIWFSSBackwardDispersion(Model):
         self.lmodels = lmodels
         meta = {"orders": orders}
         if name is None:
-            name = "miriwfss_backward_dispersion"
+            name = "miri_wfss_backward_dispersion"
         super(MIRIWFSSBackwardDispersion, self).__init__(name=name, meta=meta)
         self.inputs = ("x", "y", "wavelength", "order")
         self.outputs = ("x", "y", "x0", "y0", "order")
@@ -2112,7 +2112,7 @@ class MIRIWFSSForwardDispersion(Model):
         self.orders = orders
         meta = {"orders": orders}
         if name is None:
-            name = "miriwfss_forward_dispersion"
+            name = "miri_wfss_forward_dispersion"
         super(MIRIWFSSForwardDispersion, self).__init__(name=name, meta=meta)
         # starts with the backwards pixel and calculates the forward pixel
         self.inputs = ("x", "y", "x0", "y0", "order")
