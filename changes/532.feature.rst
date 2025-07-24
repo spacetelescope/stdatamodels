@@ -1,0 +1,1 @@
+Added an extension for background mask used in background step to image datamodel.
