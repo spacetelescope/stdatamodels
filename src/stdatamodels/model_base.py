@@ -67,6 +67,7 @@ class DataModel(properties.ObjectNode):
         validate_on_assignment=None,
         validate_arrays=False,
         ignore_missing_extensions=True,
+        ignore_unrecognized_tag=False,
         **kwargs,
     ):
         """
@@ -129,9 +130,16 @@ class DataModel(properties.ObjectNode):
             contains metadata about extensions that are not available.
             Defaults to `True`.
 
+        ignore_unrecognized_tag : bool
+            When `False`, raise warnings when an unrecognized tag is encountered.
+            When `True`, ignore unrecognized tags.
+
         **kwargs
-            Additional keyword arguments passed to lower level functions. These arguments
-            are generally file format-specific.
+            Additional keyword arguments are expected to be array-like attributes of
+            the data model. These will be initialized with the given values only if they
+            are defined in the schema and the schema expects an array-like value.
+            Example usage:
+            >>> model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))  # doctest: +SKIP
         """
         if "memmap" in kwargs:
             warnings.warn(
@@ -154,8 +162,6 @@ class DataModel(properties.ObjectNode):
         self._ignore_missing_extensions = ignore_missing_extensions
         self._validate_on_assignment = validate_on_assignment
         self._validate_arrays = validate_arrays
-
-        kwargs.update({"ignore_missing_extensions": ignore_missing_extensions})
 
         # Load the schema files
         if schema is None:
@@ -183,23 +189,17 @@ class DataModel(properties.ObjectNode):
         shape = None
 
         if init is None:
-            asdffile = AsdfFile(
-                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
-            )
+            asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
 
         elif isinstance(init, dict):
-            asdffile = AsdfFile(
-                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
-            )
+            asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
             # Don't pass init to AsdfFile as that triggers an extra validation
             # this can updated to AsdfFile(init, ...) when asdf 4.0 is the
             # minimum version.
             asdffile._tree = init
 
         elif isinstance(init, np.ndarray):
-            asdffile = AsdfFile(
-                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
-            )
+            asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
 
             shape = init.shape
             is_array = True
@@ -211,9 +211,7 @@ class DataModel(properties.ObjectNode):
 
             shape = init
             is_shape = True
-            asdffile = AsdfFile(
-                ignore_unrecognized_tag=kwargs.get("ignore_unrecognized_tag", False)
-            )
+            asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
 
         elif isinstance(init, DataModel):
             asdffile = None
@@ -230,7 +228,13 @@ class DataModel(properties.ObjectNode):
 
         elif isinstance(init, fits.HDUList):
             init = self._migrate_hdulist(init)
-            asdffile = fits_support.from_fits(init, self._schema, self._ctx, **kwargs)
+            asdffile = fits_support.from_fits(
+                init,
+                self._schema,
+                self._ctx,
+                ignore_unrecognized_tag=ignore_unrecognized_tag,
+                ignore_missing_extensions=ignore_missing_extensions,
+            )
 
         elif isinstance(init, (str, PurePath)):
             file_type = filetype.check(init)
@@ -239,10 +243,21 @@ class DataModel(properties.ObjectNode):
                 hdulist = fits.open(init, memmap=False)
                 self._file_references.append(_FileReference(hdulist))
                 hdulist = self._migrate_hdulist(hdulist)
-                asdffile = fits_support.from_fits(hdulist, self._schema, self._ctx, **kwargs)
+                asdffile = fits_support.from_fits(
+                    hdulist,
+                    self._schema,
+                    self._ctx,
+                    ignore_unrecognized_tag=ignore_unrecognized_tag,
+                    ignore_missing_extensions=ignore_missing_extensions,
+                )
 
             elif file_type == "asdf":
-                asdffile = asdf.open(init, memmap=False, **kwargs)
+                asdffile = asdf.open(
+                    init,
+                    memmap=False,
+                    ignore_unrecognized_tag=ignore_unrecognized_tag,
+                    ignore_missing_extensions=ignore_missing_extensions,
+                )
                 self._file_references.append(_FileReference(asdffile))
             else:
                 # TODO handle json files as well
@@ -283,7 +298,6 @@ class DataModel(properties.ObjectNode):
             getattr(self, primary_array_name)
 
         # initialize arrays from keyword arguments when they are present
-
         for attr, value in kwargs.items():
             if value is not None:
                 subschema = properties._get_schema_for_property(self._schema, attr)
