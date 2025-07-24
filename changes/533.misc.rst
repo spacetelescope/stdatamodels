@@ -1,0 +1,1 @@
+Update handling of kwargs in DataModel init and open
