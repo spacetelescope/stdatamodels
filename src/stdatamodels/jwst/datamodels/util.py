@@ -102,7 +102,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
         elif file_type == "asn":
             # Read the file as an association / model container
-            return _init_container(init, **kwargs)
+            return _init_container(init, akwargs, **kwargs)
 
         elif file_type == "asdf":
             asdffile = asdf.open(init, memmap=False)
@@ -116,6 +116,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             else:
                 new_args = inspect.getfullargspec(new_class.__init__).args
                 new_kwargs = {k: kwargs[k] for k in new_args if k[0] != "_" and k in kwargs}
+                new_kwargs.update(akwargs)
                 model = new_class(asdffile, **new_kwargs)
 
             model._file_references.append(_FileReference(asdffile))
@@ -135,7 +136,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         hdulist = init
 
     elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
-        return _init_container(init, **kwargs)
+        return _init_container(init, akwargs, **kwargs)
 
     else:
         raise TypeError(f"Unsupported type for init argument to open {type(init)}")
@@ -192,6 +193,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     try:
         new_args = inspect.getfullargspec(new_class.__init__).args
         new_kwargs = {k: kwargs[k] for k in new_args if k[0] != "_" and k in kwargs}
+        new_kwargs.update(akwargs)
         model = new_class(init, **new_kwargs)
     except Exception:
         if file_to_close is not None:
@@ -224,7 +226,7 @@ def _handle_missing_model_type(model, file_name):
         pass
 
 
-def _init_container(init, **kwargs):
+def _init_container(init, akwargs, **kwargs):
     """
     Initialize a ModelContainer from the given init and kwargs.
 
@@ -232,6 +234,9 @@ def _init_container(init, **kwargs):
     ----------
     init : dict or list
         The input data to initialize the container with.
+    akwargs : dict
+        Keyword arguments that are valid for DataModel.
+        These will be passed to the ModelContainer constructor.
     **kwargs : dict
         Additional keyword arguments to pass to the ModelContainer.
 
@@ -247,6 +252,7 @@ def _init_container(init, **kwargs):
 
     container_args = inspect.getfullargspec(ModelContainer).args
     container_kwargs = {k: kwargs[k] for k in container_args if k[0] != "_" and k in kwargs}
+    container_kwargs.update(akwargs)
     return ModelContainer(init, **container_kwargs)
 
 
