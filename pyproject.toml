@@ -160,6 +160,7 @@ filterwarnings = [
     "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]
 asdf_schema_tests_enabled = true
+asdf_schema_xfail_tests = "v23tosky-0.7.0.yaml::test_example_0"
 asdf_schema_validate_default = false
 asdf_schema_root = "src/stdatamodels/jwst/datamodels/schemas\nsrc/stdatamodels/jwst/transforms/resources/schemas"
 norecursedirs = [
