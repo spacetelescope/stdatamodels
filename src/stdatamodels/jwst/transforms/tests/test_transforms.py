@@ -709,15 +709,6 @@ def test_error_raises_bad_transforms():
         models._evaluate_transform_guess_form([poly1d,]*3, x=x0, y=y0, t=t)
 
 
-def test_v23tosky():
-    """
-    Test V2V3ToSky transform model.
-
-    This is currently unused by JWST - skip adding tests for now, as it may get removed.
-    """
-    pass
-
-
 def test_dircos2unitless_roundtrip():
     """
     Test DirCos2Unitless transform model.

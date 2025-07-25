@@ -85,13 +85,6 @@ tags:
     Supports two models:
     - given incident angle and wavelength compute the refraction/diffraction angle
     - given an incident angle and a refraction angle compute the wavelength
-- tag_uri: "tag:stsci.edu:jwst_pipeline/v23tosky-0.7.0"
-  schema_uri: http://stsci.edu/schemas/jwst_pipeline/v23tosky-0.7.0
-  title: A sequence of 3D rotations from JWST V2V3 system to ICRS.
-  description: |-
-    A sequence of 3D rotations around different axes.
-    This represents JWST transform from the telescope
-    coordinate system (V2,V3) to ICRS.
 - tag_uri: "tag:stsci.edu:jwst_pipeline/coords-0.7.0"
   schema_uri: http://stsci.edu/schemas/jwst_pipeline/coords-0.7.0
   title: Convert coordinates between vector and directional cosine form.
