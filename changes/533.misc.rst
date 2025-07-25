@@ -1,1 +1,2 @@
-Update handling of kwargs in DataModel init and open
+Update DataModel init to make it so kwargs are exclusively used for initializing data arrays
+as model attributes, and other args are used to control how the model is opened and validated.  
