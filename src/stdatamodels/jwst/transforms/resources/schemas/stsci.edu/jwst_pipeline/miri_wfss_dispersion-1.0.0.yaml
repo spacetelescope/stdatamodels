@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
-id: "http://stsci.edu/schemas/jwst_pipeline/miri_wfss_dispersion-1.2.0"
+id: "http://stsci.edu/schemas/jwst_pipeline/miri_wfss_dispersion-1.0.0"
 title: >
   MIRI WFSS dispersion model
 description: |
