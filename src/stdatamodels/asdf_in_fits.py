@@ -1,5 +1,6 @@
 import asdf
 from astropy.io import fits
+import warnings
 
 from . import fits_support
 
@@ -29,7 +30,7 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist.writeto(filename, **kwargs)
 
 
-def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_tag=False):  # noqa: A001
+def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_tag=False, **kwargs):  # noqa: A001
     """
     Read ASDF data embedded in a fits file.
 
@@ -45,6 +46,9 @@ def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_t
     ignore_unrecognized_tag : bool, optional
         If `True`, ignore unrecognized tags in the ASDF data.
         Defaults to `False`.
+    **kwargs
+        Additional keyword arguments to pass to asdf.open.
+        Usage of kwargs is deprecated and will be removed in a future version.
 
     Returns
     -------
@@ -52,12 +56,20 @@ def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_t
         :obj:`asdf.AsdfFile` created from ASDF data embedded in the opened
         FITS file.
     """
+    if kwargs:
+        warnings.warn(
+            "Passing additional keyword arguments from asdf_in_fits.open into asdf.open "
+            "is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     is_hdu = isinstance(filename_or_hdu, fits.HDUList)
     hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
     af = fits_support.from_fits_asdf(
         hdulist,
         ignore_missing_extensions=ignore_missing_extensions,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
+        **kwargs,
     )
 
     if is_hdu:
