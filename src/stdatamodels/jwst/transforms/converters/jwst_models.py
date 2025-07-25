@@ -145,10 +145,9 @@ class MIRIWFSSDispersionConverter(TransformConverterBase):
         )
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        xll = [list(m) for m in model.xmodels]
         yll = [list(m) for m in model.ymodels]
         node = {
-            "xmodels": xll,
+            "xmodels": list(model.xmodels),
             "ymodels": yll,
             "lmodels": list(model.lmodels),
             "model_type": type(model).name,
