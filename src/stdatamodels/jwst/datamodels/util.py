@@ -1,7 +1,6 @@
 """Various utility functions and data types."""
 
 from collections.abc import Sequence
-import inspect
 import warnings
 from pathlib import Path
 import logging
@@ -52,8 +51,13 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         If not guess and the model type is not explicit, raise a TypeError.
     **kwargs
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
-        are general, others are file format-specific. See the documentation of DataModel
-        for details on the available arguments.
+        are general, others are file format-specific.  Arguments of note are:
+
+        - General
+
+           validate_arrays : bool
+             If `True`, arrays will be validated against ndim, max_ndim, and datatype
+             validators in the schemas.
 
     Returns
     -------
@@ -72,23 +76,21 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         kwargs.pop("memmap")
 
     # Initialize variables used to select model class
+
     hdulist = {}
     shape = ()
     file_name = None
     file_to_close = None
 
-    # constrain kwargs to only those that are valid for DataModel
-    dm_args = inspect.getfullargspec(model_base.JwstDataModel.__init__).args
-    akwargs = {k: kwargs[k] for k in dm_args if k[0] != "_" and k in kwargs}
-
     # Get special cases for opening a model out of the way
     # all special cases return a model if they match
+
     if init is None:
-        return model_base.JwstDataModel(None, **akwargs)
+        return model_base.JwstDataModel(None, **kwargs)
 
     elif isinstance(init, model_base.JwstDataModel):
         # Copy the object so it knows not to close here
-        return init.__class__(init, **akwargs)
+        return init.__class__(init, **kwargs)
 
     elif isinstance(init, (str, Path)):
         # If given a string, presume its a file path.
@@ -102,7 +104,14 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
         elif file_type == "asn":
             # Read the file as an association / model container
-            return _init_container(init, akwargs, **kwargs)
+            try:
+                from jwst.datamodels import ModelContainer
+            except ImportError as err:
+                raise ValueError(
+                    "Cannot open an association file without the jwst package installed"
+                ) from err
+
+            return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
             asdffile = asdf.open(init, memmap=False)
@@ -111,13 +120,10 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             new_class = _class_from_model_type(asdffile)
             if new_class is None:
                 # No model class found, so return generic DataModel.
-                model = model_base.JwstDataModel(asdffile, **akwargs)
+                model = model_base.JwstDataModel(asdffile, **kwargs)
                 _handle_missing_model_type(model, file_name)
             else:
-                new_args = inspect.getfullargspec(new_class.__init__).args
-                new_kwargs = {k: kwargs[k] for k in new_args if k[0] != "_" and k in kwargs}
-                new_kwargs.update(akwargs)
-                model = new_class(asdffile, **new_kwargs)
+                model = new_class(asdffile, **kwargs)
 
             model._file_references.append(_FileReference(asdffile))
 
@@ -136,7 +142,14 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         hdulist = init
 
     elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
-        return _init_container(init, akwargs, **kwargs)
+        try:
+            from jwst.datamodels import ModelContainer
+        except ImportError as err:
+            raise ValueError(
+                "Cannot open an association without the jwst package installed"
+            ) from err
+
+        return ModelContainer(init, **kwargs)
 
     else:
         raise TypeError(f"Unsupported type for init argument to open {type(init)}")
@@ -191,10 +204,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     # Actually open the model
     try:
-        new_args = inspect.getfullargspec(new_class.__init__).args
-        new_kwargs = {k: kwargs[k] for k in new_args if k[0] != "_" and k in kwargs}
-        new_kwargs.update(akwargs)
-        model = new_class(init, **new_kwargs)
+        model = new_class(init, **kwargs)
     except Exception:
         if file_to_close is not None:
             file_to_close.close()
@@ -224,36 +234,6 @@ def _handle_missing_model_type(model, file_name):
         delattr(model.meta, "model_type")
     except AttributeError:
         pass
-
-
-def _init_container(init, akwargs, **kwargs):
-    """
-    Initialize a ModelContainer from the given init and kwargs.
-
-    Parameters
-    ----------
-    init : dict or list
-        The input data to initialize the container with.
-    akwargs : dict
-        Keyword arguments that are valid for DataModel.
-        These will be passed to the ModelContainer constructor.
-    **kwargs : dict
-        Additional keyword arguments to pass to the ModelContainer.
-
-    Returns
-    -------
-    ModelContainer
-        The initialized ModelContainer.
-    """
-    try:
-        from jwst.datamodels import ModelContainer
-    except ImportError as err:
-        raise ValueError("Cannot open an association without the jwst package installed") from err
-
-    container_args = inspect.getfullargspec(ModelContainer).args
-    container_kwargs = {k: kwargs[k] for k in container_args if k[0] != "_" and k in kwargs}
-    container_kwargs.update(akwargs)
-    return ModelContainer(init, **container_kwargs)
 
 
 def _class_from_model_type(init):
