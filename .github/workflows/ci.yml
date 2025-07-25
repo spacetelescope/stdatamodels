@@ -88,3 +88,4 @@ jobs:
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
         - linux: py311-jwst-cov-xdist
+          coverage: codecov
