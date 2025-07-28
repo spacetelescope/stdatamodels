@@ -1,7 +1,6 @@
 import datetime
 from functools import partial
 import hashlib
-import inspect
 import io
 import re
 import warnings
@@ -778,7 +777,9 @@ def _load_history(hdulist, tree):
         history["entries"].append(HistoryEntry({"description": entry}))
 
 
-def from_fits(hdulist, schema, context, **kwargs):
+def from_fits(
+    hdulist, schema, context, ignore_unrecognized_tag=False, ignore_missing_extensions=False
+):
     """
     Read model information from a FITS HDU list.
 
@@ -790,8 +791,12 @@ def from_fits(hdulist, schema, context, **kwargs):
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
     context : DataModel
         The `DataModel` to update
-    **kwargs
-        Additional arguments to pass to `from_fits_asdf`
+    ignore_unrecognized_tag : bool, optional
+        If `True`, ignore unrecognized tags in the ASDF file.
+        If `False`, raise an error when an unrecognized tag is found.
+    ignore_missing_extensions : bool, optional
+        If `True`, ignore missing extensions in the ASDF file.
+        If `False`, raise an error when an extension is missing.
 
     Returns
     -------
@@ -799,7 +804,11 @@ def from_fits(hdulist, schema, context, **kwargs):
         The ASDF file object
     """
     try:
-        ff = from_fits_asdf(hdulist, **kwargs)
+        ff = from_fits_asdf(
+            hdulist,
+            ignore_missing_extensions=ignore_missing_extensions,
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+        )
     except Exception as exc:
         raise exc.__class__("ERROR loading embedded ASDF: " + str(exc)) from exc
 
@@ -817,7 +826,9 @@ def from_fits(hdulist, schema, context, **kwargs):
     return ff
 
 
-def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
+def from_fits_asdf(
+    hdulist, ignore_unrecognized_tag=False, ignore_missing_extensions=False, **kwargs
+):
     """
     Open the ASDF extension from a FITS HDUlist.
 
@@ -828,19 +839,18 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
     ignore_unrecognized_tag : bool
         When `True`, ignore unrecognized tags in the ASDF file.
         When `False`, raise an error when an unrecognized tag is found.
-    **kwargs
-        Additional arguments to pass to `asdf.open`
-        - ignore_missing_extensions : bool
-          When `True`, ignore missing extensions in the ASDF file.
-          When `False`, raise an error when an extension is missing.
+    ignore_missing_extensions : bool
+        When `True`, ignore missing extensions in the ASDF file.
+        When `False`, raise an error when an extension is missing.
+    **kwargs : dict
+        Additional keyword arguments to pass to `asdf.open`.
+        Usage of kwargs is deprecated and will be removed in a future version.
 
     Returns
     -------
     asdf.AsdfFile
         The ASDF file object
     """
-    ignore_missing_extensions = kwargs.pop("ignore_missing_extensions")
-
     try:
         asdf_extension = hdulist[_ASDF_EXTENSION_NAME]
     except (KeyError, IndexError, AttributeError):
@@ -850,15 +860,11 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
         )
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
-    # get kwargs supported by asdf, this will not pass along arbitrary kwargs
-    akwargs = {
-        k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args if k[0] != "_" and k in kwargs
-    }
     af = asdf.open(
         generic_file,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        **akwargs,
+        **kwargs,
     )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)

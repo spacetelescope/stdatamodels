@@ -165,3 +165,17 @@ def test_open_asdf_in_fits_hdu(saved_array_model, test_array):
             assert_array_almost_equal(af["data"], test_array)
         # make sure file was not closed with context
         assert not hdu.fileinfo(0)["file"].closed
+
+
+def test_deprecated_kwargs_warning(saved_array_model):
+    """
+    Test that a warning is raised when passing additional
+    keyword arguments to asdf_in_fits.open.
+    """
+    with pytest.warns(
+        DeprecationWarning,
+        match="Passing additional keyword arguments from asdf_in_fits.open into asdf.open "
+        "is deprecated and will be removed in a future version.",
+    ):
+        with asdf_in_fits.open(saved_array_model, lazy_load=True) as af:
+            assert af is not None

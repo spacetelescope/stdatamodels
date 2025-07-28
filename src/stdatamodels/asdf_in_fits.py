@@ -1,5 +1,6 @@
 import asdf
 from astropy.io import fits
+import warnings
 
 from . import fits_support
 
@@ -29,7 +30,7 @@ def write(filename, tree, hdulist=None, **kwargs):
     hdulist.writeto(filename, **kwargs)
 
 
-def open(filename_or_hdu, **kwargs):  # noqa: A001
+def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_tag=False, **kwargs):  # noqa: A001
     """
     Read ASDF data embedded in a fits file.
 
@@ -39,8 +40,15 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
         Filename of the FITS file or an open `astropy.io.fits.HDUList`
         containing the ASDF data. If a filename is provided it
         will be opened with :func:`astropy.io.fits.open`.
+    ignore_missing_extensions : bool, optional
+        If `True`, ignore missing extensions in the FITS file.
+        Defaults to `False`.
+    ignore_unrecognized_tag : bool, optional
+        If `True`, ignore unrecognized tags in the ASDF data.
+        Defaults to `False`.
     **kwargs
-        Additional keyword arguments to pass to :func:`asdf.open`
+        Additional keyword arguments to pass to asdf.open.
+        Usage of kwargs is deprecated and will be removed in a future version.
 
     Returns
     -------
@@ -48,11 +56,21 @@ def open(filename_or_hdu, **kwargs):  # noqa: A001
         :obj:`asdf.AsdfFile` created from ASDF data embedded in the opened
         FITS file.
     """
+    if kwargs:
+        warnings.warn(
+            "Passing additional keyword arguments from asdf_in_fits.open into asdf.open "
+            "is deprecated and will be removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     is_hdu = isinstance(filename_or_hdu, fits.HDUList)
     hdulist = filename_or_hdu if is_hdu else fits.open(filename_or_hdu)
-    if "ignore_missing_extensions" not in kwargs:
-        kwargs["ignore_missing_extensions"] = False
-    af = fits_support.from_fits_asdf(hdulist, **kwargs)
+    af = fits_support.from_fits_asdf(
+        hdulist,
+        ignore_missing_extensions=ignore_missing_extensions,
+        ignore_unrecognized_tag=ignore_unrecognized_tag,
+        **kwargs,
+    )
 
     if is_hdu:
         # no need to wrap close if input was an HDUList
