@@ -52,7 +52,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
           Initialize with empty data of the given shape.
 
         - np.ndarray: Deprecated; use the DataModel constructor directly instead.
-          Initialize with default data of the same shape as the array.
+          Initialize a model with primary array attribute (typically 'data') set to the input array.
+          For 2-D input an ImageModel is created, for 3-D a CubeModel, and for 4-D a QuadModel.
 
         - :class:`~astropy.io.fits.HDUList`: Deprecated; save the HDUList to file and then call open
           on the file instead.

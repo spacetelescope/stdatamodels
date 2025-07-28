@@ -19,6 +19,7 @@ from stdatamodels.jwst.datamodels import (
     IFUImageModel,
     RampModel,
     CubeModel,
+    QuadModel,
     ReferenceFileModel,
     ReferenceImageModel,
     ReferenceCubeModel,
@@ -124,6 +125,27 @@ def test_open_shape():
         with datamodels.open(shape) as model:
             assert isinstance(model, ImageModel)
             assert model.shape == shape
+
+
+def test_open_array():
+    """Test opening a model from a numpy array"""
+    data = np.ones((2, 2), dtype=np.float32)*3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, ImageModel)
+            assert np.array_equal(model.data, data)
+
+    data = np.ones((2, 2, 2), dtype=np.float32)*3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, CubeModel)
+            assert np.array_equal(model.data, data)
+
+    data = np.ones((2, 2, 2, 2), dtype=np.float32)*3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, QuadModel)
+            assert np.array_equal(model.data, data)
 
 
 def test_open_dict():
