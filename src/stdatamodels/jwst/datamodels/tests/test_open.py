@@ -113,15 +113,47 @@ def test_open_fits():
 
 
 def test_open_none():
-    with datamodels.open() as model:
-        assert isinstance(model, JwstDataModel)
+    with pytest.warns(DeprecationWarning, match="Passing None to open is deprecated"):
+        with datamodels.open() as model:
+            assert isinstance(model, JwstDataModel)
 
 
 def test_open_shape():
     shape = (50, 20)
-    with datamodels.open(shape) as model:
-        assert isinstance(model, ImageModel)
-        assert model.shape == shape
+    with pytest.warns(DeprecationWarning, match="Passing tuple to open is deprecated"):
+        with datamodels.open(shape) as model:
+            assert isinstance(model, ImageModel)
+            assert model.shape == shape
+
+
+def test_open_dict():
+    """
+    Ensure failure when opening a dict as a model.
+    
+    Only association-type dicts are allowed, so this should have a custom error message.
+    """
+    init = {
+        "meta": {
+            "telescope": "JWST",
+            "instrument": {
+                "name": "NIRCAM",
+                "detector": "NRCA4",
+                "channel": "SHORT"
+            }
+        },
+        "data": np.zeros((10, 10), dtype=np.float32)
+    }
+    with pytest.raises(TypeError, match="Unsupported type for init argument to open"):
+        # The open function expects a dict to be an association, not a model.
+        datamodels.open(init)
+
+    # Should still fail even if it's an ASDF tree instead
+    asdffile = asdf.AsdfFile(init)
+    assert type(asdffile) is asdf.AsdfFile
+    assert asdffile.tree == init
+    with pytest.raises(TypeError, match="Unsupported type for init argument to open"):
+        # The open function expects a dict to be an association, not a model.
+        datamodels.open(asdffile)
 
 
 def test_open_illegal():
@@ -142,8 +174,9 @@ def test_open_hdulist(tmp_path):
     path = str(tmp_path / "jwst_image.fits")
     hdulist.writeto(path)
 
-    with datamodels.open(hdulist) as model:
-        assert isinstance(model, ImageModel)
+    with pytest.warns(DeprecationWarning, match="Passing fits.HDUList to open is deprecated"):
+        with datamodels.open(hdulist) as model:
+            assert isinstance(model, ImageModel)
 
     with pytest.warns(NoTypeWarning) as record:
         with datamodels.open(path) as model:
