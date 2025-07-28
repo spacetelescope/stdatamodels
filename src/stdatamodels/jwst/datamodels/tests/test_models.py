@@ -77,8 +77,9 @@ def test_skip_fits_update(make_models, which_file):
     with fits.open(path) as hduls:
         hduls[0].header["exp_type"] = "FGS_DARK"
 
-        with datamodels.open(hduls) as model:
-            assert model.meta.exposure.type == "FGS_DARK"
+        with pytest.warns(DeprecationWarning, match="Passing fits.HDUList to open is deprecated"):
+            with datamodels.open(hduls) as model:
+                assert model.meta.exposure.type == "FGS_DARK"
 
 
 def test_asnmodel_table_size_zero():

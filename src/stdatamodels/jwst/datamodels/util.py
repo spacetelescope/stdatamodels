@@ -32,19 +32,27 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     ----------
     init : shape tuple, file path, astropy.io.fits.HDUList, numpy array, dict, None
 
-        - None: A default data model with no shape
-
-        - shape tuple: Initialize with empty data of the given shape
-
         - file path: Initialize from the given file (FITS, JSON or ASDF)
 
-        - astropy.io.fits.HDUList: Initialize from the given
-          `~astropy.io.fits.HDUList`
+        - dict: Dictionary representing an association. The association will be
+            returned as a ModelContainer.
 
-        - A numpy array: A new model with the data array initialized
-          to what was passed in.
+        - JwstDataModel: Initialize from an existing model. This is supported primarily
+            for pipeline code convenience, and is not recommended for general use as it
+            may cause unexpected behavior.
 
-        - dict: The object model tree for the data model
+        - None: Deprecated; use the DataModel constructor directly instead.
+          A default data model with no shape.
+
+        - shape tuple: Deprecated; use the DataModel constructor directly instead.
+          Initialize with empty data of the given shape.
+
+        - numpy array: Deprecated; use the DataModel constructor directly instead.
+          A new model with the data array initialized to what was passed in.
+
+        - astropy.io.fits.HDUList: Deprecated; save the HDUList to file and then call open
+          on the file instead.
+          Initialize from the given `~astropy.io.fits.HDUList`.
 
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
@@ -63,9 +71,18 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     -------
     DataModel
         A new model instance.
-    """
-    from . import model_base
 
+    Notes
+    -----
+    The `open` function is primarily intended for opening files and creating models from them,
+    and is not intended for creating models from scratch. Use the DataModel constructors directly
+    for that purpose instead. Init types of `None`, shape tuple, and numpy array
+    are deprecated and will raise a TypeError in the future.
+    Use the DataModel constructors directly instead, i.e. `JwstDataModel` for a generic model
+    or one of the many model subclasses (e.g. `ImageModel`, `MultiSlitModel`)
+    for specific applications. None, shape tuple, and numpy array are all valid inputs to those
+    constructors, and see the documentation for each model class for details on how to use them.
+    """
     if "memmap" in kwargs:
         warnings.warn(
             "Memory mapping is no longer supported; memmap is hard-coded to False "
@@ -86,9 +103,14 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     # all special cases return a model if they match
 
     if init is None:
-        return model_base.JwstDataModel(None, **kwargs)
+        warnings.warn(
+            "Passing None to open is deprecated; use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return dm.JwstDataModel(None, **kwargs)
 
-    elif isinstance(init, model_base.JwstDataModel):
+    elif isinstance(init, dm.JwstDataModel):
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
@@ -120,7 +142,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             new_class = _class_from_model_type(asdffile)
             if new_class is None:
                 # No model class found, so return generic DataModel.
-                model = model_base.JwstDataModel(asdffile, **kwargs)
+                model = dm.JwstDataModel(asdffile, **kwargs)
                 _handle_missing_model_type(model, file_name)
             else:
                 model = new_class(asdffile, **kwargs)
@@ -130,15 +152,32 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             return model
 
     elif isinstance(init, tuple):
+        warnings.warn(
+            "Passing tuple to open is deprecated; use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         for item in init:
             if not isinstance(item, int):
                 raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
         shape = init
 
     elif isinstance(init, np.ndarray):
+        warnings.warn(
+            "Passing np.ndarray to open is deprecated; "
+            "use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         shape = init.shape
 
     elif isinstance(init, fits.HDUList):
+        warnings.warn(
+            "Passing fits.HDUList to open is deprecated; "
+            "use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         hdulist = init
 
     elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
@@ -150,6 +189,12 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             ) from err
 
         return ModelContainer(init, **kwargs)
+
+    elif isinstance(init, (dict, asdf.AsdfFile)):
+        raise TypeError(
+            f"Unsupported type for init argument to open {type(init)}. "
+            "To initialize a datamodel from a model tree, use the DataModel constructor directly."
+        )
 
     else:
         raise TypeError(f"Unsupported type for init argument to open {type(init)}")
