@@ -26,7 +26,7 @@ log.addHandler(logging.NullHandler())
 
 def open(init=None, guess=True, **kwargs):  # noqa: A001
     """
-    Create a DataModel from a number of different types.
+    Load a data model, list of models, or association from file.
 
     Parameters
     ----------
@@ -35,24 +35,28 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         - file path: Initialize from the given file (FITS, JSON or ASDF)
 
         - dict: Dictionary representing an association. The association will be
-            returned as a ModelContainer.
+          returned as a ModelContainer with the models loaded from the files
+          specified in the association dict.
 
-        - JwstDataModel: Initialize from an existing model. This is supported primarily
-            for pipeline code convenience, and is not recommended for general use as it
-            may cause unexpected behavior.
+        - list[str]: Initialize from a list of files. The list will be returned as a
+          ModelContainer with the models loaded from the specified files.
+
+        - :class:`JwstDataModel`: Initialize from an existing model. This is supported
+          for pipeline code convenience, and is not recommended for general use as it
+          may cause unexpected behavior.
 
         - None: Deprecated; use the DataModel constructor directly instead.
           A default data model with no shape.
 
-        - shape tuple: Deprecated; use the DataModel constructor directly instead.
+        - tuple: Deprecated; use the DataModel constructor directly instead.
           Initialize with empty data of the given shape.
 
-        - numpy array: Deprecated; use the DataModel constructor directly instead.
-          A new model with the data array initialized to what was passed in.
+        - np.ndarray: Deprecated; use the DataModel constructor directly instead.
+          Initialize with default data of the same shape as the array.
 
-        - astropy.io.fits.HDUList: Deprecated; save the HDUList to file and then call open
+        - :class:`~astropy.io.fits.HDUList`: Deprecated; save the HDUList to file and then call open
           on the file instead.
-          Initialize from the given `~astropy.io.fits.HDUList`.
+          Initialize from the given HDUList.
 
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
@@ -61,11 +65,9 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
 
-        - General
-
-           validate_arrays : bool
-             If `True`, arrays will be validated against ndim, max_ndim, and datatype
-             validators in the schemas.
+        - validate_arrays : bool
+          If `True`, arrays will be validated against ndim, max_ndim, and datatype
+          validators in the schemas.
 
     Returns
     -------
@@ -74,12 +76,12 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     Notes
     -----
-    The `open` function is primarily intended for opening files and creating models from them,
+    The ``open`` function is primarily intended for opening files and creating models from them,
     and is not intended for creating models from scratch. Use the DataModel constructors directly
-    for that purpose instead. Init types of `None`, shape tuple, and numpy array
+    for that purpose instead. Init types of None, shape tuple, and numpy array
     are deprecated and will raise a TypeError in the future.
-    Use the DataModel constructors directly instead, i.e. `JwstDataModel` for a generic model
-    or one of the many model subclasses (e.g. `ImageModel`, `MultiSlitModel`)
+    Use the DataModel constructors directly instead, i.e. :class:`JwstDataModel` for a generic model
+    or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors, and see the documentation for each model class for details on how to use them.
     """
