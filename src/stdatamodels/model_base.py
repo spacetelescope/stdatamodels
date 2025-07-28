@@ -274,6 +274,16 @@ class DataModel(properties.ObjectNode):
         # Initialize class dependent hidden fields
         self._no_asdf_extension = False
 
+        if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
+            warnings.warn(
+                "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
+                "but keyword arguments were also passed, which are assumed to be attempting to "
+                "initialize arrays. This behavior is deprecated and will raise an error "
+                "in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         # Instantiate the primary array of the image
         if is_array:
             primary_array_name = self.get_primary_array_name()
