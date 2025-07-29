@@ -138,6 +138,7 @@ class MIRIWFSSDispersionConverter(TransformConverterBase):
 
         _fname = getattr(models, node["model_type"])
         return _fname(
+            list(node["orders"]),
             list(node["lmodels"]),
             list(node["xmodels"]),
             list(node["ymodels"]),
@@ -146,6 +147,7 @@ class MIRIWFSSDispersionConverter(TransformConverterBase):
     def to_yaml_tree_transform(self, model, tag, ctx):
         yll = [list(m) for m in model.ymodels]
         node = {
+            "orders": list(model.orders),
             "xmodels": list(model.xmodels),
             "ymodels": yll,
             "lmodels": list(model.lmodels),

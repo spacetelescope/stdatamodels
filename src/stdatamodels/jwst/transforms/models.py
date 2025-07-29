@@ -2039,9 +2039,9 @@ class MIRIWFSSBackwardDispersion(Model):
         Parameters
         ----------
         x, y : float
-            Input x, y location
+            Input x, y location in the direct image
         wavelength : float
-            Wavelength in angstroms
+            Wavelength in microns
         order : int
             Input spectral order
 
@@ -2050,7 +2050,7 @@ class MIRIWFSSBackwardDispersion(Model):
         x, y : float
             The x, y values in the dispersed plane.
         x0 y0 : float
-            Source object x-center, y-center. Same as input x, y.
+            Source object x-center, y-center in the direct image. Same as input x,y
         order : int
             Output spectral order, same as input
         """
@@ -2061,7 +2061,7 @@ class MIRIWFSSBackwardDispersion(Model):
         except KeyError as err:
             raise ValueError("Specified order is not available") from err
         # t is trace normalization parameters (it was values of 0 to 1)
-        t = self.tmodels[iorder](wavelength)
+        t = self.lmodels[iorder](wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
@@ -2103,7 +2103,7 @@ class MIRIWFSSForwardDispersion(Model):
             The list of tuple(models) for the polynomial model in y
             Name of the model
         meta : dict
-            Unused
+            Holds the orders
         """
         self._order_mapping = {int(k): v for v, k in enumerate(orders)}
         self.xmodels = xmodels
@@ -2125,9 +2125,9 @@ class MIRIWFSSForwardDispersion(Model):
         Parameters
         ----------
         x, y :  int, float, list
-            Input x, y location
+            Input x, y location in the dispersed image.
         x0, y0 : int, float, list
-            Source object x-center, y-center
+            Source object x-center, y-center in the direct image.
         order : int
             Input spectral order
 
@@ -2136,7 +2136,7 @@ class MIRIWFSSForwardDispersion(Model):
         x, y : float
             The x, y values in the direct image, same as x0, y0.
         lambda : float
-            Wavelength in angstroms
+            Wavelength in microns
         order : int
             Output spectral order, same as input
         """
