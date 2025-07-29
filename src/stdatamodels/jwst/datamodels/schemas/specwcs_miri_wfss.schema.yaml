@@ -14,33 +14,33 @@ allOf:
     displ:
         description: |
           MIRI WFSS wavelength dispersion model, a list of  astropy.modeling.Model,
-	  matching  the list of spectral orders.
+          matching  the list of spectral orders.
         type: array
         items:
-          type: $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     dispx:
         description: |
           MIRI WFSS row dispersion model, a list of  astropy.modeling.Model,
-	  matching  the list of spectral orders.
+          matching  the list of spectral orders.
         type: array
         items:
-            type: $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     dispy:
         description: |
           MIRI WFSS column dispersion model, a list of  astropy.modeling.Model,
-	  matching  the list of spectral orders.
+          matching  the list of spectral orders.
         type: array
         items:
           type: array
           items:
-            type: $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     invdispl:
         description: |
           MIRI WFSS inverse wavelength dispersion model, a list of  astropy.modeling.Model,
-	  matching  the list of spectral orders. 
+          matching  the list of spectral orders. 
         type: array
         items:
-          type: $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     orders:
         description: |
           MIRI WFSS orders, a list of orders matched to the array locations of the dispersion models
