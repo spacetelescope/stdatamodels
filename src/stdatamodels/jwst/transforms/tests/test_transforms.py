@@ -664,8 +664,8 @@ def test_miri_wfss_roundtrip():
     ymodels = [ymodel] * len(orders)
 
     # single x0, y0, wl
-    x0 = 450
-    y0 = 450
+    x0 = 450.0
+    y0 = 450.0
     wl = 6.0
 
     # now create the appropriate model for the forward
