@@ -2021,7 +2021,6 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             name=name,
         )
 
-
     def evaluate(self, x, y, wavelength, order):
         """
         Transform from the direct image plane to the dispersed plane.
@@ -2047,7 +2046,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         wavelength = np.atleast_1d(wavelength)
         x = np.atleast_1d(x)
         y = np.atleast_1d(y)
-        
+
         if (wavelength < 0).any():
             raise ValueError("Wavelength should be greater than zero")
         try:
@@ -2055,26 +2054,12 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         except KeyError as err:
             raise ValueError("Specified order is not available") from err
         # t is trace normalization parameters (it was values of 0 to 1)
-        
+
         t = self.lmodels[iorder](wavelength)
-        print('t', t)
-        print(type(t))
-        
-        print(self.lmodels[iorder])
-        print('input x, y', x,y)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
-        print('** xmodel', xmodel)
-        print(type(xmodel))
         dx = xmodel(t)
-        print('dx',dx)
-        print(ymodel[0])
-        print(ymodel[1])
-        print(ymodel[2])
-        print('x',x)
-        print('y',y)
         dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
-        print('dy', dy)
         return x + dx, dy, x, y, order
 
 
