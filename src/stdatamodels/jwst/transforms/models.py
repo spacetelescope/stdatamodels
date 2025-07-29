@@ -1991,18 +1991,10 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
     raise TypeError(f"Expected a model or list of models, but got {type(model)}. ")
 
 
-class MIRIWFSSBackwardDispersion(Model):
+class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
     """Calculate the dispersion extent of MIRI WFSS pixels."""
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 4
-    n_outputs = 5
-
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
         """
         Initialize the model.
 
@@ -2018,19 +2010,16 @@ class MIRIWFSSBackwardDispersion(Model):
             The list of tuple(models) for the polynomial model in y
         name : str, optional
             Name of the model
-        meta : dict
-            Unused
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        meta = {"orders": orders}
         if name is None:
             name = "miri_wfss_backward_dispersion"
-        super(MIRIWFSSBackwardDispersion, self).__init__(name=name, meta=meta)
-        self.inputs = ("x", "y", "wavelength", "order")
-        self.outputs = ("x", "y", "x0", "y0", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
 
     def evaluate(self, x, y, wavelength, order):
         """
@@ -2071,7 +2060,7 @@ class MIRIWFSSBackwardDispersion(Model):
         return x + dx, dy, x, y, order
 
 
-class MIRIWFSSForwardDispersion(Model):
+class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     """
     Calculate the wavelengths of vertically dispersed MIRIWFSS data.
 
@@ -2079,15 +2068,7 @@ class MIRIWFSSForwardDispersion(Model):
     in the direct image for a given wavelength.
     """
 
-    standard_broadcasting = False
-    _separable = False
-    fittable = False
-    linear = False
-
-    n_inputs = 5
-    n_outputs = 4
-
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None, meta=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
         """
         Initialize the model.
 
@@ -2102,21 +2083,16 @@ class MIRIWFSSForwardDispersion(Model):
         ymodels : list[tuples]
             The list of tuple(models) for the polynomial model in y
             Name of the model
-        meta : dict
-            Holds the orders
         """
-        self._order_mapping = {int(k): v for v, k in enumerate(orders)}
-        self.xmodels = xmodels
-        self.ymodels = ymodels
-        self.lmodels = lmodels
-        self.orders = orders
-        meta = {"orders": orders}
         if name is None:
             name = "miri_wfss_forward_dispersion"
-        super(MIRIWFSSForwardDispersion, self).__init__(name=name, meta=meta)
-        # starts with the backwards pixel and calculates the forward pixel
-        self.inputs = ("x", "y", "x0", "y0", "order")
-        self.outputs = ("x", "y", "wavelength", "order")
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
 
     def evaluate(self, x, y, x0, y0, order):
         """
@@ -2152,11 +2128,8 @@ class MIRIWFSSForwardDispersion(Model):
 
         t = np.linspace(0, 1, 10)  # sample t
         xmodel = self.xmodels[iorder]
-        # ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
-
         dx = xmodel(t)
-        # dy = ymodel[0](x00, y00) + dx * ymodel[1](x00, y00) + dx**2 * ymodel[2](x00, y00)
 
         so = np.argsort(dx)
         tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
