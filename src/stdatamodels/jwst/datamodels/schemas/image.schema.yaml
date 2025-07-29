@@ -51,9 +51,9 @@ allOf:
       fits_hdu: WHT
       default: 0.0
       datatype: float32
-    bkgdmask:
-      title: The background mask used
-      fits_hdu: BGM
+    mask:
+      title: The mask used
+      fits_hdu: MSK
       default: 0
       ndim: 2
       datatype: uint32
