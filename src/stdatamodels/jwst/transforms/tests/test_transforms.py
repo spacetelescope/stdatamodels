@@ -639,6 +639,58 @@ def test_niriss_grism_roundtrip(direction):
     np.testing.assert_allclose(ordersi, orders)
 
 
+
+def test_miri_wfss_roundtrip():
+    """
+    Do a forward wfss transform for MIRI  then inverse, and check that the output is the same as the input.
+    """
+    # Create mock polynomial models for the grism dispersion
+    # These coefficients are taken from a real reference file.
+    mock_l = Polynomial1D(degree=1, c0=3.125, c1=10.893)
+    mock_invl = Polynomial1D(degree=1, c0=-0.28688148, c1=0.09180207)
+    mock_x =  Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
+    # mock y models here paramtrize a slightly curved trace
+    # causing enough of a shift in the x and y coordinates
+    # to ensure that the forward and backward models are not just
+    # identity models.
+
+    mock_y = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+    ymodel = [mock_y,] * 3
+    
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [mock_x,] * len(orders)
+    invlmodels = [mock_invl] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # single x0, y0, wl
+    x0 = 450
+    y0 = 450
+    wl = 6.0
+
+    # now create the appropriate model for the forward
+    forward = models.MIRIWFSSForwardDispersion(
+        orders,
+        lmodels=lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels
+    )
+
+    backward = models.MIRIWFSSBackwardDispersion(
+        orders,
+        lmodels=invlmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
+    np.testing.assert_allclose(ordersi, orders)    
+
+
 @pytest.mark.parametrize("direction", ["row", "column"])
 @pytest.mark.parametrize("instrument", ["nircam", "niriss"])
 def test_grism_error_raises(direction, instrument):
