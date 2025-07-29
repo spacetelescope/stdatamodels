@@ -1,0 +1,1 @@
+Tidy up output FITS headers by removing extra blank keywords associated with each reference file.
