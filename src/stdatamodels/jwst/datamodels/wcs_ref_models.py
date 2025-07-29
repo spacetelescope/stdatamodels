@@ -483,13 +483,13 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
         ----------
         init : str, None, optional
             File name for input file in ASDF format from which to initialize the model.
-        displ : `~astropy.modeling.Model`
+        displ : list of `~astropy.modeling.Model`
             MIRI WFSS wavelength dispersion model
-        dispx : `~astropy.modeling.Model`
+        dispx : list of `~astropy.modeling.Model`
             MIRI WFSS row dispersion model
-        dispy : `~astropy.modeling.Model`
+        dispy : list of `~astropy.modeling.Model`
             MIRI WFSS column dispersion model
-        invdispl : `~astropy.modeling.Model`
+        invdispl : list of `~astropy.modeling.Model`
             MIRI WFSS inverse wavelength dispersion model
         orders : list of int
             MIRI WFSS orders, matched to the array locations of the

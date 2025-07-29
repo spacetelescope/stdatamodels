@@ -12,7 +12,7 @@ tags:
   description: |-
     Supports two models:
     Given x, y, wave, order in effective direct image returns
-    x,y,wave,order in dispersed
+    x, y, wave, order in dispersed
     Given x, y, x0, y0, order in dispersed image returns x, y, wave, order
     in effective direct
 - tag_uri: "tag:stsci.edu:jwst_pipeline/nircam_grism_dispersion-1.2.0"
@@ -21,7 +21,7 @@ tags:
   description: |-
     Supports two models:
     Given x, y, wave, order in effective direct image returns
-    x,y,wave,order in dispersed
+    x, y, wave, order in dispersed
     Given x, y, x0, y0, order in dispersed image returns x, y, wave, order
     in effective direct
 - tag_uri: "tag:stsci.edu:jwst_pipeline/niriss_grism_dispersion-1.2.0"
