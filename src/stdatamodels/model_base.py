@@ -276,6 +276,7 @@ class DataModel(properties.ObjectNode):
 
         if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
             warnings.warn(
+                "Unrecognized keyword arguments passed to DataModel.__init__. "
                 "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
                 "but keyword arguments were also passed, which are assumed to be attempting to "
                 "initialize arrays. This behavior is deprecated and will raise an error "

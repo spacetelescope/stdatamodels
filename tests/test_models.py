@@ -421,5 +421,5 @@ def test_open_from_file_with_kwargs_deprecation(tmp_path):
     m = DataModel()
     m.save(fn)
 
-    with pytest.warns(DeprecationWarning, match="DataModel init is file-like"):
+    with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
         DataModel(fn, data=np.ones((10, 10)))
