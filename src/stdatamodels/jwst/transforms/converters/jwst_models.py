@@ -130,8 +130,9 @@ class MIRIWFSSDispersionConverter(TransformConverterBase):
     tags = ["tag:stsci.edu:jwst_pipeline/miri_wfss_dispersion-*"]
 
     types = [
-        "stdatamodels.jwst.transforms.models.MIRIWFSSBackwardDispersion",
         "stdatamodels.jwst.transforms.models.MIRIWFSSForwardDispersion",
+        "stdatamodels.jwst.transforms.models.MIRIWFSSBackwardDispersion",
+
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
