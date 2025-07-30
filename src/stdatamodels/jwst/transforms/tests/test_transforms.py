@@ -716,3 +716,19 @@ def test_dircos2unitless_roundtrip():
     tr = models.Unitless2DirCos()
     x, y = np.sqrt(2)/2, np.sqrt(2)/2
     assert_allclose(tr.inverse(*tr(x, y)), (x, y))
+
+
+def test_rotation3d_deprecated():
+    """
+    Test Rotation3D transform model deprecation.
+    """
+    with pytest.warns(DeprecationWarning, match="Rotation3D is deprecated"):
+        models.Rotation3D(angles=(0, 0, 0), axes_order="xyz")
+
+
+def test_v23tosky_deprecated():
+    """
+    Test V2V3ToSky transform model deprecation.
+    """
+    with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"):
+        models.V23ToSky(angles=(0, 0, 0), axes_order="xyz")
