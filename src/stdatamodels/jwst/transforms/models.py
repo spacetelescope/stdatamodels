@@ -2129,7 +2129,7 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, 10)  # sample t
+        t = np.linspace(0, 1, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         lmodel = self.lmodels[iorder]
         dx = xmodel(t)
