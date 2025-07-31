@@ -71,3 +71,6 @@ allOf:
     required: [dispy]
   - type: object
     required: [invdispl]
+  - type: integer
+    required: [order]
+  
