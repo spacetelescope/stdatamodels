@@ -72,5 +72,5 @@ allOf:
   - type: object
     required: [invdispl]
   - type: integer
-    required: [order]
+    required: [orders]
   
