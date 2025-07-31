@@ -692,7 +692,7 @@ def test_miri_wfss_roundtrip():
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
-@pytest.mark.parametrize("instrument", ["nircam", "niriss"])
+@pytest.mark.parametrize("instrument", ["nircam", "niriss","miri"])
 def test_grism_error_raises(direction, instrument):
     if instrument == "nircam" and direction == "row":
         ForwardModel = models.NIRCAMForwardRowGrismDispersion
@@ -706,8 +706,13 @@ def test_grism_error_raises(direction, instrument):
         BackwardModel = models.NIRCAMBackwardGrismDispersion
     elif instrument == "niriss":
         BackwardModel = models.NIRISSBackwardGrismDispersion
+    elif instrument == "miri":
+        ForwardModel = models.MIRIWFSSForwardDispersion
+        BackwardModel = models.MIRIWFSSBackwardDispersion
 
     orders = np.array([1, 2])
+    if instrument == "miri":
+        orders = np.array([1])
     x0 = 150
     y0 = 140
     wl = 2.0
