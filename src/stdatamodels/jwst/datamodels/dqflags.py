@@ -16,8 +16,9 @@ the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
 
 # These imports are here for backwards compatibility
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
-from stdatamodels.dqflags import interpret_bit_flags, dqflags_to_mnemonics
+
 from stdatamodels.basic_utils import multiple_replace
+from stdatamodels.dqflags import dqflags_to_mnemonics, interpret_bit_flags
 
 # Pixel-specific flags
 pixel = {

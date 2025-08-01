@@ -5,7 +5,6 @@ Test duplicated schema information is in sync.
 import asdf
 import pytest
 
-
 comparisons = {
     "band": {
         "keyword": ("keyword_band.schema", "meta.instrument.band"),

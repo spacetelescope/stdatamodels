@@ -3,7 +3,6 @@ import asdf
 import stdatamodels.jwst.datamodels as dm
 import stdatamodels.schema
 
-
 __all__ = ["load"]
 
 

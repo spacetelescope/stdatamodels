@@ -2,27 +2,24 @@
 import warnings
 from pathlib import Path
 
+import asdf
 import numpy as np
-
-from astropy.modeling.models import Shift, Rotation2D, Const1D
-
+import pytest
 from asdf_astropy.testing.helpers import assert_model_roundtrip
+from astropy.modeling.models import Const1D, Rotation2D, Shift
 
 from stdatamodels.jwst.transforms.models import (
-    NirissSOSSModel,
-    Rotation3DToGWA,
+    AngleFromGratingEquation,
+    DirCos2Unitless,
     Gwa2Slit,
     Logical,
+    NirissSOSSModel,
+    Rotation3DToGWA,
     Slit,
-    DirCos2Unitless,
-    Unitless2DirCos,
     Snell,
-    AngleFromGratingEquation,
+    Unitless2DirCos,
     WavelengthFromGratingEquation,
 )
-import asdf
-import pytest
-
 
 m1 = Shift(1) & Shift(2) | Rotation2D(3.1)
 m2 = Shift(2) & Shift(2) | Rotation2D(23.1)

@@ -2,32 +2,25 @@
 
 import copy
 import datetime
+import functools
 import os
-from pathlib import Path, PurePath
 import sys
 import warnings
-import functools
+from pathlib import Path, PurePath
 
+import asdf
 import numpy as np
-
+from asdf import AsdfFile
+from asdf import schema as asdf_schema
+from asdf.tags.core import NDArrayType
 from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
 
-import asdf
-from asdf.tags.core import NDArrayType
-from asdf import AsdfFile
-from asdf import schema as asdf_schema
-
-from . import filetype
-from . import fits_support
-from . import properties
+from . import filetype, fits_support, properties, validate
 from . import schema as mschema
-from . import validate
-from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
-
 from .history import HistoryList
-
+from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
 # are accessed to be available by the core DataModel code.

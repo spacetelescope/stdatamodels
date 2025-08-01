@@ -1,17 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
-import numpy as np
+import logging
 from collections.abc import Mapping
+
+import numpy as np
+from asdf.tags.core import ndarray
 from astropy.io import fits
 
-from asdf.tags.core import ndarray
-
-from . import util
-from . import validate
 from . import schema as mschema
-
-import logging
+from . import util, validate
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

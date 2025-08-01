@@ -2,7 +2,6 @@ from pathlib import Path
 
 from .model_base import JwstDataModel
 
-
 __all__ = ["AsnModel"]
 
 

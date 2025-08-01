@@ -3,10 +3,9 @@ from copy import deepcopy
 from asdf import schema as asdf_schema
 from asdf import treeutil
 
-from .model_base import JwstDataModel
 from .image import ImageModel
-from .slit import SlitModel, SlitDataModel
-
+from .model_base import JwstDataModel
+from .slit import SlitDataModel, SlitModel
 
 __all__ = ["MultiExposureModel", "set_hdu", "remove_fits"]
 

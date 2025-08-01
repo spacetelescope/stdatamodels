@@ -1,9 +1,9 @@
-import asdf
-from astropy.io import fits
 import warnings
 
-from . import fits_support
+import asdf
+from astropy.io import fits
 
+from . import fits_support
 
 __all__ = ["write", "open"]
 

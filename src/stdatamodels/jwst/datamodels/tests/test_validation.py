@@ -1,7 +1,8 @@
-from astropy import time
 from datetime import datetime
-from asdf.exceptions import ValidationError
+
 import pytest
+from asdf.exceptions import ValidationError
+from astropy import time
 
 from stdatamodels.jwst.datamodels import JwstDataModel
 
