@@ -5,8 +5,8 @@ separately test _get_subclasses
 
 import pytest
 
-from stdatamodels.jwst.datamodels import DarkModel, JwstDataModel, ReferenceFileModel
 from stdatamodels.jwst._kwtool import dmd
+from stdatamodels.jwst.datamodels import DarkModel, JwstDataModel, ReferenceFileModel
 
 
 def test_get_subclasses():

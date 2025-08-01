@@ -1,36 +1,35 @@
 import warnings
 from pathlib import Path
 
+import numpy as np
+import pytest
 from asdf.exceptions import ValidationError
 from asdf.schema import load_schema
 from astropy.io import fits
 from astropy.table import Table
 from astropy.time import Time
-from numpy.lib.recfunctions import merge_arrays
+from numpy.lib.recfunctions import drop_fields, merge_arrays
 from numpy.testing import assert_allclose, assert_array_equal
-import numpy as np
-from numpy.lib.recfunctions import drop_fields
-import pytest
 
+from stdatamodels.exceptions import ValidationWarning
+from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import (
-    JwstDataModel,
-    ImageModel,
-    MaskModel,
+    ABVegaOffsetModel,
     AsnModel,
+    CubeModel,
+    IFUImageModel,
+    ImageModel,
+    JwstDataModel,
+    Level1bModel,
+    MaskModel,
     MultiSlitModel,
-    SlitModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
     SlitDataModel,
-    IFUImageModel,
-    ABVegaOffsetModel,
-    Level1bModel,
-    CubeModel,
+    SlitModel,
 )
-from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
-from stdatamodels.exceptions import ValidationWarning
 
 ROOT_DIR = Path(__file__).parent / "data"
 FITS_FILE = ROOT_DIR / "test.fits"
@@ -145,7 +144,8 @@ def test_image_with_extra_keyword_to_multislit(tmp_path):
 @pytest.fixture
 def datamodel_for_update(tmp_path):
     """Provide ImageModel with one keyword each defined in PRIMARY and SCI
-    extensions from the schema, and one each not in the schema"""
+    extensions from the schema, and one each not in the schema
+    """
     path = tmp_path / "old.fits"
     with ImageModel((5, 5)) as im:
         # Add schema keywords, one to each extension

@@ -674,7 +674,6 @@ def test_grism_error_raises(direction, instrument):
 
 def test_error_raises_bad_transforms():
     """Test error raises for unsupported transform types."""
-
     x0 = 150
     y0 = 140
     t = 0.5

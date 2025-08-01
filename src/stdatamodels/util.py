@@ -3,11 +3,11 @@
 import copy
 import os
 
-import numpy as np
-from numpy.lib.recfunctions import merge_arrays
-from astropy.io import fits
 import asdf
+import numpy as np
 from asdf import treeutil
+from astropy.io import fits
+from numpy.lib.recfunctions import merge_arrays
 
 try:
     from asdf.treeutil import RemoveNode
@@ -221,8 +221,9 @@ def create_history_entry(description, software=None):
                 'homepage': 'https://github.com/spacetelescope/jwreftools', 'version': "0.7"}
     >>> entry = create_history_entry(description="HISTORY of this file", software=soft)
     """
-    from asdf.tags.core import Software, HistoryEntry
     import datetime
+
+    from asdf.tags.core import HistoryEntry, Software
 
     if isinstance(software, list):
         software = [Software(x) for x in software]

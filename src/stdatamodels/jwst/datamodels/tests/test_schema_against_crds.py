@@ -1,14 +1,14 @@
-import os
 import logging
-from collections.abc import Iterable
+import os
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
 
 import asdf
 import pytest
 
-from stdatamodels.jwst import datamodels as dm
 from stdatamodels.exceptions import NoTypeWarning
+from stdatamodels.jwst import datamodels as dm
 
 os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 
@@ -17,7 +17,6 @@ os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 import crds  # noqa: E402
 from crds.client.api import cache_references, dump_files  # noqa: E402
 from crds.core.exceptions import IrrelevantReferenceTypeError  # noqa: E402
-
 
 log = logging.getLogger(__name__)
 
