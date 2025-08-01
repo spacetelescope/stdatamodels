@@ -138,6 +138,7 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments are expected to be array-like attributes of
             the data model. These will be initialized with the given values only if they
             are defined in the schema and the schema expects an array-like value.
+            Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
             Example usage:
             >>> model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))  # doctest: +SKIP
         """
