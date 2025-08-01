@@ -645,12 +645,12 @@ def test_miri_wfss_roundtrip():
     """
     Do a forward wfss transform for MIRI  then inverse, and check that the output is the same as the input.
     """
-    # Create mock polynomial models for the grism dispersion
+    # Create mock polynomial models for the dispersion
     # These coefficients are taken from a real reference file.
     mock_l = Polynomial1D(degree=1, c0=3.125, c1=10.893)
     mock_invl = Polynomial1D(degree=1, c0=-0.28688148, c1=0.09180207)
     mock_x =  Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
-    # mock y models here paramtrize a slightly curved trace
+    # mock y models here parametrize a slightly curved trace
     # causing enough of a shift in the x and y coordinates
     # to ensure that the forward and backward models are not just
     # identity models.
@@ -661,7 +661,7 @@ def test_miri_wfss_roundtrip():
     orders = np.array([1])
     lmodels = [mock_l] * len(orders)
     xmodels = [mock_x,] * len(orders)
-    invlmodels = [mock_invl] * len(orders)
+    inv_lmodels = [mock_invl] * len(orders)
     ymodels = [ymodel] * len(orders)
 
     # single x0, y0, wl
@@ -679,7 +679,7 @@ def test_miri_wfss_roundtrip():
 
     backward = models.MIRIWFSSBackwardDispersion(
         orders,
-        lmodels=invlmodels,
+        inv_lmodels=inv_lmodels,
         xmodels=xmodels,
         ymodels=ymodels,
     )
@@ -692,12 +692,12 @@ def test_miri_wfss_roundtrip():
     np.testing.assert_allclose(ordersi, orders)    
 
 
-def test_miriwfss_backward_grism_dispersion_single():
-    """Smoke test to ensure works on single-valued inputs as well."""
-    lmodels = []
+def test_miriwfss_backward_dispersion_single():
+    """ Test the input source location in BackwardDispersion = output x, y values """
+    inv_lmodels = []
     l0 = 3.125
     l1 = 10.893
-    lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
+    inv_lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
     
     orders = np.array([1])
     xmodels = [Identity(1)] * len(orders)
@@ -716,26 +716,24 @@ def test_miriwfss_backward_grism_dispersion_single():
                                c0_1 =y3, c1_1=y4, c0_2=y5)
     ymodels.append((cpoly_0, cpoly_1, cpoly_2))
     
-    
-
     # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
     wl = np.linspace(5.5e-6, 6.5e-6, 21)  # 
-    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
+    model = models.MIRIWFSSBackwardDispersion(orders, inv_lmodels, xmodels, ymodels)
 
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == wl.size
     assert yi.size == wl.size
     assert x == x0
     assert y == y0
-    assert_allclose(order, orders[0])
+    assert order ==1
 
     # many x0, y0, single wavelength
     x0 = np.linspace(100, 200, 11)
     y0 = np.linspace(90, 190, 11)
     wl = 6e-6  # 2 microns
-    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
+    model = models.MIRIWFSSBackwardDispersion(orders, inv_lmodels, xmodels, ymodels)
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == x0.size
     assert yi.size == y0.size

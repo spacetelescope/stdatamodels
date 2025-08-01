@@ -1994,7 +1994,7 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
 class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
     """Calculate the dispersion extent of MIRI WFSS pixels."""
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, inv_lmodels=None, xmodels=None, ymodels=None, name=None):
         """
         Initialize the model.
 
@@ -2002,12 +2002,13 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         ----------
         orders : list
             The list of orders which are available to the model. For MIRIWFSS orders = 1.
-        lmodels : list
-            The list of models for the polynomial model in t (inverse dispersion)
+        inv_lmodels : list
+            The list inverse dispersion 1D polynomial models
         xmodels : list
-            The list of models for the polynomial model in x
+            The list of 1D polynomial model in x.
         ymodels : list[tuple]
-            The list of tuple(models) for the polynomial model in y
+            The list of 2D polynomial models in y.
+            There are 3 2D polynomials to correct for  spatial-dependence.
         name : str, optional
             Name of the model
         """
@@ -2015,7 +2016,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             name = "miri_wfss_backward_dispersion"
         super().__init__(
             orders,
-            lmodels=lmodels,
+            inv_lmodels=inv_lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
             name=name,
@@ -2053,9 +2054,9 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             iorder = self._order_mapping[int(order.flatten()[0])]
         except KeyError as err:
             raise ValueError("Specified order is not available") from err
-        # t is trace normalization parameters (it was values of 0 to 1)
+        # t is trace normalization parameters (it has values of 0 to 1)
 
-        t = self.lmodels[iorder](wavelength)
+        t = self.inv_lmodels[iorder](wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         dx = xmodel(t)
@@ -2080,11 +2081,11 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         orders : list
             The list of orders which are available to the model
         lmodels : list
-            The list of models for the polynomial model in l
+            The list of 1D dispersion models.
         xmodels : list[tuples]
-            The list of tuple(models) for the polynomial model in x
+            The list of  1D polynomial model in x
         ymodels : list[tuples]
-            The list of tuple(models) for the polynomial model in y
+            The list of 2D  the polynomial model in y
             Name of the model
         """
         if name is None:
@@ -2100,6 +2101,8 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     def evaluate(self, x, y, x0, y0, order):
         """
         Transform from the dispersed plane into the direct image plane.
+
+        Only the xmodel and lmodels are used.
 
         Parameters
         ----------
