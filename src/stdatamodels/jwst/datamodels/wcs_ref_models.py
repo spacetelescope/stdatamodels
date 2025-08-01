@@ -527,6 +527,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             assert self.meta.exposure.type == "MIR_WFSS"
             assert self.meta.instrument.detector == "MIRIMAGE"
             assert self.meta.reftype == self.reftype
+            assert len(self.orders) == 1
         except AssertionError:
             if self._strict_validation:
                 raise
