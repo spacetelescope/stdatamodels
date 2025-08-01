@@ -1994,7 +1994,7 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
 class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
     """Calculate the dispersion extent of MIRI WFSS pixels."""
 
-    def __init__(self, orders, inv_lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
         """
         Initialize the model.
 
@@ -2002,7 +2002,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         ----------
         orders : list
             The list of orders which are available to the model. For MIRIWFSS orders = 1.
-        inv_lmodels : list
+        lmodels : list
             The list inverse dispersion 1D polynomial models
         xmodels : list
             The list of 1D polynomial model in x.
@@ -2016,7 +2016,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             name = "miri_wfss_backward_dispersion"
         super().__init__(
             orders,
-            inv_lmodels=inv_lmodels,
+            lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
             name=name,
@@ -2056,7 +2056,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             raise ValueError("Specified order is not available") from err
         # t is trace normalization parameters (it has values of 0 to 1)
 
-        t = self.inv_lmodels[iorder](wavelength)
+        t = self.lmodels[iorder](wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         dx = xmodel(t)
