@@ -1,12 +1,11 @@
 import gc
 
 import asdf
-import pytest
 import numpy as np
+import pytest
+from models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 from stdatamodels import DataModel
-
-from models import BasicModel, AnyOfModel, TableModel, TableModelBad, TransformModel, FitsModel
 from stdatamodels.exceptions import ValidationWarning
 
 

@@ -2,33 +2,32 @@
 Test datamodel.open
 """
 
-import os
 import io
-from pathlib import Path, PurePath
+import os
 import warnings
-
-import pytest
-import numpy as np
-from astropy.io import fits
-from stdatamodels import DataModel
-from stdatamodels.validate import ValidationError
-
-from stdatamodels.jwst.datamodels import (
-    JwstDataModel,
-    ImageModel,
-    IFUImageModel,
-    RampModel,
-    CubeModel,
-    ReferenceFileModel,
-    ReferenceImageModel,
-    ReferenceCubeModel,
-    ReferenceQuadModel,
-    SlitModel
-)
-from stdatamodels.jwst import datamodels
-from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
+from pathlib import Path, PurePath
 
 import asdf
+import numpy as np
+import pytest
+from astropy.io import fits
+
+from stdatamodels import DataModel
+from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
+from stdatamodels.jwst import datamodels
+from stdatamodels.jwst.datamodels import (
+    CubeModel,
+    IFUImageModel,
+    ImageModel,
+    JwstDataModel,
+    RampModel,
+    ReferenceCubeModel,
+    ReferenceFileModel,
+    ReferenceImageModel,
+    ReferenceQuadModel,
+    SlitModel,
+)
+from stdatamodels.validate import ValidationError
 
 
 @pytest.mark.parametrize("guess", [True, False])
@@ -63,7 +62,7 @@ def test_open_from_pathlib():
 def test_open_from_buffer():
     """
     Test opening a model from buffer.
-    
+
     Should raise a TypeError in datamodel __init__
     """
     buff = io.BytesIO()
@@ -80,7 +79,7 @@ def test_open_from_buffer():
 def test_open_from_bytes():
     """
     Test opening a model from bytes.
-    
+
     Should raise ValueError: Unrecognized file type since the bytes do not represent a file path.
     """
     fits_file = t_path("test.fits")
@@ -310,7 +309,7 @@ def test_open_does_not_clear_wht(InitClass):
 @pytest.mark.parametrize("InitClass", [IFUImageModel, ImageModel])
 def test_open_does_not_clear_zeroframe(InitClass):
     """Cover a bug where the open function cleared the zeroframe attribute in IFUImageModel."""
-    m0 = InitClass((10,10))
+    m0 = InitClass((10, 10))
     m0.zeroframe = np.ones((10, 10))
 
     m1 = datamodels.open(m0)
