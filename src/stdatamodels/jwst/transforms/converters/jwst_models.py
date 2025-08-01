@@ -15,6 +15,7 @@ __all__ = [
     "NIRISSGrismDispersionConverter",
     "Rotation3DToGWAConverter",
     "GratingEquationConverter",
+    "V23ToSkyConverter",
     "SnellConverter",
     "CoordsConverter",
     "Rotation3DToGWAConverter",
@@ -315,6 +316,24 @@ class GratingEquationConverter(TransformConverterBase):
             node["output"] = "wavelength"
         else:
             raise TypeError(f"Can't serialize an instance of {model.__class__.__name__}")
+        return node
+
+
+class V23ToSkyConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/v23tosky-*"]
+
+    types = ["stdatamodels.jwst.transforms.models.V23ToSky"]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        from stdatamodels.jwst.transforms.models import V23ToSky
+
+        angles = node["angles"]
+        axes_order = node["axes_order"]
+        return V23ToSky(angles, axes_order=axes_order)
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        node = {"angles": list(model.angles.value)}
+        node["axes_order"] = model.axes_order
         return node
 
 
