@@ -2427,6 +2427,12 @@ class Rotation3D(Model):
         name : str, optional
             The name of the transform
         """
+        warnings.warn(
+            "Rotation3D is deprecated and will be removed in a future version. "
+            "Use astropy.modeling.models.RotationSequence3D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.axes = ["x", "y", "z"]
         unrecognized = set(axes_order).difference(self.axes)
         if unrecognized:
@@ -2558,7 +2564,17 @@ class V23ToSky(Rotation3D):
         name : str, optional
             The name of the transform
         """
-        super(V23ToSky, self).__init__(angles, axes_order=axes_order, name=name)
+        warnings.warn(
+            "V23ToSky is deprecated and will be removed in a future version. "
+            "Use astropy.modeling.models.RotationSequence3D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=DeprecationWarning, message="Rotation3D is deprecated"
+            )
+            super(V23ToSky, self).__init__(angles, axes_order=axes_order, name=name)
         self._inputs = ("v2", "v3")
         """ ("v2", "v3"): Coordinates in the (V2, V3) telescope frame."""
         self._outputs = ("ra", "dec")
