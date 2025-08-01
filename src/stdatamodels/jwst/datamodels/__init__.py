@@ -110,6 +110,7 @@ from .wcs_ref_models import (
     NIRCAMGrismModel,
     NIRISSGrismModel,
     MiriLRSSpecwcsModel,
+    MiriWFSSSpecwcsModel,
     WaveCorrModel,
 )
 from .util import open, read_metadata  # noqa: A004
@@ -178,6 +179,7 @@ __all__ = [
     "LinearityModel",
     "MaskModel",
     "MiriLRSSpecwcsModel",
+    "MiriWFSSSpecwcsModel",
     "MSAModel",
     "MultiCombinedSpecModel",
     "MultiExposureModel",
