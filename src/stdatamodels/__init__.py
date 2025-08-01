@@ -1,8 +1,7 @@
 """Data models for JWST."""
 
-from .model_base import DataModel
 from . import _version
-
+from .model_base import DataModel
 
 __all__ = ["DataModel", "__version__"]
 

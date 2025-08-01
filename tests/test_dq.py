@@ -1,5 +1,6 @@
 import pytest
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
+
 from stdatamodels import dqflags
 from stdatamodels.jwst.datamodels.dqflags import pixel
 

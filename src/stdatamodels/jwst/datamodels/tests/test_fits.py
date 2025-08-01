@@ -1,11 +1,11 @@
+import numpy as np
+import pytest
 from asdf import schema as mschema
 from astropy.io import fits
 from numpy.testing import assert_array_equal
-import numpy as np
-import pytest
 
 from stdatamodels.jwst import datamodels
-from stdatamodels.jwst.datamodels import ImageModel, JwstDataModel, RampModel, SpecModel, FlatModel
+from stdatamodels.jwst.datamodels import FlatModel, ImageModel, JwstDataModel, RampModel, SpecModel
 
 
 @pytest.fixture
@@ -108,7 +108,8 @@ def test_units_roundtrip(tmp_path):
 def test_flatmodel_dqdef_roundtrip(tmp_path):
     """Covers an old bug where this roundtrip would fail due to
     a mix-up between signed and unsigned integer data types, leading to flag values
-    like 2147483649 instead of 0"""
+    like 2147483649 instead of 0
+    """
     flatdata = [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
     flatflags = [
         (0, 1, "DO_NOT_USE", "Bad pixel. Do not use."),

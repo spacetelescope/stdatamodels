@@ -2,8 +2,8 @@
 
 import importlib.resources
 
-
 from asdf.resource import DirectoryResourceMapping
+
 from stdatamodels.jwst import transforms
 
 

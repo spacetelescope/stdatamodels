@@ -2,7 +2,8 @@
 
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
-from ....properties import ListNode
+
+from stdatamodels.properties import ListNode
 
 __all__ = [
     "Gwa2SlitConverter",
@@ -288,8 +289,8 @@ class GratingEquationConverter(TransformConverterBase):
 
     def from_yaml_tree_transform(self, node, tag, ctx):
         from stdatamodels.jwst.transforms.models import (
-            WavelengthFromGratingEquation,
             AngleFromGratingEquation,
+            WavelengthFromGratingEquation,
         )
 
         groove_density = node["groove_density"]
@@ -305,8 +306,8 @@ class GratingEquationConverter(TransformConverterBase):
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         from stdatamodels.jwst.transforms.models import (
-            WavelengthFromGratingEquation,
             AngleFromGratingEquation,
+            WavelengthFromGratingEquation,
         )
 
         node = {"order": model.order.value, "groove_density": model.groove_density.value}
@@ -379,7 +380,7 @@ class CoordsConverter(TransformConverterBase):
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Unitless2DirCos, DirCos2Unitless
+        from stdatamodels.jwst.transforms.models import DirCos2Unitless, Unitless2DirCos
 
         model_type = node["model_type"]
         if model_type in ("to_dircos", "unitless2directional"):
@@ -390,7 +391,7 @@ class CoordsConverter(TransformConverterBase):
             raise TypeError("Unknown model_type")
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Unitless2DirCos, DirCos2Unitless
+        from stdatamodels.jwst.transforms.models import DirCos2Unitless, Unitless2DirCos
 
         if isinstance(model, DirCos2Unitless):
             model_type = "directional2unitless"

@@ -1,9 +1,7 @@
 import io
-import json
 
-import pytest
 import asdf
-from astropy.io import fits
+import pytest
 
 from stdatamodels.filetype import check
 

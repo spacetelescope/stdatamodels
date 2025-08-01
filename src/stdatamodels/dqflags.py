@@ -7,9 +7,10 @@ If a given bit is set, the flag assigned to that bit is interpreted as being set
 """
 
 import warnings
-from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
-from stdatamodels.basic_utils import multiple_replace
 
+from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
+
+from stdatamodels.basic_utils import multiple_replace
 
 __all__ = ["interpret_bit_flags", "dqflags_to_mnemonics"]
 

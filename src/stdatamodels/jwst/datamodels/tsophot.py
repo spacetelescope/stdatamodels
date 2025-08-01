@@ -1,11 +1,10 @@
-import warnings
 import sys
 import traceback
+import warnings
 
 from stdatamodels.exceptions import ValidationWarning
 
 from .reference import ReferenceFileModel
-
 
 __all__ = ["TsoPhotModel"]
 

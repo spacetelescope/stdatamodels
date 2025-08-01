@@ -1,12 +1,11 @@
-from datetime import datetime, timedelta, UTC
-
-import pytest
+from datetime import UTC, datetime, timedelta
 
 import asdf
-from astropy.io import fits
 import numpy as np
+import pytest
+from asdf.tags.core import HistoryEntry, Software
+from astropy.io import fits
 from numpy.testing import assert_array_equal
-from asdf.tags.core import Software, HistoryEntry
 
 from stdatamodels import util
 

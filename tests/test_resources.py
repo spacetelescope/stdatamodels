@@ -2,12 +2,11 @@
 
 import gc
 
-import pytest
 import numpy as np
-from numpy.testing import assert_array_almost_equal
 import psutil
-
+import pytest
 from models import FitsModel
+from numpy.testing import assert_array_almost_equal
 
 
 @pytest.mark.parametrize("extension", ["asdf", "fits"])
@@ -149,7 +148,8 @@ def test_multiple_close(extension, tmp_path):
 @pytest.mark.parametrize("extension", ["asdf", "fits"])
 def test_delete(extension, tmp_path):
     """Deleting the model should also not close files
-    until the last model has been deleted."""
+    until the last model has been deleted.
+    """
     original_path = tmp_path / f"original.{extension}"
     new_path = tmp_path / f"new.{extension}"
 

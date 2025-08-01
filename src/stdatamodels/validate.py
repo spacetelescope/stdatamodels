@@ -1,17 +1,18 @@
 """Functions that support validation of model changes."""
 
 import warnings
+
+import numpy as np
 from asdf import schema as asdf_schema
 from asdf import yamlutil
 from asdf.exceptions import ValidationError
-from asdf.tags.core import ndarray
 from asdf.schema import YAML_VALIDATORS
+from asdf.tags.core import ndarray
 from asdf.util import HashableDict
-import numpy as np
 
-from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
 from stdatamodels.exceptions import ValidationWarning
 
+from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
 
 # always show validation warnings unless another filter was added that
 # matches these warnings (by passing append=True)

@@ -1,6 +1,5 @@
 from .model_base import JwstDataModel
 
-
 __all__ = ["ContrastModel"]
 
 

@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["StrayLightModel"]
 
 

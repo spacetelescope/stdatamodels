@@ -1,21 +1,20 @@
 """Various utility functions and data types."""
 
-from collections.abc import Sequence
-import warnings
-from pathlib import Path
-import logging
-from asdf.tagged import TaggedString
-
 import io
+import logging
+import warnings
+from collections.abc import Sequence
+from pathlib import Path
+
 import asdf
-
 import numpy as np
+from asdf.tagged import TaggedString
 from astropy.io import fits
-from stdatamodels import filetype, fits_support
-from stdatamodels.model_base import _FileReference
-from stdatamodels.exceptions import NoTypeWarning
-import stdatamodels.jwst.datamodels as dm
 
+import stdatamodels.jwst.datamodels as dm
+from stdatamodels import filetype, fits_support
+from stdatamodels.exceptions import NoTypeWarning
+from stdatamodels.model_base import _FileReference
 
 __all__ = ["open", "is_association"]
 

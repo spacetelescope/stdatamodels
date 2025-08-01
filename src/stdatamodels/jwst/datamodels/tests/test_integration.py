@@ -4,9 +4,8 @@ import asdf
 import pytest
 import yaml
 
-from stdatamodels.jwst.datamodels import JwstDataModel
 import stdatamodels.schema
-
+from stdatamodels.jwst.datamodels import JwstDataModel
 
 DATAMODEL_SCHEMAS = list(
     importlib.resources.files("stdatamodels.jwst.datamodels.schemas").glob("*.yaml")
@@ -84,7 +83,6 @@ def test_schema_refs_base(datamodel_schema_file):
         - http://stsci.edu/schemas/jwst_datamodel/referencefile.schema (for reference files)
     But not both
     """
-
     # these schemas don't reference either core.schema or referencefile.schema
     if datamodel_schema_file in [
         "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema",
