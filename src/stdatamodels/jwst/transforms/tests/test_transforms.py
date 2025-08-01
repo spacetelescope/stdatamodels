@@ -679,7 +679,7 @@ def test_miri_wfss_roundtrip():
 
     backward = models.MIRIWFSSBackwardDispersion(
         orders,
-        inv_lmodels=inv_lmodels,
+        lmodels=inv_lmodels,
         xmodels=xmodels,
         ymodels=ymodels,
     )
@@ -694,10 +694,10 @@ def test_miri_wfss_roundtrip():
 
 def test_miriwfss_backward_dispersion_single():
     """ Test the input source location in BackwardDispersion = output x, y values """
-    inv_lmodels = []
+    lmodels = []
     l0 = 3.125
     l1 = 10.893
-    inv_lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
+    lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
     
     orders = np.array([1])
     xmodels = [Identity(1)] * len(orders)
@@ -720,7 +720,7 @@ def test_miriwfss_backward_dispersion_single():
     x0 = 150
     y0 = 140
     wl = np.linspace(5.5e-6, 6.5e-6, 21)  # 
-    model = models.MIRIWFSSBackwardDispersion(orders, inv_lmodels, xmodels, ymodels)
+    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
 
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == wl.size
@@ -733,7 +733,7 @@ def test_miriwfss_backward_dispersion_single():
     x0 = np.linspace(100, 200, 11)
     y0 = np.linspace(90, 190, 11)
     wl = 6e-6  # 2 microns
-    model = models.MIRIWFSSBackwardDispersion(orders, inv_lmodels, xmodels, ymodels)
+    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == x0.size
     assert yi.size == y0.size
