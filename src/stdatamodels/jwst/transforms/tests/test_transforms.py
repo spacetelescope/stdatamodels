@@ -715,7 +715,7 @@ def test_miriwfss_backward_dispersion_single():
     cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2,
                                c0_1 =y3, c1_1=y4, c0_2=y5)
     ymodels.append((cpoly_0, cpoly_1, cpoly_2))
-    
+
     # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
