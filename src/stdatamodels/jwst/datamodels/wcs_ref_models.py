@@ -525,7 +525,6 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             assert isinstance(self.meta.output_units, (str, u.NamedUnit))
             assert self.meta.instrument.name == "MIRI"
             assert self.meta.exposure.type == "MIR_WFSS"
-            assert self.meta.instrument.detector == "MIRIMAGE"
             assert self.meta.reftype == self.reftype
             assert len(self.orders) == 1
         except AssertionError:
