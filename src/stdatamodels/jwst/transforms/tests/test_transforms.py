@@ -691,7 +691,7 @@ def test_miri_wfss_roundtrip():
     assert ordersi == orders
 
 
-def test_miriwfss_backward_dispersion_single():
+def test_miriwfss_backward_dispersion_single(tmp_path):
     """Test the input source location in BackwardDispersion = output x, y values"""
     lmodels = []
     l0 = 3.125
@@ -699,7 +699,11 @@ def test_miriwfss_backward_dispersion_single():
     lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
 
     orders = np.array([1])
-    xmodels = [Identity(1)] * len(orders)
+    xmodels = []
+    x0 = 0.193314
+    x1 = -1.993914
+    xmodels.append(Polynomial1D(1, c0=x0, c1=x1))
+
     ymodels = []
     y0 = 8.850746809616503
     y1 = 0.00000003
@@ -733,6 +737,12 @@ def test_miriwfss_backward_dispersion_single():
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == x0.size
     assert yi.size == y0.size
+
+    # test roundtrip to file
+    tmp_file = tmp_path / "miri_wfss.asdf"
+    asdf.AsdfFile({"model": model}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].xmodels == xmodels
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
