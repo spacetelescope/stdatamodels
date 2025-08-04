@@ -2,9 +2,8 @@
 
 from pathlib import Path
 
-import pytest
-
 import asdf
+import pytest
 
 
 def pytest_addoption(parser):

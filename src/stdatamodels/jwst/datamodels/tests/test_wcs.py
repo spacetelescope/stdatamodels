@@ -2,11 +2,10 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-from numpy.testing import assert_array_almost_equal
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
-
 
 FITS_FILE = Path(__file__).parent / "data" / "sip.fits"
 

@@ -11,15 +11,15 @@ registered with ASDF through entry points.
 import math
 import warnings
 from collections import namedtuple
+from functools import partial
 
 import numpy as np
 from astropy.modeling.core import Model
-from astropy.modeling.parameters import Parameter, InputParameterError
-from astropy.modeling.models import Rotation2D, Mapping, Tabular1D, Const1D
+from astropy.modeling.models import Const1D, Mapping, Rotation2D, Tabular1D
 from astropy.modeling.models import math as astmath
-from ...properties import ListNode
-from functools import partial
+from astropy.modeling.parameters import InputParameterError, Parameter
 
+from stdatamodels.properties import ListNode
 
 __all__ = [
     "Gwa2Slit",

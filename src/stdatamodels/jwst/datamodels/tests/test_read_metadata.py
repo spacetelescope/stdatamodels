@@ -1,13 +1,14 @@
 """Test utilities for loading metadata without loading entire model."""
 
-import pytest
-import numpy as np
 from pathlib import Path
-from astropy.time import Time
-import stdatamodels.jwst.datamodels as dm
-from stdatamodels.jwst.datamodels.util import read_metadata, _to_flat_dict
-from astropy.io import fits
 
+import numpy as np
+import pytest
+from astropy.io import fits
+from astropy.time import Time
+
+import stdatamodels.jwst.datamodels as dm
+from stdatamodels.jwst.datamodels.util import _to_flat_dict, read_metadata
 
 IMAGEFILE_ROOT = "jwst_image."
 MULTISLITFILE_ROOT = "jwst_multislit."
@@ -18,7 +19,6 @@ INPUT_TIME = "2021-01-01 00:00:00.000"
 @pytest.fixture
 def recursive_tree():
     """Create a recursive tree to substitute for a WCS object"""
-
     w = {"inputs": "test"}
     w["outputs"] = w
     return w
@@ -177,7 +177,7 @@ def test_multislit_fits_update(multislit_path):
     with fits.open(multislit_path) as hdul:
         hdul[1].header["SLTNAME"] = new_slitname
         hdul.writeto(new_path)
-    
+
     # Load the metadata
     meta = read_metadata(new_path)
 
