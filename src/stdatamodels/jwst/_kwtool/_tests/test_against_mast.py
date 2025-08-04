@@ -1,11 +1,11 @@
-from pathlib import Path
 import json
 import os
 import sys
+from pathlib import Path
+from urllib.parse import quote as urlencode
 
 import pytest
 import requests
-from urllib.parse import quote as urlencode
 
 from stdatamodels.jwst._kwtool import cli
 

@@ -1,6 +1,5 @@
-from .model_base import JwstDataModel
 from .combinedspec import CombinedSpecModel
-
+from .model_base import JwstDataModel
 
 __all__ = ["MultiCombinedSpecModel", "WFSSMultiCombinedSpecModel"]
 

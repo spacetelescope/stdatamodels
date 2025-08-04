@@ -1,23 +1,22 @@
 from asdf.extension import ManifestExtension
 
 from .converters.jwst_models import (
+    CoordsConverter,
+    GratingEquationConverter,
     Gwa2SlitConverter,
-    Slit2MsaConverter,
     LogicalConverter,
-    NirissSOSSConverter,
-    RefractionIndexConverter,
     MIRI_AB2SliceConverter,
+    Msa2SlitConverter,
     NIRCAMGrismDispersionConverter,
     NIRISSGrismDispersionConverter,
-    GratingEquationConverter,
-    SnellConverter,
+    NirissSOSSConverter,
+    RefractionIndexConverter,
     Rotation3DToGWAConverter,
-    CoordsConverter,
-    V23ToSkyConverter,
-    Msa2SlitConverter,
     Slit2GwaConverter,
+    Slit2MsaConverter,
+    SnellConverter,
+    V23ToSkyConverter,
 )
-
 
 _CONVERTERS = [
     CoordsConverter(),

@@ -1,5 +1,5 @@
-from asdf import schema as mschema
 import numpy as np
+from asdf import schema as mschema
 from numpy.testing import assert_array_almost_equal
 
 from stdatamodels.jwst._kwtool import dmd
@@ -104,7 +104,7 @@ def test_ami_wcsinfo():
     ami_def = ami_schema["allOf"][1]["properties"]["meta"]["properties"]["guidestar"]["properties"]
     wcsinfo_def = wcsinfo_schema["properties"]["meta"]["properties"]["wcsinfo"]["properties"]
     for keyword in ("roll_ref", "v3yangle", "vparity"):
-        ami = ami_def["fgs_"+keyword]
+        ami = ami_def["fgs_" + keyword]
         wcsinfo = wcsinfo_def[keyword]
         for key in (set(ami.keys()) | set(wcsinfo.keys())) - {"fits_hdu"}:
             assert ami[key] == wcsinfo[key]

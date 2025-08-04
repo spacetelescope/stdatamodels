@@ -3,8 +3,7 @@ import re
 import stdatamodels.jwst.datamodels as dm
 from stdatamodels.schema import walk_schema
 
-from . import dmd
-from . import kwd
+from . import dmd, kwd
 
 
 class _MissingValue:

@@ -1,10 +1,9 @@
 import datetime
 
 import numpy as np
+from asdf.tags.core import HistoryEntry
 from astropy.io import fits
 from astropy.time import Time
-
-from asdf.tags.core import HistoryEntry
 
 from stdatamodels import DataModel
 

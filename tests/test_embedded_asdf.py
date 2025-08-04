@@ -1,14 +1,14 @@
-from io import BytesIO
 import sys
+from io import BytesIO
 
 import asdf
-from asdf.constants import ASDF_MAGIC
 import numpy as np
-from numpy.testing import assert_array_equal
-from astropy.io import fits
 import pytest
-
+from asdf.constants import ASDF_MAGIC
+from astropy.io import fits
 from models import FitsModel
+from numpy.testing import assert_array_equal
+
 from stdatamodels.fits_support import _NDARRAY_TAG
 
 

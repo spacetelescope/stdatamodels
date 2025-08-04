@@ -1,15 +1,13 @@
 import re
 
+import asdf.schema
+import numpy as np
 import pytest
 from astropy.io import fits
-import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_equal, assert_allclose
-import asdf.schema
-
-from stdatamodels import DataModel
-from stdatamodels import fits_support
-
 from models import FitsModel, PureFitsModel
+from numpy.testing import assert_allclose, assert_array_almost_equal, assert_array_equal
+
+from stdatamodels import DataModel, fits_support
 
 
 def records_equal(a, b):
@@ -100,7 +98,7 @@ def test_extra_fits(tmp_path):
 def test_asdf_extension_data_is_view(tmp_path):
     """
     Ensure that array-like data are not duplicated in the asdf extension.
-    
+
     The asdf extension should contain a view of the data, not the data itself.
     This should be the same for both schema-defined data and extra_fits data.
     """
@@ -114,18 +112,18 @@ def test_asdf_extension_data_is_view(tmp_path):
     extra_data = np.ones((100, 100), dtype=np.float32)
     hdul.append(fits.ImageHDU(data=extra_data, name="EXTRA"))
     hdul.writeto(file_path, overwrite=True)
-    
+
     # cycle through save/load to get the ASDF extension updated with extra fits
     with FitsModel(file_path) as dm:
         dm.save(file_path)
-    
+
     # check that the ASDF extension does NOT contain any of the large data arrays
     with fits.open(file_path) as hdul:
         asdf_bytes = hdul["ASDF"].data[0][0]
         asdf_bytesize = asdf_bytes.size * asdf_bytes.itemsize
         extra_bytesize = extra_data.size * extra_data.itemsize
         assert asdf_bytesize < extra_bytesize
-    
+
     # check that the ASDF extension contains a view of the extra_fits data
     with FitsModel(file_path) as dm2:
         assert_allclose(dm2._asdf.tree["extra_fits"]["EXTRA"]["data"], extra_data)
