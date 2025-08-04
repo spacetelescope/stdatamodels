@@ -193,12 +193,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
         return ModelContainer(init, **kwargs)
 
-    elif isinstance(init, (dict, asdf.AsdfFile)):
-        raise TypeError(
-            f"Unsupported type for init argument to open {type(init)}. "
-            "To initialize a datamodel from a model tree, use the DataModel constructor directly."
-        )
-
     else:
         raise TypeError(f"Unsupported type for init argument to open {type(init)}")
 
