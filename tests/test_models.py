@@ -408,3 +408,18 @@ def test_from_asdf_deprecation():
 def test_memmap_deprecation():
     with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
         DataModel(memmap=True)
+
+
+def test_open_from_file_with_kwargs_deprecation(tmp_path):
+    """
+    Test that combining init types is not allowed.
+    
+    Passing keyword arguments to the open method, which are assumed to initialize data arrays,
+    raises a deprecation warning if the input type is file-like.
+    """
+    fn = tmp_path / "test.asdf"
+    m = DataModel()
+    m.save(fn)
+
+    with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
+        DataModel(fn, data=np.ones((10, 10)))
