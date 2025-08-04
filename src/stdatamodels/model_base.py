@@ -138,6 +138,7 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments are expected to be array-like attributes of
             the data model. These will be initialized with the given values only if they
             are defined in the schema and the schema expects an array-like value.
+            Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
             Example usage:
             >>> model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))  # doctest: +SKIP
         """
@@ -273,6 +274,17 @@ class DataModel(properties.ObjectNode):
 
         # Initialize class dependent hidden fields
         self._no_asdf_extension = False
+
+        if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
+            warnings.warn(
+                "Unrecognized keyword arguments passed to DataModel.__init__. "
+                "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
+                "but keyword arguments were also passed, which are assumed to be attempting to "
+                "initialize arrays. This behavior is deprecated and will raise an error "
+                "in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         # Instantiate the primary array of the image
         if is_array:
