@@ -6,6 +6,7 @@ Test jwst.transforms
 import asdf
 import numpy as np
 import pytest
+from asdf_astropy.testing.helpers import assert_model_equal
 from astropy.modeling.models import Identity, Mapping, Polynomial1D, Polynomial2D
 from numpy.testing import assert_allclose
 
@@ -692,7 +693,7 @@ def test_miri_wfss_roundtrip():
 
 
 def test_miriwfss_backward_dispersion_single(tmp_path):
-    """Test the input source location in BackwardDispersion = output x, y values"""
+    """Test the input source location in BackwardDispersion = output x, y values & test converters"""
     lmodels = []
     l0 = 3.125
     l1 = 10.893
@@ -738,12 +739,14 @@ def test_miriwfss_backward_dispersion_single(tmp_path):
     assert xi.size == x0.size
     assert yi.size == y0.size
 
-    # test roundtrip to file
+    # test roundtrip to file- test specific values
     tmp_file = tmp_path / "miri_wfss.asdf"
     asdf.AsdfFile({"model": model}).write_to(tmp_file)
     with asdf.open(tmp_file) as af:
         assert af["model"].xmodels[0].c0 == xmodels[0].c0
         assert af["model"].xmodels[0].c1 == xmodels[0].c1
+        # now test the full model
+        assert_model_equal(model, af["model"])
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
