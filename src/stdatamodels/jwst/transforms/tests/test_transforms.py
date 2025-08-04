@@ -749,6 +749,46 @@ def test_miriwfss_backward_dispersion_single(tmp_path):
         assert_model_equal(model, af["model"])
 
 
+def test_miriwfss_forward_dispersion(tmp_path):
+    """Test test converters for forward"""
+    lmodels = []  # this is the inv_disp values
+    l0 = -0.28688148
+    l1 = 0.09180207
+    lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
+
+    orders = np.array([1])
+    xmodels = []
+    x0 = 0.193314
+    x1 = -1.993914
+    xmodels.append(Polynomial1D(1, c0=x0, c1=x1))
+
+    ymodels = []
+    y0 = 8.850746809616503
+    y1 = 0.00000003
+    y2 = 0.0
+    y3 = 0.00000018
+    y4 = 0.0
+    y5 = 0.0
+    cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    ymodels.append((cpoly_0, cpoly_1, cpoly_2))
+
+    x0 = 450
+    y0 = 450
+    x = 450
+    y = 450
+    model = models.MIRIWFSSForwardDispersion(orders, lmodels, xmodels, ymodels)
+    # test roundtrip to file- test specific values
+    tmp_file = tmp_path / "miri_wfss_forward.asdf"
+    asdf.AsdfFile({"model": model}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].xmodels[0].c0 == xmodels[0].c0
+        assert af["model"].xmodels[0].c1 == xmodels[0].c1
+        # now test the full model
+        assert_model_equal(model, af["model"])
+
+
 @pytest.mark.parametrize("direction", ["row", "column"])
 @pytest.mark.parametrize("instrument", ["nircam", "niriss", "miri"])
 def test_grism_error_raises(direction, instrument):

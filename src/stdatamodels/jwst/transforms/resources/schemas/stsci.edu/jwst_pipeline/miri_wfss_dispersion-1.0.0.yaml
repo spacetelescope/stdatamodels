@@ -8,7 +8,7 @@ description: |
   Supports one model:
    - Given x, y, wave, order in direct image return x,y,wave,order in dispersed
    - Given x, y, x0, y0, order in dispersed image returns x, y, wave, order in the direct image.
-anyOf:
+allOf:
   - $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
   - type: object
     properties:
@@ -42,7 +42,4 @@ anyOf:
         description: |
           The model class which should instantiate this data
         type: string
-        items:
-          minItems: 1
-          maxItems: 1
     required: [lmodels, xmodels, ymodels, orders]
