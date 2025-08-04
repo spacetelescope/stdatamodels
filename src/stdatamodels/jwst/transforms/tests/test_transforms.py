@@ -742,7 +742,8 @@ def test_miriwfss_backward_dispersion_single(tmp_path):
     tmp_file = tmp_path / "miri_wfss.asdf"
     asdf.AsdfFile({"model": model}).write_to(tmp_file)
     with asdf.open(tmp_file) as af:
-        assert af["model"].xmodels == xmodels
+        assert af["model"].xmodels[0].c0 == xmodels[0].c0
+        assert af["model"].xmodels[0].c1 == xmodels[0].c1
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
