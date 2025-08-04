@@ -1,0 +1,3 @@
+Deprecate V23ToSky transform. Use the function `jwst.assign_wcs.pointing.v23tosky` to construct an equivalent `CompoundModel` that relies only on models from `astropy.modeling`.
+Deprecate Rotation3D transform. Use `astropy.modeling.models.RotationSequence3D` instead.
+Deprecate the converters that allow datamodels relying on V23ToSky to be loaded from file (note that V23ToSky has been unused by the pipeline since pre-launch).

@@ -720,15 +720,6 @@ def test_error_raises_bad_transforms():
         )
 
 
-def test_v23tosky():
-    """
-    Test V2V3ToSky transform model.
-
-    This is currently unused by JWST - skip adding tests for now, as it may get removed.
-    """
-    pass
-
-
 def test_dircos2unitless_roundtrip():
     """
     Test DirCos2Unitless transform model.
@@ -736,3 +727,26 @@ def test_dircos2unitless_roundtrip():
     tr = models.Unitless2DirCos()
     x, y = np.sqrt(2) / 2, np.sqrt(2) / 2
     assert_allclose(tr.inverse(*tr(x, y)), (x, y))
+
+
+def test_rotation3d_deprecated():
+    """
+    Test Rotation3D transform model deprecation.
+    """
+    with pytest.warns(DeprecationWarning, match="Rotation3D is deprecated"):
+        models.Rotation3D(angles=(0, 0, 0), axes_order="xyz")
+
+
+def test_v23tosky_deprecated(tmp_path):
+    """
+    Test V2V3ToSky transform model deprecation, including deprecation warning
+    when attempting to open.
+    """
+    with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"):
+        model = models.V23ToSky(angles=(0, 0, 0), axes_order="xyz")
+
+    tmp_file = tmp_path / "v23tosky.asdf"
+    asdf.AsdfFile({"model": model}).write_to(tmp_file)
+
+    with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"):
+        asdf.open(tmp_file)
