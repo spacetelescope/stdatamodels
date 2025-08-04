@@ -1,12 +1,11 @@
 import gc
 
 import asdf
-import pytest
 import numpy as np
+import pytest
+from models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 from stdatamodels import DataModel
-
-from models import BasicModel, AnyOfModel, TableModel, TableModelBad, TransformModel, FitsModel
 from stdatamodels.exceptions import ValidationWarning
 
 
@@ -413,7 +412,7 @@ def test_memmap_deprecation():
 def test_open_from_file_with_kwargs_deprecation(tmp_path):
     """
     Test that combining init types is not allowed.
-    
+
     Passing keyword arguments to the open method, which are assumed to initialize data arrays,
     raises a deprecation warning if the input type is file-like.
     """
