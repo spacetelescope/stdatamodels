@@ -10,7 +10,6 @@ from astropy.modeling.models import Identity, Mapping, Polynomial1D, Polynomial2
 from numpy.testing import assert_allclose
 
 from stdatamodels.jwst.transforms import models
-from astropy.modeling.models import Polynomial1D
 
 
 @pytest.mark.parametrize(
@@ -640,7 +639,6 @@ def test_niriss_grism_roundtrip(direction):
     np.testing.assert_allclose(ordersi, orders)
 
 
-
 def test_miri_wfss_roundtrip():
     """
     Do a forward wfss transform for MIRI  then inverse, and check that the output is the same as the input.
@@ -649,18 +647,22 @@ def test_miri_wfss_roundtrip():
     # These coefficients are taken from a real reference file.
     mock_l = Polynomial1D(degree=1, c0=3.125, c1=10.893)
     mock_invl = Polynomial1D(degree=1, c0=-0.28688148, c1=0.09180207)
-    mock_x =  Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
+    mock_x = Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
     # mock y models here parametrize a slightly curved trace
     # causing enough of a shift in the x and y coordinates
     # to ensure that the forward and backward models are not just
     # identity models.
 
     mock_y = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
-    ymodel = [mock_y,] * 3
-    
+    ymodel = [
+        mock_y,
+    ] * 3
+
     orders = np.array([1])
     lmodels = [mock_l] * len(orders)
-    xmodels = [mock_x,] * len(orders)
+    xmodels = [
+        mock_x,
+    ] * len(orders)
     inv_lmodels = [mock_invl] * len(orders)
     ymodels = [ymodel] * len(orders)
 
@@ -671,10 +673,7 @@ def test_miri_wfss_roundtrip():
 
     # now create the appropriate model for the forward
     forward = models.MIRIWFSSForwardDispersion(
-        orders,
-        lmodels=lmodels,
-        xmodels=xmodels,
-        ymodels=ymodels
+        orders, lmodels=lmodels, xmodels=xmodels, ymodels=ymodels
     )
 
     backward = models.MIRIWFSSBackwardDispersion(
@@ -689,37 +688,34 @@ def test_miri_wfss_roundtrip():
     np.testing.assert_allclose(xi, x0)
     np.testing.assert_allclose(yi, y0)
     np.testing.assert_allclose(wli, wl, rtol=1e-4)
-    np.testing.assert_allclose(ordersi, orders)    
+    assert ordersi == orders
 
 
 def test_miriwfss_backward_dispersion_single():
-    """ Test the input source location in BackwardDispersion = output x, y values """
+    """Test the input source location in BackwardDispersion = output x, y values"""
     lmodels = []
     l0 = 3.125
     l1 = 10.893
     lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
-    
+
     orders = np.array([1])
     xmodels = [Identity(1)] * len(orders)
     ymodels = []
-    y0 =  8.850746809616503
+    y0 = 8.850746809616503
     y1 = 0.00000003
     y2 = 0.0
     y3 = 0.00000018
     y4 = 0.0
     y5 = 0.0
-    cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2,
-                              c0_1 =y3, c1_1=y4, c0_2=y5)
-    cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2,
-                          c0_1 =y3, c1_1=y4, c0_2=y5)
-    cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2,
-                               c0_1 =y3, c1_1=y4, c0_2=y5)
+    cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
     ymodels.append((cpoly_0, cpoly_1, cpoly_2))
 
     # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
-    wl = np.linspace(5.5e-6, 6.5e-6, 21)  # 
+    wl = np.linspace(5.5e-6, 6.5e-6, 21)  #
     model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
 
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
@@ -727,7 +723,7 @@ def test_miriwfss_backward_dispersion_single():
     assert yi.size == wl.size
     assert x == x0
     assert y == y0
-    assert order ==1
+    assert order == 1
 
     # many x0, y0, single wavelength
     x0 = np.linspace(100, 200, 11)
@@ -738,10 +734,9 @@ def test_miriwfss_backward_dispersion_single():
     assert xi.size == x0.size
     assert yi.size == y0.size
 
-    
 
 @pytest.mark.parametrize("direction", ["row", "column"])
-@pytest.mark.parametrize("instrument", ["nircam", "niriss","miri"])
+@pytest.mark.parametrize("instrument", ["nircam", "niriss", "miri"])
 def test_grism_error_raises(direction, instrument):
     if instrument == "nircam" and direction == "row":
         ForwardModel = models.NIRCAMForwardRowGrismDispersion

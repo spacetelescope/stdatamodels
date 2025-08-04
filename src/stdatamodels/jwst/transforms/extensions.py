@@ -6,17 +6,12 @@ from .converters.jwst_models import (
     Gwa2SlitConverter,
     LogicalConverter,
     MIRI_AB2SliceConverter,
+    MIRIWFSSDispersionConverter,
     Msa2SlitConverter,
     NIRCAMGrismDispersionConverter,
     NIRISSGrismDispersionConverter,
-<<<<<<< HEAD
     NirissSOSSConverter,
     RefractionIndexConverter,
-=======
-    MIRIWFSSDispersionConverter,
-    GratingEquationConverter,
-    SnellConverter,
->>>>>>> 7209b02 (add extensions.py)
     Rotation3DToGWAConverter,
     Slit2GwaConverter,
     Slit2MsaConverter,
