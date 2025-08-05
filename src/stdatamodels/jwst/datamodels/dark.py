@@ -1,7 +1,7 @@
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = ["DarkModel", "DarkMIRIModel", "DarkNirspecModel"]
 

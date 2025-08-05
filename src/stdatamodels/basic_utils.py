@@ -1,6 +1,5 @@
 import re
 
-
 __all__ = ["multiple_replace"]
 
 

@@ -2,32 +2,25 @@
 
 import copy
 import datetime
+import functools
 import os
-from pathlib import Path, PurePath
 import sys
 import warnings
-import functools
+from pathlib import Path, PurePath
 
+import asdf
 import numpy as np
-
+from asdf import AsdfFile
+from asdf import schema as asdf_schema
+from asdf.tags.core import NDArrayType
 from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
 
-import asdf
-from asdf.tags.core import NDArrayType
-from asdf import AsdfFile
-from asdf import schema as asdf_schema
-
-from . import filetype
-from . import fits_support
-from . import properties
+from . import filetype, fits_support, properties, validate
 from . import schema as mschema
-from . import validate
-from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
-
 from .history import HistoryList
-
+from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
 # are accessed to be available by the core DataModel code.
@@ -138,6 +131,7 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments are expected to be array-like attributes of
             the data model. These will be initialized with the given values only if they
             are defined in the schema and the schema expects an array-like value.
+            Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
             Example usage:
             >>> model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))  # doctest: +SKIP
         """
@@ -273,6 +267,17 @@ class DataModel(properties.ObjectNode):
 
         # Initialize class dependent hidden fields
         self._no_asdf_extension = False
+
+        if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
+            warnings.warn(
+                "Unrecognized keyword arguments passed to DataModel.__init__. "
+                "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
+                "but keyword arguments were also passed, which are assumed to be attempting to "
+                "initialize arrays. This behavior is deprecated and will raise an error "
+                "in the future.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         # Instantiate the primary array of the image
         if is_array:

@@ -1,11 +1,11 @@
+import numpy as np
+import pytest
+from asdf.exceptions import ValidationError
 from astropy.io import fits
 from astropy.time import Time
-from asdf.exceptions import ValidationError
-import numpy as np
 from numpy.testing import assert_array_equal
-import pytest
 
-from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel, SlitModel
+from stdatamodels.jwst.datamodels import ImageModel, MultiSlitModel, SlitModel
 
 
 def test_multislit_model():

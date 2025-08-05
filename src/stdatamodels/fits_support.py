@@ -1,30 +1,24 @@
 import datetime
-from functools import partial
 import hashlib
 import io
+import logging
 import re
 import warnings
 import weakref
+from functools import partial
 
-import numpy as np
-from astropy.io import fits
-from astropy import time
-from astropy.utils.exceptions import AstropyWarning
 import asdf
+import numpy as np
+from asdf import generic_io, tagged, treeutil
 from asdf import schema as asdf_schema
-from asdf.tags.core import NDArrayType
-from asdf.tags.core import ndarray, HistoryEntry
-from asdf import treeutil
+from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict
-from asdf import tagged
-from asdf import generic_io
+from astropy import time
+from astropy.io import fits
+from astropy.utils.exceptions import AstropyWarning
 
-from . import properties
+from . import properties, util, validate
 from . import schema as mschema
-from . import util
-from . import validate
-
-import logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
