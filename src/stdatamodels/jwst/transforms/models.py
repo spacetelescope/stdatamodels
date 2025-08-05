@@ -2004,9 +2004,9 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             The list of orders which are available to the model.
             For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[1D models]
-            The list inverse dispersion 1D polynomial models. Use to determine the trace parameter.
+            The list inverse dispersion 1D polynomial model. Use to determine the trace parameter.
         xmodels : list[1D models]
-            The list of 1D polynomial models in x. It depends on the trace parameter
+            The list of 1D polynomial model in x. It depends on the trace parameter
         ymodels : list[2D models]
             The list of 2D polynomial models in y.
             There are three 2D polynomials to correct for spatial dependence. These polynomials
@@ -2083,11 +2083,11 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         orders : list
             The list of orders which are available to the model
         lmodels : list
-            The list of 1D dispersion models. Along with the xmodels it is used to determine
+            The list of 1D dispersion model. Along with the xmodels it is used to determine
             the wavelength.
-        xmodels : list[1D polynomial models]
+        xmodels : list
             The list of  1D polynomial model in x. Depends on the trace parameter.
-        ymodels : list[2d polynomial models]
+        ymodels : list
             The list of 2D  the polynomial model in y that depends on spatial location and
             trace parameter.
             Name of the model
