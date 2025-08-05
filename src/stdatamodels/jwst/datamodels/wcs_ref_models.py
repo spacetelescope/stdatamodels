@@ -527,6 +527,12 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             assert self.meta.exposure.type == "MIR_WFSS"
             assert self.meta.reftype == self.reftype
             assert len(self.orders) == 1
+            n_orders = len(self.orders)
+            assert n_orders == 1
+            assert len(self.displ) == n_orders
+            assert len(self.dispx) == n_orders
+            assert len(self.dispy) == n_orders
+            assert all(len(sub_y) == 3 for sub_y in self.dispy)
         except AssertionError:
             if self._strict_validation:
                 raise

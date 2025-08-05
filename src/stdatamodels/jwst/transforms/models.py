@@ -2001,7 +2001,8 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         Parameters
         ----------
         orders : list
-            The list of orders which are available to the model. For MIRIWFSS orders = 1.
+            The list of orders which are available to the model.
+            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[1D models]
             The list inverse dispersion 1D polynomial models. Use to determine the trace parameter.
         xmodels : list[1D models]
@@ -2056,8 +2057,8 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         except KeyError as err:
             raise ValueError("Specified order is not available") from err
         # t is trace normalization parameters (it has values of 0 to 1)
-
         t = self.lmodels[iorder](wavelength)
+
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         dx = xmodel(t)

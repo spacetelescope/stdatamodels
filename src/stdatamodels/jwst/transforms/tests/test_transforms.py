@@ -649,11 +649,11 @@ def test_miri_wfss_roundtrip():
     mock_l = Polynomial1D(degree=1, c0=3.125, c1=10.893)
     mock_invl = Polynomial1D(degree=1, c0=-0.28688148, c1=0.09180207)
     mock_x = Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
+
     # mock y models here parametrize a slightly curved trace
     # causing enough of a shift in the x and y coordinates
     # to ensure that the forward and backward models are not just
     # identity models.
-
     mock_y = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
     ymodel = [
         mock_y,
