@@ -52,8 +52,8 @@ allOf:
       default: 0.0
       datatype: float32
     mask:
-      title: The mask used
-      fits_hdu: MSK
+      title: The mask used for steps other than DQ
+      fits_hdu: MASK
       default: 0
       ndim: 2
       datatype: uint32
