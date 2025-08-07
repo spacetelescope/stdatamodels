@@ -52,7 +52,7 @@ allOf:
       default: 0.0
       datatype: float32
     mask:
-      title: The mask used for steps other than DQ
+      title: The background mask
       fits_hdu: MASK
       default: 0
       ndim: 2

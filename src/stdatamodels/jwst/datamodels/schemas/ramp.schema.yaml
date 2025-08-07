@@ -33,12 +33,6 @@ allOf:
       default: 0.0
       ndim: 3
       datatype: float32
-    background:
-      title: The calculated background
-      fits_hdu: BKD
-      default: 0.0
-      ndim: 2
-      datatype: float32
     refout:
       title: Reference Output
       fits_hdu: REFOUT
