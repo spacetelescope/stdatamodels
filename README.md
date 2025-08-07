@@ -1,8 +1,8 @@
 # stdatamodels
 
 [![CI](https://github.com/spacetelescope/stdatamodels/actions/workflows/ci.yml/badge.svg)](https://github.com/spacetelescope/stdatamodels/actions/workflows/ci.yml)
-
 [![codecov](https://codecov.io/gh/spacetelescope/stdatamodels/branch/main/graph/badge.svg?token=TrmUKaTP2t)](https://codecov.io/gh/spacetelescope/stdatamodels)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16280288.svg)](https://doi.org/10.5281/zenodo.16280288)
 
 
 Provides JWST data model classes and schemas.
