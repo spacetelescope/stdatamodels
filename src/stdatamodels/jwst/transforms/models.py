@@ -2007,8 +2007,8 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             The list inverse dispersion 1D polynomial model. Use to determine the trace parameter.
         xmodels : list[1D models]
             The list of 1D polynomial model in x. It depends on the trace parameter
-        ymodels : list[2D models]
-            The list of 2D polynomial models in y.
+        ymodels : list [tuples of 2D models]
+            The list of tuples of 2D polynomial models in y.
             There are three 2D polynomials to correct for spatial dependence. These polynomials
             depend on location on the detector and the trace parameter.
         name : str, optional
@@ -2087,9 +2087,11 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             the wavelength.
         xmodels : list
             The list of  1D polynomial model in x. Depends on the trace parameter.
-        ymodels : list
-            The list of 2D  the polynomial model in y that depends on spatial location and
+        ymodels : list[tuples of 2D models]
+            The list of tuples of 2D  the polynomial model that depends on spatial location and
             trace parameter.
+        ymodels : list[tuples of 2D models]
+
             Name of the model
         """
         if name is None:

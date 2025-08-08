@@ -487,7 +487,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             MIRI WFSS wavelength dispersion model
         dispx : list of `~astropy.modeling.Model`
             MIRI WFSS row dispersion model
-        dispy : list of `~astropy.modeling.Model`
+        dispy : list of tuples containing 2D `~astropy.modeling.Model`
             MIRI WFSS column dispersion model
         invdispl : list of `~astropy.modeling.Model`
             MIRI WFSS inverse wavelength dispersion model
