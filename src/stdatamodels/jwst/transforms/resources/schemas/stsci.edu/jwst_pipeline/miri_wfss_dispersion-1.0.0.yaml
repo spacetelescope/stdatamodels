@@ -1,0 +1,45 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/yaml-schema/draft-01"
+id: "http://stsci.edu/schemas/jwst_pipeline/miri_wfss_dispersion-1.0.0"
+title: >
+  MIRI WFSS dispersion model
+description: |
+  Supports one model:
+   - Given x, y, wave, order in direct image return x,y,wave,order in dispersed
+   - Given x, y, x0, y0, order in dispersed image returns x, y, wave, order in the direct image.
+allOf:
+  - $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+  - type: object
+    properties:
+      xmodels:
+        description: |
+          MIRI WFSS row dispersion model
+        type: array
+        items:
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+      ymodels:
+        description: |
+          MIRI WFSS column dispersion model
+        type: array
+        items:
+          type: array
+          items:
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+      lmodels:
+        description: |
+          MIRI WFSS wavelength-models for dispersion
+        type: array
+        items:
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+      orders:
+        description: |
+          MIRI WFSS available orders, in-sync with the model arrays
+        type: array
+        items:
+          type: integer
+      class_name:
+        description: |
+          The model class which should instantiate this data
+        type: string
+    required: [lmodels, xmodels, ymodels, orders]

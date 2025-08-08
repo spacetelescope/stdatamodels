@@ -122,6 +122,7 @@ specwcs_model_map = {
     "MIR_LRS-SLITLESS": dm.MiriLRSSpecwcsModel,
     "NRC_WFSS": dm.NIRCAMGrismModel,
     "NIS_WFSS": dm.NIRISSGrismModel,
+    "MIR_WFSS": dm.MiriWFSSSpecwcsModel,
     "other": dm.SpecwcsModel,
 }
 

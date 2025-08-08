@@ -6,6 +6,7 @@ Test jwst.transforms
 import asdf
 import numpy as np
 import pytest
+from asdf_astropy.testing.helpers import assert_model_equal
 from astropy.modeling.models import Identity, Mapping, Polynomial1D, Polynomial2D
 from numpy.testing import assert_allclose
 
@@ -639,8 +640,157 @@ def test_niriss_grism_roundtrip(direction):
     np.testing.assert_allclose(ordersi, orders)
 
 
+def test_miri_wfss_roundtrip():
+    """
+    Do a forward wfss transform for MIRI  then inverse, and check that the output is the same as the input.
+    """
+    # Create mock polynomial models for the dispersion
+    # These coefficients are taken from a real reference file.
+    mock_l = Polynomial1D(degree=1, c0=3.125, c1=10.893)
+    mock_invl = Polynomial1D(degree=1, c0=-0.28688148, c1=0.09180207)
+    mock_x = Polynomial1D(degree=1, c0=0.193314, c1=-1.993914)
+
+    # mock y models here parametrize a slightly curved trace
+    # causing enough of a shift in the x and y coordinates
+    # to ensure that the forward and backward models are not just
+    # identity models.
+    mock_y = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+    ymodel = [
+        mock_y,
+    ] * 3
+
+    orders = np.array([1])
+    lmodels = [mock_l] * len(orders)
+    xmodels = [
+        mock_x,
+    ] * len(orders)
+    inv_lmodels = [mock_invl] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    # single x0, y0, wl
+    x0 = 450.0
+    y0 = 450.0
+    wl = 6.0
+
+    # now create the appropriate model for the forward
+    forward = models.MIRIWFSSForwardDispersion(
+        orders, lmodels=lmodels, xmodels=xmodels, ymodels=ymodels
+    )
+
+    backward = models.MIRIWFSSBackwardDispersion(
+        orders,
+        lmodels=inv_lmodels,
+        xmodels=xmodels,
+        ymodels=ymodels,
+    )
+
+    combined = backward | forward
+    xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
+    np.testing.assert_allclose(xi, x0)
+    np.testing.assert_allclose(yi, y0)
+    np.testing.assert_allclose(wli, wl, rtol=1e-4)
+    assert ordersi == orders
+
+
+def test_miriwfss_backward_dispersion_single(tmp_path):
+    """Test the input source location in BackwardDispersion = output x, y values & test converters"""
+    lmodels = []
+    l0 = 3.125
+    l1 = 10.893
+    lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
+
+    orders = np.array([1])
+    xmodels = []
+    x0 = 0.193314
+    x1 = -1.993914
+    xmodels.append(Polynomial1D(1, c0=x0, c1=x1))
+
+    ymodels = []
+    y0 = 8.850746809616503
+    y1 = 0.00000003
+    y2 = 0.0
+    y3 = 0.00000018
+    y4 = 0.0
+    y5 = 0.0
+    cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    ymodels.append((cpoly_0, cpoly_1, cpoly_2))
+
+    # many wavelengths, single x0, y0
+    x0 = 150
+    y0 = 140
+    wl = np.linspace(5.5e-6, 6.5e-6, 21)  #
+    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
+
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == wl.size
+    assert yi.size == wl.size
+    assert x == x0
+    assert y == y0
+    assert order == 1
+
+    # many x0, y0, single wavelength
+    x0 = np.linspace(100, 200, 11)
+    y0 = np.linspace(90, 190, 11)
+    wl = 6e-6  # 2 microns
+    model = models.MIRIWFSSBackwardDispersion(orders, lmodels, xmodels, ymodels)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
+    assert xi.size == x0.size
+    assert yi.size == y0.size
+
+    # test roundtrip to file- test specific values
+    tmp_file = tmp_path / "miri_wfss.asdf"
+    asdf.AsdfFile({"model": model}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].xmodels[0].c0 == xmodels[0].c0
+        assert af["model"].xmodels[0].c1 == xmodels[0].c1
+        # now test the full model
+        assert_model_equal(model, af["model"])
+
+
+def test_miriwfss_forward_dispersion(tmp_path):
+    """Test test converters for forward"""
+    lmodels = []  # this is the inv_disp values
+    l0 = -0.28688148
+    l1 = 0.09180207
+    lmodels.append(Polynomial1D(1, c0=l0, c1=l1))
+
+    orders = np.array([1])
+    xmodels = []
+    x0 = 0.193314
+    x1 = -1.993914
+    xmodels.append(Polynomial1D(1, c0=x0, c1=x1))
+
+    ymodels = []
+    y0 = 8.850746809616503
+    y1 = 0.00000003
+    y2 = 0.0
+    y3 = 0.00000018
+    y4 = 0.0
+    y5 = 0.0
+    cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    ymodels.append((cpoly_0, cpoly_1, cpoly_2))
+
+    x0 = 450
+    y0 = 450
+    x = 450
+    y = 450
+    model = models.MIRIWFSSForwardDispersion(orders, lmodels, xmodels, ymodels)
+    # test roundtrip to file- test specific values
+    tmp_file = tmp_path / "miri_wfss_forward.asdf"
+    asdf.AsdfFile({"model": model}).write_to(tmp_file)
+    with asdf.open(tmp_file) as af:
+        assert af["model"].xmodels[0].c0 == xmodels[0].c0
+        assert af["model"].xmodels[0].c1 == xmodels[0].c1
+        # now test the full model
+        assert_model_equal(model, af["model"])
+
+
 @pytest.mark.parametrize("direction", ["row", "column"])
-@pytest.mark.parametrize("instrument", ["nircam", "niriss"])
+@pytest.mark.parametrize("instrument", ["nircam", "niriss", "miri"])
 def test_grism_error_raises(direction, instrument):
     if instrument == "nircam" and direction == "row":
         ForwardModel = models.NIRCAMForwardRowGrismDispersion
@@ -654,8 +804,13 @@ def test_grism_error_raises(direction, instrument):
         BackwardModel = models.NIRCAMBackwardGrismDispersion
     elif instrument == "niriss":
         BackwardModel = models.NIRISSBackwardGrismDispersion
+    elif instrument == "miri":
+        ForwardModel = models.MIRIWFSSForwardDispersion
+        BackwardModel = models.MIRIWFSSBackwardDispersion
 
     orders = np.array([1, 2])
+    if instrument == "miri":
+        orders = np.array([1])
     x0 = 150
     y0 = 140
     wl = 2.0

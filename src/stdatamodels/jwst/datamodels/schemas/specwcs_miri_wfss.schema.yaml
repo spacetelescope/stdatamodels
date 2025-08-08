@@ -1,0 +1,65 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.0.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_wfss.schema"
+title: SPECWCS_MIRI_WFSS reference file model
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: subarray.schema
+- $ref: keyword_channel.schema
+- $ref: keyword_filter.schema
+- type: object
+  properties:
+    displ:
+        description: |
+          MIRI WFSS wavelength dispersion model, a list of astropy.modeling.Model,
+          matching the list of spectral orders.
+        type: array
+        items:
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+    dispx:
+        description: |
+          MIRI WFSS row dispersion model, a list of astropy.modeling.Model,
+          matching the list of spectral orders.
+        type: array
+        items:
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+    dispy:
+        description: |
+          MIRI WFSS column dispersion model. Contains a list of list of
+          2D astropy.modeling.Model, matching the list of spectral orders.
+        type: array
+        items:
+          type: array
+          items:
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+    invdispl:
+        description: |
+          MIRI WFSS inverse wavelength dispersion model, a list of astropy.modeling.Model,
+          matching the list of spectral orders.
+        type: array
+        items:
+          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+    orders:
+        description: |
+          MIRI WFSS orders, a list of orders matched to the array locations of the dispersion models
+        type: array
+        items:
+          type: integer
+    meta:
+      type: object
+      properties:
+        input_units:
+          description: |
+            Input units for wavelength
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0
+        output_units:
+          description: |
+            Output units for wavelength
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0
+  required: [displ, dispx, dispy, invdispl, orders]

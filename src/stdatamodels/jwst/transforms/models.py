@@ -36,6 +36,8 @@ __all__ = [
     "NIRISSForwardRowGrismDispersion",
     "NIRISSForwardColumnGrismDispersion",
     "NIRISSBackwardGrismDispersion",
+    "MIRIWFSSBackwardDispersion",
+    "MIRIWFSSForwardDispersion",
     "V2V3ToIdeal",
     "IdealToV2V3",
     "RefractionIndexFromPrism",
@@ -1987,6 +1989,167 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
             "for models depending on x, y, and t."
         )
     raise TypeError(f"Expected a model or list of models, but got {type(model)}. ")
+
+
+class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
+    """Calculate the dispersion extent of MIRI WFSS pixels."""
+
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list
+            The list of orders which are available to the model.
+            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
+        lmodels : list[1D models]
+            The list inverse dispersion 1D polynomial model. Use to determine the trace parameter.
+        xmodels : list[1D models]
+            The list of 1D polynomial model in x. It depends on the trace parameter
+        ymodels : list [tuples of 2D models]
+            The list of tuples of 2D polynomial models in y.
+            There are three 2D polynomials to correct for spatial dependence. These polynomials
+            depend on location on the detector and the trace parameter.
+        name : str, optional
+            Name of the model
+        """
+        if name is None:
+            name = "miri_wfss_backward_dispersion"
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
+
+    def evaluate(self, x, y, wavelength, order):
+        """
+        Transform from the direct image plane to the dispersed plane.
+
+        Parameters
+        ----------
+        x, y : float
+            Input x, y location in the direct image
+        wavelength : float
+            Wavelength in microns
+        order : int
+            Input spectral order
+
+        Returns
+        -------
+        x, y : float
+            The x, y values in the dispersed plane.
+        x0 y0 : float
+            Source object x-center, y-center in the direct image. Same as input x,y
+        order : int
+            Output spectral order, same as input
+        """
+        wavelength = np.atleast_1d(wavelength)
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
+
+        if (wavelength < 0).any():
+            raise ValueError("Wavelength should be greater than zero")
+        try:
+            iorder = self._order_mapping[int(order.flatten()[0])]
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
+        # t is trace normalization parameters (it has values of 0 to 1)
+        t = self.lmodels[iorder](wavelength)
+
+        xmodel = self.xmodels[iorder]
+        ymodel = self.ymodels[iorder]
+        dx = xmodel(t)
+        dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
+        return x + dx, dy, x, y, order
+
+
+class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
+    """
+    Calculate the wavelengths of vertically dispersed MIRIWFSS data.
+
+    The dispersion polynomial is relative to the input x,y pixels
+    in the direct image for a given wavelength.
+    """
+
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+        """
+        Initialize the model.
+
+        Parameters
+        ----------
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of 1D dispersion model. Along with the xmodels it is used to determine
+            the wavelength.
+        xmodels : list
+            The list of  1D polynomial model in x. Depends on the trace parameter.
+        ymodels : list[tuples of 2D models]
+            The list of tuples of 2D  the polynomial model that depends on spatial location and
+            trace parameter.
+        ymodels : list[tuples of 2D models]
+
+            Name of the model
+        """
+        if name is None:
+            name = "miri_wfss_forward_dispersion"
+        super().__init__(
+            orders,
+            lmodels=lmodels,
+            xmodels=xmodels,
+            ymodels=ymodels,
+            name=name,
+        )
+
+    def evaluate(self, x, y, x0, y0, order):
+        """
+        Transform from the dispersed plane into the direct image plane.
+
+        Only the xmodel and lmodels are used.
+
+        Parameters
+        ----------
+        x, y :  int, float, list
+            Input x, y location in the dispersed image.
+        x0, y0 : int, float, list
+            Source object x-center, y-center in the direct image.
+        order : int
+            Input spectral order
+
+        Returns
+        -------
+        x, y : float
+            The x, y values in the direct image, same as x0, y0.
+        lambda : float
+            Wavelength in microns
+        order : int
+            Output spectral order, same as input
+        """
+        try:
+            iorder = self._order_mapping[int(order.flatten()[0])]
+        except KeyError as err:
+            raise ValueError("Specified order is not available") from err
+
+        # The next two lines are to get around the fact that
+        # modeling.standard_broadcasting=False does not work.
+        x00 = x0.flatten()[0]
+        y00 = y0.flatten()[0]
+
+        t = np.linspace(0, 1, self.sampling)  # sample t
+        xmodel = self.xmodels[iorder]
+        lmodel = self.lmodels[iorder]
+        dx = xmodel(t)
+
+        so = np.argsort(dx)
+        tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
+
+        dxr = astmath.SubtractUfunc()
+        wavelength = dxr | tab | lmodel
+        model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
+        return model(x, y, x0, y0, order)
 
 
 class Rotation3DToGWA(Model):
