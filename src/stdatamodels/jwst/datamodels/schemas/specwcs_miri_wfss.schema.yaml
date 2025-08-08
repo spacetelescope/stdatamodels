@@ -27,7 +27,7 @@ allOf:
             $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     dispy:
         description: |
-          MIRI WFSS column dispersion model. Contains a list of tuples of
+          MIRI WFSS column dispersion model. Contains a list of list of
           2D astropy.modeling.Model, matching the list of spectral orders.
         type: array
         items:
