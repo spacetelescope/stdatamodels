@@ -51,5 +51,11 @@ allOf:
       fits_hdu: WHT
       default: 0.0
       datatype: float32
+    mask:
+      title: The background mask
+      fits_hdu: MASK
+      default: 0
+      ndim: 2
+      datatype: uint32
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
