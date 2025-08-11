@@ -903,5 +903,5 @@ def test_v23tosky_deprecated(tmp_path):
     tmp_file = tmp_path / "v23tosky.asdf"
     asdf.AsdfFile({"model": model}).write_to(tmp_file)
 
-    with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"):
-        asdf.open(tmp_file)
+    with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"), asdf.open(tmp_file):
+        pass
