@@ -214,10 +214,13 @@ class DataModel(properties.ObjectNode):
         elif isinstance(init, DataModel):
             asdffile = None
             if not isinstance(init, self.__class__):
+                self.clone(self, init, deepcopy=True)
                 current_validate_arrays = self._validate_arrays
                 self._validate_arrays = True
                 self.validate()
                 self._validate_arrays = current_validate_arrays
+            else:
+                self.clone(self, init)
             return
 
         elif isinstance(init, AsdfFile):
