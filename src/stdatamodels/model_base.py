@@ -235,7 +235,6 @@ class DataModel(properties.ObjectNode):
 
             if file_type == "fits":
                 hdulist = fits.open(init, memmap=False)
-                self._file_references.append(_FileReference(hdulist))
                 hdulist = self._migrate_hdulist(hdulist)
                 asdffile = fits_support.from_fits(
                     hdulist,
@@ -244,6 +243,7 @@ class DataModel(properties.ObjectNode):
                     ignore_unrecognized_tag=ignore_unrecognized_tag,
                     ignore_missing_extensions=ignore_missing_extensions,
                 )
+                hdulist.close()
 
             elif file_type == "asdf":
                 asdffile = asdf.open(
