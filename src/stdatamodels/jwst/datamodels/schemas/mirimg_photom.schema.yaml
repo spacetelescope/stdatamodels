@@ -25,13 +25,13 @@ allOf:
         datatype: float32
 - type: object
   properties:
-    timecoeff:
-      title: Temporal correction to the PHOTOM value
-      fits_hdu: TIMECOEFF
-      datatype:
-      - name: amplitude
-        datatype: float32
-      - name: tau
-        datatype: float32
-      - name: t0
-        datatype: float32
+    timecoeff_linear:
+      $ref: phot_timecoeff_linear.schema
+- type: object
+  properties:
+    timecoeff_exponential:
+      $ref: phot_timecoeff_exponential.schema
+- type: object
+  properties:
+    timecoeff_powerlaw:
+      $ref: phot_timecoeff_powerlaw.schema

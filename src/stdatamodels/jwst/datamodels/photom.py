@@ -1,3 +1,7 @@
+import numpy as np
+from asdf.tags.core.ndarray import asdf_datatype_to_numpy_dtype
+from numpy.lib.recfunctions import merge_arrays
+
 from stdatamodels.dynamicdq import dynamic_mask
 
 from .dqflags import pixel
@@ -63,6 +67,59 @@ class MirImgPhotomModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirimg_photom.schema"
+
+    def _migrate_hdulist(self, hdulist):
+        """
+        Accommodate old-style time dependence coefficients.
+
+        This method is only called when a datamodel is constructed using a
+        HDUList or a string (not when the DataModel is cloned or created
+        from an existing DataModel).
+
+        The migration occurs prior to loading the ASDF extension.
+
+        Parameters
+        ----------
+        hdulist : HDUList
+            The opened hdulist that this method should migrate.
+
+        Returns
+        -------
+        migrated_hdulist : HDUList
+            The migrated/updated hdulist. This is identical to the
+            input hdulist if no migration is needed.
+        """
+        # Get the timecoeff extension, if present
+        if "TIMECOEFF" not in hdulist or "PHOTOM" not in hdulist:
+            return hdulist
+        timecoeff = hdulist["TIMECOEFF"]
+
+        # Get defaults for the current table
+        subschema = self.schema["properties"]["timecoeff_exponential"]
+        table_dtypes = subschema["datatype"]
+        table_defaults = subschema["default"]
+
+        # Migrate existing additive correction to a multiplicative one.
+        # Assume the timecoeff table size matches the photom table.
+        table_data = timecoeff.data
+        table_data["amplitude"] /= hdulist["PHOTOM"].data["photmjsr"]
+
+        # Make new arrays from default values
+        arrays_to_merge = [table_data]
+        n_rows = table_data.shape[0]
+        for i, col in enumerate(table_dtypes):
+            if col["name"] in table_data.names:
+                continue
+            else:
+                default = table_defaults[i]
+
+            np_dtype = asdf_datatype_to_numpy_dtype(col["datatype"])
+            new_col = np.full(n_rows, default, dtype=[(col["name"], np_dtype)])
+            arrays_to_merge.append(new_col)
+        timecoeff.data = merge_arrays(arrays_to_merge, flatten=True)
+        timecoeff.name = "TIMECOEFF_EXPONENTIAL"
+
+        return hdulist
 
     def __init__(self, init=None, **kwargs):
         super(MirImgPhotomModel, self).__init__(init=init, **kwargs)
