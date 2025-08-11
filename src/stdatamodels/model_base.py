@@ -235,15 +235,18 @@ class DataModel(properties.ObjectNode):
 
             if file_type == "fits":
                 hdulist = fits.open(init, memmap=False)
-                hdulist = self._migrate_hdulist(hdulist)
-                asdffile = fits_support.from_fits(
-                    hdulist,
-                    self._schema,
-                    self._ctx,
-                    ignore_unrecognized_tag=ignore_unrecognized_tag,
-                    ignore_missing_extensions=ignore_missing_extensions,
-                )
-                hdulist.close()
+                try:
+                    hdulist = self._migrate_hdulist(hdulist)
+                    asdffile = fits_support.from_fits(
+                        hdulist,
+                        self._schema,
+                        self._ctx,
+                        ignore_unrecognized_tag=ignore_unrecognized_tag,
+                        ignore_missing_extensions=ignore_missing_extensions,
+                    )
+                finally:
+                    # close the hdulist even if there's a validation error
+                    hdulist.close()
 
             elif file_type == "asdf":
                 asdffile = asdf.open(
