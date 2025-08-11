@@ -29,9 +29,13 @@ def test_context_management(extension, tmp_path):
     assert len(process.open_files()) == base_count
 
     with FitsModel(original_path) as model:
-        # Count should be higher due to opening the file:
         model_count = len(process.open_files())
-        assert model_count > base_count
+        if extension == "asdf":
+            # Count should be higher due to opening the file
+            assert model_count > base_count
+        else:
+            # FITS hdulists get closed on init
+            assert model_count == base_count
 
         new_model = FitsModel(model)
 
@@ -76,9 +80,12 @@ def test_close(extension, tmp_path):
     assert len(process.open_files()) == base_count
 
     model = FitsModel(original_path)
-    # Count should be higher due to opening the file:
     model_count = len(process.open_files())
-    assert model_count > base_count
+    if extension == "asdf":
+        assert model_count > base_count
+    else:
+        # FITS hdulists get closed on init
+        assert model_count == base_count
 
     new_model = FitsModel(model)
     model.close()
@@ -122,9 +129,13 @@ def test_multiple_close(extension, tmp_path):
     assert len(process.open_files()) == base_count
 
     model = FitsModel(file_path)
-    # Count should be higher due to opening the file:
     model_count = len(process.open_files())
-    assert model_count > base_count
+    if extension == "asdf":
+        # Count should be higher due to opening the file
+        assert model_count > base_count
+    else:
+        # FITS hdulists get closed on init
+        assert model_count == base_count
 
     new_model = FitsModel(model)
     model.close()
@@ -169,9 +180,13 @@ def test_delete(extension, tmp_path):
     assert len(process.open_files()) == base_count
 
     model = FitsModel(original_path)
-    # Count should be higher due to opening the file:
     model_count = len(process.open_files())
-    assert model_count > base_count
+    if extension == "asdf":
+        # Count should be higher due to opening the file
+        assert model_count > base_count
+    else:
+        # FITS hdulists get closed on init
+        assert model_count == base_count
 
     new_model = FitsModel(model)
     del model
