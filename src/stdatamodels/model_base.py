@@ -213,6 +213,7 @@ class DataModel(properties.ObjectNode):
 
         elif isinstance(init, DataModel):
             asdffile = None
+            self.clone(self, init)
             if not isinstance(init, self.__class__):
                 current_validate_arrays = self._validate_arrays
                 self._validate_arrays = True
