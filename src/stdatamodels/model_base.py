@@ -234,16 +234,15 @@ class DataModel(properties.ObjectNode):
             file_type = filetype.check(init)
 
             if file_type == "fits":
-                hdulist = fits.open(init, memmap=False)
-                self._file_references.append(_FileReference(hdulist))
-                hdulist = self._migrate_hdulist(hdulist)
-                asdffile = fits_support.from_fits(
-                    hdulist,
-                    self._schema,
-                    self._ctx,
-                    ignore_unrecognized_tag=ignore_unrecognized_tag,
-                    ignore_missing_extensions=ignore_missing_extensions,
-                )
+                with fits.open(init, memmap=False) as hdulist:
+                    hdulist = self._migrate_hdulist(hdulist)
+                    asdffile = fits_support.from_fits(
+                        hdulist,
+                        self._schema,
+                        self._ctx,
+                        ignore_unrecognized_tag=ignore_unrecognized_tag,
+                        ignore_missing_extensions=ignore_missing_extensions,
+                    )
 
             elif file_type == "asdf":
                 asdffile = asdf.open(
