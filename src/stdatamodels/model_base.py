@@ -87,6 +87,10 @@ class DataModel(properties.ObjectNode):
 
             - dict: The object model tree for the data model
 
+            - DataModel: Initialize from an existing DataModel instance.
+              This will perform a shallow copy, and will convert between model subtypes
+              as long as their schemas are compatible.
+
         schema : dict, str (optional)
             Tree of objects representing a JSON schema, or string naming a schema.
             The schema to use to understand the elements on the model.
