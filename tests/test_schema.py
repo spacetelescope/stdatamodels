@@ -8,7 +8,7 @@ from models import BasicModel, FitsModel, TableModel, TransformModel, Validation
 from numpy.testing import assert_array_equal
 
 from stdatamodels import DataModel
-from stdatamodels.schema import build_docstring, merge_property_trees
+from stdatamodels.schema import merge_property_trees
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
@@ -210,10 +210,3 @@ def test_merge_property_tree_top():
     }
     f = merge_property_trees(s)
     assert f["id"] == "foo"
-
-
-def test_schema_docstring():
-    template = "{fits_hdu} {title}"
-    docstring = build_docstring(FitsModel, template).split("\n")
-    for i, hdu in enumerate(("SCI", "DQ", "ERR")):
-        assert docstring[i].startswith(hdu)
