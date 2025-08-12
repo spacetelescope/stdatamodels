@@ -74,16 +74,17 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     DataModel
         A new model instance.
 
-    .. warning::
-      The ``open`` function is primarily intended for opening files and creating models from them,
-      and is not intended for creating models from scratch.
-      Init types of None, shape tuple, and numpy array
-      are deprecated and will raise a TypeError in the future.
-      Use the DataModel constructors directly instead,
-      i.e. :class:`JwstDataModel` for a generic model
-      or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
-      for specific applications. None, shape tuple, and numpy array are all valid inputs to those
-      constructors. See the documentation for each model class for details on how to use them.
+    Warnings
+    --------
+    The ``open`` function is primarily intended for opening files and creating models from them,
+    and is not intended for creating models from scratch.
+    Init types of None, shape tuple, and numpy array
+    are deprecated and will raise a TypeError in the future.
+    Use the DataModel constructors directly instead,
+    i.e. :class:`JwstDataModel` for a generic model
+    or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
+    for specific applications. None, shape tuple, and numpy array are all valid inputs to those
+    constructors. See the documentation for each model class for details on how to use them.
     """
     if "memmap" in kwargs:
         warnings.warn(
