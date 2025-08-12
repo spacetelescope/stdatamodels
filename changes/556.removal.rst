@@ -1,0 +1,1 @@
+Remove unused schema.build_docstring function
