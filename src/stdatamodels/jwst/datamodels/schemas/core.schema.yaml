@@ -2678,6 +2678,12 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WFSCOM
             blend_table: True
+          wfss_contam:
+            title: WFSS Contamination Correction
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_WFSSCT
+            blend_table: True
           white_light:
             title: TSO White-Light Curve
             type: string
