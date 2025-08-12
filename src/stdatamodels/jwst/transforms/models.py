@@ -1263,7 +1263,6 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
         inv_lmodels=None,
         inv_xmodels=None,
         inv_ymodels=None,
-        name=None,
         sampling=40,
     ):
         """
@@ -1285,14 +1284,11 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
             List of models which will be used if inverse xmodels cannot be analytically derived
         inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels cannot be analytically derived
-        name : str, optional
-            Name of the model
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
         dispaxis = "row"
-        if name is None:
-            name = "nircam_forward_row_grism_dispersion"
+        name = "nircam_forward_row_grism_dispersion"
         super().__init__(
             dispaxis,
             orders,
@@ -1327,7 +1323,6 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
         inv_lmodels=None,
         inv_xmodels=None,
         inv_ymodels=None,
-        name=None,
         sampling=40,
     ):
         """
@@ -1349,14 +1344,11 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
             List of models which will be used if inverse xmodels cannot be analytically derived
         inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels cannot be analytically derived
-        name : str, optional
-            Name of the model
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
         dispaxis = "column"
-        if name is None:
-            name = "nircam_forward_column_grism_dispersion"
+        name = "nircam_forward_column_grism_dispersion"
         super().__init__(
             dispaxis,
             orders,
@@ -1390,7 +1382,6 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         inv_lmodels=None,
         inv_xmodels=None,
         inv_ymodels=None,
-        name=None,
         sampling=40,
     ):
         """
@@ -1415,13 +1406,10 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         inv_ymodels : list [astropy.modeling.Model]
             List of models which will be used if inverse ymodels
             cannot be analytically derived
-        name : str, optional
-            Name of the model
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
-        if name is None:
-            name = "nircam_backward_grism_dispersion"
+        name = "nircam_backward_grism_dispersion"
         super().__init__(
             orders,
             lmodels=lmodels,
@@ -1616,7 +1604,7 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
     2t x 6(xy)th order polynomial currently used by NIRISS.
     """
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, theta=0.0):
         """
         Initialize the model.
 
@@ -1634,12 +1622,9 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
             The list of tuple(models) for the polynomial model in y
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
-        name : str, optional
-            Name of the model
         """
         self.theta = theta
-        if name is None:
-            name = "niriss_backward_grism_dispersion"
+        name = "niriss_backward_grism_dispersion"
         super().__init__(
             orders,
             lmodels=lmodels,
@@ -1810,7 +1795,6 @@ class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
         xmodels=None,
         ymodels=None,
         theta=0.0,
-        name=None,
         sampling=10,
     ):
         """
@@ -1830,15 +1814,12 @@ class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
             The list of tuple(models) for the polynomial model in y
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
-        name : str, optional
-            Name of the model
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.theta = theta
         dispaxis = "row"
-        if name is None:
-            name = "niriss_forward_row_grism_dispersion"
+        name = "niriss_forward_row_grism_dispersion"
         super().__init__(
             dispaxis,
             orders,
@@ -1867,7 +1848,6 @@ class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
         xmodels=None,
         ymodels=None,
         theta=None,
-        name=None,
         sampling=10,
     ):
         """
@@ -1887,15 +1867,12 @@ class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
             The list of tuple(models) for the polynomial model in y
         theta : float
             Angle [deg] - defines the NIRISS filter wheel position
-        name : str
-            The name of the model
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
         """
         self.theta = theta
         dispaxis = "column"
-        if name is None:
-            name = "niriss_forward_column_grism_dispersion"
+        name = "niriss_forward_column_grism_dispersion"
         super().__init__(
             dispaxis,
             orders,
@@ -1994,7 +1971,7 @@ def _evaluate_transform_guess_form(model, x=0, y=0, t=0):
 class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
     """Calculate the dispersion extent of MIRI WFSS pixels."""
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None):
         """
         Initialize the model.
 
@@ -2011,11 +1988,8 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             The list of tuples of 2D polynomial models in y.
             There are three 2D polynomials to correct for spatial dependence. These polynomials
             depend on location on the detector and the trace parameter.
-        name : str, optional
-            Name of the model
         """
-        if name is None:
-            name = "miri_wfss_backward_dispersion"
+        name = "miri_wfss_backward_dispersion"
         super().__init__(
             orders,
             lmodels=lmodels,
@@ -2090,12 +2064,8 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         ymodels : list[tuples of 2D models]
             The list of tuples of 2D  the polynomial model that depends on spatial location and
             trace parameter.
-        ymodels : list[tuples of 2D models]
-
-            Name of the model
         """
-        if name is None:
-            name = "miri_wfss_forward_dispersion"
+        name = "miri_wfss_forward_dispersion"
         super().__init__(
             orders,
             lmodels=lmodels,
