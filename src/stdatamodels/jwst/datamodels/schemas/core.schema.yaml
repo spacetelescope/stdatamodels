@@ -2682,7 +2682,7 @@ properties:
             title: WFSS Contamination Correction
             type: string
             enum: [SKIPPED, COMPLETE]
-            fits_keyword: S_WFSSCT
+            fits_keyword: S_CONTAM
             blend_table: True
           white_light:
             title: TSO White-Light Curve
