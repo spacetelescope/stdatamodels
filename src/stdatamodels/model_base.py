@@ -490,6 +490,10 @@ class DataModel(properties.ObjectNode):
         """Validate the model instance against its schema."""
         validate.value_change(str(self), self._instance, self._schema, self)
 
+    @functools.wraps(asdf.AsdfFile.add_history_entry)
+    def add_history_entry(self, *args, **kwargs):  # noqa: D102
+        return self._asdf.add_history_entry(*args, **kwargs)
+
     @functools.wraps(asdf.AsdfFile.info)
     def info(self, *args, **kwargs):  # noqa: D102
         return self._asdf.info(**kwargs)
@@ -1105,6 +1109,11 @@ class DataModel(properties.ObjectNode):
         history : `HistoryList`
             A list of history entries.
         """
+        warnings.warn(
+            "The history attribute is deprecated. Use add_history_entry to add history entries",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return HistoryList(self._asdf)
 
     @history.setter
