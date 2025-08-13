@@ -1,5 +1,6 @@
 import datetime
 
+import asdf
 import numpy as np
 import pytest
 from asdf.tags.core import HistoryEntry
@@ -109,3 +110,24 @@ def test_history_set_deprecation():
     m = DataModel()
     with pytest.warns(DeprecationWarning, match="The history attribute is deprecated"):
         m.history = []
+
+
+@pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
+def test_add_history_entry(tmp_path, filename):
+    msgs = ["foo", "bar"]
+    path = tmp_path / filename
+    m = DataModel()
+    for msg in msgs:
+        m.add_history_entry(msg)
+    m.save(path)
+
+    if "asdf" in filename:
+        with asdf.open(path, lazy_load=False) as af:
+            written_msgs = [entry["description"] for entry in af["history"]["entries"]]
+    else:
+        with fits.open(path, memmap=False) as ff:
+            written_msgs = [
+                card.value for card in ff["PRIMARY"].header.cards if card.keyword == "HISTORY"
+            ]
+
+    assert set(msgs) == set(written_msgs)
