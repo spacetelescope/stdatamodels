@@ -20,7 +20,6 @@ __all__ = ["open", "is_association"]
 
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 def open(init=None, guess=True, **kwargs):  # noqa: A001

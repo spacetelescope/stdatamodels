@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
-import logging
 from collections.abc import Mapping
 
 import numpy as np
@@ -10,10 +9,6 @@ from astropy.io import fits
 
 from . import schema as mschema
 from . import util, validate
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
-
 
 __all__ = ["ObjectNode", "ListNode"]
 
