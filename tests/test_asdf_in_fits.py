@@ -124,6 +124,34 @@ def test_write_asdf_in_fits_partial_hdulist(tmp_path):
         assert len(block_offsets) == 2
 
 
+def test_to_hdulist():
+    sci = np.arange(512, dtype=float)
+    dq = np.arange(512, dtype=float) + 1
+    tree = {
+        "meta": {
+            "foo": "bar",
+        },
+        "model": {
+            "sci": {
+                "data": sci,
+            },
+            "dq": {
+                "data": dq,
+            },
+        },
+    }
+
+    hdulist = asdf_in_fits.to_hdulist(tree)
+
+    # hdu should have primary and ASDF
+    assert len(hdulist) == 2
+    # check asdf extension has blocks by looking at the block index
+    bs = hdulist["ASDF"].data["ASDF_METADATA"].tobytes()
+    block_index_bs = bs.split(b"BLOCK INDEX")[1].strip()
+    block_offsets = yaml.load(block_index_bs, yaml.SafeLoader)
+    assert len(block_offsets) == 2
+
+
 @pytest.fixture
 def test_array():
     return np.arange(1000, dtype="f4").reshape((100, 10))
