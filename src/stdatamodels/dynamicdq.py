@@ -3,8 +3,6 @@ import logging
 import numpy as np
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.NullHandler())
 
 
 def dynamic_mask(input_model, mnemonic_map, inv=False):

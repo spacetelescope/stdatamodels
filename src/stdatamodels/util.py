@@ -6,20 +6,9 @@ import os
 import asdf
 import numpy as np
 from asdf import treeutil
+from asdf.treeutil import RemoveNode
 from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
-
-try:
-    from asdf.treeutil import RemoveNode
-except ImportError:
-    # Prior to asdf 2.8, None was used to indicate
-    # that a node should be removed.
-    RemoveNode = None
-
-import logging
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 def gentle_asarray(a, dtype, allow_extra_columns=False):
