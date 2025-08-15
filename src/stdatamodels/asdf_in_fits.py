@@ -5,7 +5,28 @@ from astropy.io import fits
 
 from . import fits_support
 
-__all__ = ["write", "open"]
+__all__ = ["write", "open", "to_hdulist"]
+
+
+def to_hdulist(tree, hdulist=None):
+    """
+    Add ASDF data to an hdulist (or create one if needed).
+
+    Parameters
+    ----------
+    tree : ASDF tree or dict
+        ASDF data to add to the hdulist
+
+    hdulist : `astropy.io.fits.HDUList`
+        Optional HDUList to add the ASDF data to. If not provided,
+        a new HDUList will be created.
+
+    Returns
+    -------
+    `astropy.io.fits.HDUList` :
+        HDUList with added ASDF data.
+    """
+    return fits_support.to_fits(tree, None, hdulist=hdulist)  # no custom schema
 
 
 def write(filename, tree, hdulist=None, **kwargs):
@@ -26,8 +47,7 @@ def write(filename, tree, hdulist=None, **kwargs):
     **kwargs
         Additional keyword arguments to pass to :meth:`astropy.io.fits.HDUList.writeto`
     """
-    hdulist = fits_support.to_fits(tree, None, hdulist=hdulist)  # no custom schema
-    hdulist.writeto(filename, **kwargs)
+    to_hdulist(tree, hdulist=hdulist).writeto(filename, **kwargs)
 
 
 def open(filename_or_hdu, ignore_missing_extensions=False, ignore_unrecognized_tag=False, **kwargs):  # noqa: A001
