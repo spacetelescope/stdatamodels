@@ -7,6 +7,12 @@ from . import fits_support
 
 __all__ = ["write", "open", "to_hdulist"]
 
+# This API is intended to replace the removed asdf.AsdfInFits
+# for community (non-pipeline) usage. When considering changes
+# a wider search for usage beyond pipeline code and documentation
+# is recommended as well as longer deprecation periods that
+# aren't as closely linked to pipeline releases.
+
 
 def to_hdulist(tree, hdulist=None):
     """
