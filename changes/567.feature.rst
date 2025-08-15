@@ -1,0 +1,1 @@
+Add ``asdf_in_fits.to_hdulist`` to add an ASDF extension to an in memory HDUList (or create one if needed).
