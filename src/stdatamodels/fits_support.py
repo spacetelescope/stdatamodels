@@ -21,7 +21,6 @@ from . import properties, util, validate
 from . import schema as mschema
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 __all__ = ["to_fits", "from_fits", "get_hdu", "is_builtin_fits_keyword"]
