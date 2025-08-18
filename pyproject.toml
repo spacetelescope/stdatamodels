@@ -43,6 +43,7 @@ test = [
     "psutil",
     "pyyaml",
     "pytest>=4.6.0",
+    "pytest-asdf-plugin",
     "pytest-doctestplus",
     "crds>=11.17.1",
     "requests",
