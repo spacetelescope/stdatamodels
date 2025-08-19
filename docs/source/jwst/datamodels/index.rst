@@ -13,6 +13,3 @@ Data Models
    new_model.rst
    structure.rst
    schemas.rst
-
-.. automodapi:: jwst.datamodels
-.. automodapi:: jwst.datamodels.dqflags
