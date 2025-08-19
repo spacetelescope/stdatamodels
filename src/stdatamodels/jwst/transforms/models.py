@@ -1252,6 +1252,7 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
         lmodels=None,
         xmodels=None,
         ymodels=None,
+        inv_lmodels=None,
         inv_xmodels=None,
         inv_ymodels=None,
         sampling=40,
@@ -1270,6 +1271,8 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
             List of models which govern the x solutions
         ymodels : list[~astropy.modeling.Model] or list[tuple[~astropy.modeling.Model]]
             List of models which govern the y solutions
+        inv_lmodels : None
+            Not used.
         inv_xmodels : list[~astropy.modeling.Model]
             List of models which will be used if inverse xmodels cannot be analytically derived
         inv_ymodels : list[~astropy.modeling.Model]
@@ -1301,6 +1304,7 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
         lmodels=None,
         xmodels=None,
         ymodels=None,
+        inv_lmodels=None,
         inv_xmodels=None,
         inv_ymodels=None,
         sampling=40,
@@ -1319,6 +1323,8 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
             List of models which govern the x solutions
         ymodels : list[~astropy.modeling.Model] or list[tuple[~astropy.modeling.Model]]
             List of models which govern the y solutions
+        inv_lmodels : None
+            Not used.
         inv_xmodels : list[~astropy.modeling.Model]
             List of models which will be used if inverse xmodels cannot be analytically derived
         inv_ymodels : list[~astropy.modeling.Model]
