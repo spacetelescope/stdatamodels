@@ -1,5 +1,4 @@
 import numpy as np
-from asdf.tags.core.ndarray import asdf_datatype_to_numpy_dtype
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
@@ -94,28 +93,29 @@ class MirImgPhotomModel(ReferenceFileModel):
             return hdulist
         timecoeff = hdulist["TIMECOEFF"]
 
-        # Get defaults for the current table
-        subschema = self.schema["properties"]["timecoeff_exponential"]
-        table_dtypes = subschema["datatype"]
-        table_defaults = subschema["default"]
-
         # Migrate existing additive correction to a multiplicative one.
         # Assume the timecoeff table size matches the photom table.
         table_data = timecoeff.data
-        table_data["amplitude"] /= hdulist["PHOTOM"].data["photmjsr"]
+        photom_data = hdulist["PHOTOM"].data
+        table_data["amplitude"] /= photom_data["photmjsr"]
 
-        # Make new arrays from default values
-        arrays_to_merge = [table_data]
+        # Make a constant array with value 1.0
         n_rows = table_data.shape[0]
-        for i, col in enumerate(table_dtypes):
-            if col["name"] in table_data.names:
-                continue
-            else:
-                default = table_defaults[i]
+        const_col = np.full(n_rows, 1.0, dtype=[("const", np.float32)])
 
-            np_dtype = asdf_datatype_to_numpy_dtype(col["datatype"])
-            new_col = np.full(n_rows, default, dtype=[(col["name"], np_dtype)])
-            arrays_to_merge.append(new_col)
+        # Add in filter and subarray columns from the photom table
+        filter_col = np.asarray(
+            photom_data["filter"], dtype=[("filter", photom_data.dtype["filter"])]
+        )
+        subarray_col = np.asarray(
+            photom_data["subarray"], dtype=[("subarray", photom_data.dtype["subarray"])]
+        )
+
+        # Prepend filter and subarray columns from the photom table,
+        # merge in the table data, append the constant column
+        arrays_to_merge = [filter_col, subarray_col, table_data, const_col]
+
+        # Merge the arrays and update the extension name
         timecoeff.data = merge_arrays(arrays_to_merge, flatten=True)
         timecoeff.name = "TIMECOEFF_EXPONENTIAL"
 
