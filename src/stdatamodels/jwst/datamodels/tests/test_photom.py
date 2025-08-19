@@ -46,9 +46,28 @@ def mir_img_timecoeff_exponential(phot_table):
     timecoeff_tau = np.full(nrows, 145)
     timecoeff_t0 = np.full(nrows, 59720)
     timecoeff_const = np.full(nrows, 1.0)
-    dtypec = np.dtype([("amplitude", "<f4"), ("tau", "<f4"), ("t0", "<f4"), ("const", "<f4")])
+    dtypec = np.dtype(
+        [
+            ("filter", "S12"),
+            ("subarray", "S15"),
+            ("amplitude", "<f4"),
+            ("tau", "<f4"),
+            ("t0", "<f4"),
+            ("const", "<f4"),
+        ]
+    )
     reftabc = np.array(
-        list(zip(timecoeff_amp, timecoeff_tau, timecoeff_t0, timecoeff_const, strict=True)),
+        list(
+            zip(
+                phot_table["filter"],
+                phot_table["subarray"],
+                timecoeff_amp,
+                timecoeff_tau,
+                timecoeff_t0,
+                timecoeff_const,
+                strict=True,
+            )
+        ),
         dtype=dtypec,
     )
     return reftabc
