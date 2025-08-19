@@ -40,10 +40,6 @@ allOf:
     timecoeff_linear:
       title: Linear time dependence coefficients for photometric corrections
       fits_hdu: TIMECOEFF_LINEAR
-      default: [
-        NaN,  # t0
-        NaN,  # lossperyear
-      ]
       datatype:
       - name: filter
         datatype: [ascii, 12]
@@ -62,12 +58,6 @@ allOf:
     timecoeff_exponential:
       title: Exponential time dependence coefficients for photometric corrections
       fits_hdu: TIMECOEFF_EXPONENTIAL
-      default: [
-        NaN,  # t0
-        NaN,  # amplitude
-        NaN,  # tau
-        0.0,  # const
-      ]
       datatype:
       - name: filter
         datatype: [ascii, 12]
@@ -92,12 +82,6 @@ allOf:
     timecoeff_powerlaw:
       title: Time dependence coefficients for photometric corrections
       fits_hdu: TIMECOEFF_POWERLAW
-      default: [
-        NaN,  # t0
-        NaN,  # year1value
-        NaN,  # tsoft
-        NaN,  # alpha
-      ]
       datatype:
       - name: filter
         datatype: [ascii, 12]

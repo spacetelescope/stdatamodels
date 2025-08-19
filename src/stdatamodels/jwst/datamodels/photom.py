@@ -21,7 +21,42 @@ __all__ = [
 ]
 
 
-class FgsImgPhotomModel(ReferenceFileModel):
+class _PhotomModel(ReferenceFileModel):
+    """Implement a validation scheme for photom models."""
+
+    def validate(self):
+        """
+        Validate optional timecoeff extensions.
+
+        If present, timecoeff_linear, timecoeff_exponential, and timecoeff_powerlaw
+        extensions must match the length and descriptive columns present in the
+        phot_table extension.
+        """
+        super().validate()
+        try:
+            timecoeff = ["timecoeff_linear", "timecoeff_exponential", "timecoeff_powerlaw"]
+            for extension in timecoeff:
+                message = f"Model.phot_table and Model.{extension} do not match"
+                if self.hasattr("phot_table") and self.hasattr(extension):
+                    table = getattr(self, extension)
+                    assert len(self.phot_table) == len(table), message
+
+                    phot_columns = [
+                        dtype["name"]
+                        for dtype in self.schema["properties"]["phot_table"]["datatype"]
+                    ]
+                    timecoeff_columns = [
+                        dtype["name"] for dtype in self.schema["properties"][extension]["datatype"]
+                    ]
+                    for col in phot_columns:
+                        if col in timecoeff_columns:
+                            assert np.all(self.phot_table[col] == table[col]), message
+
+        except AssertionError as errmsg:
+            self.print_err(str(errmsg))
+
+
+class FgsImgPhotomModel(_PhotomModel):
     """
     A data model for FGS photom reference files.
 
@@ -40,7 +75,7 @@ class FgsImgPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fgsimg_photom.schema"
 
 
-class MirImgPhotomModel(ReferenceFileModel):
+class MirImgPhotomModel(_PhotomModel):
     """
     A data model for MIRI imaging photom reference files.
 
@@ -125,7 +160,7 @@ class MirImgPhotomModel(ReferenceFileModel):
         super(MirImgPhotomModel, self).__init__(init=init, **kwargs)
 
 
-class MirLrsPhotomModel(ReferenceFileModel):
+class MirLrsPhotomModel(_PhotomModel):
     """
     A data model for MIRI LRS photom reference files.
 
@@ -150,7 +185,7 @@ class MirLrsPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
 
 
-class MirMrsPhotomModel(ReferenceFileModel):
+class MirMrsPhotomModel(_PhotomModel):
     """
     A data model for MIRI MRS photom reference files.
 
@@ -194,7 +229,7 @@ class MirMrsPhotomModel(ReferenceFileModel):
         self.dq = dynamic_mask(self, pixel)
 
 
-class NrcImgPhotomModel(ReferenceFileModel):
+class NrcImgPhotomModel(_PhotomModel):
     """
     A data model for NIRCam imaging photom reference files.
 
@@ -218,7 +253,7 @@ class NrcImgPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrcimg_photom.schema"
 
 
-class NrcWfssPhotomModel(ReferenceFileModel):
+class NrcWfssPhotomModel(_PhotomModel):
     """
     A data model for NIRCam WFSS photom reference files.
 
@@ -244,7 +279,7 @@ class NrcWfssPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrcwfss_photom.schema"
 
 
-class NisImgPhotomModel(ReferenceFileModel):
+class NisImgPhotomModel(_PhotomModel):
     """
     A data model for NIRISS imaging photom reference files.
 
@@ -265,7 +300,7 @@ class NisImgPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nisimg_photom.schema"
 
 
-class NisWfssPhotomModel(ReferenceFileModel):
+class NisWfssPhotomModel(_PhotomModel):
     """
     A data model for NIRISS WFSS photom reference files.
 
@@ -291,7 +326,7 @@ class NisWfssPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/niswfss_photom.schema"
 
 
-class NisSossPhotomModel(ReferenceFileModel):
+class NisSossPhotomModel(_PhotomModel):
     """
     A data model for NIRISS SOSS photom reference files.
 
@@ -317,7 +352,7 @@ class NisSossPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nissoss_photom.schema"
 
 
-class NrsFsPhotomModel(ReferenceFileModel):
+class NrsFsPhotomModel(_PhotomModel):
     """
     A data model for NIRSpec Fixed-Slit photom reference files.
 
@@ -343,7 +378,7 @@ class NrsFsPhotomModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrsfs_photom.schema"
 
 
-class NrsMosPhotomModel(ReferenceFileModel):
+class NrsMosPhotomModel(_PhotomModel):
     """
     A data model for NIRSpec MOS and IFU photom reference files.
 
