@@ -173,19 +173,19 @@ class GrismObject(
         order_bounding : dict{order: tuple}
             Contains the object x,y bounding locations on the image
             keyed on spectral order
-        sky_centroid : `~astropy.coordinates.SkyCoord`
+        sky_centroid : :class:`astropy.coordinates.SkyCoord`
             RA and Dec of the center of the object
         partial_order : bool
             True if the order is only partially contained on the image
         waverange : list
             Wavelength range for the order
-        sky_bbox_ll : `~astropy.coordinates.SkyCoord`
+        sky_bbox_ll : :class:`astropy.coordinates.SkyCoord`
             Lower left corner of the minimum bounding box
-        sky_bbox_lr : `~astropy.coordinates.SkyCoord`
+        sky_bbox_lr : :class:`astropy.coordinates.SkyCoord`
             Lower right corder of the minimum bounding box
-        sky_bbox_ur : `~astropy.coordinates.SkyCoord`
+        sky_bbox_ur : :class:`astropy.coordinates.SkyCoord`
             Upper right corner of the minimum bounding box
-        sky_bbox_ul : `~astropy.coordinates.SkyCoord`
+        sky_bbox_ul : :class:`astropy.coordinates.SkyCoord`
             Upper left corner of the minimum bounding box
         xcentroid, ycentroid : float
             The x, y center of object in pixels
@@ -371,7 +371,7 @@ class Gwa2Slit(Model):
         "source_alias", "stellarity", "source_xpos", "source_ypos",
         "source_ra", "source_dec"])
     models : list
-        List of models (`~astropy.modeling.core.Model`) corresponding to the
+        List of models (:class:`astropy.modeling.core.Model`) corresponding to the
         list of slits.
     """
 
@@ -430,7 +430,7 @@ class Gwa2Slit(Model):
 
         Returns
         -------
-        `~astropy.modeling.core.Model`
+        :class:`astropy.modeling.core.Model`
             Model for the given slit.
         """
         index = self.slit_ids.index(name)
@@ -479,7 +479,7 @@ class Slit2Gwa(Model):
         "source_alias", "stellarity", "source_xpos", "source_ypos",
         "source_ra", "source_dec"])
     models : list
-        List of models (`~astropy.modeling.core.Model`) corresponding to the
+        List of models (:class:`astropy.modeling.core.Model`) corresponding to the
         list of slits.
     """
 
@@ -548,7 +548,7 @@ class Slit2MsaLegacy(Model):
             "source_alias", "stellarity", "source_xpos", "source_ypos",
             "source_ra", "source_dec")
         models : list
-            List of models (`~astropy.modeling.core.Model`) corresponding to the
+            List of models (:class:`astropy.modeling.core.Model`) corresponding to the
             list of slits.
         """
         super(Slit2MsaLegacy, self).__init__()
@@ -597,7 +597,7 @@ class Slit2MsaLegacy(Model):
 
         Returns
         -------
-        `~astropy.modeling.core.Model`
+        :class:`astropy.modeling.core.Model`
             Model for the given slit.
         """
         index = self.slit_ids.index(name)
@@ -645,7 +645,7 @@ class Slit2Msa(Model):
             "source_alias", "stellarity", "source_xpos", "source_ypos",
             "source_ra", "source_dec")
         models : list
-            List of models (`~astropy.modeling.core.Model`) corresponding to the
+            List of models (:class:`astropy.modeling.core.Model`) corresponding to the
             list of slits.
         """
         super(Slit2Msa, self).__init__()
@@ -694,7 +694,7 @@ class Slit2Msa(Model):
 
         Returns
         -------
-        `~astropy.modeling.core.Model`
+        :class:`astropy.modeling.core.Model`
             Model for the given slit.
         """
         index = self.slit_ids.index(name)
@@ -740,7 +740,7 @@ class Msa2Slit(Model):
         "source_alias", "stellarity", "source_xpos", "source_ypos",
         "source_ra", "source_dec")
     models : list
-        List of models (`~astropy.modeling.core.Model`) corresponding to the
+        List of models (`:class:`astropy.modeling.core.Model`) corresponding to the
         list of slits.
     """
 
@@ -802,7 +802,7 @@ class NirissSOSSModel(Model):
         ----------
         spectral_orders : list of int
             Spectral orders for which there is a wavelength solution.
-        models : list of `~astropy.modeling.core.Model`
+        models : list of :class:`astropy.modeling.core.Model`
             A list of transforms representing the wavelength solution for
             each order in spectral orders. It should match the order in
             ``spectral_orders``.
@@ -827,7 +827,7 @@ class NirissSOSSModel(Model):
 
         Returns
         -------
-        model : `~astropy.modeling.core.Model`
+        model : :class:`astropy.modeling.core.Model`
             Model for the given spectral order.
         """
         return self.models[spectral_order]
@@ -1266,10 +1266,11 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
-        xmodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1277,17 +1278,18 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
             The outer list corresponds to the different spectral orders.
             Legacy calibrations of the trace did not encode the x0, y0 dependence;
             models of the form dx = xmodel(t) were used instead, and are also supported here.
-        ymodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             Not used for row-wise dispersion, since y is the cross-dispersion direction.
-        inv_lmodels : list[~astropy.modeling.Model]
+        inv_lmodels : list[:class:`astropy.modeling.core.Model`]
             Not used for the forward transform.
-        inv_xmodels : list[~astropy.modeling.Polynomial1D]
+        inv_xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial models, one per order, such that
             t = inv_xmodel(dx) computes the trace parameter from the x-position.
             The inverse models are no longer used for newer calibrations because the field
             dependence of the trace shape is not easily invertible.
             The use of inverse models is still supported for use by legacy trace calibrations.
-        inv_ymodels : list[~astropy.modeling.Polynomial1D]
+        inv_ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             Not used for row-wise dispersion, since y is the cross-dispersion direction.
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
@@ -1329,12 +1331,14 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
-        xmodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             Not used for column-wise dispersion, since x is the cross-dispersion direction.
-        ymodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1342,11 +1346,11 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
             The outer list corresponds to the different spectral orders.
             Legacy calibrations of the trace did not encode the x0, y0 dependence;
             models of the form dy = ymodel(t) were used instead, and are also supported here.
-        inv_lmodels : list[~astropy.modeling.Model]
+        inv_lmodels : list[:class:`astropy.modeling.core.Model`]
             Not used for the forward transform.
-        inv_xmodels : list[~astropy.modeling.Polynomial1D]
+        inv_xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             Not used for column-wise dispersion, since x is the cross-dispersion direction.
-        inv_ymodels : list[~astropy.modeling.Polynomial1D]
+        inv_ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial models, one per order, such that
             t = inv_ymodel(dy) computes the trace parameter from the y-position.
             The inverse models are no longer used for newer calibrations because the field
@@ -1392,11 +1396,12 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
             Only used if inv_lmodels is not set.
-        xmodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1404,7 +1409,8 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             The outer list corresponds to the different spectral orders.
             Legacy calibrations of the trace did not encode the x0, y0 dependence;
             models of the form dx = xmodel(t) were used instead, and are also supported here.
-        ymodels : list[~astropy.modeling.Polynomial1D] or list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`] or \
+            list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1412,13 +1418,13 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             The outer list corresponds to the different spectral orders.
             Legacy calibrations of the trace did not encode the x0, y0 dependence;
             models of the form dy = ymodel(t) were used instead, and are also supported here.
-        inv_lmodels : list[~astropy.modeling.Model]
+        inv_lmodels : list[:class:`astropy.modeling.core.Model`]
             The inverse dispersion polynomial models, one per order,
             such that t = lmodel(wavelength) computes the trace parameter
             from the wavelength.
-        inv_xmodels : list[~astropy.modeling.Polynomial1D]
+        inv_xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             Not used for the backward transform.
-        inv_ymodels : list[~astropy.modeling.Polynomial1D]
+        inv_ymodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             Not used for the backward transform.
         sampling : int, optional
             Number of sampling points in t to use; these will be linearly interpolated.
@@ -1493,7 +1499,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
 
         Parameters
         ----------
-        model : tuple[~astropy.modeling.Polynomial2D]
+        model : tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]
             The models encoding the x, y dependence of the trace model's
             polynomial coefficients.
         x0, y0 : float or np.ndarray
@@ -1618,17 +1624,17 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial models, one per order,
             such that t = lmodel(wavelength) computes the wavelength
             from the trace parameter.
-        xmodels : list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
             The inner list corresponds to the 2-D polynomials (C0, C1, C2).
             The outer list corresponds to the different spectral orders.
-        ymodels : list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1810,17 +1816,17 @@ class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Model]
+        lmodels : list[:class:`astropy.modeling.core.Model`]
             The forward dispersion polynomial models, one per order,
             such that wavelength = lmodel(t) computes the trace parameter
             from the wavelength.
-        xmodels : list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
             The inner list corresponds to the 2-D polynomials (C0, C1, C2).
             The outer list corresponds to the different spectral orders.
-        ymodels : list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1872,17 +1878,17 @@ class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-        lmodels : list[~astropy.modeling.Model]
+        lmodels : list[:class:`astropy.modeling.core.Model`]
             The forward dispersion polynomial models, one per order,
             such that wavelength = lmodel(t) computes the trace parameter
             from the wavelength.
-        xmodels : list[list[~astropy.modeling.Polynomial2D]]
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
             The inner list corresponds to the 2-D polynomials (C0, C1, C2).
             The outer list corresponds to the different spectral orders.
-        ymodels : list[list[~astropy.modeling.Polynomial2D]]
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2.
@@ -1917,7 +1923,7 @@ def _poly_with_spatial_dependence(t, x0, y0, model):
         The trace parameter(s).
     x0, y0 : float or np.ndarray
         The x, y coordinates at which to evaluate the polynomial.
-    model : list[~astropy.modeling.Polynomial2D]
+    model : list[:class:`astropy.modeling.polynomial.Polynomial2D`]
         The models encoding the x, y dependence of the polynomial coefficients.
 
     Returns
@@ -1942,7 +1948,7 @@ def _evaluate_transform_guess_form(model, x=None, y=None, t=None):
 
     Parameters
     ----------
-    model : ~astropy.modeling.Model or list[~astropy.modeling.Model]
+    model : :class:`astropy.modeling.core.Model` or list[:class:`astropy.modeling.core.Model`]
         The transform model(s) to evaluate.
     x : float or np.ndarray
         The x coordinate(s) at which to evaluate the model.
@@ -2005,13 +2011,13 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion trace model, such that t = lmodel(wavelength)
             computes the trace parameter from the wavelength.
-        xmodels : list[~astropy.modeling.Polynomial1D]
+        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The polynomial model encoding the x-position of the spectral trace.
             It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[~astropy.modeling.Polynomial2D]]
+        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The polynomial models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
@@ -2087,13 +2093,13 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
-        lmodels : list[~astropy.modeling.Polynomial1D]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion trace model, such that wavelength = lmodel(t)
             computes the wavelength from the trace parameter.
-        xmodels : list[~astropy.modeling.Polynomial1D]
+        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The polynomial model encoding the x-position of the spectral trace.
             It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[~astropy.modeling.Polynomial2D]]
+        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The polynomial models encoding the y-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
