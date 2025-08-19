@@ -1,8 +1,10 @@
 """Tests for photom models."""
 
 import numpy as np
+import pytest
 from astropy.io import fits
 
+from stdatamodels.exceptions import ValidationWarning
 from stdatamodels.jwst.datamodels import MirImgPhotomModel
 
 
@@ -77,6 +79,14 @@ def mir_img_phot_hdulist(old_style=False):
     """Make a MIRI image PHOTOM HDUList."""
     primary = fits.PrimaryHDU()
 
+    # Add required metadata
+    primary.header["DESCRIP"] = "Test description"
+    primary.header["REFTYPE"] = "photom"
+    primary.header["AUTHOR"] = "Test Author"
+    primary.header["PEDIGREE"] = "test"
+    primary.header["USEAFTER"] = "2024-01-01"
+    primary.header["INSTRUME"] = "MIRI"
+
     phot_table = mir_img_phot_table()
     phot = fits.BinTableHDU(phot_table, name="PHOTOM")
 
@@ -99,3 +109,64 @@ def test_initialize_from_timecoeff():
         model = MirImgPhotomModel(new_style_phot_hdul)
 
     np.testing.assert_equal(migrated_model.timecoeff_exponential, model.timecoeff_exponential)
+
+
+def test_valid_timecoeff():
+    """Test validation for valid timecoeff extensions."""
+    with mir_img_phot_hdulist() as phot_hdul:
+        # Input models should be validate
+        assert len(phot_hdul["PHOTOM"].data) == len(phot_hdul["TIMECOEFF_EXPONENTIAL"].data)
+        assert np.all(phot_hdul["PHOTOM"].data["filter"] == phot_hdul["PHOTOM"].data["filter"])
+        assert np.all(phot_hdul["PHOTOM"].data["subarray"] == phot_hdul["PHOTOM"].data["subarray"])
+
+        # No errors thrown with strict validation
+        model = MirImgPhotomModel(phot_hdul, strict_validation=True)
+        model.validate()
+
+        # Empty extensions are not added
+        assert not model.hasattr("timecoeff_linear")
+        assert not model.hasattr("timecoeff_powerlaw")
+
+
+@pytest.mark.parametrize("strict", [True, False])
+def test_invalid_timecoeff_mismatched_length(strict):
+    """Test validation for timecoeff extensions with mismatched table length."""
+    with mir_img_phot_hdulist() as phot_hdul:
+        # Truncate the exponential timecoeff table
+        phot_hdul["TIMECOEFF_EXPONENTIAL"].data = phot_hdul["TIMECOEFF_EXPONENTIAL"].data[1:]
+        assert len(phot_hdul["PHOTOM"].data) != len(phot_hdul["TIMECOEFF_EXPONENTIAL"].data)
+
+        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        expected_message = "Model.phot_table and Model.timecoeff_exponential do not match"
+        if strict:
+            with pytest.raises(ValueError, match=expected_message):
+                model.validate()
+        else:
+            with pytest.warns(ValidationWarning, match=expected_message):
+                model.validate()
+
+        # Empty extensions are not added
+        assert not model.hasattr("timecoeff_linear")
+        assert not model.hasattr("timecoeff_powerlaw")
+
+
+@pytest.mark.parametrize("strict", [True, False])
+def test_invalid_timecoeff_mismatched_values(strict):
+    """Test validation for timecoeff extensions with mismatched table order."""
+    with mir_img_phot_hdulist() as phot_hdul:
+        # Reorder the exponential timecoeff table
+        phot_hdul["TIMECOEFF_EXPONENTIAL"].data = phot_hdul["TIMECOEFF_EXPONENTIAL"].data[::-1]
+        assert len(phot_hdul["PHOTOM"].data) == len(phot_hdul["TIMECOEFF_EXPONENTIAL"].data)
+
+        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        expected_message = "Model.phot_table and Model.timecoeff_exponential do not match"
+        if strict:
+            with pytest.raises(ValueError, match=expected_message):
+                model.validate()
+        else:
+            with pytest.warns(ValidationWarning, match=expected_message):
+                model.validate()
+
+        # Empty extensions are not added
+        assert not model.hasattr("timecoeff_linear")
+        assert not model.hasattr("timecoeff_powerlaw")
