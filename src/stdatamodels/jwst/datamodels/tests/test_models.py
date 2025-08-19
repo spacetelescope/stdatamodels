@@ -1,3 +1,4 @@
+import shutil
 import warnings
 from pathlib import Path
 
@@ -73,7 +74,11 @@ def test_skip_fits_update(make_models, which_file):
     """Ensure updates to the fits header get picked up on datamodel.open call"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
-    with fits.open(path) as hduls:
+
+    # astropy does not allow overwriting an open file on windows
+    new_path = path.parent / "tmp.fits"
+    shutil.move(path, new_path)
+    with fits.open(new_path) as hduls:
         hduls[0].header["exp_type"] = "FGS_DARK"
         hduls.writeto(path, overwrite=True)
 
