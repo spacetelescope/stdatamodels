@@ -20,7 +20,11 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     dispx:
         description: |
           Nircam Grism row dispersion model, instance of astropy.modeling.Model
@@ -30,7 +34,11 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     dispy:
         description: |
           Nircam Grism column dispersion model, instance of astropy.modeling.Model
@@ -40,7 +48,11 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     invdispl:
         description: |
           Nircam Grism inverse wavelength dispersion model, instance of astropy.modeling.Model
@@ -50,7 +62,11 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     invdispx:
         description: |
           Nircam Grism inverse row dispersion model, instance of astropy.modeling.Model
@@ -60,7 +76,11 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     invdispy:
         description: |
           Nircam Grism inverse column dispersion model, instance of astropy.modeling.Model
@@ -70,10 +90,20 @@ allOf:
             - type: object
             - type: array
               items:
-                type: object
+                oneOf:
+                  - type: object
+                  - type: array
+                    items:
+                      type: object
     orders:
         description: |
           NIRCAM Grism orders, matched to the array locations of the dispersion models
+        type: array
+        items:
+          type: number
+    stripes:
+        description: |
+          NIRCAM Grism DHS stripe numbers, matched to the array locations of the dispersion models
         type: array
         items:
           type: number
