@@ -26,22 +26,8 @@ def mir_img_phot_table():
     return reftab
 
 
-def mir_img_timecoeff(phot_table):
-    """Make a MIRI image TIMECOEFF table (old-style)."""
-    nrows = len(phot_table)
-    timecoeff_amp = np.linspace(2.1, 2.1 + (nrows - 1.0) * 0.1, nrows)
-    timecoeff_tau = np.full(nrows, 145)
-    timecoeff_t0 = np.full(nrows, 59720)
-    dtypec = np.dtype([("amplitude", "<f4"), ("tau", "<f4"), ("t0", "<f4")])
-    reftabc = np.array(
-        list(zip(timecoeff_amp, timecoeff_tau, timecoeff_t0, strict=True)),
-        dtype=dtypec,
-    )
-    return reftabc
-
-
 def mir_img_timecoeff_exponential(phot_table):
-    """Make a MIRI image TIMECOEFF_EXPONENTIAL table (new-style)."""
+    """Make a MIRI image TIMECOEFF_EXPONENTIAL table."""
     nrows = len(phot_table)
     photmjsr = phot_table["photmjsr"]
     timecoeff_amp = np.linspace(2.1, 2.1 + (nrows - 1.0) * 0.1, nrows) / photmjsr
@@ -75,7 +61,7 @@ def mir_img_timecoeff_exponential(phot_table):
     return reftabc
 
 
-def mir_img_phot_hdulist(old_style=False):
+def mir_img_phot_hdulist():
     """Make a MIRI image PHOTOM HDUList."""
     primary = fits.PrimaryHDU()
 
@@ -90,25 +76,11 @@ def mir_img_phot_hdulist(old_style=False):
     phot_table = mir_img_phot_table()
     phot = fits.BinTableHDU(phot_table, name="PHOTOM")
 
-    if old_style:
-        timecoeff_table = mir_img_timecoeff(phot_table)
-        timecoeff = fits.BinTableHDU(timecoeff_table, name="TIMECOEFF")
-    else:
-        timecoeff_table = mir_img_timecoeff_exponential(phot_table)
-        timecoeff = fits.BinTableHDU(timecoeff_table, name="TIMECOEFF_EXPONENTIAL")
+    timecoeff_table = mir_img_timecoeff_exponential(phot_table)
+    timecoeff = fits.BinTableHDU(timecoeff_table, name="TIMECOEFF_EXPONENTIAL")
 
     hdulist = fits.HDUList([primary, phot, timecoeff])
     return hdulist
-
-
-def test_initialize_from_timecoeff():
-    """Test that old-style MIRI image time dependence is migrated correctly."""
-    with mir_img_phot_hdulist(old_style=True) as old_style_phot_hdul:
-        migrated_model = MirImgPhotomModel(old_style_phot_hdul)
-    with mir_img_phot_hdulist(old_style=False) as new_style_phot_hdul:
-        model = MirImgPhotomModel(new_style_phot_hdul)
-
-    np.testing.assert_equal(migrated_model.timecoeff_exponential, model.timecoeff_exponential)
 
 
 def test_valid_timecoeff():

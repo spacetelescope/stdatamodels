@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
 
@@ -101,60 +100,6 @@ class MirImgPhotomModel(_PhotomModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirimg_photom.schema"
-
-    def _migrate_hdulist(self, hdulist):
-        """
-        Accommodate old-style time dependence coefficients.
-
-        This method is only called when a datamodel is constructed using a
-        HDUList or a string (not when the DataModel is cloned or created
-        from an existing DataModel).
-
-        The migration occurs prior to loading the ASDF extension.
-
-        Parameters
-        ----------
-        hdulist : HDUList
-            The opened hdulist that this method should migrate.
-
-        Returns
-        -------
-        migrated_hdulist : HDUList
-            The migrated/updated hdulist. This is identical to the
-            input hdulist if no migration is needed.
-        """
-        # Get the timecoeff extension, if present
-        if "TIMECOEFF" not in hdulist or "PHOTOM" not in hdulist:
-            return hdulist
-        timecoeff = hdulist["TIMECOEFF"]
-
-        # Migrate existing additive correction to a multiplicative one.
-        # Assume the timecoeff table size matches the photom table.
-        table_data = timecoeff.data
-        photom_data = hdulist["PHOTOM"].data
-        table_data["amplitude"] /= photom_data["photmjsr"]
-
-        # Make a constant array with value 1.0
-        n_rows = table_data.shape[0]
-        const_col = np.full(n_rows, 1.0, dtype=[("const", np.float32)])
-
-        # Add in filter and subarray columns from the photom table
-        filter_col = np.asarray(
-            photom_data["filter"], dtype=[("filter", photom_data.dtype["filter"])]
-        )
-        subarray_col = np.asarray(
-            photom_data["subarray"], dtype=[("subarray", photom_data.dtype["subarray"])]
-        )
-
-        # Prepend filter and subarray columns from the photom table,
-        # merge in the table data, append the constant column
-        arrays_to_merge = [filter_col, subarray_col, table_data, const_col]
-
-        # Merge the arrays and update the extension name
-        timecoeff.data = merge_arrays(arrays_to_merge, flatten=True)
-        timecoeff.name = "TIMECOEFF_EXPONENTIAL"
-
-        return hdulist
 
     def __init__(self, init=None, **kwargs):
         super(MirImgPhotomModel, self).__init__(init=init, **kwargs)
