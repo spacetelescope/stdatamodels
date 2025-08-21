@@ -185,9 +185,13 @@ class MirLrsPhotomModel(_PhotomModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
 
 
-class MirMrsPhotomModel(_PhotomModel):
+class MirMrsPhotomModel(ReferenceFileModel):
     """
     A data model for MIRI MRS photom reference files.
+
+    The MIRI MRS photom model does not yet have multiple timecoeff
+    tables, so it inherits directly from ReferenceFileModel, unlike
+    the other photom models.
 
     Attributes
     ----------
