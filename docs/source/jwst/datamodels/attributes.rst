@@ -43,6 +43,6 @@ of the image.
 JwstDataModel Base Class
 ------------------------
 
-.. autoclass:: jwst.datamodels.JwstDataModel
+.. autoclass:: stdatamodels.jwst.datamodels.JwstDataModel
    :members:
    :noindex:
