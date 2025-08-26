@@ -2808,6 +2808,6 @@ properties:
             fits_keyword: MASTERBG
           scaling_factor:
             title: Background scale factor
-            type: string
+            type: number
             fits_keyword: BKGD_SCL
             blend_table: True
