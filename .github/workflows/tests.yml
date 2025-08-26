@@ -67,6 +67,7 @@ jobs:
         - linux: py3-cov-xdist
           coverage: codecov
         - macos: py3-xdist
+        - windows: py3-xdist-nocrds
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@28e947497bed4d6ec3fa1d66d198e95a1d17bc63  # v2.2.1
     needs: [ data ]

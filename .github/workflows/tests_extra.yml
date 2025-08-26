@@ -64,7 +64,6 @@ jobs:
       envs: |
         - macos: py311-xdist
         - windows: py311-xdist-nocrds
-        - windows: py3-xdist-nocrds
         - linux: py3-devdeps-xdist
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@28e947497bed4d6ec3fa1d66d198e95a1d17bc63  # v2.2.1
