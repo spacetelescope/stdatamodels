@@ -1,6 +1,12 @@
 name: extra tests
 
 on:
+  push:
+    branches:
+      - main
+      - '*.x'
+    tags:
+      - '*'
   schedule:
     # Weekly Monday midnight build
     - cron: "0 0 * * 1"
