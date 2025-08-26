@@ -1,4 +1,4 @@
-name: test on schedule
+name: extra tests
 
 on:
   schedule:
@@ -59,3 +59,17 @@ jobs:
         - macos: py311-xdist
         - windows: py311-xdist-nocrds
         - windows: py3-xdist-nocrds
+        - linux: py3-devdeps-xdist
+  test_downstream:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@28e947497bed4d6ec3fa1d66d198e95a1d17bc63  # v2.2.1
+    needs: [ data ]
+    with:
+      setenv: |
+        CRDS_PATH: ${{ needs.data.outputs.crds_path }}
+        CRDS_SERVER_URL: ${{ needs.data.outputs.crds_server }}
+        CRDS_CLIENT_RETRY_COUNT: 3
+        CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
+      cache-path: ${{ needs.data.outputs.crds_path }}
+      cache-key: crds-${{ needs.data.outputs.crds_context }}
+      envs: |
+        - linux: py311-jwst-devdeps-xdist
