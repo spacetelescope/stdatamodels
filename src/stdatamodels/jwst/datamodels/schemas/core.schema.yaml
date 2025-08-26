@@ -2370,7 +2370,7 @@ properties:
           bkg_subtract:
             title: Background subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_BKDSUB
             blend_table: True
           badpix_selfcal:
