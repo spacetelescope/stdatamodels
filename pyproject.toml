@@ -2,25 +2,21 @@
 name = "stdatamodels"
 description = "Core support for DataModel classes used in calibration pipelines"
 requires-python = ">=3.11"
-authors = [
-    { name = "STScI" },
-]
+authors = [{ name = "STScI" }]
 classifiers = [
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Astronomy",
-    "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Astronomy",
+  "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "asdf>=3.3.0",
-    "asdf-transform-schemas>=0.6.0",
-    "asdf-astropy>=0.6.0",
-    "numpy>=1.25",
-    "astropy>=6.1",
+  "asdf>=3.3.0",
+  "asdf-transform-schemas>=0.6.0",
+  "asdf-astropy>=0.6.0",
+  "numpy>=1.25",
+  "astropy>=6.1",
 ]
 license-files = ["LICENSE"]
-dynamic = [
-    "version",
-]
+dynamic = ["version"]
 
 [project.readme]
 file = "README.md"
@@ -40,29 +36,25 @@ jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_resource_mappings"
 
 [project.optional-dependencies]
 test = [
-    "psutil",
-    "pyyaml",
-    "pytest>=4.6.0",
-    "pytest-asdf-plugin",
-    "pytest-doctestplus",
-    "crds>=11.17.1",
-    "requests",
-    "scipy>=1.9.2", # same as astropy
+  "psutil",
+  "pyyaml",
+  "pytest>=4.6.0",
+  "pytest-asdf-plugin",
+  "pytest-doctestplus",
+  "crds>=11.17.1",
+  "requests",
+  "scipy>=1.9.2",       # same as astropy
 ]
 docs = [
-    "sphinx",
-    "sphinx-automodapi",
-    "numpydoc",
-    "sphinx-rtd-theme",
-    "sphinx-asdf>=0.1.1",
+  "sphinx",
+  "sphinx-automodapi",
+  "numpydoc",
+  "sphinx-rtd-theme",
+  "sphinx-asdf>=0.1.1",
 ]
 
 [build-system]
-requires = [
-    "setuptools>=61.2",
-    "setuptools_scm[toml]>=3.4",
-    "wheel",
-]
+requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -70,72 +62,55 @@ zip-safe = true
 include-package-data = false
 
 [tool.setuptools.packages.find]
-where = [
-    "src",
-]
+where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-dir]
 "" = "src"
 
 [tool.setuptools.package-data]
-"*" = [
-    "*.yaml",
-]
+"*" = ["*.yaml"]
 "stdatamodels.jwst.transforms" = [
-    "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
+  "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
 ]
 
 [tool.flake8]
-exclude = [
-    ".git",
-    "__pycache__",
-    "docs",
-    "build",
-    "dist",
-    ".tox",
-    ".eggs",
-]
-ignore = [
-    "E203",
-    "W503",
-    "W504",
-    "W605",
-]
+exclude = [".git", "__pycache__", "docs", "build", "dist", ".tox", ".eggs"]
+ignore = ["E203", "W503", "W504", "W605"]
 max-line-length = 130
 select = [
-    "F",
-    "W",
-    "E101",
-    "E111",
-    "E112",
-    "E113",
-    "E401",
-    "E402",
-    "E501",
-    "E711",
-    "E722",
+  "F",
+  "W",
+  "E101",
+  "E111",
+  "E112",
+  "E113",
+  "E401",
+  "E402",
+  "E501",
+  "E711",
+  "E722",
 ]
 
 [tool.numpydoc_validation]
 checks = [
-    "all", # Adds all rules except the ones listed below
-    "EX01", # No examples section found
-    "SA01", # See Also section not found
-    "ES01", # No extended summary found
-    "GL08", # Object does not have a docstring. Ruff catches these, and allows more granular ignores.
-    "PR01", # Parameters not documented. Already caught by ruff.
-    "PR09", # Parameter description should finish with a period
-    "RT02", # First line of return should contain only the type
-    "RT05", # Return value description should finish with a period
+  "all",  # Adds all rules except the ones listed below
+  "EX01", # No examples section found
+  "SA01", # See Also section not found
+  "ES01", # No extended summary found
+  "GL08", # Object does not have a docstring. Ruff catches these, and allows more granular ignores.
+  "PR01", # Parameters not documented. Already caught by ruff.
+  "PR09", # Parameter description should finish with a period
+  "RT02", # First line of return should contain only the type
+  "RT05", # Return value description should finish with a period
 ]
 exclude = [ # exclude the following methods
-    "shape$",
-    "validate$",
-    "copy$",
-    "__call__$",
-    "inverse$",
-    "__str__$",
+  "shape$",
+  "validate$",
+  "copy$",
+  "__call__$",
+  "inverse$",
+  "__str__$",
 ]
 
 [tool.codespell]
@@ -148,36 +123,25 @@ doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
 addopts = "--color=yes"
-testpaths = [
-    "docs",
-    "tests",
-    "src/stdatamodels/jwst",
-]
+testpaths = ["docs", "tests", "src/stdatamodels/jwst"]
 filterwarnings = [
-    # turn all warnings into errors, this includes ResourceWarning which
-    # allows catching files left open by tests
-    "error",
-    # astropy table issues this warning on import so we ignore it here
-    "ignore:numpy.ndarray size changed:RuntimeWarning",
+  # turn all warnings into errors, this includes ResourceWarning which
+  # allows catching files left open by tests
+  "error",
+  # astropy table issues this warning on import so we ignore it here
+  "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]
 asdf_schema_tests_enabled = true
 asdf_schema_xfail_tests = "v23tosky-0.7.0.yaml::test_example_0"
 asdf_schema_validate_default = false
 asdf_schema_root = "src/stdatamodels/jwst/datamodels/schemas\nsrc/stdatamodels/jwst/transforms/resources/schemas"
-norecursedirs = [
-    "build",
-    ".tox",
-    ".eggs",
-    "venv",
-]
+norecursedirs = ["build", ".tox", ".eggs", "venv"]
 
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
 
 [tool.coverage.run]
-omit = [
-    '*/tests/*',
-]
+omit = ['*/tests/*']
 
 [tool.towncrier]
 filename = "CHANGES.rst"
