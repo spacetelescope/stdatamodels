@@ -1,4 +1,4 @@
-name: test
+name: extra tests
 
 on:
   push:
@@ -7,11 +7,16 @@ on:
       - '*.x'
     tags:
       - '*'
-  pull_request:
   schedule:
-    # Weekly Monday 9AM build
-    # * is a special character in YAML so you have to quote this string
-    - cron: '0 9 * * 1'
+    # Weekly Monday midnight build
+    - cron: "0 0 * * 1"
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - labeled
+      - unlabeled
+      - synchronize
   workflow_dispatch:
 
 concurrency:
@@ -20,6 +25,7 @@ concurrency:
 
 jobs:
   data:
+    if: (github.repository == 'spacetelescope/stdatamodels' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run extra tests')))
     name: retrieve current CRDS context
     runs-on: ubuntu-latest
     env:
@@ -30,7 +36,7 @@ jobs:
       - id: crds_context
         run: >
           echo "pmap=$(
-          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["${{ env.OBSERVATORY }}", null], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
+          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["${{ env.OBSERVATORY }}"], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
           python -c "import sys, json; print(json.load(sys.stdin)['result'])"
           )" >> $GITHUB_OUTPUT
         # Get default CRDS_CONTEXT without installing crds client
@@ -44,6 +50,7 @@ jobs:
       crds_path: ${{ steps.crds_path.outputs.path }}
       crds_server: ${{ steps.crds_server.outputs.url }}
   test:
+    if: (github.repository == 'spacetelescope/stdatamodels' && (github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run extra tests')))
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@28e947497bed4d6ec3fa1d66d198e95a1d17bc63  # v2.2.1
     needs: [ data ]
     with:
@@ -55,18 +62,9 @@ jobs:
       cache-path: ${{ needs.data.outputs.crds_path }}
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
-        - linux: py311-xdist
-        - linux: py312-xdist
-        # `tox` does not currently use the `requires-python` versions 
-        # defined in pyproject.toml. This means even if we set an upper limit
-        # for python in that file the `py3` below will try to use the newest
-        # python even if it's above that limit.
-        # If we don't support the latest stable python, update `py3` below
-        # to use only the latest supported version (matching what is set
-        # for `requires-python` in `pyproject.toml`)
-        - linux: py3-cov-xdist
-          coverage: codecov
-        - macos: py3-xdist
+        - macos: py311-xdist
+        - windows: py311-xdist-nocrds
+        - linux: py3-devdeps-xdist
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@28e947497bed4d6ec3fa1d66d198e95a1d17bc63  # v2.2.1
     needs: [ data ]
@@ -79,5 +77,4 @@ jobs:
       cache-path: ${{ needs.data.outputs.crds_path }}
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
-        - linux: py311-jwst-cov-xdist
-          coverage: codecov
+        - linux: py311-jwst-devdeps-xdist
