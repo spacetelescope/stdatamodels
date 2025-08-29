@@ -2062,8 +2062,9 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         dx = xmodel(t)
-        dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
-        return x + dx, dy, x, y, order
+        dy = ymodel[0](x, y) + t * ymodel[1](x, y) + t**2 * ymodel[2](x, y)
+        return x + dx, y+dy, x, y, order
+    
 
 
 class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
