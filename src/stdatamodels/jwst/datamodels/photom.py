@@ -23,6 +23,8 @@ __all__ = [
 class _PhotomModel(ReferenceFileModel):
     """Implement a validation scheme for photom models."""
 
+    schema_url = None
+
     def validate(self):
         """
         Validate optional timecoeff extensions.
