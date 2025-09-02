@@ -717,6 +717,9 @@ class RegionsModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
+    def get_primary_array_name(self):  # noqa: D102
+        return "regions"
+
 
 class WavelengthrangeModel(ReferenceFileModel):
     """
