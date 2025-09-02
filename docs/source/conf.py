@@ -55,6 +55,8 @@ nitpicky = True
 nitpick_ignore = [
     ("py:class", "stdatamodels.jwst.datamodels.wcs_ref_models._SimpleModel"),
     ("py:class", "jwst.datamodels.wcs_ref_models._SimpleModel"),
+    ("py:class", "stdatamodels.jwst.datamodels.photom._PhotomModel"),
+    ("py:class", "jwst.datamodels.photom._PhotomModel"),
     ("py:class", "stdatamodels.properties.ObjectNode"),
     ("py:class", "stdatamodels.properties.Node"),
 ]
