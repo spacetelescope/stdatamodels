@@ -31,7 +31,7 @@ pixel = {
     "PERSISTENCE": 2**5,  # High persistence (was RESERVED_2)
     "AD_FLOOR": 2**6,  # Below A/D floor (0 DN, was RESERVED_3)
     "CHARGELOSS": 2**7,  # Charge migration (was RESERVED_4)
-    "UNRELIABLE_ERROR": 2**8,  # Uncertainty exceeds quoted error
+    "RESERVED": 2**8,  # Reserved for future use; unused
     "NON_SCIENCE": 2**9,  # Pixel not on science portion of detector
     "DEAD": 2**10,  # Dead pixel
     "HOT": 2**11,  # Hot pixel
