@@ -157,6 +157,12 @@ def datamodel_for_update(tmp_path):
         im.meta.telescope = "JWST"
         im.meta.wcsinfo.crval1 = 5
 
+        # Add cal logs
+        im.cal_logs = {
+            "pipeline1": ["test", "message", "1"],
+            "pipeline2": ["test", "message", "2"],
+        }
+
         im.save(path)
     # Add non-schema keywords that will get dumped in the extra_fits attribute
     with fits.open(path, mode="update") as hdulist:
@@ -166,20 +172,26 @@ def datamodel_for_update(tmp_path):
     return path
 
 
+@pytest.mark.parametrize("cal_logs", [True, False])
 @pytest.mark.parametrize("extra_fits", [True, False])
 @pytest.mark.parametrize("only", [None, "PRIMARY", "SCI"])
-def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits):
+def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits, cal_logs):
     """Test update method does not update from extra_fits unless asked"""
     path = tmp_path / "new.fits"
     with ImageModel((5, 5)) as newim:
+        newim.cal_logs = {"new_step": ["test", "message", "3"]}
         with ImageModel(datamodel_for_update) as oldim:
             # Verify the fixture returns keywords we expect
             assert oldim.meta.telescope == "JWST"
             assert oldim.meta.wcsinfo.crval1 == 5
             assert oldim.extra_fits.PRIMARY.header == [["FOO", "BAR", ""]]
             assert oldim.extra_fits.SCI.header == [["BAZ", "BUZ", ""]]
+            assert oldim.cal_logs == {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+            }
 
-            newim.update(oldim, only=only, extra_fits=extra_fits)
+            newim.update(oldim, only=only, extra_fits=extra_fits, cal_logs=cal_logs)
         newim.save(path)
 
     with fits.open(path) as hdulist:
@@ -214,18 +226,44 @@ def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits)
                 assert "TELESCOP" in hdulist["PRIMARY"].header
                 assert "CRVAL1" in hdulist["SCI"].header
 
+    # open as a model to check cal_logs
+    with datamodels.open(path) as newmodel:
+        if cal_logs:
+            assert newmodel.cal_logs == {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+                "new_step": ["test", "message", "3"],
+            }
+        else:
+            assert newmodel.cal_logs == {
+                "new_step": ["test", "message", "3"],
+            }
 
-def test_update_from_dict(tmp_path):
+
+@pytest.mark.parametrize("cal_logs", [True, False])
+def test_update_from_dict(tmp_path, cal_logs):
     """Test update method from a dictionary"""
     path = tmp_path / "update.fits"
     with ImageModel((5, 5)) as im:
-        update_dict = {"meta": {"telescope": "JWST", "wcsinfo": {"crval1": 5}}}
+        update_dict = {
+            "meta": {"telescope": "JWST", "wcsinfo": {"crval1": 5}},
+            "cal_logs": {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+            },
+        }
         im.update(update_dict)
         im.save(path)
 
     with fits.open(path) as hdulist:
         assert "TELESCOP" in hdulist[0].header
         assert "CRVAL1" in hdulist[1].header
+
+    with datamodels.open(path) as model:
+        assert model["cal_logs"] == {
+            "pipeline1": ["test", "message", "1"],
+            "pipeline2": ["test", "message", "2"],
+        }
 
 
 def test_mask_model():
