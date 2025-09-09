@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 # Modules that automodapi will document need to be available
 # in the path:
-sys.path.insert(0, str(REPO_ROOT/"src"/"stdatamodels"))
+sys.path.insert(0, str(REPO_ROOT/"src"))
 
 with open(REPO_ROOT / "pyproject.toml", 'rb') as configuration_file:
     setup_metadata = tomllib.load(configuration_file)['project']
@@ -60,3 +60,11 @@ nitpick_ignore = [
     ("py:class", "stdatamodels.properties.ObjectNode"),
     ("py:class", "stdatamodels.properties.Node"),
 ]
+for transform_base in [
+    "_NIRCAMForwardGrismDispersion",
+    "_NIRISSForwardGrismDispersion",
+    "_ForwardGrismDispersionBase",
+    "_BackwardGrismDispersionBase",
+    "_GrismDispersionBase"
+]:
+    nitpick_ignore.append(("py:class", f"stdatamodels.jwst.transforms.models.{transform_base}"))
