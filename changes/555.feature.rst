@@ -1,0 +1,2 @@
+Add optional time dependence coefficient tables to all photom reference file models except MIRI MRS.
+Update the MIRI MRS time dependence coefficients to expect a power law functional form.
