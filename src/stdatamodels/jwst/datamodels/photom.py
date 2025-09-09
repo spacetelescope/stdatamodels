@@ -29,16 +29,23 @@ class _PhotomModel(ReferenceFileModel):
         """
         Validate optional timecoeff extensions.
 
+        The phot_table extension must be present.
+
         If present, timecoeff_linear, timecoeff_exponential, and timecoeff_powerlaw
         extensions must match the length and descriptive columns present in the
         phot_table extension.
         """
         super().validate()
+
+        if not self.hasattr("phot_table"):
+            self.print_err("Model.phot_table is not present")
+            return
+
         try:
             timecoeff = ["timecoeff_linear", "timecoeff_exponential", "timecoeff_powerlaw"]
             for extension in timecoeff:
                 message = f"Model.phot_table and Model.{extension} do not match"
-                if self.hasattr("phot_table") and self.hasattr(extension):
+                if self.hasattr(extension):
                     table = getattr(self, extension)
                     assert len(self.phot_table) == len(table), message
 

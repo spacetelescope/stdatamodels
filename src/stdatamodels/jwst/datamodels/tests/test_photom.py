@@ -142,3 +142,24 @@ def test_invalid_timecoeff_mismatched_values(strict):
         # Empty extensions are not added
         assert not model.hasattr("timecoeff_linear")
         assert not model.hasattr("timecoeff_powerlaw")
+
+
+@pytest.mark.parametrize("strict", [True, False])
+def test_invalid_phot_table(strict):
+    """Test validation for missing phot_table."""
+    with mir_img_phot_hdulist() as phot_hdul:
+        del phot_hdul["PHOTOM"]
+        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        expected_message = "Model.phot_table is not present"
+        if strict:
+            with pytest.raises(ValueError, match=expected_message):
+                model.validate()
+        else:
+            with pytest.warns(ValidationWarning, match=expected_message):
+                model.validate()
+
+        # Empty extensions are not added
+        assert model.hasattr("timecoeff_exponential")
+        assert not model.hasattr("phot_table")
+        assert not model.hasattr("timecoeff_linear")
+        assert not model.hasattr("timecoeff_powerlaw")
