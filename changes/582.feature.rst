@@ -1,0 +1,1 @@
+Added q4 object to oifits schema to include quad amplitudes, phases in AMI OIFITS data products.
