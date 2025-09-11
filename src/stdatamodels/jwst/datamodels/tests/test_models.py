@@ -582,6 +582,44 @@ def oifits_ami_model():
         (1, 0.0, 59735.0, 0.3772, 0.70949939, 0.01131277, 1.86153485, 2.9549114, [1, 2], 0),
         (1, 0.0, 59735.0, 0.3772, 0.8362822, 0.0113618, -2.45938856, 0.95969843, [1, 3], 0),
     ]
+    m.q4 = [
+        (
+            1,
+            0.0,
+            59735.0,
+            0.0,
+            0.7141117,
+            0.00929811,
+            -2.04670267,
+            0.51376834,
+            1.91331042,
+            2.92165307,
+            -4.35540762,
+            -1.91877002,
+            4.17914534,
+            3.22694886,
+            [1, 2, 3, 4],
+            False,
+        ),
+        (
+            1,
+            0.0,
+            59735.0,
+            0.0,
+            0.77127233,
+            0.00632331,
+            -12.74029056,
+            0.6544896,
+            1.91331042,
+            2.92165307,
+            -4.35540762,
+            -1.91877002,
+            2.95809179,
+            3.72838967,
+            [1, 2, 3, 5],
+            False,
+        ),
+    ]
     m.wavelength = [(4.817e-06, 2.98e-07)]
     return m
 
@@ -639,10 +677,10 @@ def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr)
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("keep", ["vis", "vis2", "t3"])
+@pytest.mark.parametrize("keep", ["vis", "vis2", "t3", "q4"])
 def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
     fn = tmp_path / "test.fits"
-    for table in ("vis", "vis2", "t3"):
+    for table in ("vis", "vis2", "t3", "q4"):
         if table == keep:
             continue
         delattr(oifits_ami_model, table)
@@ -656,7 +694,7 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "wavelength"])
+@pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "q4", "wavelength"])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
     new_table_data = merge_arrays(
