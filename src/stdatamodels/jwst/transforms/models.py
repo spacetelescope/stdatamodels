@@ -1453,6 +1453,8 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
 
         if not self.inv_lmodels:
             t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
+        elif all([not model for model in self.inv_lmodels]):
+            t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
         else:
             lmodel = self.inv_lmodels[iorder]
             t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)

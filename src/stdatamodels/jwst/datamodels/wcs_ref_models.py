@@ -686,17 +686,15 @@ class RegionsModel(ReferenceFileModel):
         self.meta.reftype = self.reftype
 
     def populate_meta(self):
-        self.meta.instrument.name = "MIRI"
-        self.meta.exposure.type = "MIR_MRS"
+        pass
 
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
         super().validate()
-        try:
+        if self.meta.instrument.name == "MIRI":
             assert isinstance(self.regions, (np.ndarray, NDArrayType))
-            assert self.meta.instrument.name == "MIRI"
             assert self.meta.exposure.type == "MIR_MRS"
             assert self.meta.instrument.channel in ("12", "34", "1", "2", "3", "4")
             assert self.meta.instrument.band in (
@@ -711,11 +709,22 @@ class RegionsModel(ReferenceFileModel):
                 "LONG-MEDIUM",
             )
             assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
-        except AssertionError:
-            if self._strict_validation:
-                raise
-            else:
-                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
+        elif self.meta.instrument.name == "NIRCAM":
+            assert self.meta.exposure.type == "NRC_TSGRISM"
+            assert self.meta.subarray.name in (
+                "SUB41STRIPE1_DHS",
+                "SUB82STRIPE2_DHS",
+                "SUB164STRIPE4_DHS",
+                "SUB260STRIPE4_DHS",
+            )
+            assert self.meta.instrument.detector in (
+                'NRCA1',
+                'NRCA2',
+                'NRCA3',
+                'NRCA4',
+                'NRCALONG',
+            )
+
 
     def get_primary_array_name(self):  # noqa: D102
         return "regions"
