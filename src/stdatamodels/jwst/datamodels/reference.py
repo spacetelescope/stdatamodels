@@ -79,7 +79,7 @@ class ReferenceFileModel(JwstDataModel):
             The message to print
         """
         if self._strict_validation:
-            raise ValueError(message)
+            raise ValueError(message) from None
         else:
             warnings.warn(message, ValidationWarning, stacklevel=2)
 

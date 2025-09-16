@@ -139,6 +139,7 @@ norecursedirs = ["build", ".tox", ".eggs", "venv"]
 
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
+version_scheme = "release-branch-semver"
 
 [tool.coverage.run]
 omit = ['*/tests/*']
