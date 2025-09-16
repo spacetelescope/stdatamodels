@@ -2019,8 +2019,6 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             The list of tuples of 2D polynomial models in y.
             There are four 2D polynomials to correct for spatial dependence. These polynomials
             depend on location on the detector and the trace parameter.
-        name : str, optional
-            Name of the model
         """
         name = "miri_wfss_backward_dispersion"
         super().__init__(
