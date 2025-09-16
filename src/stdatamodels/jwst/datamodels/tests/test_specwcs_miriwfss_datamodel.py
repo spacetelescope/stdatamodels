@@ -12,9 +12,6 @@ def test_miri_wfss_specwcs():
     dispy = []
     displ = []
     invdispl = []
-    x0 = 0.193314
-    x1 = -1.993914
-    dispx.append(Polynomial1D(1, c0=x0, c1=x1))
 
     l0 = 3.125
     l1 = 10.893
@@ -49,6 +46,7 @@ def test_miri_wfss_specwcs():
 
     cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
     dispy.append((cpoly_0, cpoly_1, cpoly_2))
+    dispx.append((cpoly_0, cpoly_1, cpoly_2))
 
     model = datamodels.MiriWFSSSpecwcsModel(
         dispx=dispx, dispy=dispy, displ=displ, invdispl=invdispl
