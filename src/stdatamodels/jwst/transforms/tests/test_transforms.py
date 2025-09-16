@@ -701,9 +701,18 @@ def test_miriwfss_backward_dispersion_single(tmp_path):
 
     orders = np.array([1])
     xmodels = []
-    x0 = 0.193314
-    x1 = -1.993914
-    xmodels.append(Polynomial1D(1, c0=x0, c1=x1))
+
+    x0 = 0.25132305
+    x1 = 0.000000
+    x2 = 0.0
+    x3 = 0.0
+    x4 = 0.0
+    x5 = 0.0
+    cpolx_0 = Polynomial2D(2, c0_0=x0, c1_0=x1, c2_0=x2, c0_1=x3, c1_1=x4, c0_2=x5)
+    cpolx_1 = Polynomial2D(2, c0_0=x0, c1_0=x1, c2_0=x2, c0_1=x3, c1_1=x4, c0_2=x5)
+    cpolx_2 = Polynomial2D(2, c0_0=x0, c1_0=x1, c2_0=x2, c0_1=x3, c1_1=x4, c0_2=x5)
+    cpolx_3 = Polynomial2D(2, c0_0=x0, c1_0=x1, c2_0=x2, c0_1=x3, c1_1=x4, c0_2=x5)
+    xmodels.append((cpolx_0, cpolx_1, cpolx_2, cpolx_3))
 
     ymodels = []
     y0 = 8.850746809616503
@@ -715,7 +724,8 @@ def test_miriwfss_backward_dispersion_single(tmp_path):
     cpoly_0 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
     cpoly_1 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
     cpoly_2 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
-    ymodels.append((cpoly_0, cpoly_1, cpoly_2))
+    cpoly_3 = Polynomial2D(2, c0_0=y0, c1_0=y1, c2_0=y2, c0_1=y3, c1_1=y4, c0_2=y5)
+    ymodels.append((cpoly_0, cpoly_1, cpoly_2, cpoly_3))
 
     # many wavelengths, single x0, y0
     x0 = 150
