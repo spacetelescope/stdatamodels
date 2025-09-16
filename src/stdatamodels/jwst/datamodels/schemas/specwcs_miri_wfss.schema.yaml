@@ -20,10 +20,12 @@ allOf:
           $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     dispx:
         description: |
-          MIRI WFSS row dispersion model, a list of astropy.modeling.Model,
-          matching the list of spectral orders.
+          MIRI WFSS row dispersion model. Contains a list of list of
+          2D astropy.modeling.Model, matching the list of spectral orders.
         type: array
         items:
+          type: array
+          items:
             $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
     dispy:
         description: |

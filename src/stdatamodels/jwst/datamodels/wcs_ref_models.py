@@ -485,7 +485,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             File name for input file in ASDF format from which to initialize the model.
         displ : list of `~astropy.modeling.Model`
             MIRI WFSS wavelength dispersion model
-        dispx : list of `~astropy.modeling.Model`
+        dispx : list of tuples containing 2D `~astropy.modeling.Model`
             MIRI WFSS row dispersion model
         dispy : list of tuples containing 2D `~astropy.modeling.Model`
             MIRI WFSS column dispersion model
@@ -532,7 +532,6 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             assert len(self.displ) == n_orders
             assert len(self.dispx) == n_orders
             assert len(self.dispy) == n_orders
-            assert all(len(sub_y) == 3 for sub_y in self.dispy)
         except AssertionError:
             if self._strict_validation:
                 raise

@@ -2007,22 +2007,20 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
 
         Parameters
         ----------
-        orders : list[int]
-            List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-            For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
-        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The inverse dispersion trace model, such that t = lmodel(wavelength)
-            computes the trace parameter from the wavelength.
-        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The polynomial model encoding the x-position of the spectral trace.
-            It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
-            The polynomial models encoding the y-position of the spectral trace.
-            Because the shape of the trace depends on the direct-image x0, y0 position,
-            this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
-            Note that dy depends on dx, and not directly on t like for NIRISS and NIRCam.
-            The tuple of Models corresponds to the 2-D polynomials (C0, C1, C2).
+        orders : list
+            The list of orders which are available to the model.
+            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
+        lmodels : list[1D models]
+            The list inverse dispersion 1D polynomial model. Use to determine the trace parameter.
+        xmodels : list [tuples of 2D models]
+            There are four 2D polynomials to correct for spatial dependence. These polynomials
+            depend on location on the detector and the trace parameter.
+        ymodels : list [tuples of 2D models]
+            The list of tuples of 2D polynomial models in y.
+            There are four 2D polynomials to correct for spatial dependence. These polynomials
+            depend on location on the detector and the trace parameter.
+        name : str, optional
+            Name of the model
         """
         name = "miri_wfss_backward_dispersion"
         super().__init__(
@@ -2070,9 +2068,11 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
 
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
-        dx = xmodel(t)
-        dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
-        return x + dx, dy, x, y, order
+
+        dx = _poly_with_spatial_dependence(t, x, y, xmodel)
+        dy = _poly_with_spatial_dependence(t, x, y, ymodel)
+
+        return x + dx, y + dy, x, y, order
 
 
 class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
@@ -2089,22 +2089,19 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
 
         Parameters
         ----------
-        orders : list[int]
-            List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-            For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
-        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The forward dispersion trace model, such that wavelength = lmodel(t)
-            computes the wavelength from the trace parameter.
-        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The polynomial model encoding the x-position of the spectral trace.
-            It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
-            The polynomial models encoding the y-position of the spectral trace.
-            Because the shape of the trace depends on the direct-image x0, y0 position,
-            this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
-            Note that dy depends on dx, and not directly on t like for NIRISS and NIRCam.
-            The tuple of Models corresponds to the 2-D polynomials (C0, C1, C2).
+        orders : list
+            The list of orders which are available to the model
+        lmodels : list
+            The list of 1D dispersion model. Along with the xmodels it is used to determine
+            the wavelength.
+        xmodels : list[tuples of 2D models]
+            The list of tuples of 2D  the polynomial model that depends on spatial location and
+            trace parameter.
+        ymodels : list[tuples of 2D models]
+            The list of tuples of 2D  the polynomial model that depends on spatial location and
+            trace parameter.
+        name : str, optional
+            Name of the model
         """
         name = "miri_wfss_forward_dispersion"
         super().__init__(
@@ -2118,8 +2115,6 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     def evaluate(self, x, y, x0, y0, order):
         """
         Transform from the dispersed plane into the direct image plane.
-
-        Only the xmodel and lmodels are used.
 
         Parameters
         ----------
@@ -2152,11 +2147,15 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         t = np.linspace(0, 1, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         lmodel = self.lmodels[iorder]
-        dx = xmodel(t)
+
+        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
 
         so = np.argsort(dx)
         tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
-
+        # wavelength model takes in x, x0.
+        # it then subtracts them to get dx; that's what SubtractUfunc does
+        # next it finds the t value for that dx from the lookup table, interpolating linearly
+        # finally it applies the lmodel of t to get the wavelength
         dxr = astmath.SubtractUfunc()
         wavelength = dxr | tab | lmodel
         model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
