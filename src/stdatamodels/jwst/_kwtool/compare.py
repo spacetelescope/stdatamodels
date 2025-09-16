@@ -347,7 +347,9 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
         for tpld in datamodel_keys:
             if tplk[1] == tpld[1]:
                 to_remove_in_kwd.append(tplk)
-                definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+                definitions_diff[tplk] = _compare_fits_hdu(
+                    kwd_keywords[tplk], datamodel_keywords[tpld]
+                )
     to_remove_in_dmd = []
     _clean_set(in_kwd, to_remove_in_kwd)
     for tpld in in_datamodels:
@@ -356,7 +358,9 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
                 to_remove_in_dmd.append(tpld)
                 # but don't add it twice
                 if tplk not in definitions_diff:
-                    definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+                    definitions_diff[tplk] = _compare_fits_hdu(
+                        kwd_keywords[tplk], datamodel_keywords[tpld]
+                    )
     _clean_set(in_datamodels, to_remove_in_dmd)
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords

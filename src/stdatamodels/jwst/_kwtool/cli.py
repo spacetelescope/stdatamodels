@@ -1,9 +1,8 @@
 import argparse
+from html.parser import HTMLParser
 from pprint import pformat
 
 from .compare import compare_keywords
-
-from html.parser import HTMLParser
 
 
 class ParseHTML(HTMLParser):
@@ -130,7 +129,9 @@ def check_tuple_exist(the_set, the_tuple):
 
 
 def generate_report(kwd_path, okified_diffs=None, previous_report=None):
-    in_k, in_d, in_both, def_diff, kwd, dmd = compare_keywords(kwd_path, expected_diffs=okified_diffs)
+    in_k, in_d, in_both, def_diff, kwd, dmd = compare_keywords(
+        kwd_path, expected_diffs=okified_diffs
+    )
     prev_in_kwd, prev_in_dmd, prev_in_both = None, None, None
     if previous_report is not None:
         prev_diffs = read_previous_report(previous_report)
@@ -145,7 +146,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
     table += "  <tr>\n"
     column_hdrs = ["Keyword", "Known", "Okified"]
     for col in column_hdrs:
-        table += "    <th>{0}</th>\n".format(col)
+        table += f"    <th>{col}</th>\n"
     table += "  </tr>\n"
 
     for k in sorted(in_k):
@@ -155,7 +156,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
-            table += "    <td>{0}</td>\n".format(col_row)
+            table += f"    <td>{col_row}</td>\n"
         table += "  </tr>\n"
     table += "</table>"
     body += table
@@ -165,7 +166,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
     table += "  <tr>\n"
     column_hdrs = ["Keyword", "Known", "Okified"]
     for col in column_hdrs:
-        table += "    <th>{0}</th>\n".format(col)
+        table += f"    <th>{col}</th>\n"
     table += "  </tr>\n"
 
     for k in sorted(in_d):
@@ -175,7 +176,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
-            table += "    <td>{0}</td>\n".format(col_row)
+            table += f"    <td>{col_row}</td>\n"
         table += "  </tr>\n"
     table += "</table>"
     body += table
@@ -185,17 +186,19 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
     table += "  <tr>\n"
     column_hdrs = ["Keyword", "Known", "Okified"]
     for col in column_hdrs:
-        table += "    <th>{0}</th>\n".format(col)
+        table += f"    <th>{col}</th>\n"
     table += "  </tr>\n"
 
     for k in sorted(def_diff):
-        kwd_details = R("details", R("summary", _keyword_to_str(k)) + _def_diff_details(def_diff[k]))
+        kwd_details = R(
+            "details", R("summary", _keyword_to_str(k)) + _def_diff_details(def_diff[k])
+        )
         known = check_tuple_exist(prev_in_both, k)
         okified = check_tuple_exist(okified_diffs, k)
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
-            table += "    <td>{0}</td>\n".format(col_row)
+            table += f"    <td>{col_row}</td>\n"
         table += "  </tr>\n"
     table += "</table>"
     body += table
@@ -243,7 +246,9 @@ def _from_cmdline():
     else:
         okd = None
 
-    report = generate_report(args.keyword_dictionary_path, okified_diffs=okd, previous_report=args.previous_report)
+    report = generate_report(
+        args.keyword_dictionary_path, okified_diffs=okd, previous_report=args.previous_report
+    )
 
     if args.okified_diffs is not None:
         okd.close()
