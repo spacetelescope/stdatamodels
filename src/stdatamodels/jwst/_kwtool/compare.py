@@ -246,11 +246,23 @@ def _compare_enum(k, d):
     return {"kwd": k_values, "dmd": d_values}
 
 
+def _compare_fits_hdu(k, d):
+    # the fits hdu where the keyword is located
+    diff = _compare_keyword_subitem(k, d, "fits_hdu")
+    if not diff:
+        return
+    k_value = diff["kwd"]
+    d_value = diff["dmd"]
+    if k_value == d_value:
+        return None
+    return {"kwd": k_value, "dmd": d_value}
+
+
 def _compare_definitions(k, d):
     # compare the keyword definitions in the keyword dictionary (k)
-    # and dataodels (d)
+    # and datamodels (d)
     # each is a list of definitions since each high level structure
-    # has orgnization that will lead to many definitions for a single keyword
+    # has organization that will lead to many definitions for a single keyword
     # The things to compare are:
     # - paths: these should match
     # - title: these should match
@@ -265,6 +277,8 @@ def _compare_definitions(k, d):
         diff["type"] = subdiff
     if subdiff := _compare_enum(k, d):
         diff["enum"] = subdiff
+    if subdiff := _compare_fits_hdu(k, d):
+        diff["fits_hdu"] = subdiff
     return diff
 
 
@@ -289,6 +303,12 @@ def _is_expected(kw, diff, expected_diffs):
     return False
 
 
+def _clean_set(the_set, keys_to_remove):
+    for k in keys_to_remove:
+        the_set.discard(k)
+    return the_set
+
+
 def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
     if skip_models is None:
         skip_models = _DEFAULT_SKIP_MODELS
@@ -309,6 +329,7 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
 
     # find keywords that are in both and check if they match
     in_both = kwd_keys & datamodel_keys
+
     definitions_diff = {}
     for kw in in_both:
         k = kwd_keywords[kw]
@@ -319,5 +340,23 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
             # only report unexpected differences
             if not _is_expected(kw, diff, expected_diffs):
                 definitions_diff[kw] = diff
+
+    # double check that the keyword is indeed missing
+    to_remove_in_kwd = []
+    for tplk in in_kwd:
+        for tpld in datamodel_keys:
+            if tplk[1] == tpld[1]:
+                to_remove_in_kwd.append(tplk)
+                definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+    to_remove_in_dmd = []
+    _clean_set(in_kwd, to_remove_in_kwd)
+    for tpld in in_datamodels:
+        for tplk in kwd_keys:
+            if tplk[1] == tpld[1]:
+                to_remove_in_dmd.append(tpld)
+                # but don't add it twice
+                if tplk not in definitions_diff:
+                    definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+    _clean_set(in_datamodels, to_remove_in_dmd)
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords
