@@ -2010,7 +2010,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
+            For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial models, such that t = lmodel(wavelength)
             computes the wavelength from the trace parameter.
@@ -2084,7 +2084,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
 
 class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     """
-    Calculate the wavelengths of vertically dispersed MIRIWFSS data.
+    Calculate the wavelengths of vertically dispersed MIRI WFSS data.
 
     The dispersion polynomial is relative to the input x,y pixels
     in the direct image for a given wavelength.
@@ -2099,7 +2099,7 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
-            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
+            For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial model, such that wavelength = lmodel(t)
             computes the trace parameter from the wavelength.
