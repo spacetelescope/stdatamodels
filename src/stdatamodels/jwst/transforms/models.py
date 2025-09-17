@@ -2007,18 +2007,27 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
 
         Parameters
         ----------
-        orders : list
-            The list of orders which are available to the model.
+        orders : list[int]
+            List of spectral orders corresponding to the dispersion models
+            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
-        lmodels : list[1D models]
-            The list inverse dispersion 1D polynomial model. Use to determine the trace parameter.
-        xmodels : list [tuples of 2D models]
-            There are four 2D polynomials to correct for spatial dependence. These polynomials
-            depend on location on the detector and the trace parameter.
-        ymodels : list [tuples of 2D models]
-            The list of tuples of 2D polynomial models in y.
-            There are four 2D polynomials to correct for spatial dependence. These polynomials
-            depend on location on the detector and the trace parameter.
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
+            The inverse dispersion polynomial models, such that t = lmodel(wavelength)
+            computes the wavelength from the trace parameter.
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the x-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0)
+                                     * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the y-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0)
+                                     * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2,c3).
+            The outer list corresponds to the different spectral orders.
         """
         name = "miri_wfss_backward_dispersion"
         super().__init__(
@@ -2087,17 +2096,27 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
 
         Parameters
         ----------
-        orders : list
-            The list of orders which are available to the model
-        lmodels : list
-            The list of 1D dispersion model. Along with the xmodels it is used to determine
-            the wavelength.
-        xmodels : list[tuples of 2D models]
-            The list of tuples of 2D  the polynomial model that depends on spatial location and
-            trace parameter.
-        ymodels : list[tuples of 2D models]
-            The list of tuples of 2D  the polynomial model that depends on spatial location and
-            trace parameter.
+        orders : list[int]
+            List of spectral orders corresponding to the dispersion models
+            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            For MIRIWFSS we only have order = 1, so the orders is expected to equal [1,]
+        lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
+            The forward dispersion polynomial model, such that wavelength = lmodel(t)
+            computes the trace parameter from the wavelength.
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the x-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dx = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0)
+                                     * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the y-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dy = C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0)
+                                     * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2,c3).
+            The outer list corresponds to the different spectral orders.
         name : str, optional
             Name of the model
         """
@@ -2113,6 +2132,8 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     def evaluate(self, x, y, x0, y0, order):
         """
         Transform from the dispersed plane into the direct image plane.
+
+        Only the xmodel and lmodels are used.
 
         Parameters
         ----------

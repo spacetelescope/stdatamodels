@@ -1,1 +1,1 @@
-Updated MIRI WFSS specwcs datamodel
+Updated MIRI WFSS specwcs datamode. The x and y models now have similar form and are 4th order polynomials.
