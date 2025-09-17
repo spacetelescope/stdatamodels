@@ -1110,8 +1110,9 @@ class DataModel(properties.ObjectNode):
             A list of history entries.
         """
         warnings.warn(
-            "The history attribute is deprecated. Use add_history_entry to add history entries",
-            DeprecationWarning,
+            "The history attribute will soon be deprecated. "
+            "Use add_history_entry to add history entries",
+            UserWarning,
             stacklevel=2,
         )
         return HistoryList(self._asdf)

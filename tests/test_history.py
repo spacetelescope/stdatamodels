@@ -10,7 +10,7 @@ from astropy.time import Time
 from stdatamodels import DataModel
 
 
-@pytest.mark.filterwarnings("ignore:The history attribute is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_historylist_methods():
     m = DataModel()
     h1 = m.history
@@ -46,7 +46,7 @@ def test_historylist_methods():
     assert len(h1) == 0, "Clear history list"
 
 
-@pytest.mark.filterwarnings("ignore:The history attribute is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_history_from_model_to_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
     m = DataModel()
@@ -79,7 +79,7 @@ def test_history_from_model_to_fits(tmp_path):
         assert list(hdulist[0].header["HISTORY"]) == ["First entry", "Second entry"]
 
 
-@pytest.mark.filterwarnings("ignore:The history attribute is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_history_from_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
     header = fits.Header()
@@ -102,13 +102,13 @@ def test_history_from_fits(tmp_path):
 
 def test_history_get_deprecation():
     m = DataModel()
-    with pytest.warns(DeprecationWarning, match="The history attribute is deprecated"):
+    with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
         m.history
 
 
 def test_history_set_deprecation():
     m = DataModel()
-    with pytest.warns(DeprecationWarning, match="The history attribute is deprecated"):
+    with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
         m.history = []
 
 
