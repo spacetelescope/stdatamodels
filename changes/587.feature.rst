@@ -1,1 +1,1 @@
-Updated MIRI WFSS specwcs datamode. The x and y models now have similar form and are 4th order polynomials.
+Updated MIRI WFSS prism transforms to handle updates to their specwcs reference file: the x and y models are now both 4th order polynomials in the trace parameter.

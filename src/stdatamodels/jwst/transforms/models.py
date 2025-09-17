@@ -2012,8 +2012,8 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The inverse dispersion polynomial models, such that t = lmodel(wavelength)
-            computes the wavelength from the trace parameter.
+            The inverse dispersion polynomial trace models, such that t = lmodel(wavelength)
+            computes the trace parameter from the wavelength.
         xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
@@ -2090,7 +2090,7 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     in the direct image for a given wavelength.
     """
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None):
         """
         Initialize the model.
 
@@ -2102,7 +2102,7 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial model, such that wavelength = lmodel(t)
-            computes the trace parameter from the wavelength.
+            computes the wavelength from the trace parameter.
         xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
             The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
@@ -2117,8 +2117,6 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
             The inner list corresponds to the 2-D polynomials (C0, C1, C2,c3).
             The outer list corresponds to the different spectral orders.
-        name : str, optional
-            Name of the model
         """
         name = "miri_wfss_forward_dispersion"
         super().__init__(
