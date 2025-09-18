@@ -17,7 +17,9 @@ allOf:
           MIRI WFSS row dispersion model
         type: array
         items:
-          $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
+          type: array
+          items:
+            $ref: "http://stsci.edu/schemas/asdf/transform/transform-1.4.0"
       ymodels:
         description: |
           MIRI WFSS column dispersion model
