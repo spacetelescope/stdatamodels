@@ -2115,7 +2115,7 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             Because the shape of the trace depends on the direct-image x0, y0 position,
             this takes the form dy =
             C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
-            The inner list corresponds to the 2-D polynomials (C0, C1, C2,c3).
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
             The outer list corresponds to the different spectral orders.
         """
         name = "miri_wfss_forward_dispersion"
