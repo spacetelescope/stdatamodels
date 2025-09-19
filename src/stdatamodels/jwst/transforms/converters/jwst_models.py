@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-
+import asdf
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
 
@@ -41,37 +41,33 @@ class UnsupportedConverter(TransformConverterBase):
     When encountered, an error will be raised and the WCS will not be deserialized.
     """
 
-    tags = [
-        "tag:stsci.edu:jwst_pipeline/v23tosky-*",
-    ]
     types = []
-    max_supported_version = [
-        "4.0.0",
-    ]
+    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
+
+    @property
+    def tags(self):
+        return list(self.tag_to_max_version.keys())
+
+    def max_version(self, tag):
+        for tag_pattern, version in self.tag_to_max_version.items():
+            if asdf.util.uri_match(tag_pattern, tag):
+                return version
+        raise ValueError(f"No max version found for tag {tag}")
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        match_idx = self._tag_idx(tag)
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
             "This transform is no longer supported, so this file's WCS could not be deserialized. "
             "We recommend downloading the latest reprocessed data from MAST, or else "
-            f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}",
         )
-        return
-
-    def _tag_idx(self, tag):
-        for i, pattern in enumerate(self.tags):
-            if tag.startswith(pattern[:-1]):
-                return i
-        return None
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        match_idx = self._tag_idx(tag)
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
             "This transform is no longer supported, so this file's WCS could not be serialized. "
             "We recommend downloading the latest reprocessed data from MAST, or else "
-            f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}",
         )
 
 
