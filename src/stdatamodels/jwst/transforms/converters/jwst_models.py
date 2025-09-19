@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
 
@@ -17,13 +18,54 @@ __all__ = [
     "MIRIWFSSDispersionConverter",
     "Rotation3DToGWAConverter",
     "GratingEquationConverter",
-    "V23ToSkyConverter",
     "SnellConverter",
     "CoordsConverter",
     "Rotation3DToGWAConverter",
     "Slit2MsaConverter",
     "Slit2GwaConverter",
+    "UnsupportedConverter",
 ]
+
+
+class UnsupportedConverter(TransformConverterBase):
+    """
+    Class to catch legacy transforms that are no longer supported.
+
+    This converter contains tags for all converters that have been removed
+    from the JWST pipeline, but which may still be present in old files.
+    When encountered, a warning will be issued and the WCS will not be deserialized.
+    """
+
+    tags = [
+        "tag:stsci.edu:jwst_pipeline/v23tosky-*",
+    ]
+    max_supported_version = [
+        "4.0.0",
+    ]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        match_idx = self._tag_idx(tag)
+        raise NotImplementedError(
+            f"Encountered a legacy transform with tag {tag}. "
+            "This transform is no longer supported, so this file could not be deserialized. "
+            "We recommend downloading the latest reprocessed data from MAST, or else "
+            f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
+        )
+        return
+
+    def _tag_idx(self, tag):
+        for i, pattern in enumerate(self.tags):
+            if tag.startswith(pattern[:-1]):
+                return i
+        return None
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        match_idx = self._tag_idx(tag)
+        raise NotImplementedError(
+            f"Transform with {tag} is no longer supported, so this file cannot be serialized. "
+            "We recommend downloading the latest reprocessed data from MAST, or else "
+            f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
+        )
 
 
 class NIRCAMGrismDispersionConverter(TransformConverterBase):
@@ -350,24 +392,6 @@ class GratingEquationConverter(TransformConverterBase):
             node["output"] = "wavelength"
         else:
             raise TypeError(f"Can't serialize an instance of {model.__class__.__name__}")
-        return node
-
-
-class V23ToSkyConverter(TransformConverterBase):
-    tags = ["tag:stsci.edu:jwst_pipeline/v23tosky-*"]
-
-    types = ["stdatamodels.jwst.transforms.models.V23ToSky"]
-
-    def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import V23ToSky
-
-        angles = node["angles"]
-        axes_order = node["axes_order"]
-        return V23ToSky(angles, axes_order=axes_order)
-
-    def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {"angles": list(model.angles.value)}
-        node["axes_order"] = model.axes_order
         return node
 
 
