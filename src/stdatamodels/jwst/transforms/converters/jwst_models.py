@@ -24,7 +24,12 @@ __all__ = [
     "Slit2MsaConverter",
     "Slit2GwaConverter",
     "UnsupportedConverter",
+    "UnsupportedConverterError",
 ]
+
+
+class UnsupportedConverterError(Exception):
+    pass
 
 
 class UnsupportedConverter(TransformConverterBase):
@@ -33,21 +38,22 @@ class UnsupportedConverter(TransformConverterBase):
 
     This converter contains tags for all converters that have been removed
     from the JWST pipeline, but which may still be present in old files.
-    When encountered, a warning will be issued and the WCS will not be deserialized.
+    When encountered, an error will be raised and the WCS will not be deserialized.
     """
 
     tags = [
         "tag:stsci.edu:jwst_pipeline/v23tosky-*",
     ]
+    types = []
     max_supported_version = [
         "4.0.0",
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
         match_idx = self._tag_idx(tag)
-        raise NotImplementedError(
+        raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
-            "This transform is no longer supported, so this file could not be deserialized. "
+            "This transform is no longer supported, so this file's WCS could not be deserialized. "
             "We recommend downloading the latest reprocessed data from MAST, or else "
             f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
         )
@@ -61,8 +67,9 @@ class UnsupportedConverter(TransformConverterBase):
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         match_idx = self._tag_idx(tag)
-        raise NotImplementedError(
-            f"Transform with {tag} is no longer supported, so this file cannot be serialized. "
+        raise UnsupportedConverterError(
+            f"Encountered a legacy transform with tag {tag}. "
+            "This transform is no longer supported, so this file's WCS could not be serialized. "
             "We recommend downloading the latest reprocessed data from MAST, or else "
             f"downgrading to stdatamodels version <= {self.max_supported_version[match_idx]}",
         )
