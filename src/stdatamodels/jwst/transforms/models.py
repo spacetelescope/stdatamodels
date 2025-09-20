@@ -2500,8 +2500,9 @@ class AngleFromGratingEquation(Model):
             The wavelength.
         alpha_in, beta_in : float or np.ndarray
             The 3-D incident angle(s).
-        z : float
-            Unused except to match the interface.
+        z : float or np.ndarray
+            The incident z coordinate.
+            Unused except to match the interface, but must have same shape as alpha_in and beta_in.
         groove_density : float
             The grating ruling density.
         order : int
@@ -2512,7 +2513,7 @@ class AngleFromGratingEquation(Model):
         x, y, z : float
             The refracted x,y, and z angles.
         """
-        if alpha_in.shape != beta_in.shape:
+        if alpha_in.shape != beta_in.shape != z.shape:
             raise ValueError("Expected input arrays to have the same shape")
         orig_shape = alpha_in.shape or (1,)
         xout = -alpha_in - groove_density * order * lam
