@@ -18,30 +18,47 @@ from stdatamodels.jwst.transforms import models
     [
         (-1.77210143797, 0.177210143797, 1, 111),
         (-2.23774549066, 0.279718186333, 2, 209),
+        (np.linspace(-10, 10, 5), np.ones((5,)), 1, np.array([111, 106, 101, 96, 91])),
     ],
 )
 def test_miri_ab2slice(beta_zero, beta_del, channel, expected):
     model = models.MIRI_AB2Slice()
     beta = 0.0
     result = model.evaluate(beta, beta_zero, beta_del, channel)
-    assert result == expected
+    assert_allclose(result, expected)
 
 
-def test_refractionindexfromprism():
+@pytest.mark.parametrize(
+    ("alpha_in", "beta_in", "alpha_out", "expected"),
+    [
+        (np.pi / 8, np.pi / 8, np.pi / 16, 1.113583608571748),
+        (
+            np.linspace(-np.pi / 8, np.pi / 8, 5),
+            np.linspace(0, np.pi / 8, 5),
+            np.linspace(-np.pi / 16, np.pi / 16, 5),
+            np.array([1.04204409, 0.53019077, 0.19634954, 0.59850526, 1.11358361]),
+        ),
+    ],
+)
+def test_refractionindexfromprism(alpha_in, beta_in, alpha_out, expected):
     prism_angle = -16.5  # degrees
     prism_angle_rad = np.deg2rad(prism_angle)
-    alpha_in = np.pi / 8  # angle of incidence in radians
-    beta_in = np.pi / 8  # angle of incidence in radians
-    alpha_out = np.pi / 16  # angle of refraction in radians
 
     # unclear why the model requires the prism angle in degrees on init
     # and also requires the prism angle in radians on evaluation
     model = models.RefractionIndexFromPrism(prism_angle)
     n = model.evaluate(alpha_in, beta_in, alpha_out, prism_angle_rad)
-    assert np.isclose(n, 1.113583608571748)
+    assert_allclose(n, expected)
 
 
-def test_nirisssossmodel():
+@pytest.mark.parametrize(
+    ("x", "y"),
+    [
+        (10, 20),
+        (np.linspace(10, 20, 5), np.linspace(30, 20, 5)),
+    ],
+)
+def test_nirisssossmodel(x, y):
     spectral_orders = [1, 2]
     # model is unphysical but does have 2 inputs and 3 outputs like NIRISS SOSS would expect
     order_models = [Identity(2) | Mapping((0, 1, 1))] * len(spectral_orders)
@@ -50,10 +67,10 @@ def test_nirisssossmodel():
     assert sossmodel.spectral_orders == spectral_orders
     assert isinstance(sossmodel.models, dict)
 
-    xout, yout, yout2 = sossmodel.evaluate(10, 20, np.array([1]))
-    assert xout == 10
-    assert yout == 20
-    assert yout2 == 20
+    xout, yout, yout2 = sossmodel.evaluate(x, y, np.array([1]))
+    assert_allclose(xout, x)
+    assert_allclose(yout, y)
+    assert_allclose(yout2, y)
 
     with pytest.raises(ValueError, match="Spectral order is not between"):
         sossmodel.evaluate(10, 20, -1)
@@ -89,12 +106,18 @@ def test_logical():
     assert_allclose(res, np.where(x > compareto, compareto, x))
 
 
-def test_ideal_to_v23_roundtrip():
+@pytest.mark.parametrize(
+    ("x", "y"),
+    [
+        (450, 730),
+        (np.linspace(400, 500, 5), np.linspace(700, 800, 5)),
+    ],
+)
+def test_ideal_to_v23_roundtrip(x, y):
     """
     Test roundtripping of the transforms.
     """
     v2i = models.V2V3ToIdeal(0.4, 450, 730, 1)
-    x, y = 450, 730
     assert_allclose(v2i.inverse(*v2i(x, y)), (x, y))
 
 
@@ -158,6 +181,26 @@ def test_refraction_index_large_delt():
     assert np.isclose(n_pipeline, 1.4254647475849418)
 
 
+@pytest.mark.parametrize("temp_sys", [65, 37])
+def test_snell_vectorized(temp_sys):
+    """Parametrize temp_sys with one large and one small value to test both paths."""
+    tref = 35  # in K
+    pref = 0  # in atm
+    pressure_sys = 0  # in atm
+    kcoef = [0.58339748, 0.46085267, 3.8915394]
+    lcoef = [0.00252643, 0.010078333, 1200.556]
+    tcoef = [-2.66e-05, 0.0, 0.0, 0.0, 0.0, 0.0]
+    prism_angle = 10.0  # prism angle in degrees
+    model = models.Snell(prism_angle, kcoef, lcoef, tcoef, tref, pref, temp_sys, pressure_sys)
+
+    wavelength = np.linspace(2.0, 3.0, 5) * 1e-6
+    alpha_in = np.linspace(np.pi / 16, 3 * np.pi / 16, 5)  # angle of incidence in radians
+    beta_in = np.linspace(-np.pi / 8, np.pi / 8, 5)  # angle of incidence in radians
+    z = 0.0  # z-coordinate, not used in this model
+    xout, yout, zout = model(wavelength, alpha_in, beta_in, z)
+    assert xout.shape == yout.shape == zout.shape == (5,)
+
+
 def test_grating_equation():
     """Test consistency between WavelengthFromGratingEquation and AngleFromGratingEquation."""
     lam = 2.0e-6  # wavelength in meters
@@ -171,14 +214,21 @@ def test_grating_equation():
     alpha_out, beta_out, _zout = angle_transform.evaluate(
         lam, alpha_in, beta_in, z, groovedensity, order
     )
-    np.testing.assert_allclose(beta_out, -beta_in)
+    assert_allclose(beta_out, -beta_in)
 
     wavelength_transform = models.WavelengthFromGratingEquation(groovedensity, order)
     lam_out = wavelength_transform.evaluate(alpha_in, beta_in, alpha_out, groovedensity, order)
-    np.testing.assert_allclose(lam_out, lam)
+    assert_allclose(lam_out, lam)
 
 
-def test_slit_to_msa_from_ids(tmp_path):
+@pytest.mark.parametrize(
+    ("x", "y"),
+    [
+        (200, 200),
+        (np.arange(200, 206), np.arange(201, 207)),
+    ],
+)
+def test_slit_to_msa_from_ids(tmp_path, x, y):
     slits = list(range(5))
     transforms = [Identity(2)] * len(slits)
     slit2msa = models.Slit2Msa(slits, transforms)
@@ -192,10 +242,16 @@ def test_slit_to_msa_from_ids(tmp_path):
 
     for i in range(len(slits)):
         # slit name is switched from first input to last output
-        assert slit2msa(i, 200, 200) == (200, 200, i)
+        xout, yout, iout = slit2msa(i, x, y)
+        assert_allclose(xout, x)
+        assert_allclose(yout, y)
+        assert iout == i
 
         # and the opposite on inverse
-        assert slit2msa.inverse(200, 200, i) == (i, 200, 200)
+        iout, xout, yout = slit2msa.inverse(x, y, i)
+        assert_allclose(xout, x)
+        assert_allclose(yout, y)
+        assert iout == i
 
     # test roundtrip to file
     tmp_file = tmp_path / "slit2msa.asdf"
@@ -235,7 +291,14 @@ def test_slit_to_msa_from_slits(tmp_path):
         assert af["model"].slit_ids == list(range(len(slits)))
 
 
-def test_gwa_to_slit_from_ids(tmp_path):
+@pytest.mark.parametrize(
+    ("x", "y", "z"),
+    [
+        (200, 200, 200),
+        (np.arange(200, 206), np.arange(201, 207), np.arange(202, 208)),
+    ],
+)
+def test_gwa_to_slit_from_ids(tmp_path, x, y, z):
     slits = list(range(5))
     transforms = [Identity(3)] * len(slits)
     gwa2slit = models.Gwa2Slit(slits, transforms)
@@ -249,10 +312,18 @@ def test_gwa_to_slit_from_ids(tmp_path):
 
     for i in range(len(slits)):
         # slit name is passed through as first input and output
-        assert gwa2slit(i, 200, 200, 200) == (i, 200, 200, 200)
+        iout, xout, yout, zout = gwa2slit(i, x, y, z)
+        assert i == iout
+        assert_allclose(xout, x)
+        assert_allclose(yout, y)
+        assert_allclose(zout, z)
 
         # and the same on inverse
-        assert gwa2slit.inverse(i, 200, 200, 200) == (i, 200, 200, 200)
+        iout, xout, yout, zout = gwa2slit.inverse(i, x, y, z)
+        assert i == iout
+        assert_allclose(xout, x)
+        assert_allclose(yout, y)
+        assert_allclose(zout, z)
 
     # test roundtrip to file
     tmp_file = tmp_path / "gwa2slit.asdf"
@@ -487,10 +558,10 @@ def test_nircam_grism_roundtrip(direction):
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
-    np.testing.assert_allclose(xi, x0)
-    np.testing.assert_allclose(yi, y0)
-    np.testing.assert_allclose(wli, wl)
-    np.testing.assert_allclose(ordersi, orders)
+    assert_allclose(xi, x0)
+    assert_allclose(yi, y0)
+    assert_allclose(wli, wl)
+    assert_allclose(ordersi, orders)
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
@@ -538,10 +609,10 @@ def test_legacy_nircam_grism_roundtrip(direction):
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
-    np.testing.assert_allclose(xi, x0)
-    np.testing.assert_allclose(yi, y0)
-    np.testing.assert_allclose(wli, wl, rtol=1e-4)
-    np.testing.assert_allclose(ordersi, orders)
+    assert_allclose(xi, x0)
+    assert_allclose(yi, y0)
+    assert_allclose(wli, wl, rtol=1e-4)
+    assert_allclose(ordersi, orders)
 
 
 def test_nircam_grism_1d_linear():
@@ -575,10 +646,10 @@ def test_nircam_grism_1d_linear():
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(150, 140, 2.0, orders)
-    np.testing.assert_allclose(xi, 150)
-    np.testing.assert_allclose(yi, 140)
-    np.testing.assert_allclose(wli, 2.0)
-    np.testing.assert_allclose(ordersi, orders)
+    assert_allclose(xi, 150)
+    assert_allclose(yi, 140)
+    assert_allclose(wli, 2.0)
+    assert_allclose(ordersi, orders)
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
@@ -634,10 +705,10 @@ def test_niriss_grism_roundtrip(direction):
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
-    np.testing.assert_allclose(xi, x0)
-    np.testing.assert_allclose(yi, y0)
-    np.testing.assert_allclose(wli, wl, rtol=1e-4)
-    np.testing.assert_allclose(ordersi, orders)
+    assert_allclose(xi, x0)
+    assert_allclose(yi, y0)
+    assert_allclose(wli, wl, rtol=1e-4)
+    assert_allclose(ordersi, orders)
 
 
 def test_miri_wfss_roundtrip():
@@ -688,9 +759,9 @@ def test_miri_wfss_roundtrip():
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
-    np.testing.assert_allclose(xi, x0)
-    np.testing.assert_allclose(yi, y0)
-    np.testing.assert_allclose(wli, wl, rtol=1e-2)
+    assert_allclose(xi, x0)
+    assert_allclose(yi, y0)
+    assert_allclose(wli, wl, rtol=1e-2)
     assert ordersi == orders
 
 
@@ -891,12 +962,18 @@ def test_error_raises_bad_transforms():
         )
 
 
-def test_dircos2unitless_roundtrip():
+@pytest.mark.parametrize(
+    ("x", "y"),
+    [
+        (np.sqrt(2) / 2, np.sqrt(2) / 2),
+        (np.linspace(0, np.pi, 5), np.linspace(0, np.pi / 4, 5)),
+    ],
+)
+def test_dircos2unitless_roundtrip(x, y):
     """
     Test DirCos2Unitless transform model.
     """
     tr = models.Unitless2DirCos()
-    x, y = np.sqrt(2) / 2, np.sqrt(2) / 2
     assert_allclose(tr.inverse(*tr(x, y)), (x, y))
 
 

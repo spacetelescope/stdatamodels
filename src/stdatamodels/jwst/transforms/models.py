@@ -280,18 +280,18 @@ class MIRI_AB2Slice(Model):  # noqa: N801
 
         Parameters
         ----------
-        beta : float
+        beta : float or np.ndarray
             The beta angle.
-        beta_zero : float
+        beta_zero : float or np.ndarray
             Beta coordinate of the center of slice 1 in the MIRI MRS.
-        beta_del : float
+        beta_del : float or np.ndarray
             Slice width.
-        channel : int
+        channel : int or np.ndarray
             MIRI MRS channel number. Valid values are 1, 2, 3, 4.
 
         Returns
         -------
-        int
+        int or np.ndarray
             The slice number.
         """
         s = channel * 100 + (beta - beta_zero) / beta_del + 1
@@ -334,11 +334,11 @@ class RefractionIndexFromPrism(Model):
 
         Parameters
         ----------
-        alpha_in, beta_in : float
+        alpha_in, beta_in : float or np.ndarray
             Angle of incidence in radians.
-        alpha_out : float
+        alpha_out : float or np.ndarray
             Angle of emergence in radians.
-        prism_angle : float
+        prism_angle : float or np.ndarray
             Prism angle in radians.
 
         Returns
@@ -444,16 +444,16 @@ class Gwa2Slit(Model):
         ----------
         name : str
             Name of the slit.
-        x, y, z : float
+        x, y, z : float or np.ndarray
             The three angle coordinates at the GWA going from detector to sky.
 
         Returns
         -------
         name : str
             Name of the slit.
-        x_slit, y_slit : float
+        x_slit, y_slit : float or np.ndarray
             The x and y coordinates within the virtual slit.
-        lam : float
+        lam : float or np.ndarray
             Wavelength.
         """
         index = self.slit_ids.index(name)
@@ -708,12 +708,12 @@ class Slit2Msa(Model):
         ----------
         name : str
             Name of the slit.
-        x, y : float
+        x, y : float or np.ndarray
             The x and y coordinates within the virtual slit.
 
         Returns
         -------
-        x_msa, y_msa : float
+        x_msa, y_msa : float or np.ndarray
             The x and y coordinates in the MSA frame.
         """
         index = self.slit_ids.index(name)
@@ -838,16 +838,16 @@ class NirissSOSSModel(Model):
 
         Parameters
         ----------
-        x, y : float
+        x, y : float or np.ndarray
             Pixel coordinates.
         spectral_order : int
             The input spectral order.
 
         Returns
         -------
-        ra, dec : float
+        ra, dec : float or np.ndarray
             RA and Dec coordinates.
-        lam : float
+        lam : float or np.ndarray
             Wavelength.
         """
         # The spectral_order variable is coming in as an array/list of one element.
@@ -881,11 +881,11 @@ class Logical(Model):
         ----------
         condition : str
             A string representing the logical, one of GT, LT, NE, EQ
-        compareto : float, ndarray
+        compareto : float, np.ndarray
             A number to compare to using the condition
             If ndarray then the input array, compareto and value should have the
             same shape.
-        value : float, ndarray
+        value : float, np.ndarray
             Value to substitute where condition is True.
         **kwargs
             Additional keyword arguments to pass to Model.
@@ -903,7 +903,7 @@ class Logical(Model):
 
         Parameters
         ----------
-        x : array-like
+        x : np.ndarray
             Input array.
 
         Returns
@@ -2329,7 +2329,7 @@ class Snell(Model):
 
         Parameters
         ----------
-        lam : float
+        lam : float or np.ndarray
             Wavelength in microns.
         temp : float
             System temperature during observation in K.
@@ -2418,11 +2418,11 @@ class Snell(Model):
 
         Parameters
         ----------
-        lam : float
+        lam : float or np.ndarray
             Wavelength.
-        alpha_in, beta_in : float
+        alpha_in, beta_in : float or np.ndarray
             Incident angles.
-        zin : float
+        zin : float or np.ndarray
             Incoming z coordinate. Not used for the calculation.
 
         Returns
@@ -2498,10 +2498,11 @@ class AngleFromGratingEquation(Model):
         ----------
         lam : float
             The wavelength.
-        alpha_in, beta_in : float
-            The incident angle.
-        z : float
-            Unused except to match the interface.
+        alpha_in, beta_in : float or np.ndarray
+            The 3-D incident angle(s).
+        z : float or np.ndarray
+            The incident z coordinate.
+            Unused except to match the interface, but must have same shape as alpha_in and beta_in.
         groove_density : float
             The grating ruling density.
         order : int
@@ -2883,14 +2884,14 @@ class Unitless2DirCos(Model):
 
         Parameters
         ----------
-        x : float
+        x : float or np.ndarray
             The vector x-component.
-        y : float
+        y : float or np.ndarray
             The vector y-component.
 
         Returns
         -------
-        cosa, cosb, cosc : float
+        cosa, cosb, cosc : float or np.ndarray
             The direction cosines alpha, beta, and gamma of the vector.
         """
         vabs = np.sqrt(1.0 + x**2 + y**2)
