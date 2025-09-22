@@ -5,7 +5,6 @@ from stdatamodels.schema import walk_schema
 
 from . import dmd, kwd
 
-
 # Initialize the standard in regex pattern
 _fits_standard_regex = re.compile(
     "|".join(
@@ -347,7 +346,9 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
                 to_remove_in_kwd.append(tplk)
                 if tplk not in in_both:
                     in_both.add(tplk)
-                    definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+                    definitions_diff[tplk] = _compare_fits_hdu(
+                        kwd_keywords[tplk], datamodel_keywords[tpld]
+                    )
     _clean_set(in_kwd, to_remove_in_kwd)
     # look up datamodels keys in keyword dictionary
     to_remove_in_dmd = []
@@ -359,7 +360,9 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
                 if tplk not in definitions_diff:
                     if tplk not in in_both:
                         in_both.add(tplk)
-                        definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
+                        definitions_diff[tplk] = _compare_fits_hdu(
+                            kwd_keywords[tplk], datamodel_keywords[tpld]
+                        )
     _clean_set(in_datamodels, to_remove_in_dmd)
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords

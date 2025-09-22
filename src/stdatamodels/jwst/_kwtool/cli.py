@@ -1,15 +1,12 @@
 import argparse
+from datetime import date
 from html.parser import HTMLParser
 from pprint import pformat
-from html.parser import HTMLParser
-from datetime import date
-import sys
-import types
-import importlib.machinery
-import pprint
+
+from stdatamodels.jwst._kwtool.okified_diffs import okifeid_expected_diffs
 
 from .compare import compare_keywords
-from stdatamodels.jwst._kwtool.okified_diffs import okifeid_expected_diffs
+
 
 class ParseHTML(HTMLParser):
     def __init__(self):
@@ -197,7 +194,9 @@ def print_dict_to_file(dict_name, the_dict, the_file):
 
 
 def generate_report(kwd_path, okified_diffs=None, previous_report=None):
-    in_k, in_d, in_both, def_diff, kwd, dmd = compare_keywords(kwd_path, expected_diffs=okified_diffs)
+    in_k, in_d, in_both, def_diff, kwd, dmd = compare_keywords(
+        kwd_path, expected_diffs=okified_diffs
+    )
     # save the keywords for the current run
     print_dict_to_file("def_diff", def_diff, "def_diff.py")
 
@@ -220,7 +219,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
     formatted_date = today.strftime("%Y-%m-%d")
     stdatamodels_tag = "4.0.1"
     jwstkw_tag = "JWSTDP-2025.3.1-3"
-    tags = ("Tags used: stdatamodels=" + stdatamodels_tag + " ,  jwstkw=" + jwstkw_tag)
+    tags = "Tags used: stdatamodels=" + stdatamodels_tag + " ,  jwstkw=" + jwstkw_tag
     body += R("h1", "Date: " + str(formatted_date))
     body += R("h1", tags)
 
@@ -291,7 +290,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
     table += "  <tr>\n"
     column_hdrs = ["Keyword", "Previous_report_section"]
     for col in column_hdrs:
-        table += "    <th>{0}</th>\n".format(col)
+        table += f"    <th>{col}</th>\n"
     table += "  </tr>\n"
 
     if len(removed_keywords) > 0:
@@ -302,7 +301,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
             row = [kwd_details, rmvd_from]
             table += "  <tr>\n"
             for col_row in row:
-                table += "    <td>{0}</td>\n".format(col_row)
+                table += f"    <td>{col_row}</td>\n"
             table += "  </tr>\n"
         table += "</table>"
     body += table
@@ -323,10 +322,10 @@ def _configure_cmdline_parser():
     parser.add_argument(
         "-d",
         "--okified_diffs",
-        action='store_true',
+        action="store_true",
         default=False,
         help="Use reviewed and accepted differences (okified_diffs file) between datamodel "
-             "schemas and the keyword dictionary.",
+        "schemas and the keyword dictionary.",
     )
     parser.add_argument(
         "-p",
