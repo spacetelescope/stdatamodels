@@ -6,14 +6,6 @@ from stdatamodels.schema import walk_schema
 from . import dmd, kwd
 
 
-class _MissingValue:
-    def __repr__(self):
-        return "MISSING VALUE"
-
-
-_MISSING_VALUE = _MissingValue()
-
-
 # Initialize the standard in regex pattern
 _fits_standard_regex = re.compile(
     "|".join(
@@ -53,6 +45,8 @@ _fits_standard_regex = re.compile(
         ]
     )
 )
+
+_MISSING_VALUE = "MISSING_VALUE"
 
 _DEFAULT_SKIP_MODELS = {
     dm.ReferenceFileModel,  # ignore reference file models
@@ -277,8 +271,6 @@ def _compare_definitions(k, d):
         diff["type"] = subdiff
     if subdiff := _compare_enum(k, d):
         diff["enum"] = subdiff
-    if subdiff := _compare_fits_hdu(k, d):
-        diff["fits_hdu"] = subdiff
     return diff
 
 
@@ -287,14 +279,19 @@ def _is_expected(kw, diff, expected_diffs):
         return False
     expected = expected_diffs[kw]
     for expected_key, sub_expected in expected.items():
+        if expected_key == "notes":
+            continue
         if expected_key not in diff:
             continue
         sub_diff = diff[expected_key]
         for collection_key in ("dmd", "kwd"):
             if collection_key not in sub_expected:
                 continue
-            for op, other_set in sub_expected[collection_key].items():
-                sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
+            try:
+                for op, other_set in sub_expected[collection_key].items():
+                    sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
+            except AttributeError:
+                sub_diff[collection_key] = sub_expected[collection_key]
         if sub_diff["dmd"] == sub_diff["kwd"]:
             del diff[expected_key]
     # if we have no differences left then all was expected
@@ -342,25 +339,27 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
                 definitions_diff[kw] = diff
 
     # double check that the keyword is indeed missing
+    # look up keyword dictionary keys in datamodels
     to_remove_in_kwd = []
     for tplk in in_kwd:
         for tpld in datamodel_keys:
             if tplk[1] == tpld[1]:
                 to_remove_in_kwd.append(tplk)
-                definitions_diff[tplk] = _compare_fits_hdu(
-                    kwd_keywords[tplk], datamodel_keywords[tpld]
-                )
-    to_remove_in_dmd = []
+                if tplk not in in_both:
+                    in_both.add(tplk)
+                    definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
     _clean_set(in_kwd, to_remove_in_kwd)
+    # look up datamodels keys in keyword dictionary
+    to_remove_in_dmd = []
     for tpld in in_datamodels:
         for tplk in kwd_keys:
             if tplk[1] == tpld[1]:
                 to_remove_in_dmd.append(tpld)
                 # but don't add it twice
                 if tplk not in definitions_diff:
-                    definitions_diff[tplk] = _compare_fits_hdu(
-                        kwd_keywords[tplk], datamodel_keywords[tpld]
-                    )
+                    if tplk not in in_both:
+                        in_both.add(tplk)
+                        definitions_diff[tplk] = _compare_fits_hdu(kwd_keywords[tplk], datamodel_keywords[tpld])
     _clean_set(in_datamodels, to_remove_in_dmd)
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords
