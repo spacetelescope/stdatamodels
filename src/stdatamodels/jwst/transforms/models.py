@@ -2012,17 +2012,22 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The inverse dispersion trace model, such that t = lmodel(wavelength)
+            The inverse dispersion polynomial trace models, such that t = lmodel(wavelength)
             computes the trace parameter from the wavelength.
-        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The polynomial model encoding the x-position of the spectral trace.
-            It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
-            The polynomial models encoding the y-position of the spectral trace.
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
-            this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
-            Note that dy depends on dx, and not directly on t like for NIRISS and NIRCam.
-            The tuple of Models corresponds to the 2-D polynomials (C0, C1, C2).
+            this takes the form dx =
+            C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the y-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dy =
+            C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
         """
         name = "miri_wfss_backward_dispersion"
         super().__init__(
@@ -2070,20 +2075,22 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
 
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
-        dx = xmodel(t)
-        dy = ymodel[0](x, y) + dx * ymodel[1](x, y) + dx**2 * ymodel[2](x, y)
-        return x + dx, dy, x, y, order
+
+        dx = _poly_with_spatial_dependence(t, x, y, xmodel)
+        dy = _poly_with_spatial_dependence(t, x, y, ymodel)
+
+        return x + dx, y + dy, x, y, order
 
 
 class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
     """
-    Calculate the wavelengths of vertically dispersed MIRIWFSS data.
+    Calculate the wavelengths of vertically dispersed MIRI WFSS data.
 
     The dispersion polynomial is relative to the input x,y pixels
     in the direct image for a given wavelength.
     """
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None, name=None):
+    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None):
         """
         Initialize the model.
 
@@ -2094,17 +2101,22 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             given by the `lmodels`, `xmodels`, and `ymodels` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The forward dispersion trace model, such that wavelength = lmodel(t)
+            The forward dispersion polynomial model, such that wavelength = lmodel(t)
             computes the wavelength from the trace parameter.
-        xmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
-            The polynomial model encoding the x-position of the spectral trace.
-            It takes the form dx = xmodel(t), where t is the trace parameter.
-        ymodels : list[tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]]
-            The polynomial models encoding the y-position of the spectral trace.
+        xmodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the x-position of the spectral trace.
             Because the shape of the trace depends on the direct-image x0, y0 position,
-            this takes the form dy = C0(x0, y0) + C1(x0, y0) * dx + C2(x0, y0) * dx^2.
-            Note that dy depends on dx, and not directly on t like for NIRISS and NIRCam.
-            The tuple of Models corresponds to the 2-D polynomials (C0, C1, C2).
+            this takes the form dx =
+            C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
+        ymodels : list[list[:class:`astropy.modeling.polynomial.Polynomial2D`]]
+            The models encoding the y-position of the spectral trace.
+            Because the shape of the trace depends on the direct-image x0, y0 position,
+            this takes the form dy =
+            C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
+            The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
+            The outer list corresponds to the different spectral orders.
         """
         name = "miri_wfss_forward_dispersion"
         super().__init__(
@@ -2152,11 +2164,15 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
         t = np.linspace(0, 1, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         lmodel = self.lmodels[iorder]
-        dx = xmodel(t)
+
+        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
 
         so = np.argsort(dx)
         tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
-
+        # wavelength model takes in x, x0.
+        # it then subtracts them to get dx; that's what SubtractUfunc does
+        # next it finds the t value for that dx from the lookup table, interpolating linearly
+        # finally it applies the lmodel of t to get the wavelength
         dxr = astmath.SubtractUfunc()
         wavelength = dxr | tab | lmodel
         model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
