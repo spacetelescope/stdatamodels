@@ -1,1 +1,0 @@
-Deprecate passing kwargs into asdf.open from asdf_in_fits.open

@@ -1,1 +1,0 @@
-Change interpretation of bit flag 256 from UNRELIABLE_ERROR to RESERVED (kept unset for future use)

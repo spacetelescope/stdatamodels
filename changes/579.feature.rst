@@ -1,1 +1,0 @@
-Add ``cal_logs`` handling to the ``update`` method for JWST datamodels.

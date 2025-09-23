@@ -1,2 +1,0 @@
-Deprecate None, shape tuple, array, and HDUList as valid inits to datamodels.open(). DataModel.__init__() should be used directly instead.
-Deprecate assigning data arrays during model init when the init type is already file-like (e.g. filename, model tree, HDUList, etc)
