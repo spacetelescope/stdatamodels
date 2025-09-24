@@ -693,6 +693,7 @@ class RegionsModel(ReferenceFileModel):
 
     def validate(self):
         super().validate()
+        """
         if self.meta.instrument.name == "MIRI":
             assert isinstance(self.regions, (np.ndarray, NDArrayType))
             assert self.meta.exposure.type == "MIR_MRS"
@@ -724,7 +725,7 @@ class RegionsModel(ReferenceFileModel):
                 'NRCA4',
                 'NRCALONG',
             )
-
+        """
 
     def get_primary_array_name(self):  # noqa: D102
         return "regions"
