@@ -335,18 +335,22 @@ def _mk_txt_table(dict_name, the_dict):
     file_name = dict_name + "_table.txt"
     okified, notes = "No", ""
     with open(file_name, "w") as f:
-        line = "{:<12} {:<25} {:<60} {:<8} {:<30}".format("Keyword", "HDU", "Title", "Okified", "Notes")
+        line = "{:<12} {:<25} {:<60} {:<8} {:<30}".format(
+            "Keyword", "HDU", "Title", "Okified", "Notes"
+        )
         f.write(line + "\n")
         # print the dashed lines under the headers
         lengths = [12, 25, 60, 8, 30]
         dashed_lines = []
         for l in lengths:
             dl = "-"
-            for _ in range(l-2):
+            for _ in range(l - 2):
                 dl += "-"
             dashed_lines.append(dl)
-        line = (f"{dashed_lines[0]:<12} {dashed_lines[1]:<25} {dashed_lines[2]:<60} "
-                f"{dashed_lines[3]:<8} {dashed_lines[4]:<30}")
+        line = (
+            f"{dashed_lines[0]:<12} {dashed_lines[1]:<25} {dashed_lines[2]:<60} "
+            f"{dashed_lines[3]:<8} {dashed_lines[4]:<30}"
+        )
         f.write(line + "\n")
         for tpl, item in the_dict.items():
             fits_hdu, keyword = tpl
@@ -355,14 +359,13 @@ def _mk_txt_table(dict_name, the_dict):
                 for k, v in d.items():
                     if k == "keyword":
                         if "title" in v:
-                            title = v['title']
+                            title = v["title"]
                             line = f"{keyword:<12} {fits_hdu:<25} {title:<60} {okified:<5} {notes:<100}"
                             f.write(line + "\n")
                             break
                     # only print the keyword once
                     if title:
                         break
-
 
 
 def _print_final_keywords(dict_name, in_kord, the_dict):
@@ -373,7 +376,6 @@ def _print_final_keywords(dict_name, in_kord, the_dict):
         file_name = dict_name + ".py"
         print_dict_to_file(dict_name, final_keywords, file_name)
         _mk_txt_table(dict_name, final_keywords)
-
 
 
 def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):

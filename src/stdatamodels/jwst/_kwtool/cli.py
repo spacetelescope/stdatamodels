@@ -3,8 +3,8 @@ from datetime import date
 from html.parser import HTMLParser
 from pprint import pformat
 
-from stdatamodels.jwst._kwtool.okified_diffs import okifeid_expected_diffs
 from stdatamodels.jwst._kwtool.compare import print_dict_to_file
+from stdatamodels.jwst._kwtool.okified_diffs import okifeid_expected_diffs
 
 from .compare import compare_keywords
 
