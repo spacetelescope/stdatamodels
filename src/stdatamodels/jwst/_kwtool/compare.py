@@ -5,15 +5,6 @@ from stdatamodels.schema import walk_schema
 
 from . import dmd, kwd
 
-
-class _MissingValue:
-    def __repr__(self):
-        return "MISSING VALUE"
-
-
-_MISSING_VALUE = _MissingValue()
-
-
 # Initialize the standard in regex pattern
 _fits_standard_regex = re.compile(
     "|".join(
@@ -53,6 +44,8 @@ _fits_standard_regex = re.compile(
         ]
     )
 )
+
+_MISSING_VALUE = "MISSING_VALUE"
 
 _DEFAULT_SKIP_MODELS = {
     dm.ReferenceFileModel,  # ignore reference file models
@@ -246,11 +239,23 @@ def _compare_enum(k, d):
     return {"kwd": k_values, "dmd": d_values}
 
 
+def _compare_fits_hdu(k, d):
+    # the fits hdu where the keyword is located
+    diff = _compare_keyword_subitem(k, d, "fits_hdu")
+    if not diff:
+        return
+    k_value = diff["kwd"]
+    d_value = diff["dmd"]
+    if k_value == d_value:
+        return None
+    return {"kwd": k_value, "dmd": d_value}
+
+
 def _compare_definitions(k, d):
     # compare the keyword definitions in the keyword dictionary (k)
-    # and dataodels (d)
+    # and datamodels (d)
     # each is a list of definitions since each high level structure
-    # has orgnization that will lead to many definitions for a single keyword
+    # has organization that will lead to many definitions for a single keyword
     # The things to compare are:
     # - paths: these should match
     # - title: these should match
@@ -273,20 +278,107 @@ def _is_expected(kw, diff, expected_diffs):
         return False
     expected = expected_diffs[kw]
     for expected_key, sub_expected in expected.items():
+        if expected_key == "notes":
+            continue
         if expected_key not in diff:
             continue
         sub_diff = diff[expected_key]
         for collection_key in ("dmd", "kwd"):
             if collection_key not in sub_expected:
                 continue
-            for op, other_set in sub_expected[collection_key].items():
-                sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
+            try:
+                for op, other_set in sub_expected[collection_key].items():
+                    sub_diff[collection_key] = getattr(sub_diff[collection_key], op)(other_set)
+            except AttributeError:
+                sub_diff[collection_key] = sub_expected[collection_key]
         if sub_diff["dmd"] == sub_diff["kwd"]:
             del diff[expected_key]
     # if we have no differences left then all was expected
     if not diff:
         return True
     return False
+
+
+def _clean_set(the_set, keys_to_remove):
+    for k in keys_to_remove:
+        the_set.discard(k)
+    return the_set
+
+
+def _pretty_print_it(d, indent=1):
+    res = ""
+    for k, v in d.items():
+        res += "\t" * indent + repr(k)
+        if isinstance(v, dict):
+            res += ": { \n"
+            res += _pretty_print_it(v, indent + 1)
+            res += "\t" * (indent + 1) + "}, \n"
+        elif isinstance(v, list):
+            res += ": [ \n"
+            for list_item in v:
+                res += "\t" * (indent + 2) + repr(list_item) + ", \n"
+            res += "\t" * (indent + 1) + "], \n"
+        else:
+            res += ": \n"
+            res += "\t" * (indent + 1) + repr(v) + ", \n"
+    return res
+
+
+def print_dict_to_file(dict_name, the_dict, the_file):
+    with open(the_file, "w") as f:
+        f.write(dict_name + " = { \n")
+        f.write(_pretty_print_it(the_dict))
+        f.write("} \n")
+
+
+def _mk_txt_table(dict_name, the_dict):
+    file_name = dict_name + "_table.txt"
+    okified, notes = "No", ""
+    with open(file_name, "w") as f:
+        line = "{:<12} {:<25} {:<60} {:<8} {:<30}".format(
+            "Keyword", "HDU", "Title", "Okified", "Notes"
+        )
+        f.write(line + "\n")
+        # print the dashed lines under the headers
+        lengths = [12, 25, 60, 8, 30]
+        dashed_lines = []
+        for l in lengths:
+            dl = "-"
+            for _ in range(l - 2):
+                dl += "-"
+            dashed_lines.append(dl)
+        line = (
+            f"{dashed_lines[0]:<12} {dashed_lines[1]:<25} {dashed_lines[2]:<60} "
+            f"{dashed_lines[3]:<8} {dashed_lines[4]:<30}"
+        )
+        f.write(line + "\n")
+        for tpl, item in the_dict.items():
+            fits_hdu, keyword = tpl
+            title = None
+            for d in item:
+                for k, v in d.items():
+                    if k == "keyword":
+                        if "title" in v:
+                            title = v["title"]
+                            line = (
+                                f"{keyword:<12} {fits_hdu:<25} {title:<60} "
+                                f"{okified:<5} {notes:<100}"
+                            )
+                            f.write(line + "\n")
+                            break
+                    # only print the keyword once
+                    if title:
+                        break
+
+
+def _print_final_keywords(dict_name, in_kord, the_dict):
+    final_keywords = {}
+    for tpl in in_kord:
+        final_keywords[tpl] = the_dict[tpl]
+    if final_keywords:
+        file_name = dict_name + ".py"
+        print_dict_to_file(dict_name, final_keywords, file_name)
+        _mk_txt_table(dict_name, final_keywords)
 
 
 def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
@@ -309,6 +401,7 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
 
     # find keywords that are in both and check if they match
     in_both = kwd_keys & datamodel_keys
+
     definitions_diff = {}
     for kw in in_both:
         k = kwd_keywords[kw]
@@ -319,5 +412,35 @@ def compare_keywords(kwd_path, skip_models=None, expected_diffs=None):
             # only report unexpected differences
             if not _is_expected(kw, diff, expected_diffs):
                 definitions_diff[kw] = diff
+
+    # double check that the keyword is indeed missing
+    # look up keyword dictionary keys in datamodels
+    to_remove_in_kwd = []
+    for tplk in in_kwd:
+        for tpld in datamodel_keys:
+            if tplk[1] == tpld[1]:
+                to_remove_in_kwd.append(tplk)
+                if tplk not in in_both:
+                    in_both.add(tplk)
+                    definitions_diff[tplk] = _compare_fits_hdu(
+                        kwd_keywords[tplk], datamodel_keywords[tpld]
+                    )
+    _clean_set(in_kwd, to_remove_in_kwd)
+    _print_final_keywords("final_kwd_keywords", in_kwd, kwd_keywords)
+    # look up datamodels keys in keyword dictionary
+    to_remove_in_dmd = []
+    for tpld in in_datamodels:
+        for tplk in kwd_keys:
+            if tplk[1] == tpld[1]:
+                to_remove_in_dmd.append(tpld)
+                # but don't add it twice
+                if tplk not in definitions_diff:
+                    if tplk not in in_both:
+                        in_both.add(tplk)
+                        definitions_diff[tplk] = _compare_fits_hdu(
+                            kwd_keywords[tplk], datamodel_keywords[tpld]
+                        )
+    _clean_set(in_datamodels, to_remove_in_dmd)
+    _print_final_keywords("final_datamodel_keywords", in_datamodels, datamodel_keywords)
 
     return in_kwd, in_datamodels, in_both, definitions_diff, kwd_keywords, datamodel_keywords
