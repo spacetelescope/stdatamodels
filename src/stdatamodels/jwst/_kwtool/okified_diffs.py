@@ -21,8 +21,9 @@ okifeid_expected_diffs = {
                 "difference": {"CALCULATED_FULL", "CALCULATED_FULLVA"},
             },
         },
-        "notes": """JP-2663: Old values no longer needed in KWD. Will keep in datamodels schemas for 
-            backwards compatibility with old test suites. No fix needed.""",
+        "notes": """JP-2663: Old values no longer needed in KWD. Will keep in 
+                datamodels schemas for backwards compatibility with old
+                test suites. No fix needed.""",
     },
     ("PRIMARY", "PATTTYPE"): {
         "enum": {
@@ -30,8 +31,9 @@ okifeid_expected_diffs = {
                 "difference": {"SUBARRAY-DITHER", "N/A", "FULL-TIGHT", "ANY"},
             },
         },
-        "notes": """JP-3711: Old values no longer needed in KWD. Will keep in datamodels schemas for 
-            backwards compatibility with old test suites. No fix needed.""",
+        "notes": """JP-3711: Old values no longer needed in KWD. Will keep in
+                datamodels schemas for backwards compatibility with old
+                test suites. No fix needed.""",
     },
     ("PRIMARY", "CATEGORY"): {
         "enum": {
@@ -318,8 +320,9 @@ okifeid_expected_diffs = {
             "kwd": {"meta.instrument.cmd_tsel"},
             "dmd": {"meta.exposure.cmd_tsel"},
         },
-        "notes": """Minor path difference of where the keyword is set (in Keyword Dictionary) and 
-            where it is stored (in Datamodels). No fix needed.""",
+        "notes": """Minor path difference of where the keyword is set
+                (in Keyword Dictionary) and where it is stored (in Datamodels).
+                No fix needed.""",
     },
     ("PRIMARY", "COMPRESS"): {
         "path": {
@@ -333,8 +336,9 @@ okifeid_expected_diffs = {
             "kwd": {"meta.ami.content"},
             "dmd": {"meta.oifits.derived.content"},
         },
-        "notes": """Minor path difference of where the keyword is set (in Keyword Dictionary) and 
-            where it is stored (in Datamodels). No fix needed.""",
+        "notes": """Minor path difference of where the keyword is set
+                (in Keyword Dictionary) and where it is stored (in Datamodels).
+                No fix needed.""",
     },
     ("PRIMARY", "CORONMSK"): {
         "enum": {
@@ -342,7 +346,8 @@ okifeid_expected_diffs = {
                 "difference": {"MASK210R", "MASKLWB", "MASK430R", "NONE", "MASK335R", "MASKSWB"},
             },
         },
-        "notes": """Datamodels contains additional obsolete values for backward compatibility. No fix needed.""",
+        "notes": """Datamodels contains additional obsolete values for backward
+                compatibility. No fix needed.""",
     },
     ("PRIMARY", "DATAMODL"): {
         "path": {
@@ -1136,28 +1141,16 @@ okifeid_expected_diffs = {
         },
         "notes": """Minor title difference. No fix needed.""",
     },
-    ("SCI", "V3I_YANG"): {
-        "title": {
-            "kwd": {"[deg] Direction angle in V3 (Y)"},
-            "dmd": {"[deg] Angle from V3 axis to Ideal y axis"},
-        },
-        "notes": """Minor title difference. No fix needed.""",
-    },
-    ("SCI", "VPARITY"): {
-        "title": {
-            "kwd": {"Parity (sense) of aperture settings (1, -1)"},
-            "dmd": {"Relative sense of rotation between Ideal xy and V2V3"},
-        },
-        "notes": """Minor title difference. No fix needed.""",
-    },
     ("TARG_ACQ", "V2_REF"): {
         "kwd": {"TARG_ACQ"},
         "dmd": {"PRIMARY"},
-        "notes": """This keyword appears in multiple hdus (TARG_ACQ, PRIMARY, SCI). No fix needed.""",
+        "notes": """This keyword appears in multiple hdus (TARG_ACQ, PRIMARY, SCI).
+                No fix needed.""",
     },
     ("TARG_ACQ", "V3_REF"): {
         "kwd": {"TARG_ACQ"},
         "dmd": {"SCI"},
-        "notes": """This keyword appears in multiple hdus (TARG_ACQ, PRIMARY, SCI). No fix needed.""",
+        "notes": """This keyword appears in multiple hdus (TARG_ACQ, PRIMARY, SCI).
+                No fix needed.""",
     },
 }
