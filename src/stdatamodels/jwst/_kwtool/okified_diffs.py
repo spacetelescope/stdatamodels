@@ -216,14 +216,21 @@ okifeid_expected_diffs = {
         },
         "notes": """Minor path difference. No fix needed.""",
     },
-    ("PRIMARY", "APERNAME"): {
+    ("OI_T3", "APERNAME"): {
         "title": {
             "kwd": {"S&OC PRD science aperture used"},
             "dmd": {"PRD science aperture used"},
         },
         "notes": """Minor title difference. No fix needed.""",
     },
-    ("PRIMARY", "APERNAME"): {
+    ("OI_VIS", "APERNAME"): {
+        "title": {
+            "kwd": {"S&OC PRD science aperture used"},
+            "dmd": {"PRD science aperture used"},
+        },
+        "notes": """Minor title difference. No fix needed.""",
+    },
+    ("OI_VIS2", "APERNAME"): {
         "title": {
             "kwd": {"S&OC PRD science aperture used"},
             "dmd": {"PRD science aperture used"},

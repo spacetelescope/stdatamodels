@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from pprint import pformat
 
 from stdatamodels.jwst._kwtool.okified_diffs import okifeid_expected_diffs
+from stdatamodels.jwst._kwtool.compare import print_dict_to_file
 
 from .compare import compare_keywords
 
@@ -122,7 +123,7 @@ def read_previous_report(previous_report):
     return prev_rep
 
 
-def check_tuple_exist(the_set, the_tuple):
+def _check_tuple_exist(the_set, the_tuple):
     exist = "No"
     if the_set:
         if the_tuple in the_set:
@@ -130,7 +131,7 @@ def check_tuple_exist(the_set, the_tuple):
     return exist
 
 
-def check_keyword_exist(the_set, the_tuple):
+def _check_keyword_exist(the_set, the_tuple):
     exist = "No"
     if the_set:
         for tpl in the_set:
@@ -139,26 +140,26 @@ def check_keyword_exist(the_set, the_tuple):
     return exist
 
 
-def loop_check_keyword_exist(set1, set2, set3, set4):
+def _loop_check_keyword_exist(set1, set2, set3, set4):
     removed_tuples = []
     for tpl in set1:
-        existin2 = check_keyword_exist(set2, tpl)
+        existin2 = _check_keyword_exist(set2, tpl)
         if existin2 == "No":
-            existin3 = check_keyword_exist(set3, tpl)
+            existin3 = _check_keyword_exist(set3, tpl)
             if existin3 == "No":
-                existin4 = check_keyword_exist(set4, tpl)
+                existin4 = _check_keyword_exist(set4, tpl)
                 if existin4 == "No":
                     removed_tuples.append(tpl)
     return removed_tuples
 
 
-def check_removed_keywords(prev_diffs, in_k, in_d, in_both):
+def _check_removed_keywords(prev_diffs, in_k, in_d, in_both):
     prev_in_kwd = prev_diffs.in_kwd
     prev_in_dmd = prev_diffs.in_dmd
     prev_in_both = prev_diffs.in_both
-    removed_in_kwd = loop_check_keyword_exist(prev_in_kwd, in_k, in_d, in_both)
-    removed_in_dmd = loop_check_keyword_exist(prev_in_dmd, in_k, in_d, in_both)
-    removed_in_both = loop_check_keyword_exist(prev_in_both, in_k, in_d, in_both)
+    removed_in_kwd = _loop_check_keyword_exist(prev_in_kwd, in_k, in_d, in_both)
+    removed_in_dmd = _loop_check_keyword_exist(prev_in_dmd, in_k, in_d, in_both)
+    removed_in_both = _loop_check_keyword_exist(prev_in_both, in_k, in_d, in_both)
     removed_keywords = []
     if len(removed_in_kwd) > 0:
         for tpl in removed_in_kwd:
@@ -170,27 +171,6 @@ def check_removed_keywords(prev_diffs, in_k, in_d, in_both):
         for tpl in removed_in_both:
             removed_keywords.append(tpl + ("Both",))
     return removed_keywords
-
-
-def pretty_print_dict(d, indent=1):
-    res = ""
-    for k, v in d.items():
-        res += "\t" * indent + repr(k)
-        if isinstance(v, dict):
-            res += ": { \n"
-            res += pretty_print_dict(v, indent + 1)
-            res += "\t" * (indent + 1) + "}, \n"
-        else:
-            res += ": \n"
-            res += "\t" * (indent + 1) + repr(v) + ", \n"
-    return res
-
-
-def print_dict_to_file(dict_name, the_dict, the_file):
-    with open(the_file, "w") as f:
-        f.write(dict_name + " = { \n")
-        f.write(pretty_print_dict(the_dict))
-        f.write("} \n")
 
 
 def generate_report(kwd_path, okified_diffs=None, previous_report=None):
@@ -208,7 +188,7 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
         prev_in_dmd = prev_diffs.in_dmd
         prev_in_both = prev_diffs.in_both
         # check if any keyword from previous report is missing in this round
-        removed_keywords = check_removed_keywords(prev_diffs, in_k, in_d, in_both)
+        removed_keywords = _check_removed_keywords(prev_diffs, in_k, in_d, in_both)
     else:
         removed_keywords = [("N/A", "N/A", "N/A")]
 
@@ -233,8 +213,8 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
 
     for k in sorted(in_k):
         kwd_details = R("details", R("summary", _keyword_to_str(k)) + _keyword_details(kwd, dmd, k))
-        known = check_tuple_exist(prev_in_kwd, k)
-        okified = check_tuple_exist(okified_diffs, k)
+        known = _check_tuple_exist(prev_in_kwd, k)
+        okified = _check_tuple_exist(okified_diffs, k)
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
@@ -253,8 +233,8 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
 
     for k in sorted(in_d):
         kwd_details = R("details", R("summary", _keyword_to_str(k)) + _keyword_details(kwd, dmd, k))
-        known = check_tuple_exist(prev_in_dmd, k)
-        okified = check_tuple_exist(okified_diffs, k)
+        known = _check_tuple_exist(prev_in_dmd, k)
+        okified = _check_tuple_exist(okified_diffs, k)
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
@@ -275,8 +255,8 @@ def generate_report(kwd_path, okified_diffs=None, previous_report=None):
         kwd_details = R(
             "details", R("summary", _keyword_to_str(k)) + _def_diff_details(def_diff[k])
         )
-        known = check_tuple_exist(prev_in_both, k)
-        okified = check_tuple_exist(okified_diffs, k)
+        known = _check_tuple_exist(prev_in_both, k)
+        okified = _check_tuple_exist(okified_diffs, k)
         row = [kwd_details, known, okified]
         table += "  <tr>\n"
         for col_row in row:
