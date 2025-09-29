@@ -1,1 +1,0 @@
-Added FAILED to background step completion status, options are now COMPLETED, SKIPPED, FAILED.

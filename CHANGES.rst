@@ -1,3 +1,108 @@
+4.1.0 (2025-09-23)
+==================
+
+Bug Fixes
+---------
+
+- Fix incorrect trace function sampling in NIRCam forward grism dispersion
+  models (`#519 <https://github.com/spacetelescope/stdatamodels/issues/519>`_)
+- Updated units in WFSS tables to adhere to FITS standard. (`#529
+  <https://github.com/spacetelescope/stdatamodels/issues/529>`_)
+- Update units to match FITS standard. (`#530
+  <https://github.com/spacetelescope/stdatamodels/issues/530>`_)
+- Add S_CONTAM keyword to denote wfss_contam calibration step status (`#557
+  <https://github.com/spacetelescope/stdatamodels/issues/557>`_)
+- Remove module-level logging configuration. (`#563
+  <https://github.com/spacetelescope/stdatamodels/issues/563>`_)
+
+
+Documentation
+-------------
+
+- Make documentation of stdatamodels.jwst.transforms public (`#569
+  <https://github.com/spacetelescope/stdatamodels/issues/569>`_)
+
+
+New Features
+------------
+
+- Added a datamodel for MIRI WFSS specwcs reference file and the transforms for
+  this model. (`#493
+  <https://github.com/spacetelescope/stdatamodels/issues/493>`_)
+- Tidy up output FITS headers by removing extra blank keywords associated with
+  each reference file. (`#494
+  <https://github.com/spacetelescope/stdatamodels/issues/494>`_)
+- Added an extension for background mask used in background step to image
+  datamodel. (`#532
+  <https://github.com/spacetelescope/stdatamodels/issues/532>`_)
+- Add optional time dependence coefficient tables to all photom reference file
+  models except MIRI MRS.
+  Update the MIRI MRS time dependence coefficients to expect a power law
+  functional form. (`#555
+  <https://github.com/spacetelescope/stdatamodels/issues/555>`_)
+- Add ``asdf_in_fits.to_hdulist`` to add an ASDF extension to an in memory
+  HDUList (or create one if needed). (`#567
+  <https://github.com/spacetelescope/stdatamodels/issues/567>`_)
+- Added FAILED to background step completion status, options are now COMPLETED,
+  SKIPPED, FAILED. (`#575
+  <https://github.com/spacetelescope/stdatamodels/issues/575>`_)
+- Add ``cal_logs`` handling to the ``update`` method for JWST datamodels.
+  (`#579 <https://github.com/spacetelescope/stdatamodels/issues/579>`_)
+- Added q4 object to oifits schema to include quad amplitudes, phases in AMI
+  OIFITS data products. (`#582
+  <https://github.com/spacetelescope/stdatamodels/issues/582>`_)
+- Updated MIRI WFSS prism transforms to handle updates to their specwcs
+  reference file: the x and y models are now both 3rd order polynomials in the
+  trace parameter. (`#587
+  <https://github.com/spacetelescope/stdatamodels/issues/587>`_)
+
+
+Misc
+----
+
+- Refactor grism transforms to reduce repeated code and drop some
+  partially-supported dispersion model types (`#528
+  <https://github.com/spacetelescope/stdatamodels/issues/528>`_)
+- Update DataModel init to make it so kwargs are exclusively used for
+  initializing data arrays
+  as model attributes, and other args are used to control how the model is
+  opened and validated. (`#533
+  <https://github.com/spacetelescope/stdatamodels/issues/533>`_)
+- When opening models from a .fits file, close the FITS HDUList on init instead
+  of retaining a FileReference to it (`#552
+  <https://github.com/spacetelescope/stdatamodels/issues/552>`_)
+- Make transform models available in stdatamodels.jwst.transforms namespace
+  (`#569 <https://github.com/spacetelescope/stdatamodels/issues/569>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Deprecate passing kwargs into asdf.open from asdf_in_fits.open (`#533
+  <https://github.com/spacetelescope/stdatamodels/issues/533>`_)
+- Deprecate V23ToSky transform. Use the function
+  `jwst.assign_wcs.pointing.v23tosky` to construct an equivalent
+  `CompoundModel` that relies only on models from `astropy.modeling`.
+  Deprecate Rotation3D transform. Use
+  `astropy.modeling.models.RotationSequence3D` instead.
+  Deprecate the converters that allow datamodels relying on V23ToSky to be
+  loaded from file (note that V23ToSky has been unused by the pipeline since
+  pre-launch). (`#539
+  <https://github.com/spacetelescope/stdatamodels/issues/539>`_)
+- Deprecate None, shape tuple, array, and HDUList as valid inits to
+  datamodels.open(). DataModel.__init__() should be used directly instead.
+  Deprecate assigning data arrays during model init when the init type is
+  already file-like (e.g. filename, model tree, HDUList, etc) (`#540
+  <https://github.com/spacetelescope/stdatamodels/issues/540>`_)
+- Removed mrs_imatch from cal_step status. (`#550
+  <https://github.com/spacetelescope/stdatamodels/issues/550>`_)
+- Remove unused schema.build_docstring function (`#556
+  <https://github.com/spacetelescope/stdatamodels/issues/556>`_)
+- Change interpretation of bit flag 256 from UNRELIABLE_ERROR to RESERVED (kept
+  unset for future use) (`#580
+  <https://github.com/spacetelescope/stdatamodels/issues/580>`_)
+
+
 4.0.0 (2025-07-11)
 ==================
 
