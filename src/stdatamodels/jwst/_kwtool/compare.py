@@ -359,9 +359,11 @@ def _mk_txt_table(dict_name, the_dict):
                 for k, v in d.items():
                     if k == "keyword":
                         if "title" in v:
-                            title = v['title']
-                            line = (f"{keyword:<12} {fits_hdu:<25} {title:<60} "
-                                    f"{okified:<5} {notes:<100}")
+                            title = v["title"]
+                            line = (
+                                f"{keyword:<12} {fits_hdu:<25} {title:<60} "
+                                f"{okified:<5} {notes:<100}"
+                            )
                             f.write(line + "\n")
                             break
                     # only print the keyword once
