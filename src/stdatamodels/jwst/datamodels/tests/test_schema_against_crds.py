@@ -68,6 +68,7 @@ bkg_model_map = {
     "NRC_WFSS": dm.WfssBkgModel,
     "NIS_WFSS": dm.WfssBkgModel,
     "NIS_SOSS": dm.SossBkgModel,
+    "MIR_WFSS": dm.WfssBkgModel,
 }
 
 cubepar_model_map = {
