@@ -6,6 +6,7 @@ allOf:
 - $ref: referencefile.schema
 - $ref: subarray.schema
 - $ref: keyword_exptype.schema
+- $ref: keyword_filter.schema
 - $ref: keyword_readpatt.schema
 - $ref: keyword_preadpatt.schema
 - type: object
