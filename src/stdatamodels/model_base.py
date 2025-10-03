@@ -1245,45 +1245,6 @@ class DataModel(properties.ObjectNode):
 
         self._instance = properties.merge_tree(self._instance, ff.tree)
 
-    def read(self, *args, **kwargs):
-        """
-        Read the model from a file.
-
-        This method is only defined for compatibility with astropy.registry
-        and should not be called directly.  Use `__init__` instead.
-        This method is deprecated and will be removed in a future version.
-
-        Parameters
-        ----------
-        *args, **kwargs : tuple, dict
-            Additional arguments passed to the model init function.
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel`
-            A data model.
-        """
-        warnings.warn("read is deprecated, use __init__ instead.", DeprecationWarning, stacklevel=2)
-        return self.__init__(*args, **kwargs)
-
-    def write(self, path, *args, **kwargs):
-        """
-        Write the model to a file.
-
-        This method is only defined for compatibility with astropy.registry
-        and should not be called directly.  Use `save` instead.
-        This method is deprecated and will be removed in a future version.
-
-        Parameters
-        ----------
-        path : str
-            The path to the file to write to.
-        *args, **kwargs : tuple, dict
-            Additional arguments passed to the model save function.
-        """
-        warnings.warn("write is deprecated, use save instead.", DeprecationWarning, stacklevel=2)
-        self.save(path, *args, **kwargs)
-
     def getarray_noinit(self, attribute):
         """
         Retrieve array but without initialization.
