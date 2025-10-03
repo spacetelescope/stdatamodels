@@ -1,7 +1,7 @@
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = ["PictureFrameModel"]
 
@@ -11,6 +11,7 @@ class PictureFrameModel(ReferenceFileModel):
     A data model for 2D thermal picture frame reference files.
 
     Parameters
+    ----------
     __________
     data : numpy float32 array
          The science data
