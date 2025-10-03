@@ -41,60 +41,60 @@ allOf:
       datatype: float32
 - type: object
   properties:
-    timecoeff_ch1:
+    timecoeff_powerlaw_ch1:
       title: Time dependent coefficents for channel 1
-      fits_hdu: TIMECOEFF_CH1
+      fits_hdu: TIMECOEFF_POWERLAW_CH1
       datatype:
       - name: binwave
         datatype: float32
-      - name: acoeff
+      - name: alpha
         datatype: float32
-      - name: bcoeff
+      - name: year1value
         datatype: float32
-      - name: ccoeff
+      - name: tsoft
         datatype: float32
-      - name: X0
+      - name: t0
         datatype: float32
-    timecoeff_ch2:
+    timecoeff_powerlaw_ch2:
       title: Time dependent coefficents for channel 2
-      fits_hdu: TIMECOEFF_CH2
+      fits_hdu: TIMECOEFF_POWERLAW_CH2
       datatype:
       - name: binwave
         datatype: float32
-      - name: acoeff
+      - name: alpha
         datatype: float32
-      - name: bcoeff
+      - name: year1value
         datatype: float32
-      - name: ccoeff
+      - name: tsoft
         datatype: float32
-      - name: X0
+      - name: t0
         datatype: float32
-    timecoeff_ch3:
+    timecoeff_powerlaw_ch3:
       title: Time dependent coefficents for channel 3
-      fits_hdu: TIMECOEFF_CH3
+      fits_hdu: TIMECOEFF_POWERLAW_CH3
       datatype:
       - name: binwave
         datatype: float32
-      - name: acoeff
+      - name: alpha
         datatype: float32
-      - name: bcoeff
+      - name: year1value
         datatype: float32
-      - name: ccoeff
+      - name: tsoft
         datatype: float32
-      - name: X0
+      - name: t0
         datatype: float32
-    timecoeff_ch4:
+    timecoeff_powerlaw_ch4:
       title: Time dependent coefficents for channel 4
-      fits_hdu: TIMECOEFF_CH4
+      fits_hdu: TIMECOEFF_POWERLAW_CH4
       datatype:
       - name: binwave
         datatype: float32
-      - name: acoeff
+      - name: alpha
         datatype: float32
-      - name: bcoeff
+      - name: year1value
         datatype: float32
-      - name: ccoeff
+      - name: tsoft
         datatype: float32
-      - name: X0
+      - name: t0
         datatype: float32
 

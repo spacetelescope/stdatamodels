@@ -1,12 +1,12 @@
 from pathlib import Path
 
 import asdf
+import astropy.units
 import pytest
 import yaml
 
 from stdatamodels.fits_support import _get_validators
 from stdatamodels.schema import walk_schema
-
 
 # relative paths to schema directories
 SCHEMA_RELATIVE_PATHS = [
@@ -78,3 +78,20 @@ def test_schema_contains_only_known_keywords(schema_id, valid_keywords):
 
     ctx = {"valid_keywords": valid_keywords}
     walk_schema(schema, callback, ctx)
+
+
+@pytest.mark.parametrize("schema_id", SCHEMA_IDS)
+def test_unit_is_fits(schema_id):
+    schema = asdf.schema.load_schema(schema_id, resolve_references=True)
+
+    for node in asdf.treeutil.iter_tree(schema):
+        if not isinstance(node, dict):
+            continue
+        if "unit" not in node:
+            continue
+        unit = node["unit"]
+        if not isinstance(unit, str):
+            # we can only check units that are strings
+            continue
+        fits_unit = astropy.units.Unit(unit).to_string("fits")
+        assert unit == fits_unit

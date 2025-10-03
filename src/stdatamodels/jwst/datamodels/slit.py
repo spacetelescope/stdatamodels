@@ -1,6 +1,4 @@
 from .model_base import JwstDataModel
-from .image import ImageModel
-
 
 __all__ = ["SlitModel", "SlitDataModel"]
 
@@ -9,166 +7,103 @@ class SlitDataModel(JwstDataModel):
     """
     A data model for 2D slit images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
-         The science data
-
+        The science data
     dq : numpy uint32 array
-         Data quality array
-
+        Data quality array
     err : numpy float32 array
-         Error array
-
+        Error array
     var_poisson : numpy float32 array
-         variance due to poisson noise
-
+        variance due to poisson noise
     var_rnoise : numpy float32 array
-         variance due to read noise
-
+        variance due to read noise
     var_flat : numpy float32 array
-         variance due to flat
-
+        variance due to flat
     wavelength : numpy float32 array
-         Wavelength array, corrected for zero-point
-
+        Wavelength array, corrected for zero-point
     barshadow : numpy float32 array
-         Bar shadow correction
-
+        Bar shadow correction
     flatfield_point : numpy float32 array
-         flatfield array for point source
-
+        flatfield array for point source
     flatfield_uniform : numpy float32 array
-         flatfield array for uniform source
-
+        flatfield array for uniform source
     pathloss_point : numpy float32 array
-         pathloss array for point source
-
+        pathloss array for point source
     pathloss_uniform : numpy float32 array
-         pathloss array for uniform source
-
+        pathloss array for uniform source
     photom_point : numpy float32 array
-         photom array for point source
-
+        photom array for point source
     photom_uniform : numpy float32 array
-         photom array for uniform source
-
+        photom array for uniform source
     area : numpy float32 array
-         Pixel area map array
+        Pixel area map array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, (SlitModel, ImageModel)):
-            super(SlitDataModel, self).__init__(init=None, **kwargs)
-            self.data = init.data
-            self.dq = init.dq
-            self.err = init.err
-            self.area = init.area
-            if init.hasattr("var_poisson"):
-                self.var_poisson = init.var_poisson
-            if init.hasattr("var_rnoise"):
-                self.var_rnoise = init.var_rnoise
-            if init.hasattr("var_flat"):
-                self.var_flat = init.var_flat
-            if init.hasattr("wavelength"):
-                self.wavelength = init.wavelength
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitDataModel, self).__init__(init=init, **kwargs)
+        if kwargs:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
-
-            if init.meta.hasattr("wcs"):
-                self.meta.wcs = init.meta.wcs
-            else:
-                self.meta.wcs = None
-        else:
-            super(SlitDataModel, self).__init__(init=init, **kwargs)
-            if kwargs:
-                for key in kwargs:
-                    setattr(self, key, kwargs[key])
 
 
 class SlitModel(JwstDataModel):
     """
     A data model for 2D images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
-         The science data
-
+        The science data
     dq : numpy uint32 array
-         Data quality array
-
+        Data quality array
     err : numpy float32 array
-         Error array
-
+        Error array
     var_poisson : numpy float32 array
-         variance due to poisson noise
-
+        Variance due to poisson noise
     var_rnoise : numpy float32 array
-         variance due to read noise
-
+        Variance due to read noise
     var_flat : numpy float32 array
-         variance due to flat
-
+        Variance due to flat
     wavelength : numpy float32 array
-         Wavelength array, corrected for zero-point
-
+        Wavelength array, corrected for zero-point
     barshadow : numpy float32 array
-         Bar shadow correction
-
+        Bar shadow correction
     flatfield_point : numpy float32 array
-         flatfield array for point source
-
+        Flatfield array for point source
     flatfield_uniform : numpy float32 array
-         flatfield array for uniform source
-
+        Flatfield array for uniform source
     pathloss_point : numpy float32 array
-         pathloss array for point source
-
+        Pathloss array for point source
     pathloss_uniform : numpy float32 array
-         pathloss array for uniform source
-
+        Pathloss array for uniform source
     photom_point : numpy float32 array
-         photom array for point source
-
+        Photom array for point source
     photom_uniform : numpy float32 array
-         photom array for uniform source
-
+        Photom array for uniform source
     area : numpy float32 array
-         Pixel area map array
-
+        Pixel area map array
     int_times : numpy table
-         table of times for each integration
+        Table of times for each integration
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slit.schema"
 
     def __init__(self, init=None, **kwargs):
-        if isinstance(init, (SlitModel, ImageModel)):
-            super(SlitModel, self).__init__(init=None, **kwargs)
-            self.update(init)
-            self.data = init.data
-            self.dq = init.dq
-            self.err = init.err
-            self.area = init.area
-            if init.hasattr("var_poisson"):
-                self.var_poisson = init.var_poisson
-            if init.hasattr("var_rnoise"):
-                self.var_rnoise = init.var_rnoise
-            if init.hasattr("var_flat"):
-                self.var_flat = init.var_flat
-            if init.hasattr("wavelength"):
-                self.wavelength = init.wavelength
-            if init.hasattr("int_times"):
-                self.int_times = init.int_times
-            if init.meta.hasattr("wcs"):
-                self.meta.wcs = init.meta.wcs
-            else:
-                self.meta.wcs = None
-        else:
-            super(SlitModel, self).__init__(init=init, **kwargs)
-            if kwargs:
-                for key in kwargs:
-                    setattr(self, key, kwargs[key])
+        """
+        Handle kwargs in a custom way.
+
+        This allows MultiSlitModel.__getitem__ to create SlitModel objects from ObjectNode.
+        """
+        super(SlitModel, self).__init__(init=init, **kwargs)
+        if kwargs:
+            for key in kwargs:
+                setattr(self, key, kwargs[key])

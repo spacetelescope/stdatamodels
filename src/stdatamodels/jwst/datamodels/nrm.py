@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["NRMModel"]
 
 
@@ -8,8 +7,8 @@ class NRMModel(ReferenceFileModel):
     """
     A data model for Non-Redundant Mask.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     nrm : numpy float32 array
          Non-Redundant Mask
     """

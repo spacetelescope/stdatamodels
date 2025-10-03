@@ -4,17 +4,11 @@ __all__ = ["AmiOIModel"]
 
 
 class AmiOIModel(JwstDataModel):
-    """
-    TODO
-
-    Parameters
-    __________
-    TODO
-    """
+    """Class containing AMI interferometric observables."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amioi.schema"
 
-    def get_primary_array_name(self):
+    def get_primary_array_name(self):  # noqa: D102
         # for the example file OI_T3 is the largest array
         return "t3"
 
@@ -37,12 +31,14 @@ class AmiOIModel(JwstDataModel):
         self.meta.oifits.derived.t3.array_name = array_name
         self.meta.oifits.derived.vis.array_name = array_name
         self.meta.oifits.derived.vis2.array_name = array_name
+        self.meta.oifits.derived.q4.array_name = array_name
 
         insname = self.meta.instrument.name
         self.meta.oifits.derived.wavelength.instrument_name = insname
         self.meta.oifits.derived.t3.instrument_name = insname
         self.meta.oifits.derived.vis.instrument_name = insname
         self.meta.oifits.derived.vis2.instrument_name = insname
+        self.meta.oifits.derived.q4.instrument_name = insname
 
         # JWST saves meta.observation.date to DATE-OBS
         # which is the UTC date for the observation start
@@ -57,12 +53,14 @@ class AmiOIModel(JwstDataModel):
         self.meta.oifits.derived.t3.date_obs = date_obs
         self.meta.oifits.derived.vis.date_obs = date_obs
         self.meta.oifits.derived.vis2.date_obs = date_obs
+        self.meta.oifits.derived.q4.date_obs = date_obs
 
         self.meta.oifits.derived.array.revn = 2
         self.meta.oifits.derived.target.revn = 2
         self.meta.oifits.derived.t3.revn = 2
         self.meta.oifits.derived.vis.revn = 2
         self.meta.oifits.derived.vis2.revn = 2
+        self.meta.oifits.derived.q4.revn = 2
         self.meta.oifits.derived.wavelength.revn = 2
 
         # fill in possibly missing OI_ARRAY meta data
@@ -75,11 +73,11 @@ class AmiOIModel(JwstDataModel):
         if self.meta.oifits.derived.array.z is None:
             self.meta.oifits.derived.array.z = 0.0
 
-    def on_save(self, path=None):
+    def on_save(self, path=None):  # noqa: D102
         super().on_save(path)
         self._map_oifits_keywords()
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         # map the JWST to OIFITS keywords prior to validate
         self._map_oifits_keywords()
         super().validate()

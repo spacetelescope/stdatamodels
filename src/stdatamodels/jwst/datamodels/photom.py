@@ -1,7 +1,9 @@
+import numpy as np
+
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = [
     "FgsImgPhotomModel",
@@ -18,12 +20,56 @@ __all__ = [
 ]
 
 
-class FgsImgPhotomModel(ReferenceFileModel):
+class _PhotomModel(ReferenceFileModel):
+    """Implement a validation scheme for photom models."""
+
+    schema_url = None
+
+    def validate(self):
+        """
+        Validate optional timecoeff extensions.
+
+        The phot_table extension must be present.
+
+        If present, timecoeff_linear, timecoeff_exponential, and timecoeff_powerlaw
+        extensions must match the length and descriptive columns present in the
+        phot_table extension.
+        """
+        super().validate()
+
+        if not self.hasattr("phot_table"):
+            self.print_err("Model.phot_table is not present")
+            return
+
+        try:
+            timecoeff = ["timecoeff_linear", "timecoeff_exponential", "timecoeff_powerlaw"]
+            for extension in timecoeff:
+                message = f"Model.phot_table and Model.{extension} do not match"
+                if self.hasattr(extension):
+                    table = getattr(self, extension)
+                    assert len(self.phot_table) == len(table), message
+
+                    phot_columns = [
+                        dtype["name"]
+                        for dtype in self.schema["properties"]["phot_table"]["datatype"]
+                    ]
+                    timecoeff_columns = [
+                        dtype["name"] for dtype in self.schema["properties"][extension]["datatype"]
+                    ]
+                    for col in phot_columns:
+                        if col in timecoeff_columns:
+                            assert np.all(self.phot_table[col] == table[col]), message
+
+        except AssertionError as errmsg:
+            self.print_err(str(errmsg))
+
+
+class FgsImgPhotomModel(_PhotomModel):
     """
     A data model for FGS photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -32,18 +78,17 @@ class FgsImgPhotomModel(ReferenceFileModel):
 
         - photmjsr: float32
         - uncertainty: float32
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/fgsimg_photom.schema"
 
 
-class MirImgPhotomModel(ReferenceFileModel):
+class MirImgPhotomModel(_PhotomModel):
     """
     A data model for MIRI imaging photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -61,7 +106,6 @@ class MirImgPhotomModel(ReferenceFileModel):
        - amplitude: float32
        - tau: float32
        - t0: float32
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirimg_photom.schema"
@@ -70,12 +114,12 @@ class MirImgPhotomModel(ReferenceFileModel):
         super(MirImgPhotomModel, self).__init__(init=init, **kwargs)
 
 
-class MirLrsPhotomModel(ReferenceFileModel):
+class MirLrsPhotomModel(_PhotomModel):
     """
     A data model for MIRI LRS photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -90,7 +134,6 @@ class MirLrsPhotomModel(ReferenceFileModel):
        - wavelength: float32[*]
        - relresponse: float32[*]
        - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
@@ -100,46 +143,40 @@ class MirMrsPhotomModel(ReferenceFileModel):
     """
     A data model for MIRI MRS photom reference files.
 
-    Parameters
+    The MIRI MRS photom model does not yet have multiple timecoeff
+    tables, so it inherits directly from ReferenceFileModel, unlike
+    the other photom models.
+
+    Attributes
     ----------
     init : any
         Any of the initializers supported by `~jwst.datamodels.DataModel`.
-
     data : numpy array
         An array-like object containing the pixel-by-pixel conversion values
         in units of (MJy / pixel) / (DN / sec).
-
     err : numpy array
         An array-like object containing the uncertainties in the conversion
         values, in the same units as the data array.
-
     dq : numpy array
         An array-like object containing bit-encoded data quality flags,
         indicating problem conditions for values in the data array.
-
     dq_def : numpy array
         A table-like object containing the data quality definitions table.
-
     pixsiz : numpy array
         An array-like object containing pixel-by-pixel size values, in units of
         square arcseconds (arcsec^2).
-
-    timecoeff_ch1 : numpy table
+    timecoeff_powerlaw_ch1 : numpy table
         A table of time and wavelength dependent throughput corrections
-        for channel 1
-
-    timecoeff_ch2 : numpy table
+        for channel 1 using powerlaw model.
+    timecoeff_powerlaw_ch2 : numpy table
         A table of time and wavelength dependent throughput corrections
-        for channel 2
-
-    timecoeff_ch3 : numpy table
+        for channel 2 using powerlaw model.
+    timecoeff_powerlaw_ch3 : numpy table
         A table of time and wavelength dependent throughput corrections
-        for channel 3
-
-    timecoeff_ch4 : numpy table
+        for channel 3 using powerlaw model.
+    timecoeff_powerlaw_ch4 : numpy table
         A table of time and wavelength dependent throughput corrections
-        for channel 4
-
+        for channel 4 using powerlaw model.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirmrs_photom.schema"
@@ -150,34 +187,36 @@ class MirMrsPhotomModel(ReferenceFileModel):
         self.dq = dynamic_mask(self, pixel)
 
 
-class NrcImgPhotomModel(ReferenceFileModel):
+class NrcImgPhotomModel(_PhotomModel):
     """
     A data model for NIRCam imaging photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
         of instrument mode parameters and photometric conversion
         factors associated with those modes.
+        The subarray column may appear in newer versions of the photom
+        files: it is allowed, but not specified by the schema.
 
         - filter: str[12]
         - pupil: str[12]
         - photmjsr: float32
         - uncertainty: float32
-
+        - subarray: str[12], optional
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrcimg_photom.schema"
 
 
-class NrcWfssPhotomModel(ReferenceFileModel):
+class NrcWfssPhotomModel(_PhotomModel):
     """
     A data model for NIRCam WFSS photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -193,18 +232,17 @@ class NrcWfssPhotomModel(ReferenceFileModel):
         - wavelength: float32[*]
         - relresponse: float32[*]
         - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrcwfss_photom.schema"
 
 
-class NisImgPhotomModel(ReferenceFileModel):
+class NisImgPhotomModel(_PhotomModel):
     """
     A data model for NIRISS imaging photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -215,18 +253,17 @@ class NisImgPhotomModel(ReferenceFileModel):
         - pupil: str[12]
         - photmjsr: float32
         - uncertainty: float32
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nisimg_photom.schema"
 
 
-class NisWfssPhotomModel(ReferenceFileModel):
+class NisWfssPhotomModel(_PhotomModel):
     """
     A data model for NIRISS WFSS photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -242,18 +279,17 @@ class NisWfssPhotomModel(ReferenceFileModel):
         - wavelength: float32[*]
         - relresponse: float32[*]
         - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/niswfss_photom.schema"
 
 
-class NisSossPhotomModel(ReferenceFileModel):
+class NisSossPhotomModel(_PhotomModel):
     """
     A data model for NIRISS SOSS photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -269,18 +305,17 @@ class NisSossPhotomModel(ReferenceFileModel):
         - wavelength: float32[*]
         - relresponse: float32[*]
         - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nissoss_photom.schema"
 
 
-class NrsFsPhotomModel(ReferenceFileModel):
+class NrsFsPhotomModel(_PhotomModel):
     """
     A data model for NIRSpec Fixed-Slit photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -296,18 +331,17 @@ class NrsFsPhotomModel(ReferenceFileModel):
         - wavelength: float32[*]
         - relresponse: float32[*]
         - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrsfs_photom.schema"
 
 
-class NrsMosPhotomModel(ReferenceFileModel):
+class NrsMosPhotomModel(_PhotomModel):
     """
     A data model for NIRSpec MOS and IFU photom reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     phot_table : numpy table
         Photometric flux conversion factors table
         A table-like object containing row selection criteria made up
@@ -322,7 +356,6 @@ class NrsMosPhotomModel(ReferenceFileModel):
         - wavelength: float32[*]
         - relresponse: float32[*]
         - reluncertainty: float32[*]
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/nrsmos_photom.schema"

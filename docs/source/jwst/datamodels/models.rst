@@ -248,9 +248,10 @@ An alternative is to use::
         ...
 
 The `datamodels.open()` method checks if the `DATAMODL` FITS keyword has
-been set, which records the DataModel that was used to create the file.
+been set (or, for ASDF files, the `meta.model_type attribute`), 
+which records the DataModel that was used to create the file.
 If the keyword is not set, then `datamodels.open()` does its best to
-guess the best DataModel to use.
+guess the best DataModel to use and emits a `NoTypeWarning`.
 
 Accessing data
 --------------
@@ -295,26 +296,42 @@ Extra FITS keywords
 
 When loading arbitrary FITS files, there may be keywords that are not
 listed in the schema for that data model.  These "extra" FITS keywords
-are put under the model in the `_extra_fits` namespace.
+are put into the model in the ``extra_fits`` namespace.
 
-Under the `_extra_fits` namespace is a section for each header data
-unit, and under those are the extra FITS keywords.  For example, if
-the FITS file contains a keyword `FOO` in the primary header, its
-value can be obtained using::
+Under the ``extra_fits`` namespace is a section for each FITS extension
+that contains schema-unmapped header information or data,
+and within those are the extra FITS keywords.  For example, if
+the FITS file contains keywords ``FOO="bar"`` and ``BAZ="qux"`` in the primary header
+that are not defined in the schema, they will be loaded into::
+    
+    model.extra_fits.PRIMARY.header
 
-    model._extra_fits.PRIMARY.FOO
+as a list-of-lists: ``[['FOO', 'bar', ''], ['BAZ', 'qux', '']]``.
 
-This feature is useful to retain any extra keywords from input files
-to output products.
+The ``extra_fits`` namespace may also hold entire hdus that are not
+mapped to a data model.  For example, if the FITS file contains an
+extension called ``EXTRA``, it can be accessed using::
 
-To get a list of everything in `_extra_fits`::
+    model.extra_fits.EXTRA
 
-    model._extra_fits._instance
+and its data array can be accessed using::
 
-returns a dictionary of of the instance at the model._extra_fits node.
+    model.extra_fits.EXTRA.data
 
-`_instance` can be used at any node in the tree to return a dictionary
-of rest of the tree structure at that node.
+To get a list of everything in ``extra_fits`` as a dictionary, use::
+
+    model.extra_fits.instance
+
+(``instance`` can be used at any node in the tree, not just ``extra_fits``,
+to return a dictionary of rest of the tree structure at that node.)
+
+.. note::
+
+    The ``jwst`` pipeline never directly accesses information
+    from ``extra_fits``, as this would bypass the schema validation and partly defeat
+    the purpose of the data model. If you are developing a model for pipeline use, 
+    it is strongly recommended to define any new
+    (meta)data in the datamodel schema early on in the development process.
 
 Environment Variables
 ---------------------
@@ -332,16 +349,6 @@ STRICT_VALIDATION
   If ``True``, schema validation errors will generate an exception.
   If ``False``, they will generate a warning.
   Default is ``False``.
-
-SKIP_FITS_UPDATE
-  DEPRECATED: In the future the FITS header will always be used.
-  Used by `~jwst.datamodels.JwstDataModel` when instantiating a
-  model from a FITS file. When ``False``, models opened from FITS files will
-  proceed and load the FITS header values into the model. When ``True`` and the
-  FITS file has an ASDF extension, the loading/validation of the FITS header
-  will be skipped, loading the model only from the ASDF extension. If not
-  defined, the instantiation routines will determine whether the loading/validation
-  of the FITS header can be skipped or not.
 
 DMODEL_ALLOWED_MEMORY
   Implemented by the utility function

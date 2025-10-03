@@ -1,37 +1,29 @@
 import datetime
-from functools import partial
 import hashlib
-import inspect
 import io
+import logging
 import re
 import warnings
 import weakref
+from functools import partial
 
-import numpy as np
-from astropy.io import fits
-from astropy import time
-from astropy.utils.exceptions import AstropyWarning
 import asdf
+import numpy as np
+from asdf import generic_io, tagged, treeutil
 from asdf import schema as asdf_schema
-from asdf.tags.core import NDArrayType
-from asdf.tags.core import ndarray, HistoryEntry
-from asdf import treeutil
+from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict
-from asdf import tagged
-from asdf import generic_io
+from astropy import time
+from astropy.io import fits
+from astropy.utils.exceptions import AstropyWarning
 
-from . import properties
+from . import properties, util, validate
 from . import schema as mschema
-from . import util
-from . import validate
-
-import logging
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
-__all__ = ["to_fits", "from_fits", "fits_hdu_name", "get_hdu", "is_builtin_fits_keyword"]
+__all__ = ["to_fits", "from_fits", "get_hdu", "is_builtin_fits_keyword"]
 
 
 _ASDF_EXTENSION_NAME = "ASDF"
@@ -80,9 +72,20 @@ _builtin_regex = re.compile("|".join(f"(^{x}$)" for x in _builtin_regexes))
 
 def is_builtin_fits_keyword(key):
     """
-    Returns `True` if the given `key` is a built-in FITS keyword, i.e.
-    a keyword that is managed by ``astropy.io.fits`` and we wouldn't
-    want to propagate through the `_extra_fits` mechanism.
+    Check if key is a FITS builtin.
+
+    Builtins are those managed by ``astropy.io.fits``, and we don't
+    want to propagate those through the `_extra_fits` mechanism.
+
+    Parameters
+    ----------
+    key : str
+        The keyword to check.
+
+    Returns
+    -------
+    bool
+        `True` if the keyword is a built-in FITS keyword.
     """
     return _builtin_regex.match(key) is not None
 
@@ -112,22 +115,10 @@ def _get_indexed_keyword(keyword, i):
     return keyword
 
 
-def fits_hdu_name(name):
-    """
-    Returns a FITS hdu name in the correct form for the current
-    version of Python.
-    """
-    if isinstance(name, bytes):
-        return name.decode("ascii")
-    return name
-
-
 def _get_hdu_name(schema):
     hdu_name = schema.get("fits_hdu")
     if hdu_name in (None, "PRIMARY"):
         hdu_name = 0
-    else:
-        hdu_name = fits_hdu_name(hdu_name)
     return hdu_name
 
 
@@ -154,6 +145,25 @@ def _get_hdu_pair(hdu_name, index=None):
 
 
 def get_hdu(hdulist, hdu_name, index=None, _cache=None):
+    """
+    Retrieve an HDU from an hdulist.
+
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.hdu.hdulist.HDUList
+        A FITS HDUList
+    hdu_name : str
+        The name of the HDU to retrieve
+    index : int, optional
+        The index of the HDU to retrieve
+    _cache : dict, optional
+        Cache of HDUs
+
+    Returns
+    -------
+    hdu : astropy.io.fits.hdu.base._BaseHDU
+        The HDU as represented by astropy.io.fits
+    """
     pair = _get_hdu_pair(hdu_name, index=index)
     if _cache is not None and pair in _cache:
         return _cache[pair]
@@ -245,7 +255,7 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
     title = schema.get("title")
     if title is not None:
         current_comment_stack = fits_context.comment_stack
-        current_comment_stack.append(ensure_ascii(title))
+        current_comment_stack.append(title)
 
     for prop, subschema in properties.items():
         if prop in instance:
@@ -274,12 +284,11 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((" ", ""), end=True)
     fits_context.comment_stack = []
 
-    comment = ensure_ascii(get_short_doc(schema))
-    instance = ensure_ascii(instance)
+    comment = _get_short_doc(schema)
 
     if fits_keyword in ("COMMENT", "HISTORY"):
         for item in instance:
-            hdu.header[fits_keyword] = ensure_ascii(item)
+            hdu.header[fits_keyword] = item
     elif fits_keyword in hdu.header:
         hdu.header[fits_keyword] = (instance, comment)
     else:
@@ -298,11 +307,11 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         return
 
     if "ndim" in schema:
-        ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
+        yield from ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
     if "max_ndim" in schema:
-        ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
-    if "dtype" in schema:
-        ndarray.validate_dtype(validator, schema["dtype"], instance, schema)
+        yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
+    if "datatype" in schema:
+        yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
@@ -450,10 +459,21 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
 
 def _normalize_arrays(tree):
     """
-    Convert arrays in the tree to C-contiguous, since that is
-    how they are written to disk by astropy.io.fits and we
+    Convert arrays in the tree to C-contiguous.
+
+    They are written to disk by astropy.io.fits in C-contiguous, and we
     don't want the asdf library to notice the change in memory
     layout and duplicate the array in the embedded ASDF.
+
+    Parameters
+    ----------
+    tree : dict
+        The ASDF tree.
+
+    Returns
+    -------
+    tree : dict
+        The ASDF tree with all arrays converted to C-contiguous.
     """
 
     def normalize_array(node):
@@ -471,16 +491,19 @@ def _normalize_arrays(tree):
 def _save_extra_fits(hdulist, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get("extra_fits", {}).items():
-        hdu_name = fits_hdu_name(hdu_name)
         if "data" in parts:
             hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
             hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
+            node = _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+            tree["extra_fits"][hdu_name]["data"] = node
         if "header" in parts:
             hdu = _get_or_make_hdu(hdulist, hdu_name)
             for key, val, comment in parts["header"]:
                 if is_builtin_fits_keyword(key):
                     continue
                 hdu.header.append((key, val, comment), end=True)
+
+    return tree
 
 
 def _save_history(hdulist, tree):
@@ -504,14 +527,30 @@ def _save_history(hdulist, tree):
 
 
 def to_fits(tree, schema, hdulist=None):
-    """Create hdulist and modified ASDF tree"""
+    """
+    Create hdulist and modified ASDF tree.
+
+    Parameters
+    ----------
+    tree : dict
+        The ASDF tree to convert to FITS.
+    schema : dict
+        The schema for the ASDF tree.
+    hdulist : astropy.io.fits.HDUList, optional
+        The HDU list to append to. If not provided, a new HDU list will be created.
+
+    Returns
+    -------
+    hdulist : astropy.io.fits.HDUList
+        The HDU list.
+    """
     if hdulist is None:
         hdulist = fits.HDUList()
         hdulist.append(fits.PrimaryHDU())
 
     tree = _normalize_arrays(tree)
     tree = _save_from_schema(hdulist, tree, schema)
-    _save_extra_fits(hdulist, tree)
+    tree = _save_extra_fits(hdulist, tree)
     _save_history(hdulist, tree)
 
     # Store the FITS hash in the tree
@@ -528,7 +567,7 @@ def to_fits(tree, schema, hdulist=None):
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
     # convert all FITS_rec instances to numpy arrays, this is needed as
-    # some arrays loaded from the fits data for old files may not be defined
+    # some arrays loaded from the FITS data for old files may not be defined
     # in the current schemas. These will be loaded as FITS_rec instances but
     # not linked back (and safely converted) on write if they are removed
     # from the schema.
@@ -588,7 +627,38 @@ def _schema_has_fits_hdu(schema):
     return has_fits_hdu[0]
 
 
-def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
+def _load_from_schema(
+    hdulist, schema, tree, context, skip_fits_update=False, ignore_arrays=False, keep_unknown=True
+):
+    """
+    Read model information from a FITS HDU list.
+
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.HDUList
+        The FITS HDUList from which to read the data.
+    schema : dict
+        The schema defining the mapping between datamodel and FITS.
+    tree : dict
+        The ASDF tree to update.
+    context : DataModel
+        The `DataModel` from which to read context information.
+    skip_fits_update : bool, optional
+        If True, skip updating the tree based on the FITS HDUList.
+    ignore_arrays : bool, optional
+        If True, do not read array-type data.
+    keep_unknown : bool, optional
+        Controls the behavior for keywords that are in the schema but NOT in the input hdulist.
+        If True, the output tree contains the keyword, and the corresponding attribute is None.
+        If False, the keyword is not present in the output tree.
+
+    Returns
+    -------
+    known_keywords : dict
+        Dictionary of FITS keywords that were found in the HDUList.
+    known_datas : set
+        Set of HDUs that were found in the HDUList.
+    """
     known_keywords = {}
     known_datas = set()
 
@@ -620,7 +690,8 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
             )
-
+            if result is None and not keep_unknown:
+                return
             if result is None and context._validate_on_assignment:
                 validate.value_change(path, result, schema, context)
             else:
@@ -630,8 +701,10 @@ def _load_from_schema(hdulist, schema, tree, context, skip_fits_update=False):
                 else:
                     properties.put_value(path, result, tree)
 
-        elif "fits_hdu" in schema and (
-            "max_ndim" in schema or "ndim" in schema or "datatype" in schema
+        elif (
+            "fits_hdu" in schema
+            and ("max_ndim" in schema or "ndim" in schema or "datatype" in schema)
+            and not ignore_arrays
         ):
             result = _fits_array_loader(
                 hdulist, schema, ctx.get("hdu_index"), known_datas, hdu_cache
@@ -697,37 +770,43 @@ def _load_history(hdulist, tree):
         history["entries"].append(HistoryEntry({"description": entry}))
 
 
-def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
-    """Read model information from a FITS HDU list
+def from_fits(
+    hdulist, schema, context, ignore_unrecognized_tag=False, ignore_missing_extensions=False
+):
+    """
+    Read model information from a FITS HDU list.
 
     Parameters
     ----------
     hdulist : astropy.io.fits.HDUList
         The FITS HDUList
-
     schema : dict
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
-
-    context: DataModel
+    context : DataModel
         The `DataModel` to update
+    ignore_unrecognized_tag : bool, optional
+        If `True`, ignore unrecognized tags in the ASDF file.
+        If `False`, raise an error when an unrecognized tag is found.
+    ignore_missing_extensions : bool, optional
+        If `True`, ignore missing extensions in the ASDF file.
+        If `False`, raise an error when an extension is missing.
 
-    skip_fits_update : bool or None
-        DEPRECATED
-        When `False`, models opened from FITS files will proceed
-        and load the FITS header values into the model.
-        When `True` and the FITS file has an ASDF extension, the
-        loading/validation of the FITS header will be skipped, loading
-        the model only from the ASDF extension.
-        When `None`, the value is taken from the environmental SKIP_FITS_UPDATE.
-        Otherwise, the default is `False`
+    Returns
+    -------
+    asdf.AsdfFile
+        The ASDF file object
     """
     try:
-        ff = from_fits_asdf(hdulist, **kwargs)
+        ff = from_fits_asdf(
+            hdulist,
+            ignore_missing_extensions=ignore_missing_extensions,
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+        )
     except Exception as exc:
         raise exc.__class__("ERROR loading embedded ASDF: " + str(exc)) from exc
 
     # Determine whether skipping the FITS loading can be done.
-    skip_fits_update = _verify_skip_fits_update(skip_fits_update, hdulist, ff, context)
+    skip_fits_update = _can_skip_fits_update(hdulist, ff, context)
 
     known_keywords, known_datas = _load_from_schema(
         hdulist, schema, ff.tree, context, skip_fits_update=skip_fits_update
@@ -740,12 +819,31 @@ def from_fits(hdulist, schema, context, skip_fits_update=None, **kwargs):
     return ff
 
 
-def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
+def from_fits_asdf(
+    hdulist, ignore_unrecognized_tag=False, ignore_missing_extensions=False, **kwargs
+):
     """
-    Wrap asdf call to extract optional arguments
-    """
-    ignore_missing_extensions = kwargs.pop("ignore_missing_extensions")
+    Open the ASDF extension from a FITS HDUlist.
 
+    Parameters
+    ----------
+    hdulist : astropy.io.fits.HDUList
+        The FITS HDUList
+    ignore_unrecognized_tag : bool
+        When `True`, ignore unrecognized tags in the ASDF file.
+        When `False`, raise an error when an unrecognized tag is found.
+    ignore_missing_extensions : bool
+        When `True`, ignore missing extensions in the ASDF file.
+        When `False`, raise an error when an extension is missing.
+    **kwargs : dict
+        Additional keyword arguments to pass to `asdf.open`.
+        Usage of kwargs is deprecated and will be removed in a future version.
+
+    Returns
+    -------
+    asdf.AsdfFile
+        The ASDF file object
+    """
     try:
         asdf_extension = hdulist[_ASDF_EXTENSION_NAME]
     except (KeyError, IndexError, AttributeError):
@@ -755,15 +853,11 @@ def from_fits_asdf(hdulist, ignore_unrecognized_tag=False, **kwargs):
         )
 
     generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
-    # get kwargs supported by asdf, this will not pass along arbitrary kwargs
-    akwargs = {
-        k: kwargs[k] for k in inspect.getfullargspec(asdf.open).args if k[0] != "_" and k in kwargs
-    }
     af = asdf.open(
         generic_file,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        **akwargs,
+        **kwargs,
     )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)
@@ -800,7 +894,19 @@ def _map_hdulist_to_arrays(hdulist, af):
 
 def from_fits_hdu(hdu, schema):
     """
-    Read the data from a fits hdu into a numpy ndarray
+    Read the data from a FITS HDU into a numpy ndarray.
+
+    Parameters
+    ----------
+    hdu : astropy.io.fits.hdu.base._BaseHDU
+        The FITS HDU
+    schema : dict
+        The schema for the data
+
+    Returns
+    -------
+    data : numpy.ndarray
+        The data from the FITS HDU
     """
     data = hdu.data
 
@@ -820,23 +926,19 @@ def from_fits_hdu(hdu, schema):
     return data
 
 
-def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
-    """Ensure all conditions for skipping FITS updating are true
+def _can_skip_fits_update(hdulist, asdf_struct, context):
+    """
+    Ensure all conditions for skipping FITS updating are true.
 
     Returns True if either 1) the FITS hash in the asdf structure matches the input
     FITS structure. Or 2) skipping has been explicitly asked for in `skip_fits_update`.
 
     Parameters
     ----------
-    skip_fits_update : bool
-        Regardless of FIT hash check, attempt to skip if requested.
-
     hdulist : astropy.io.fits.HDUList
         The input FITS information
-
     asdf_struct : asdf.ASDFFile
         The associated ASDF structure
-
     context : DataModel
         The DataModel being built.
 
@@ -845,21 +947,6 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
     skip_fits_update : bool
         All conditions are satisfied for skipping FITS updating.
     """
-    if skip_fits_update is None:
-        skip_fits_update = util.get_envar_as_boolean("SKIP_FITS_UPDATE", None)
-    if skip_fits_update is not None:
-        # warn if the value was not None (defined by the user)
-        warnings.warn(
-            "skip_fits_update is deprecated and will be removed", DeprecationWarning, stacklevel=2
-        )
-
-    # If skipping has been explicitly disallowed, indicate as such.
-    if skip_fits_update is False:
-        return False
-
-    # Skipping has either been requested or has been left to be determined automatically.
-    # Continue checking conditions necessary for skipping.
-
     # Need an already existing ASDF. If not, cannot skip.
     if not len(asdf_struct.tree):
         log.debug("No ASDF information found. Cannot skip updating from FITS headers.")
@@ -881,12 +968,13 @@ def _verify_skip_fits_update(skip_fits_update, hdulist, asdf_struct, context):
             log.debug("FITS hash matches. Skipping FITS updating.")
             return True
 
-    # If skip only if explicitly requested.
-    return False if skip_fits_update is None else True
+    # If all else fails, run fits_update
+    return False
 
 
 def fits_hash(hdulist):
-    """Calculate a hash based on all HDU headers
+    """
+    Calculate a hash based on all HDU headers.
 
     Uses basic SHA-256 hash to calculate.
 
@@ -910,7 +998,7 @@ def fits_hash(hdulist):
     return fits_hash.hexdigest()
 
 
-def get_short_doc(schema):
+def _get_short_doc(schema):
     title = schema.get("title", None)
     description = schema.get("description", None)
     if description is None:
@@ -919,13 +1007,3 @@ def get_short_doc(schema):
         if title is not None:
             description = title + "\n\n" + description
     return description.partition("\n")[0]
-
-
-def ensure_ascii(s):
-    # TODO: This function seems to only ever receive
-    # string input.  Also it's not checking that the
-    # characters in the string fall within the valid
-    # range for FITS headers.
-    if isinstance(s, bytes):
-        s = s.decode("ascii")
-    return s

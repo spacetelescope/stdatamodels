@@ -1,16 +1,14 @@
-import pytest
-import numpy as np
-from numpy.testing import assert_array_equal
-
 import asdf
+import numpy as np
+import pytest
 from asdf.exceptions import ValidationError
 from asdf.tags.core import NDArrayType
 from astropy.modeling import models
+from models import BasicModel, FitsModel, TableModel, TransformModel, ValidationModel
+from numpy.testing import assert_array_equal
 
-from stdatamodels.schema import merge_property_trees, build_docstring
 from stdatamodels import DataModel
-
-from models import FitsModel, TransformModel, BasicModel, ValidationModel, TableModel
+from stdatamodels.schema import merge_property_trees
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
@@ -212,10 +210,3 @@ def test_merge_property_tree_top():
     }
     f = merge_property_trees(s)
     assert f["id"] == "foo"
-
-
-def test_schema_docstring():
-    template = "{fits_hdu} {title}"
-    docstring = build_docstring(FitsModel, template).split("\n")
-    for i, hdu in enumerate(("SCI", "DQ", "ERR")):
-        assert docstring[i].startswith(hdu)

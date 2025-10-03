@@ -1,6 +1,5 @@
 from .model_base import JwstDataModel
 
-
 __all__ = ["ContrastModel"]
 
 
@@ -8,8 +7,8 @@ class ContrastModel(JwstDataModel):
     """
     A data model for coronagraphic contrast curve files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     contrast_table : numpy table
          Contrast curve table
     """

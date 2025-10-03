@@ -3,9 +3,9 @@ from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = ["NirspecFlatModel", "NirspecQuadFlatModel"]
 
@@ -36,25 +36,21 @@ def _migrate_fast_variation_table(hdulist):
 
 
 class NirspecFlatModel(ReferenceFileModel):
-    """A data model for NIRSpec flat-field reference files.
+    """
+    A data model for NIRSpec flat-field reference files.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          NIRSpec flat-field reference data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error estimate
-
     wavelength : numpy table
          Table of wavelengths for image planes
-
     flat_table : numpy table
          Table for quickly varying component of flat field
-
     dq_def : numpy table
          DQ flag definitions
     """
@@ -79,18 +75,16 @@ class NirspecFlatModel(ReferenceFileModel):
 
 
 class NirspecQuadFlatModel(ReferenceFileModel):
-    """A data model for NIRSpec flat-field files that differ by quadrant.
+    """
+    A data model for NIRSpec flat-field files that differ by quadrant.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     quadrants.items.data : numpy float32 array
-
 
     quadrants.items.dq : numpy uint32 array
 
-
     quadrants.items.err : numpy float32 array
-
 
     quadrants.items.wavelength : numpy table
          Table of wavelengths for image planes

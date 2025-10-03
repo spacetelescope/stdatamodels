@@ -1,20 +1,16 @@
 import warnings
 
-from stdatamodels.validate import ValidationWarning
 from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.exceptions import ValidationWarning
 
-from .model_base import JwstDataModel
 from .dqflags import pixel
-
+from .model_base import JwstDataModel
 
 __all__ = ["ReferenceFileModel", "ReferenceImageModel", "ReferenceCubeModel", "ReferenceQuadModel"]
 
 
 class ReferenceFileModel(JwstDataModel):
-    """
-    A data model for reference tables
-
-    """
+    """A data model for reference tables."""
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencefile.schema"
 
@@ -24,10 +20,7 @@ class ReferenceFileModel(JwstDataModel):
         self.meta.telescope = "JWST"
 
     def validate(self):
-        """
-        Convenience function to be run when files are created.
-        Checks that required reference file keywords are set.
-        """
+        """Check that required reference file keywords are set."""
         to_fix = []
         to_check = ["description", "reftype", "author", "pedigree", "useafter"]
         for field in to_check:
@@ -43,8 +36,21 @@ class ReferenceFileModel(JwstDataModel):
 
     def save(self, path, dir_path=None, *args, **kwargs):
         """
-        Save data model.  If the 'dq' and 'dq_def' exist they need special
-        handling.
+        Save the model, handling 'dq' and 'dq_def' separately if they exist.
+
+        Parameters
+        ----------
+        path : str
+            The path to the file
+        dir_path : str
+            The path to the directory containing the file
+        *args, **kwargs
+            Any additional arguments to pass to the save method of JwstDataModel
+
+        Returns
+        -------
+        output_path : str
+            The path to the saved file
         """
         if (
             self.hasattr("dq_def")
@@ -64,8 +70,16 @@ class ReferenceFileModel(JwstDataModel):
         return output_path
 
     def print_err(self, message):
+        """
+        Raise error or warn, depending on strict_validation attribute.
+
+        Parameters
+        ----------
+        message : str
+            The message to print
+        """
         if self._strict_validation:
-            raise ValueError(message)
+            raise ValueError(message) from None
         else:
             warnings.warn(message, ValidationWarning, stacklevel=2)
 
@@ -74,16 +88,12 @@ class ReferenceImageModel(ReferenceFileModel):
     """
     A data model for 2D reference images.
 
-    Reference image data model.
-
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
     """
@@ -103,16 +113,14 @@ class ReferenceImageModel(ReferenceFileModel):
 
 class ReferenceCubeModel(ReferenceFileModel):
     """
-    A data model for 3D reference images
+    A data model for 3D reference images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
     """
@@ -129,16 +137,14 @@ class ReferenceCubeModel(ReferenceFileModel):
 
 class ReferenceQuadModel(ReferenceFileModel):
     """
-    A data model for 4D reference images
+    A data model for 4D reference images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
     """

@@ -1,38 +1,36 @@
-import contextlib
-import os
+import shutil
 import warnings
 from pathlib import Path
 
+import numpy as np
+import pytest
 from asdf.exceptions import ValidationError
 from asdf.schema import load_schema
 from astropy.io import fits
 from astropy.table import Table
 from astropy.time import Time
-from numpy.lib.recfunctions import merge_arrays
+from numpy.lib.recfunctions import drop_fields, merge_arrays
 from numpy.testing import assert_allclose, assert_array_equal
-import numpy as np
-from numpy.lib.recfunctions import drop_fields
-import pytest
 
+from stdatamodels.exceptions import ValidationWarning
+from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import (
-    JwstDataModel,
-    ImageModel,
-    MaskModel,
+    ABVegaOffsetModel,
     AsnModel,
+    CubeModel,
+    IFUImageModel,
+    ImageModel,
+    JwstDataModel,
+    Level1bModel,
+    MaskModel,
     MultiSlitModel,
-    SlitModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
     SlitDataModel,
-    IFUImageModel,
-    ABVegaOffsetModel,
-    Level1bModel,
-    CubeModel,
+    SlitModel,
 )
-from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
-from stdatamodels.validate import ValidationWarning
 
 ROOT_DIR = Path(__file__).parent / "data"
 FITS_FILE = ROOT_DIR / "test.fits"
@@ -71,48 +69,21 @@ def test_init_from_pathlib(tmp_path):
         assert isinstance(model, ImageModel)
 
 
-@pytest.mark.parametrize(
-    "which_file, skip_fits_update, expected_exp_type",
-    [
-        ("just_fits", None, "FGS_DARK"),
-        ("just_fits", False, "FGS_DARK"),
-        ("just_fits", True, "FGS_DARK"),
-        ("model", None, "FGS_DARK"),
-        ("model", False, "FGS_DARK"),
-        ("model", True, "NRC_IMAGE"),
-    ],
-)
-@pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(
-    jail_environ, use_env, make_models, which_file, skip_fits_update, expected_exp_type
-):
-    """Test skip_fits_update setting"""
+@pytest.mark.parametrize("which_file", ["just_fits", "model"])
+def test_skip_fits_update(make_models, which_file):
+    """Ensure updates to the fits header get picked up on datamodel.open call"""
     # Setup the FITS file, modifying a header value
     path = make_models[which_file]
-    with fits.open(path) as hduls:
+
+    # astropy does not allow overwriting an open file on windows
+    new_path = path.parent / "tmp.fits"
+    shutil.move(path, new_path)
+    with fits.open(new_path) as hduls:
         hduls[0].header["exp_type"] = "FGS_DARK"
+        hduls.writeto(path, overwrite=True)
 
-        # Decide how to skip. If using the environmental,
-        # set that and pass None to the open function.
-        try:
-            del os.environ["SKIP_FITS_UPDATE"]
-        except KeyError:
-            # No need to worry, environmental doesn't exist anyways
-            pass
-
-        if skip_fits_update is not None:
-            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
-        else:
-            ctx = contextlib.nullcontext()
-
-        if use_env:
-            if skip_fits_update is not None:
-                os.environ["SKIP_FITS_UPDATE"] = str(skip_fits_update)
-                skip_fits_update = None
-
-        with ctx:
-            with datamodels.open(hduls, skip_fits_update=skip_fits_update) as model:
-                assert model.meta.exposure.type == expected_exp_type
+    with datamodels.open(path) as model:
+        assert model.meta.exposure.type == "FGS_DARK"
 
 
 def test_asnmodel_table_size_zero():
@@ -178,12 +149,19 @@ def test_image_with_extra_keyword_to_multislit(tmp_path):
 @pytest.fixture
 def datamodel_for_update(tmp_path):
     """Provide ImageModel with one keyword each defined in PRIMARY and SCI
-    extensions from the schema, and one each not in the schema"""
+    extensions from the schema, and one each not in the schema
+    """
     path = tmp_path / "old.fits"
     with ImageModel((5, 5)) as im:
         # Add schema keywords, one to each extension
         im.meta.telescope = "JWST"
         im.meta.wcsinfo.crval1 = 5
+
+        # Add cal logs
+        im.cal_logs = {
+            "pipeline1": ["test", "message", "1"],
+            "pipeline2": ["test", "message", "2"],
+        }
 
         im.save(path)
     # Add non-schema keywords that will get dumped in the extra_fits attribute
@@ -194,20 +172,26 @@ def datamodel_for_update(tmp_path):
     return path
 
 
+@pytest.mark.parametrize("cal_logs", [True, False])
 @pytest.mark.parametrize("extra_fits", [True, False])
 @pytest.mark.parametrize("only", [None, "PRIMARY", "SCI"])
-def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits):
+def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits, cal_logs):
     """Test update method does not update from extra_fits unless asked"""
     path = tmp_path / "new.fits"
     with ImageModel((5, 5)) as newim:
+        newim.cal_logs = {"new_step": ["test", "message", "3"]}
         with ImageModel(datamodel_for_update) as oldim:
             # Verify the fixture returns keywords we expect
             assert oldim.meta.telescope == "JWST"
             assert oldim.meta.wcsinfo.crval1 == 5
             assert oldim.extra_fits.PRIMARY.header == [["FOO", "BAR", ""]]
             assert oldim.extra_fits.SCI.header == [["BAZ", "BUZ", ""]]
+            assert oldim.cal_logs == {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+            }
 
-            newim.update(oldim, only=only, extra_fits=extra_fits)
+            newim.update(oldim, only=only, extra_fits=extra_fits, cal_logs=cal_logs)
         newim.save(path)
 
     with fits.open(path) as hdulist:
@@ -242,18 +226,44 @@ def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits)
                 assert "TELESCOP" in hdulist["PRIMARY"].header
                 assert "CRVAL1" in hdulist["SCI"].header
 
+    # open as a model to check cal_logs
+    with datamodels.open(path) as newmodel:
+        if cal_logs:
+            assert newmodel.cal_logs == {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+                "new_step": ["test", "message", "3"],
+            }
+        else:
+            assert newmodel.cal_logs == {
+                "new_step": ["test", "message", "3"],
+            }
 
-def test_update_from_dict(tmp_path):
+
+@pytest.mark.parametrize("cal_logs", [True, False])
+def test_update_from_dict(tmp_path, cal_logs):
     """Test update method from a dictionary"""
     path = tmp_path / "update.fits"
     with ImageModel((5, 5)) as im:
-        update_dict = {"meta": {"telescope": "JWST", "wcsinfo": {"crval1": 5}}}
+        update_dict = {
+            "meta": {"telescope": "JWST", "wcsinfo": {"crval1": 5}},
+            "cal_logs": {
+                "pipeline1": ["test", "message", "1"],
+                "pipeline2": ["test", "message", "2"],
+            },
+        }
         im.update(update_dict)
         im.save(path)
 
     with fits.open(path) as hdulist:
         assert "TELESCOP" in hdulist[0].header
         assert "CRVAL1" in hdulist[1].header
+
+    with datamodels.open(path) as model:
+        assert model["cal_logs"] == {
+            "pipeline1": ["test", "message", "1"],
+            "pipeline2": ["test", "message", "2"],
+        }
 
 
 def test_mask_model():
@@ -292,6 +302,7 @@ def test_slit_from_image():
     # assert not hasattr(slit_dm, 'meta')
 
     slit = SlitModel(im)
+    assert type(slit) is SlitModel
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
     assert hasattr(slit, "wavelength")
@@ -571,6 +582,44 @@ def oifits_ami_model():
         (1, 0.0, 59735.0, 0.3772, 0.70949939, 0.01131277, 1.86153485, 2.9549114, [1, 2], 0),
         (1, 0.0, 59735.0, 0.3772, 0.8362822, 0.0113618, -2.45938856, 0.95969843, [1, 3], 0),
     ]
+    m.q4 = [
+        (
+            1,
+            0.0,
+            59735.0,
+            0.0,
+            0.7141117,
+            0.00929811,
+            -2.04670267,
+            0.51376834,
+            1.91331042,
+            2.92165307,
+            -4.35540762,
+            -1.91877002,
+            4.17914534,
+            3.22694886,
+            [1, 2, 3, 4],
+            False,
+        ),
+        (
+            1,
+            0.0,
+            59735.0,
+            0.0,
+            0.77127233,
+            0.00632331,
+            -12.74029056,
+            0.6544896,
+            1.91331042,
+            2.92165307,
+            -4.35540762,
+            -1.91877002,
+            2.95809179,
+            3.72838967,
+            [1, 2, 3, 5],
+            False,
+        ),
+    ]
     m.wavelength = [(4.817e-06, 2.98e-07)]
     return m
 
@@ -628,10 +677,10 @@ def test_amioi_model_oifits_keyword_validation(tmp_path, oifits_ami_model, attr)
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("keep", ["vis", "vis2", "t3"])
+@pytest.mark.parametrize("keep", ["vis", "vis2", "t3", "q4"])
 def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
     fn = tmp_path / "test.fits"
-    for table in ("vis", "vis2", "t3"):
+    for table in ("vis", "vis2", "t3", "q4"):
         if table == keep:
             continue
         delattr(oifits_ami_model, table)
@@ -645,7 +694,7 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
         oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "wavelength"])
+@pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "q4", "wavelength"])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
     new_table_data = merge_arrays(
@@ -721,13 +770,14 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     else:
         m.flat_table = make_data(m.flat_table.dtype)
     m.save(fn)
+    fn2 = tmp_path / "test2.fits"
     with fits.open(fn) as ff:
         for ext in ff:
             if ext.name != "FAST_VARIATION":
                 continue
             # drop the error column
             ext.data = drop_fields(ext.data, "error")
-        ff.writeto(fn, overwrite=True)
+        ff.writeto(fn2, overwrite=True)
 
     def check_error_column(model):
         if isinstance(model, NirspecQuadFlatModel):
@@ -737,10 +787,10 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
         assert np.all(np.isnan(table["error"]))
 
     # check that migration works with datamodels.open
-    with datamodels.open(fn) as dm:
+    with datamodels.open(fn2) as dm:
         check_error_column(dm)
     # and with DataModel(fn)
-    with model(fn) as dm:
+    with model(fn2) as dm:
         check_error_column(dm)
 
 
@@ -756,13 +806,14 @@ def test_moving_target_table_migration(tmp_path):
     m = Level1bModel()
     m.moving_target = make_data(m.moving_target.dtype)
     m.save(fn)
+    fn2 = tmp_path / "test_mt2.fits"
     with fits.open(fn) as ff:
         for ext in ff:
             if ext.name != "MOVING_TARGET_POSITION":
                 continue
             # drop the error column
             ext.data = drop_fields(ext.data, ("mt_v2", "mt_v3"))
-        ff.writeto(fn, overwrite=True)
+        ff.writeto(fn2, overwrite=True)
 
     def check_error_column(model):
         table = model.moving_target
@@ -770,8 +821,8 @@ def test_moving_target_table_migration(tmp_path):
         assert np.all(np.isnan(table["mt_v3"]))
 
     # check that migration works with datamodels.open
-    with datamodels.open(fn) as dm:
+    with datamodels.open(fn2) as dm:
         check_error_column(dm)
     # and with DataModel(fn)
-    with Level1bModel(fn) as dm:
+    with Level1bModel(fn2) as dm:
         check_error_column(dm)

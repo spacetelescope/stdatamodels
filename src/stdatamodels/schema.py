@@ -1,13 +1,9 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-import re
-
-
 # return_result included for backward compatibility
 def find_fits_keyword(schema, keyword, return_result=False):
     """
-    Utility function to find a reference to a FITS keyword in a given
-    schema.  This is intended for interactive use, and not for use
+    Find references to a FITS keyword in a given schema.
+
+    This is intended for interactive use, and not for use
     within library code.
 
     Parameters
@@ -21,6 +17,7 @@ def find_fits_keyword(schema, keyword, return_result=False):
     Returns
     -------
     locations : list of str
+        A list of paths to instances of the keyword in the schema
     """
 
     def find_fits_keyword(subschema, path, combiner, ctx, recurse):
@@ -36,6 +33,8 @@ def find_fits_keyword(schema, keyword, return_result=False):
 
 
 class SearchSchemaResults(list):
+    """A list of search results with nicely-formatted string representation."""
+
     def __repr__(self):
         import textwrap
 
@@ -50,8 +49,7 @@ class SearchSchemaResults(list):
 
 def search_schema(schema, substring):
     """
-    Utility function to search the metadata schema for a particular
-    phrase.
+    Search the metadata schema for a particular phrase.
 
     This is intended for interactive use, and not for use within
     library code.
@@ -69,6 +67,8 @@ def search_schema(schema, substring):
     Returns
     -------
     locations : list of tuples
+        A list of tuples, each containing a path to the substring
+        and a description of the schema item at that path.
     """
     substring = substring.lower()
 
@@ -96,12 +96,12 @@ def search_schema(schema, substring):
 
 def walk_schema(schema, callback, ctx=None):
     """
-    Walks a JSON schema tree in breadth-first order, calling a
-    callback function at each entry.
+    Walk a JSON schema tree in breadth-first order, calling a callback function at each entry.
 
     Parameters
     ----------
     schema : JSON schema
+        The schema to walk
 
     callback : callable
         The callback receives the following arguments at each entry:
@@ -168,6 +168,16 @@ def merge_property_trees(schema):
     This allows datamodel schemas to be more modular, since various components
     can be represented in individual files and then referenced elsewhere. They
     are then combined by this function into a single schema data structure.
+
+    Parameters
+    ----------
+    schema : JSON schema
+        The schema to be merged
+
+    Returns
+    -------
+    JSON schema
+        The merged schema
     """
     # track the "combined" and "top" items separately
     # this allows the top level "id", "$schema", etc to overwrite
@@ -217,101 +227,3 @@ def merge_property_trees(schema):
     walk_schema(schema, callback)
 
     return combined_items | top_items
-
-
-def build_docstring(klass, template="{fits_hdu} {title}"):
-    """
-    Build a docstring for the specified DataModel class from its schema.
-
-
-    Parameters
-    ----------
-
-    klass : Python class
-        A class instance of a datamodel
-    template : str
-        A string format template to be applied to each schema item
-
-    Returns
-    -------
-    field_info : str
-        Information about each schema item associated with a FITS hdu
-    """
-    from . import model_base
-
-    def get_field_info(subschema, path, combiner, info, recurse):
-        # Return all schema fields representing fits hdus
-        if "fits_hdu" in subschema and "fits_keyword" not in subschema:
-            attr = ".".join(path)
-            info[attr] = subschema
-        return "fits_hdu" in subschema or "fits_keyword" in subschema
-
-    # Silly rabbit, only datamodels have schemas
-    if not (klass == model_base.DataModel or issubclass(klass, model_base.DataModel)):
-        raise ValueError("Class must be a subclass of DataModel: %s", klass.__name__)
-
-    # Create a new model just to get its shape
-    null_object = klass(init=None)
-    shape = null_object.shape
-    if shape is None:
-        shaped_object = null_object
-    else:
-        # Instantiate an object with correctly dimensioned shape
-        null_object.close()
-        shape = tuple([1 for i in range(len(shape))])
-        shaped_object = klass(init=shape)
-
-    # Get schema fields which have an associated hdu
-    info = {}
-    walk_schema(shaped_object._schema, get_field_info, ctx=info)
-
-    # Extract field names from template to set defaults
-    # so format won't crash while using them when they aren't there
-    default_schema = {}
-    fields = re.findall(r"\{([^\\:}]*)[\:\}]", template)
-    for field in fields:
-        default_schema[field] = ""
-
-    buffer = []
-    for attr, subschema in info.items():
-        schema = {}
-        schema.update(default_schema)
-        schema.update(subschema)
-        schema["path"] = attr
-
-        # Determine if attribute has a default value
-        instance = shaped_object.instance
-        for field in attr.split("."):
-            try:
-                instance = instance.get(field)
-            except AttributeError:
-                instance = None
-            if instance is None:
-                break
-        schema["default"] = instance is not None
-
-        # Extract table field names from datatype
-        if isinstance(schema["datatype"], str):
-            schema["array"] = True
-        else:
-            schema["records"] = True
-            fields = []
-            for field_info in schema["datatype"]:
-                fields.append(field_info["name"])
-            schema["fields"] = ", ".join(fields)
-            schema["datatype"] = "table"
-
-        # Convert boolean fields to their field names
-        for field, value in schema.items():
-            if isinstance(value, bool):
-                schema[field] = field
-
-        # Apply format to schema fields
-        # Delete blank lines
-        lines = template.format(**schema)
-        for line in lines.split("\n"):
-            if line and not line.isspace():
-                buffer.append(line)
-
-    field_info = "\n".join(buffer) + "\n"
-    return field_info

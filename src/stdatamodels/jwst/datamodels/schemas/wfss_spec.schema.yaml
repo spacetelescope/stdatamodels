@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wfss_spec.schema"
+title: Table of WFSS-extracted spectra and their associated metadata
+allOf:
+- $ref: core.schema
+- $ref: wfss_specmeta.schema
+- type: object
+  properties:
+    spec_table:
+      $ref: wfss_spectable.schema

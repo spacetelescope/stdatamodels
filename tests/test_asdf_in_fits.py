@@ -1,12 +1,11 @@
-import pytest
-from astropy.io import fits
 import numpy as np
-from numpy.testing import assert_array_almost_equal
+import pytest
 import yaml
+from astropy.io import fits
+from models import FitsModel
+from numpy.testing import assert_array_almost_equal
 
 from stdatamodels import asdf_in_fits
-
-from models import FitsModel
 
 
 def test_write_linked(tmp_path):
@@ -125,6 +124,34 @@ def test_write_asdf_in_fits_partial_hdulist(tmp_path):
         assert len(block_offsets) == 2
 
 
+def test_to_hdulist():
+    sci = np.arange(512, dtype=float)
+    dq = np.arange(512, dtype=float) + 1
+    tree = {
+        "meta": {
+            "foo": "bar",
+        },
+        "model": {
+            "sci": {
+                "data": sci,
+            },
+            "dq": {
+                "data": dq,
+            },
+        },
+    }
+
+    hdulist = asdf_in_fits.to_hdulist(tree)
+
+    # hdu should have primary and ASDF
+    assert len(hdulist) == 2
+    # check asdf extension has blocks by looking at the block index
+    bs = hdulist["ASDF"].data["ASDF_METADATA"].tobytes()
+    block_index_bs = bs.split(b"BLOCK INDEX")[1].strip()
+    block_offsets = yaml.load(block_index_bs, yaml.SafeLoader)
+    assert len(block_offsets) == 2
+
+
 @pytest.fixture
 def test_array():
     return np.arange(1000, dtype="f4").reshape((100, 10))
@@ -165,3 +192,17 @@ def test_open_asdf_in_fits_hdu(saved_array_model, test_array):
             assert_array_almost_equal(af["data"], test_array)
         # make sure file was not closed with context
         assert not hdu.fileinfo(0)["file"].closed
+
+
+def test_deprecated_kwargs_warning(saved_array_model):
+    """
+    Test that a warning is raised when passing additional
+    keyword arguments to asdf_in_fits.open.
+    """
+    with pytest.warns(
+        DeprecationWarning,
+        match="Passing additional keyword arguments from asdf_in_fits.open into asdf.open "
+        "is deprecated and will be removed in a future version.",
+    ):
+        with asdf_in_fits.open(saved_array_model, lazy_load=True) as af:
+            assert af is not None

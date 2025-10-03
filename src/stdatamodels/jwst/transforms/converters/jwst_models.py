@@ -2,23 +2,27 @@
 
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
-from ....properties import ListNode
+
+from stdatamodels.properties import ListNode
 
 __all__ = [
     "Gwa2SlitConverter",
-    "Slit2MsaConverter",
+    "Msa2SlitConverter",
     "LogicalConverter",
     "NirissSOSSConverter",
     "RefractionIndexConverter",
     "MIRI_AB2SliceConverter",
     "NIRCAMGrismDispersionConverter",
     "NIRISSGrismDispersionConverter",
+    "MIRIWFSSDispersionConverter",
     "Rotation3DToGWAConverter",
     "GratingEquationConverter",
     "V23ToSkyConverter",
     "SnellConverter",
     "CoordsConverter",
     "Rotation3DToGWAConverter",
+    "Slit2MsaConverter",
+    "Slit2GwaConverter",
 ]
 
 
@@ -122,6 +126,38 @@ class NIRISSGrismDispersionConverter(TransformConverterBase):
         return node
 
 
+class MIRIWFSSDispersionConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/miri_wfss_dispersion-*"]
+
+    types = [
+        "stdatamodels.jwst.transforms.models.MIRIWFSSForwardDispersion",
+        "stdatamodels.jwst.transforms.models.MIRIWFSSBackwardDispersion",
+    ]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        from stdatamodels.jwst.transforms import models
+
+        _fname = getattr(models, node["model_type"])
+        return _fname(
+            list(node["orders"]),
+            list(node["lmodels"]),
+            list(node["xmodels"]),
+            list(node["ymodels"]),
+        )
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        yll = [list(m) for m in model.ymodels]
+        xll = [list(m) for m in model.xmodels]
+        node = {
+            "orders": list(model.orders),
+            "xmodels": xll,
+            "ymodels": yll,
+            "lmodels": list(model.lmodels),
+            "model_type": type(model).name,
+        }
+        return node
+
+
 class Gwa2SlitConverter(TransformConverterBase):
     tags = ["tag:stsci.edu:jwst_pipeline/gwa_to_slit-*"]
 
@@ -137,18 +173,61 @@ class Gwa2SlitConverter(TransformConverterBase):
         return node
 
 
-class Slit2MsaConverter(TransformConverterBase):
-    tags = ["tag:stsci.edu:jwst_pipeline/slit_to_msa-*"]
+class Slit2GwaConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/slit_to_gwa-*"]
 
-    types = ["stdatamodels.jwst.transforms.models.Slit2Msa"]
+    types = ["stdatamodels.jwst.transforms.models.Slit2Gwa"]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Slit2Msa
+        from stdatamodels.jwst.transforms.models import Slit2Gwa
 
-        return Slit2Msa(node["slits"], node["models"])
+        return Slit2Gwa(node["slits"], node["models"])
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         node = {"slits": model._slits, "models": model.models}
+        return node
+
+
+class Slit2MsaConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/slit_to_msa-*"]
+
+    types = [
+        "stdatamodels.jwst.transforms.models.Slit2Msa",
+        "stdatamodels.jwst.transforms.models.Slit2MsaLegacy",
+    ]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        from stdatamodels.jwst.transforms.models import Slit2Msa, Slit2MsaLegacy
+
+        if node.get("outputs") == ["x_msa", "y_msa"]:
+            # Handle old-style Slit2Msa transforms
+            return Slit2MsaLegacy(node["slits"], node["models"])
+        else:
+            return Slit2Msa(node["slits"], node["models"])
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        node = {
+            "slits": model._slits,
+            "models": model.models,
+        }
+        return node
+
+
+class Msa2SlitConverter(TransformConverterBase):
+    tags = ["tag:stsci.edu:jwst_pipeline/msa_to_slit-*"]
+
+    types = ["stdatamodels.jwst.transforms.models.Msa2Slit"]
+
+    def from_yaml_tree_transform(self, node, tag, ctx):
+        from stdatamodels.jwst.transforms.models import Msa2Slit
+
+        return Msa2Slit(node["slits"], node["models"])
+
+    def to_yaml_tree_transform(self, model, tag, ctx):
+        node = {
+            "slits": model._slits,
+            "models": model.models,
+        }
         return node
 
 
@@ -243,8 +322,8 @@ class GratingEquationConverter(TransformConverterBase):
 
     def from_yaml_tree_transform(self, node, tag, ctx):
         from stdatamodels.jwst.transforms.models import (
-            WavelengthFromGratingEquation,
             AngleFromGratingEquation,
+            WavelengthFromGratingEquation,
         )
 
         groove_density = node["groove_density"]
@@ -260,8 +339,8 @@ class GratingEquationConverter(TransformConverterBase):
 
     def to_yaml_tree_transform(self, model, tag, ctx):
         from stdatamodels.jwst.transforms.models import (
-            WavelengthFromGratingEquation,
             AngleFromGratingEquation,
+            WavelengthFromGratingEquation,
         )
 
         node = {"order": model.order.value, "groove_density": model.groove_density.value}
@@ -334,7 +413,7 @@ class CoordsConverter(TransformConverterBase):
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Unitless2DirCos, DirCos2Unitless
+        from stdatamodels.jwst.transforms.models import DirCos2Unitless, Unitless2DirCos
 
         model_type = node["model_type"]
         if model_type in ("to_dircos", "unitless2directional"):
@@ -345,7 +424,7 @@ class CoordsConverter(TransformConverterBase):
             raise TypeError("Unknown model_type")
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        from stdatamodels.jwst.transforms.models import Unitless2DirCos, DirCos2Unitless
+        from stdatamodels.jwst.transforms.models import DirCos2Unitless, Unitless2DirCos
 
         if isinstance(model, DirCos2Unitless):
             model_type = "directional2unitless"

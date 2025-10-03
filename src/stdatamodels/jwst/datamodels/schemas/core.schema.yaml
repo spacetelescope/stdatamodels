@@ -644,7 +644,7 @@ properties:
               MIR_4QPM, MIR_CORONCAL, MIR_DARKALL, MIR_DARKIMG, MIR_DARKMRS,
               MIR_FLATIMAGE, MIR_FLATIMAGE-EXT, MIR_FLATMRS, MIR_FLATMRS-EXT,
               MIR_IMAGE, MIR_LRS-FIXEDSLIT, MIR_LRS-SLITLESS, MIR_LYOT, MIR_MRS,
-              MIR_TACONFIRM, MIR_TACQ,
+              MIR_TACONFIRM, MIR_TACQ, MIR_WFSS,
               # NIRISS
               NIS_AMI, NIS_DARK, NIS_EXTCAL, NIS_FOCUS, NIS_IMAGE, NIS_LAMP,
               NIS_SOSS, NIS_TACQ, NIS_TACONFIRM, NIS_WFSS,
@@ -982,13 +982,15 @@ properties:
               - enum:
                  [BRIGHTSKY, MASK1065, MASK1140, MASK1550, MASKLYOT,
                   SLITLESSPRISM, SUB128, SUB256, SUB64, SUBPRISM]
-              # NIRCam
+              # NIRCam subarray
               - enum:
                   [FULLP, MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB,
+                   SUB41STRIPE1_DHS, SUB82STRIPE2_DHS, SUB164STRIPE4_DHS, SUB260STRIPE4_DHS,
+                   SUB160STRIPE4_DHS, SUB256STRIPE4_DHS, SUB40STRIPE1_DHS, SUB80STRIPE2_DHS,
                    SUB160, SUB160P, SUB320,
-                   SUB320A335R, SUB320A430R, 
+                   SUB320A335R, SUB320A430R,
                    SUB320B335R, SUB320B430R, SUB320BLWB,
-                   SUB32TATS, SUB32TATSGRISM,
+                   SUB32TATS, SUB32TATSGRISM, SUB32TA_DHS,
                    SUB400P, SUB400X256ALWB, SUB640,
                    SUB640A210R, SUB640ASWB, SUB640B210R, SUB640BSWB,
                    SUB64FP1A, SUB64FP1B, SUB64P, SUB64FP6A,
@@ -1072,6 +1074,46 @@ properties:
             title: Number of pixels in detector y-axis direction
             type: integer
             fits_keyword: DETYSIZ
+            blend_table: True
+          multistripe_reads1:
+            title: Num. substripe rows read starting at SUBSTRT1
+            type: integer
+            fits_keyword: MSTR_RD1
+            blend_table: True
+          multistripe_skips1:
+            title: Num. rows to skip after reading MSTR_RD1 rows
+            type: integer
+            fits_keyword: MSTR_SK1
+            blend_table: True
+          multistripe_reads2:
+            title: Num. rows read in subsequent substripes
+            type: integer
+            fits_keyword: MSTR_RD2
+            blend_table: True
+          multistripe_skips2:
+            title: Num. rows to skip between susequent substripes
+            type: integer
+            fits_keyword: MSTR_SK2
+            blend_table: True
+          repeat_stripe:
+            title: Repeat reading MSTR_RD2 rows at first position
+            type: integer
+            fits_keyword: MSTR_RPT
+            blend_table: True
+          interleave_reads1:
+            title: Interleave MSTR_RD1 rows between substripes
+            type: integer
+            fits_keyword: MSTR_ILV
+            blend_table: True
+          superstripe_step:
+            title: Rows to advance superstripe postn btwn intgrtns
+            type: integer
+            fits_keyword: SSTR_STP
+            blend_table: True
+          num_superstripe:
+            title: Num. superstripe positions in super-integration
+            type: integer
+            fits_keyword: SSTR_NST
             blend_table: True
       dither:
         title: Dither information
@@ -1684,6 +1726,51 @@ properties:
             title: Observatory UTC time at guider function end
             type: string
             fits_keyword: GF_END
+          fgs_aperture:
+            title: Aperture used for guide star acquisition
+            type: string
+            fits_keyword: FGS_APER
+            blend_table: True
+          gs_ideal_x:
+            title: Guide star ideal y coordinate
+            type: number
+            fits_keyword: GSIDL_X
+            blend_table: True
+          gs_ideal_y:
+            title: Guide star ideal y coordinate
+            type: number
+            fits_keyword: GSIDL_Y
+            blend_table: True
+          fgs_v2_ref:
+            title: "[arcsec] Telescope V2 coord of reference point"
+            type: number
+            fits_keyword: V2_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_v3_ref:
+            title: "[arcsec] Telescope V3 coord of reference point"
+            type: number
+            fits_keyword: V3_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_roll_ref:
+            title: "[deg] V3 roll angle at the ref point (N over E)"
+            type: number
+            fits_keyword: ROLL_REF
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_v3yangle:
+            title: "[deg] Angle from V3 axis to Ideal y axis"
+            type: number
+            fits_keyword: V3I_YANG
+            fits_hdu: PRIMARY
+            blend_table: False
+          fgs_vparity:
+            title: Relative sense of rotation between Ideal xy and V2V3
+            type: integer
+            fits_keyword: VPARITY
+            fits_hdu: PRIMARY
+            blend_table: False
           data_start:
             title: "[d] MJD start time of guider data in this file"
             type: number
@@ -1732,7 +1819,6 @@ properties:
         type: object
         properties:
           crds:
-            title: CRDS parameters
             type: object
             properties:
               sw_version:
@@ -1746,7 +1832,6 @@ properties:
                 fits_keyword: CRDS_CTX
                 blend_table: True
           area:
-            title: Pixel area reference file information
             type: object
             properties:
               name:
@@ -1754,8 +1839,15 @@ properties:
                 type: string
                 fits_keyword: R_AREA
                 blend_table: True
+          bkg:
+            type: object
+            properties:
+              name:
+                title: Background reference file name
+                type: string
+                fits_keyword: R_BKG
+                blend_table: True
           badshutter:
-            title: NIRSpec bad shutter reference file information
             type: object
             properties:
               name:
@@ -1764,7 +1856,6 @@ properties:
                 fits_keyword: R_MSAOPE
                 blend_table: True
           barshadow:
-            title: Nirspec Bar shadow reference file information
             type: object
             properties:
               name:
@@ -1773,7 +1864,6 @@ properties:
                 fits_keyword: R_BARSHA
                 blend_table: True
           camera:
-            title: Nirspec Camera reference file information
             type: object
             properties:
               name:
@@ -1782,7 +1872,6 @@ properties:
                 fits_keyword: R_CAMERA
                 blend_table: True
           collimator:
-            title: Nirspec Collimator reference file information
             type: object
             properties:
               name:
@@ -1791,7 +1880,6 @@ properties:
                 fits_keyword: R_COLLIM
                 blend_table: True
           sirskernel:
-            title: NIR Optimized Convolution Kernel reference file information
             type: object
             properties:
               name:
@@ -1800,7 +1888,6 @@ properties:
                 fits_keyword: R_SIRSKL
                 blend_table: True
           cubepar:
-            title: IFU cube reference file information
             type: object
             properties:
               name:
@@ -1809,7 +1896,6 @@ properties:
                 fits_keyword: R_CUBPAR
                 blend_table: True
           dark:
-            title: Dark reference file information
             type: object
             properties:
               name:
@@ -1818,7 +1904,6 @@ properties:
                 fits_keyword: R_DARK
                 blend_table: True
           disperser:
-            title: Disperser reference file information
             type: object
             properties:
               name:
@@ -1827,7 +1912,6 @@ properties:
                 fits_keyword: R_DISPER
                 blend_table: True
           distortion:
-            title: Distortion reference file information
             type: object
             properties:
               name:
@@ -1836,7 +1920,6 @@ properties:
                 fits_keyword: R_DISTOR
                 blend_table: True
           emicorr:
-            title: MIRI EMI reference file information
             type: object
             properties:
               name:
@@ -1845,7 +1928,6 @@ properties:
                 fits_keyword: R_MIREMI
                 blend_table: True
           extract1d:
-            title: 1-D extraction parameters reference file information
             type: object
             properties:
               name:
@@ -1854,7 +1936,6 @@ properties:
                 fits_keyword: R_EXTR1D
                 blend_table: True
           filteroffset:
-            title: Filter Offset reference file information
             type: object
             properties:
               name:
@@ -1863,7 +1944,6 @@ properties:
                 fits_keyword: R_FILOFF
                 blend_table: True
           flat:
-            title: Flat reference file information
             type: object
             properties:
               name:
@@ -1872,7 +1952,6 @@ properties:
                 fits_keyword: R_FLAT
                 blend_table: True
           dflat:
-            title: DFlat reference file information
             type: object
             properties:
               name:
@@ -1881,7 +1960,6 @@ properties:
                 fits_keyword: R_DFLAT
                 blend_table: True
           fflat:
-            title: FFlat reference file information
             type: object
             properties:
               name:
@@ -1890,7 +1968,6 @@ properties:
                 fits_keyword: R_FFLAT
                 blend_table: True
           sflat:
-            title: SFlat reference file information
             type: object
             properties:
               name:
@@ -1899,7 +1976,6 @@ properties:
                 fits_keyword: R_SFLAT
                 blend_table: True
           fore:
-            title: Nirspec FORE Model reference file information
             type: object
             properties:
               name:
@@ -1908,7 +1984,6 @@ properties:
                 fits_keyword: R_FORE
                 blend_table: True
           fpa:
-            title: Nirspec FPA Model reference file information
             type: object
             properties:
               name:
@@ -1917,7 +1992,6 @@ properties:
                 fits_keyword: R_FPA
                 blend_table: True
           fringe:
-            title: Fringe reference file information
             type: object
             properties:
               name:
@@ -1926,7 +2000,6 @@ properties:
                 fits_keyword: R_FRINGE
                 blend_table: True
           fringefreq:
-            title: Fringe Frequency reference file information
             type: object
             properties:
               name:
@@ -1935,7 +2008,6 @@ properties:
                 fits_keyword: R_FRIFRQ
                 blend_table: True
           gain:
-            title: Gain reference file information
             type: object
             properties:
               name:
@@ -1944,7 +2016,6 @@ properties:
                 fits_keyword: R_GAIN
                 blend_table: True
           ifufore:
-            title: IFU fore reference file information
             type: object
             properties:
               name:
@@ -1953,7 +2024,6 @@ properties:
                 fits_keyword: R_IFUFOR
                 blend_table: True
           ifupost:
-            title: IFU post reference file information
             type: object
             properties:
               name:
@@ -1962,7 +2032,6 @@ properties:
                 fits_keyword: R_IFUPOS
                 blend_table: True
           ifuslicer:
-            title: IFU slicer reference file information
             type: object
             properties:
               name:
@@ -1971,7 +2040,6 @@ properties:
                 fits_keyword: R_IFUSLI
                 blend_table: True
           ipc:
-            title: IPC reference file information
             type: object
             properties:
               name:
@@ -1980,7 +2048,6 @@ properties:
                 fits_keyword: R_IPC
                 blend_table: True
           lastframe:
-            title: Last frame reference file information
             type: object
             properties:
               name:
@@ -1989,7 +2056,6 @@ properties:
                 fits_keyword: R_LASTFR
                 blend_table: True
           linearity:
-            title: Linearity reference file information
             type: object
             properties:
               name:
@@ -1998,7 +2064,6 @@ properties:
                 fits_keyword: R_LINEAR
                 blend_table: True
           mask:
-            title: Mask reference file information
             type: object
             properties:
               name:
@@ -2007,7 +2072,6 @@ properties:
                 fits_keyword: R_MASK
                 blend_table: True
           msa:
-            title: Nirspec MSA Model reference file information
             type: object
             properties:
               name:
@@ -2016,7 +2080,6 @@ properties:
                 fits_keyword: R_MSA
                 blend_table: True
           mrsxartcorr:
-            title: MIRI MRS mrsxartcorr reference file information
             type: object
             properties:
               name:
@@ -2025,7 +2088,6 @@ properties:
                 fits_keyword: R_MRSXAR
                 blend_table: True
           mrsptcorr:
-            title: MRS point source correction reference file information
             type: object
             properties:
               name:
@@ -2034,7 +2096,6 @@ properties:
                 fits_keyword: R_MRSPT
                 blend_table: True
           nrm:
-            title: Non-Redundant mask reference file information
             type: object
             properties:
               name:
@@ -2043,7 +2104,6 @@ properties:
                 fits_keyword: R_NRM
                 blend_table: True
           ote:
-            title: Nirspec OTE Model reference file information
             type: object
             properties:
               name:
@@ -2052,7 +2112,6 @@ properties:
                 fits_keyword: R_OTE
                 blend_table: True
           pastasoss:
-            title: NIRISS SOSS trace and wavecal reference file information
             type: object
             properties:
               name:
@@ -2061,7 +2120,6 @@ properties:
                 fits_keyword: R_PSTSOS
                 blend_table: True
           pathloss:
-            title: Pathloss reference file information
             type: object
             properties:
               name:
@@ -2070,7 +2128,6 @@ properties:
                 fits_keyword: R_PTHLOS
                 blend_table: True
           persat:
-            title: Persistence saturation reference file information
             type: object
             properties:
               name:
@@ -2079,7 +2136,6 @@ properties:
                 fits_keyword: R_PERSAT
                 blend_table: True
           photom:
-            title: Photometric reference file information
             type: object
             properties:
               name:
@@ -2088,7 +2144,6 @@ properties:
                 fits_keyword: R_PHOTOM
                 blend_table: True
           psfmask:
-            title: PSF mask reference file information
             type: object
             properties:
               name:
@@ -2097,7 +2152,6 @@ properties:
                 fits_keyword: R_PSFMAS
                 blend_table: True
           readnoise:
-            title: Read noise reference file information
             type: object
             properties:
               name:
@@ -2106,7 +2160,6 @@ properties:
                 fits_keyword: R_READNO
                 blend_table: True
           refpix:
-            title: Reference pixels reference file information
             type: object
             properties:
               name:
@@ -2115,7 +2168,6 @@ properties:
                 fits_keyword: R_REFPIX
                 blend_table: True
           regions:
-            title: Regions reference file information
             type: object
             properties:
               name:
@@ -2124,7 +2176,6 @@ properties:
                 fits_keyword: R_REGION
                 blend_table: True
           resample:
-            title: Resample processing reference file information
             type: object
             properties:
               name:
@@ -2133,7 +2184,6 @@ properties:
                 fits_keyword: R_RESAMP
                 blend_table: True
           resolution:
-            title: MRS resolution reference file information
             type: object
             properties:
               name:
@@ -2142,7 +2192,6 @@ properties:
                 fits_keyword: R_RESOL
                 blend_table: True
           reset:
-            title: Reset reference file information
             type: object
             properties:
               name:
@@ -2151,7 +2200,6 @@ properties:
                 fits_keyword: R_RESET
                 blend_table: True
           rscd:
-            title: RSCD reference file information
             type: object
             properties:
               name:
@@ -2160,7 +2208,6 @@ properties:
                 fits_keyword: R_RSCD
                 blend_table: True
           saturation:
-            title: Saturation reference file information
             type: object
             properties:
               name:
@@ -2169,7 +2216,6 @@ properties:
                 fits_keyword: R_SATURA
                 blend_table: True
           speckernel:
-            title: Spectral convolution kernel reference file information
             type: object
             properties:
               name:
@@ -2178,7 +2224,6 @@ properties:
                 fits_keyword: R_SPKERN
                 blend_table: True
           specprofile:
-            title: Spectral profile reference file information
             type: object
             properties:
               name:
@@ -2187,7 +2232,6 @@ properties:
                 fits_keyword: R_SPPROF
                 blend_table: True
           spectrace:
-            title: Spectral trace reference file information
             type: object
             properties:
               name:
@@ -2196,7 +2240,6 @@ properties:
                 fits_keyword: R_SPTRAC
                 blend_table: True
           specwcs:
-            title: Spectral distortion reference file information
             type: object
             properties:
               name:
@@ -2205,7 +2248,6 @@ properties:
                 fits_keyword: R_SPCWCS
                 blend_table: True
           straylight:
-            title: Straylight reference file information
             type: object
             properties:
               name:
@@ -2214,7 +2256,6 @@ properties:
                 fits_keyword: R_STRAY
                 blend_table: True
           superbias:
-            title: Superbias reference file information
             type: object
             properties:
               name:
@@ -2223,7 +2264,6 @@ properties:
                 fits_keyword: R_SUPERB
                 blend_table: True
           throughput:
-            title: Filter throughput reference file information
             type: object
             properties:
               name:
@@ -2232,7 +2272,6 @@ properties:
                 fits_keyword: R_THRPUT
                 blend_table: True
           trapdensity:
-            title: Trap density reference file information
             type: object
             properties:
               name:
@@ -2241,7 +2280,6 @@ properties:
                 fits_keyword: R_TRPDEN
                 blend_table: True
           trappars:
-            title: Trap parameters reference file information
             type: object
             properties:
               name:
@@ -2250,7 +2288,6 @@ properties:
                 fits_keyword: R_TRPPAR
                 blend_table: True
           tso_photometry:
-            title: TSO imaging photometry reference file information
             type: object
             properties:
               name:
@@ -2259,7 +2296,6 @@ properties:
                 fits_keyword: R_TSPHOT
                 blend_table: True
           v2v3:
-            title: V2_V3 Model reference file information
             type: object
             properties:
               name:
@@ -2268,7 +2304,6 @@ properties:
                 fits_keyword: R_V2V3
                 blend_table: True
           wavecorr:
-            title: Zero point wavelength correction for Nirspec MOS and FS mode
             type: object
             properties:
               name:
@@ -2277,7 +2312,6 @@ properties:
                 fits_keyword: R_WAVCOR
                 blend_table: True
           wavelengthrange:
-            title: Wavelength Range reference file information
             type: object
             properties:
               name:
@@ -2286,7 +2320,6 @@ properties:
                 fits_keyword: R_WAVRAN
                 blend_table: True
           wavemap:
-            title: Wavelength map reference file information
             type: object
             properties:
               name:
@@ -2334,10 +2367,10 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MTWCS
             blend_table: True
-          back_sub:
+          bkg_subtract:
             title: Background subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_BKDSUB
             blend_table: True
           badpix_selfcal:
@@ -2496,12 +2529,6 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_MSBSUB
             blend_table: True
-          mrs_imatch:
-            title: MIRI MRS background matching
-            type: string
-            enum: [SKIPPED, COMPLETE]
-            fits_keyword: S_MRSMAT
-            blend_table: True
           msa_flagging:
             title: NIRSpec MSA Stuck Shutter Flagging
             type: string
@@ -2651,6 +2678,12 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_WFSCOM
             blend_table: True
+          wfss_contam:
+            title: WFSS Contamination Correction
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_CONTAM
+            blend_table: True
           white_light:
             title: TSO White-Light Curve
             type: string
@@ -2773,3 +2806,8 @@ properties:
             title: Master background file used
             type: string
             fits_keyword: MASTERBG
+          scaling_factor:
+            title: Background scale factor
+            type: number
+            fits_keyword: BKGD_SCL
+            blend_table: True

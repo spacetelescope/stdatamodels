@@ -1,9 +1,7 @@
 import io
-import json
 
-import pytest
 import asdf
-from astropy.io import fits
+import pytest
 
 from stdatamodels.filetype import check
 
@@ -17,6 +15,7 @@ from stdatamodels.filetype import check
         ("test_file.json.gz", "asn"),
         ("test_file.asdf", "asdf"),
         ("test_file.asdf.gz", "asdf"),
+        ("test_file.asdf.fits", "fits"),
         ("stpipe.MyPipeline.fits", "fits"),
         ("stpipe.MyPipeline.fits.gz", "fits"),
     ],
@@ -25,36 +24,22 @@ def test_supported_filename(filename, expected_filetype):
     assert check(filename) == expected_filetype
 
 
-@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4"])
+@pytest.mark.parametrize("filename", ["test_file", "test_file.mp4", "test_file.tar.gz"])
 def test_unsupported_filename(filename):
     with pytest.raises(ValueError):
         check(filename)
 
 
 def test_seekable_file_object():
+    """Not a supported init type for a datamodel."""
     buff = io.BytesIO()
     with asdf.AsdfFile() as af:
         af.write_to(buff)
     buff.seek(0)
-    assert check(buff) == "asdf"
-
-    buff = io.BytesIO()
-    hdul = fits.HDUList(fits.PrimaryHDU())
-    hdul.writeto(buff)
-    buff.seek(0)
-    assert check(buff) == "fits"
-
-    buff = io.BytesIO()
-    buff.write(json.dumps({"foo": "bar"}).encode("utf-8"))
-    buff.seek(0)
-    assert check(buff) == "asn"
-
-    # Too short
-    buff = io.BytesIO(b"FOO")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         check(buff)
 
 
 def test_non_seekable_object():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         check(object())

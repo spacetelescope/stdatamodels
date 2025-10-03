@@ -2,16 +2,31 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-from numpy.testing import assert_array_almost_equal
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
-
 
 FITS_FILE = Path(__file__).parent / "data" / "sip.fits"
 
 
+def test_get_fits_wcs_deprecation():
+    model = ImageModel(FITS_FILE)
+    model.data = np.zeros((5, 5))
+    with pytest.warns(DeprecationWarning, match="get_fits_wcs is deprecated"):
+        wcs = model.get_fits_wcs()
+    with pytest.warns(DeprecationWarning, match="set_fits_wcs is deprecated"):
+        model.set_fits_wcs(wcs)
+
+
+@pytest.mark.filterwarnings("ignore:^get_fits_wcs is deprecated:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:^set_fits_wcs is deprecated:DeprecationWarning")
 def test_get_fits_wcs(tmpdir):
+    with ImageModel(FITS_FILE) as dm:
+        # Refer to the data array to initialize it.
+        dm.data = np.zeros((5, 5))
+        wcs1 = dm.get_fits_wcs()
+
     with ImageModel(FITS_FILE) as dm:
         # Refer to the data array to initialize it.
         dm.data = np.zeros((5, 5))

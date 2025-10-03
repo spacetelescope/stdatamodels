@@ -1,12 +1,14 @@
+import sys
 from io import BytesIO
 
 import asdf
-from asdf.constants import ASDF_MAGIC
 import numpy as np
-from numpy.testing import assert_array_equal
+import pytest
+from asdf.constants import ASDF_MAGIC
 from astropy.io import fits
-
 from models import FitsModel
+from numpy.testing import assert_array_equal
+
 from stdatamodels.fits_support import _NDARRAY_TAG
 
 
@@ -170,6 +172,9 @@ def test_array_update_and_save_new_file(tmp_path):
             assert dm.data is hdul["SCI"].data
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"), reason="windows does not support overwriting an open file"
+)
 def test_array_update_and_save_same_file(tmp_path):
     file_path = tmp_path / "test.fits"
 

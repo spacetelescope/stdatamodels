@@ -1,3 +1,366 @@
+4.1.0 (2025-09-23)
+==================
+
+Bug Fixes
+---------
+
+- Fix incorrect trace function sampling in NIRCam forward grism dispersion
+  models (`#519 <https://github.com/spacetelescope/stdatamodels/issues/519>`_)
+- Updated units in WFSS tables to adhere to FITS standard. (`#529
+  <https://github.com/spacetelescope/stdatamodels/issues/529>`_)
+- Update units to match FITS standard. (`#530
+  <https://github.com/spacetelescope/stdatamodels/issues/530>`_)
+- Add S_CONTAM keyword to denote wfss_contam calibration step status (`#557
+  <https://github.com/spacetelescope/stdatamodels/issues/557>`_)
+- Remove module-level logging configuration. (`#563
+  <https://github.com/spacetelescope/stdatamodels/issues/563>`_)
+
+
+Documentation
+-------------
+
+- Make documentation of stdatamodels.jwst.transforms public (`#569
+  <https://github.com/spacetelescope/stdatamodels/issues/569>`_)
+
+
+New Features
+------------
+
+- Added a datamodel for MIRI WFSS specwcs reference file and the transforms for
+  this model. (`#493
+  <https://github.com/spacetelescope/stdatamodels/issues/493>`_)
+- Tidy up output FITS headers by removing extra blank keywords associated with
+  each reference file. (`#494
+  <https://github.com/spacetelescope/stdatamodels/issues/494>`_)
+- Added an extension for background mask used in background step to image
+  datamodel. (`#532
+  <https://github.com/spacetelescope/stdatamodels/issues/532>`_)
+- Add optional time dependence coefficient tables to all photom reference file
+  models except MIRI MRS.
+  Update the MIRI MRS time dependence coefficients to expect a power law
+  functional form. (`#555
+  <https://github.com/spacetelescope/stdatamodels/issues/555>`_)
+- Add ``asdf_in_fits.to_hdulist`` to add an ASDF extension to an in memory
+  HDUList (or create one if needed). (`#567
+  <https://github.com/spacetelescope/stdatamodels/issues/567>`_)
+- Added FAILED to background step completion status, options are now COMPLETED,
+  SKIPPED, FAILED. (`#575
+  <https://github.com/spacetelescope/stdatamodels/issues/575>`_)
+- Add ``cal_logs`` handling to the ``update`` method for JWST datamodels.
+  (`#579 <https://github.com/spacetelescope/stdatamodels/issues/579>`_)
+- Added q4 object to oifits schema to include quad amplitudes, phases in AMI
+  OIFITS data products. (`#582
+  <https://github.com/spacetelescope/stdatamodels/issues/582>`_)
+- Updated MIRI WFSS prism transforms to handle updates to their specwcs
+  reference file: the x and y models are now both 3rd order polynomials in the
+  trace parameter. (`#587
+  <https://github.com/spacetelescope/stdatamodels/issues/587>`_)
+
+
+Misc
+----
+
+- Refactor grism transforms to reduce repeated code and drop some
+  partially-supported dispersion model types (`#528
+  <https://github.com/spacetelescope/stdatamodels/issues/528>`_)
+- Update DataModel init to make it so kwargs are exclusively used for
+  initializing data arrays
+  as model attributes, and other args are used to control how the model is
+  opened and validated. (`#533
+  <https://github.com/spacetelescope/stdatamodels/issues/533>`_)
+- When opening models from a .fits file, close the FITS HDUList on init instead
+  of retaining a FileReference to it (`#552
+  <https://github.com/spacetelescope/stdatamodels/issues/552>`_)
+- Make transform models available in stdatamodels.jwst.transforms namespace
+  (`#569 <https://github.com/spacetelescope/stdatamodels/issues/569>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Deprecate passing kwargs into asdf.open from asdf_in_fits.open (`#533
+  <https://github.com/spacetelescope/stdatamodels/issues/533>`_)
+- Deprecate V23ToSky transform. Use the function
+  `jwst.assign_wcs.pointing.v23tosky` to construct an equivalent
+  `CompoundModel` that relies only on models from `astropy.modeling`.
+  Deprecate Rotation3D transform. Use
+  `astropy.modeling.models.RotationSequence3D` instead.
+  Deprecate the converters that allow datamodels relying on V23ToSky to be
+  loaded from file (note that V23ToSky has been unused by the pipeline since
+  pre-launch). (`#539
+  <https://github.com/spacetelescope/stdatamodels/issues/539>`_)
+- Deprecate None, shape tuple, array, and HDUList as valid inits to
+  datamodels.open(). DataModel.__init__() should be used directly instead.
+  Deprecate assigning data arrays during model init when the init type is
+  already file-like (e.g. filename, model tree, HDUList, etc) (`#540
+  <https://github.com/spacetelescope/stdatamodels/issues/540>`_)
+- Removed mrs_imatch from cal_step status. (`#550
+  <https://github.com/spacetelescope/stdatamodels/issues/550>`_)
+- Remove unused schema.build_docstring function (`#556
+  <https://github.com/spacetelescope/stdatamodels/issues/556>`_)
+- Change interpretation of bit flag 256 from UNRELIABLE_ERROR to RESERVED (kept
+  unset for future use) (`#580
+  <https://github.com/spacetelescope/stdatamodels/issues/580>`_)
+
+
+4.0.0 (2025-07-11)
+==================
+
+Bug Fixes
+---------
+
+- Turn non-schema-mapped data arrays in ASDF extension into links on save
+  instead of duplicating them, saving disk space and memory on re-load (`#509
+  <https://github.com/spacetelescope/stdatamodels/issues/509>`_)
+- Fix SlitModel deleting wht attribute on init from an already-open datamodel.
+  Fix IFUImageModel deleting zeroframe attribute on init from an already-open
+  datamodel.
+  Fix SlitModel populating zero-filled area array on init. (`#511
+  <https://github.com/spacetelescope/stdatamodels/issues/511>`_)
+- Add channel and band keywords to specpsf schema. (`#513
+  <https://github.com/spacetelescope/stdatamodels/issues/513>`_)
+
+
+New Features
+------------
+
+- Add S_REGION keyword to WFSS spectral metadata schema. (`#524
+  <https://github.com/spacetelescope/stdatamodels/issues/524>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Drop support for memory mapping when opening datamodels (`#507
+  <https://github.com/spacetelescope/stdatamodels/issues/507>`_)
+
+
+3.1.1 (2025-06-26)
+==================
+
+Bug Fixes
+---------
+
+- Add time-related metadata back to MultiSpecModel and SpecModel schemas, for
+  backward compatibility for existing time series spectral products. (`#508
+  <https://github.com/spacetelescope/stdatamodels/issues/508>`_)
+
+
+3.1.0 (2025-06-18)
+==================
+
+Bug Fixes
+---------
+
+- Remove file-less AsdfFile instances from DataModel file reference tracking.
+  (`#461 <https://github.com/spacetelescope/stdatamodels/issues/461>`_)
+- Allow read_metadata to handle nested lists from extra_fits (`#476
+  <https://github.com/spacetelescope/stdatamodels/issues/476>`_)
+
+
+New Features
+------------
+
+- Add new informational processing status keywords to slit and spectral
+  datamodels for NIRSpec multi-slit data. (`#431
+  <https://github.com/spacetelescope/stdatamodels/issues/431>`_)
+- Add `read_metadata` for reading partial metadata from saved files. (`#445
+  <https://github.com/spacetelescope/stdatamodels/issues/445>`_)
+- Update NIRSpec transforms to support slit name propagation.
+  Add inverse transforms for Slit2Msa and Gwa2Slit; add Slit2MsaLegacy to
+  support reading existing data products. (`#465
+  <https://github.com/spacetelescope/stdatamodels/issues/465>`_)
+- Add flat file format for WFSS multi-source x1d and c1d products (`#466
+  <https://github.com/spacetelescope/stdatamodels/issues/466>`_)
+- Add support for multi-valued defaults in table schemas (`#469
+  <https://github.com/spacetelescope/stdatamodels/issues/469>`_)
+- Add new spectral models for TSO spectral data, intended to combine all
+  integrations into a single flat table rather than multiple FITS extensions.
+  (`#477 <https://github.com/spacetelescope/stdatamodels/issues/477>`_)
+- Add a new data array in the ``regions`` attribute to IFUImageModel, to hold a
+  pixel-to-slice map for NIRSpec IFU data. (`#479
+  <https://github.com/spacetelescope/stdatamodels/issues/479>`_)
+- Update transform schemas to use new asdf-transform-schemas. (`#483
+  <https://github.com/spacetelescope/stdatamodels/issues/483>`_)
+- Allow extra columns in the NrcImgPhotomModel phot_table, to support the
+  ability to specify different values by subarray. (`#484
+  <https://github.com/spacetelescope/stdatamodels/issues/484>`_)
+- Added new nirspec_dark model with dark_rate and dark_rate_unc extensions.
+  Added p_gratin to dark and superbias models to support selecting different
+  reference files based on p_gratin in CRDS. (`#485
+  <https://github.com/spacetelescope/stdatamodels/issues/485>`_)
+- Add new datamodel SossBkgModel to support background reference files for
+  NIRISS SOSS data. (`#492
+  <https://github.com/spacetelescope/stdatamodels/issues/492>`_)
+- Change background alias to bkg_subtract to fix conflicting aliases for the
+  step. The new alias is the one currently used for running the step or
+  changing parameters from the stage2 pipeline. (`#495
+  <https://github.com/spacetelescope/stdatamodels/issues/495>`_)
+- Vectorize NIRCAMBackwardGrismDispersion transform (`#497
+  <https://github.com/spacetelescope/stdatamodels/issues/497>`_)
+- Add guidestar-related header keywords to core schema (`#500
+  <https://github.com/spacetelescope/stdatamodels/issues/500>`_)
+
+
+Misc
+----
+
+- Add docstring rules to pre-commit hook (`#406
+  <https://github.com/spacetelescope/stdatamodels/issues/406>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Remove unused GLS_RampFitModel (`#464
+  <https://github.com/spacetelescope/stdatamodels/issues/464>`_)
+- Remove initialization of err array from dark datamodel init methods. (`#480
+  <https://github.com/spacetelescope/stdatamodels/issues/480>`_)
+- Deprecate DataModel.get_fits_wcs and DataModel.set_fits_wcs (`#482
+  <https://github.com/spacetelescope/stdatamodels/issues/482>`_)
+- Deprecate dqflags.interpret_bit_flags in favor of
+  astropy.nddata.bitmask.interpret_bit_flags (`#486
+  <https://github.com/spacetelescope/stdatamodels/issues/486>`_)
+- Drop support for initializing datamodels from buffer (was already raising
+  errors)
+  Drop support for initializing datamodels from byte strings (`#487
+  <https://github.com/spacetelescope/stdatamodels/issues/487>`_)
+
+
+3.0.2 (2025-03-31)
+==================
+
+Deprecations and Removals
+-------------------------
+
+- Revert #409 to restore dqflag utility functions (`#459
+  <https://github.com/spacetelescope/stdatamodels/issues/459>`_)
+
+
+3.0.1 (2025-03-19)
+==================
+
+Bug Fixes
+---------
+
+- Add missing values to pexptype pdetector and pgrating schemas. (`#430
+  <https://github.com/spacetelescope/stdatamodels/issues/430>`_)
+- Fix ndim, max_ndim and datatype validation during FITS array writing. (`#443
+  <https://github.com/spacetelescope/stdatamodels/issues/443>`_)
+
+
+Documentation
+-------------
+
+- Add documentation for NoTypeWarning and ValidationWarning (`#433
+  <https://github.com/spacetelescope/stdatamodels/issues/433>`_)
+
+
+Misc
+----
+
+- Move NoTypeWarning and ValidationWarning to new exceptions submodule (`#433
+  <https://github.com/spacetelescope/stdatamodels/issues/433>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Remove deprecated skip_fits_update and SKIP_FITS_UPDATE (`#380
+  <https://github.com/spacetelescope/stdatamodels/issues/380>`_)
+- Deprecate DataModel.open_asdf use asdf.open instead. (`#450
+  <https://github.com/spacetelescope/stdatamodels/issues/450>`_)
+- Deprecate DataModel.from_fits and DataModel.from_asdf. Use DataModel.__init__
+  instead. (`#455
+  <https://github.com/spacetelescope/stdatamodels/issues/455>`_)
+
+
+3.0.0 (2025-03-06)
+==================
+
+Bug Fixes
+---------
+
+- Validate dimension against schema when instantiating datamodel from array
+  shape (`#395 <https://github.com/spacetelescope/stdatamodels/issues/395>`_)
+- Fix bug preventing NirspecQuadFlatModel instantiation from NirspecFlatModel
+  (`#401 <https://github.com/spacetelescope/stdatamodels/issues/401>`_)
+- Force array validation when initializing a datamodel from another datamodel
+  of different type (`#403
+  <https://github.com/spacetelescope/stdatamodels/issues/403>`_)
+- Changed data types in MIRI LRS specwcs ref model to float64 (`#425
+  <https://github.com/spacetelescope/stdatamodels/issues/425>`_)
+
+
+Documentation
+-------------
+
+- Expand reference file schema documentation. (`#375
+  <https://github.com/spacetelescope/stdatamodels/issues/375>`_)
+
+
+New Features
+------------
+
+- added Spectral PSF reference model (`#336
+  <https://github.com/spacetelescope/stdatamodels/issues/336>`_)
+- Added channel keyword to MIRI LRS and imaging apcorr schemas (`#374
+  <https://github.com/spacetelescope/stdatamodels/issues/374>`_)
+- Add new spectral models for MIRI MRS data, including new table columns for
+  residual fringe corrected flux, surface brightness, and background. (`#377
+  <https://github.com/spacetelescope/stdatamodels/issues/377>`_)
+- Add keywords for NIRSpec MSA quadrant and slit area scales to slit and
+  spectral datamodels. (`#379
+  <https://github.com/spacetelescope/stdatamodels/issues/379>`_)
+- Removed the unused error array from 4D ramp models. (`#384
+  <https://github.com/spacetelescope/stdatamodels/issues/384>`_)
+- added MIRI LRS specwcs datamodel to jwst models (`#393
+  <https://github.com/spacetelescope/stdatamodels/issues/393>`_)
+- Add scaling factor to background schema (`#407
+  <https://github.com/spacetelescope/stdatamodels/issues/407>`_)
+- Add eight multistripe subarray keywords to support NIRCam DHS modes. (`#426
+  <https://github.com/spacetelescope/stdatamodels/issues/426>`_)
+- Add new schema keywords for DHS subarrays. (`#427
+  <https://github.com/spacetelescope/stdatamodels/issues/427>`_)
+- Add a missing subarray value for DHS. (`#428
+  <https://github.com/spacetelescope/stdatamodels/issues/428>`_)
+
+
+Misc
+----
+
+- Apply style checks to code to match jwst. (`#383
+  <https://github.com/spacetelescope/stdatamodels/issues/383>`_)
+- Increase minimum versions of asdf-astropy, asdf and astropy dependencies.
+  (`#399 <https://github.com/spacetelescope/stdatamodels/issues/399>`_)
+- test with latest supported version of Python (`#418
+  <https://github.com/spacetelescope/stdatamodels/issues/418>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Remove deprecated schema_editor (`#373
+  <https://github.com/spacetelescope/stdatamodels/issues/373>`_)
+- Remove fits metaschema, use updated asdf metaschema. (`#378
+  <https://github.com/spacetelescope/stdatamodels/issues/378>`_)
+- Drop support for python 3.10 (`#392
+  <https://github.com/spacetelescope/stdatamodels/issues/392>`_)
+- Remove deprecated DataModel.get_fileext() method (`#400
+  <https://github.com/spacetelescope/stdatamodels/issues/400>`_)
+- Remove unused dqflags and basic_utils submodules. (`#409
+  <https://github.com/spacetelescope/stdatamodels/issues/409>`_)
+- Remove unused Extract1dImageModel and MultiExtract1dImageModel. (`#419
+  <https://github.com/spacetelescope/stdatamodels/issues/419>`_)
+- Remove unused can_broadcast, to_camelcase, ensure_ascii, fits_hdu_name and
+  bytes2human functions. (`#420
+  <https://github.com/spacetelescope/stdatamodels/issues/420>`_)
+- Remove unused OulierPars model. (`#421
+  <https://github.com/spacetelescope/stdatamodels/issues/421>`_)
+- Deprecate Datamodel.read and Datamodel.write. (`#424
+  <https://github.com/spacetelescope/stdatamodels/issues/424>`_)
+
+
 2.2.0 (2024-12-20)
 ==================
 
@@ -329,7 +692,7 @@ Other
 -----
 
 - Update ``RefractionIndexFromPrism`` converting single element ndarrays
-  to scalar values before use to avoid ``DeprecationWarning``s introduced
+  to scalar values before use to avoid ``DeprecationWarning`` introduced
   in numpy 1.25 [#210]
 
 - Add band to ``GainModel`` schema to account for miri crds file updates
@@ -488,7 +851,7 @@ Other
   on this package. This also removes the ``aws`` install option as this is no longer need. [#154]
 
 - Remove use of deprecated ``pytest-openfiles`` ``pytest`` plugin. This has been replaced by
-  catching ``ResourceWarning``s. [#152]
+  catching ``ResourceWarning`` instances. [#152]
 
 - Fix open file handles, which were previously ignored by ``pytest-openfiles``, but which raise
   blocked ``ResourceWarning`` errors. [#153]

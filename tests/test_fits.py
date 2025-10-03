@@ -1,16 +1,13 @@
-import contextlib
 import re
 
+import asdf.schema
+import numpy as np
 import pytest
 from astropy.io import fits
-import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_equal
-import asdf.schema
-
-from stdatamodels import DataModel
-from stdatamodels import fits_support
-
 from models import FitsModel, PureFitsModel
+from numpy.testing import assert_allclose, assert_array_almost_equal, assert_array_equal
+
+from stdatamodels import DataModel, fits_support
 
 
 def records_equal(a, b):
@@ -75,7 +72,7 @@ def test_from_scratch(tmp_path):
 
         dm.to_fits(file_path)
 
-        with FitsModel.from_fits(file_path) as dm2:
+        with FitsModel(file_path) as dm2:
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
             assert dm2.dq.dtype.name == "uint32"
@@ -88,12 +85,48 @@ def test_extra_fits(tmp_path):
     with FitsModel() as dm:
         dm.save(file_path)
 
+    file_path2 = tmp_path / "test2.fits"
+
     with fits.open(file_path) as hdul:
         hdul[0].header["FOO"] = "BAR"
-        hdul.writeto(file_path, overwrite=True)
+        hdul.writeto(file_path2, overwrite=True)
 
-    with DataModel(file_path) as dm:
+    with DataModel(file_path2) as dm:
         assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
+
+
+def test_asdf_extension_data_is_view(tmp_path):
+    """
+    Ensure that array-like data are not duplicated in the asdf extension.
+
+    The asdf extension should contain a view of the data, not the data itself.
+    This should be the same for both schema-defined data and extra_fits data.
+    """
+    file_path = tmp_path / "test.fits"
+
+    # Make a fits hdulist, add a SCI extension and an extra_fits extension
+    # both with array-like data
+    hdul = fits.HDUList()
+    hdul.append(fits.PrimaryHDU())
+    hdul.append(fits.ImageHDU(data=np.zeros((100, 100), dtype=np.float32), name="SCI"))
+    extra_data = np.ones((100, 100), dtype=np.float32)
+    hdul.append(fits.ImageHDU(data=extra_data, name="EXTRA"))
+    hdul.writeto(file_path, overwrite=True)
+
+    # cycle through save/load to get the ASDF extension updated with extra fits
+    with FitsModel(file_path) as dm:
+        dm.save(file_path)
+
+    # check that the ASDF extension does NOT contain any of the large data arrays
+    with fits.open(file_path) as hdul:
+        asdf_bytes = hdul["ASDF"].data[0][0]
+        asdf_bytesize = asdf_bytes.size * asdf_bytes.itemsize
+        extra_bytesize = extra_data.size * extra_data.itemsize
+        assert asdf_bytesize < extra_bytesize
+
+    # check that the ASDF extension contains a view of the extra_fits data
+    with FitsModel(file_path) as dm2:
+        assert_allclose(dm2._asdf.tree["extra_fits"]["EXTRA"]["data"], extra_data)
 
 
 def test_hdu_order(tmp_path):
@@ -380,14 +413,14 @@ def test_metadata_from_fits(tmp_path):
 
 
 def test_get_short_doc():
-    assert fits_support.get_short_doc({}) == ""
-    assert fits_support.get_short_doc({"title": "Some schema title."}) == "Some schema title."
+    assert fits_support._get_short_doc({}) == ""
+    assert fits_support._get_short_doc({"title": "Some schema title."}) == "Some schema title."
     assert (
-        fits_support.get_short_doc({"title": "Some schema title.\nWhoops, another line."})
+        fits_support._get_short_doc({"title": "Some schema title.\nWhoops, another line."})
         == "Some schema title."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "title": "Some schema title.",
                 "description": "Some schema description.",
@@ -396,7 +429,7 @@ def test_get_short_doc():
         == "Some schema title."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "description": "Some schema description.",
             }
@@ -404,66 +437,13 @@ def test_get_short_doc():
         == "Some schema description."
     )
     assert (
-        fits_support.get_short_doc(
+        fits_support._get_short_doc(
             {
                 "description": "Some schema description.\nWhoops, another line.",
             }
         )
         == "Some schema description."
     )
-
-
-def test_ensure_ascii():
-    for inp in [b"ABCDEFG", "ABCDEFG"]:
-        assert fits_support.ensure_ascii(inp) == "ABCDEFG"
-
-
-@pytest.mark.parametrize(
-    "which_file, skip_fits_update, expected_exp_type",
-    [
-        ("just_fits", None, "FGS_DARK"),
-        ("just_fits", False, "FGS_DARK"),
-        ("just_fits", True, "FGS_DARK"),
-        ("model", None, "FGS_DARK"),
-        ("model", False, "FGS_DARK"),
-        ("model", True, "NRC_IMAGE"),
-    ],
-)
-@pytest.mark.parametrize("use_env", [False, True])
-def test_skip_fits_update(
-    tmp_path, monkeypatch, use_env, which_file, skip_fits_update, expected_exp_type
-):
-    """Test skip_fits_update setting"""
-    file_path = tmp_path / "test.fits"
-
-    # Setup the FITS file, modifying a header value
-    if which_file == "just_fits":
-        primary_hdu = fits.PrimaryHDU()
-        primary_hdu.header["EXP_TYPE"] = "NRC_IMAGE"
-        primary_hdu.header["DATAMODL"] = "FitsModel"
-        hduls = fits.HDUList([primary_hdu])
-        hduls.writeto(file_path)
-    else:
-        model = FitsModel()
-        model.meta.exposure.type = "NRC_IMAGE"
-        model.save(file_path)
-
-    with fits.open(file_path) as hduls:
-        hduls[0].header["EXP_TYPE"] = "FGS_DARK"
-
-        if skip_fits_update is not None:
-            ctx = pytest.warns(DeprecationWarning, match="skip_fits_update is deprecated")
-        else:
-            ctx = contextlib.nullcontext()
-
-        if use_env:
-            if skip_fits_update is not None:
-                monkeypatch.setenv("SKIP_FITS_UPDATE", str(skip_fits_update))
-                skip_fits_update = None
-
-        with ctx:
-            model = FitsModel(hduls, skip_fits_update=skip_fits_update)
-            assert model.meta.exposure.type == expected_exp_type
 
 
 def test_from_hdulist(tmp_path):
@@ -651,7 +631,7 @@ def test_resave_duplication_bug(tmp_path):
     m = FitsModel(arr)
     m.save(fn1)
 
-    m2 = FitsModel.from_fits(fn1)
+    m2 = FitsModel(fn1)
     m2.save(fn2)
 
     with fits.open(fn1) as ff1, fits.open(fn2) as ff2:

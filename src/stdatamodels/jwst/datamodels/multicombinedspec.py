@@ -1,8 +1,7 @@
-from .model_base import JwstDataModel
 from .combinedspec import CombinedSpecModel
+from .model_base import JwstDataModel
 
-
-__all__ = ["MultiCombinedSpecModel"]
+__all__ = ["MultiCombinedSpecModel", "WFSSMultiCombinedSpecModel"]
 
 
 class MultiCombinedSpecModel(JwstDataModel):
@@ -24,14 +23,12 @@ class MultiCombinedSpecModel(JwstDataModel):
     the first element of `spec`.  `CombinedSpecModel` objects can be appended
     to the `spec` attribute by using its `append` method.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     int_times : numpy table
          table of times for each integration
-
     spec.items.spec_table : numpy table
          Extracted spectral data table
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/multicombinedspec.schema"
@@ -44,3 +41,17 @@ class MultiCombinedSpecModel(JwstDataModel):
             return
 
         super(MultiCombinedSpecModel, self).__init__(init=init, **kwargs)
+
+
+class WFSSMultiCombinedSpecModel(JwstDataModel):
+    """
+    A data model for NIRCam and NIRISS WFSS exposure-averaged 1D spectra.
+
+    This model differs from the other MultiCombinedSpecModel classes in that
+    it is designed to hold all the spectra in a WFSS observation in a single
+    "flat" table format. Therefore, it contains one spec per spectral order,
+    each of which has a `spec_table` attribute that contains the spectral data
+    and metadata for all sources in the observation.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multicombinedspec.schema"

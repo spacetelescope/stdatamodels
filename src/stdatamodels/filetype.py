@@ -1,54 +1,34 @@
-import os
+from pathlib import Path
 
 
 def check(init):
     """
-    Determine the type of a file and return it as a string
+    Determine the type of a file and return it as a string.
 
     Parameters
     ----------
-
-    init : file path or file object
+    init : str or Path
+        The input file path.
 
     Returns
     -------
-    file_type: a string with the file type ("asdf", "asn", or "fits")
-
+    file_type : str
+        A string representing the file type ("asdf", "asn", or "fits")
     """
-    supported = ("asdf", "fits", "json")
-
     if isinstance(init, str):
-        path, ext = os.path.splitext(init)  # noqa: PTH122
-        ext = ext.strip(".")
+        init = Path(init)
+    if not isinstance(init, Path):
+        raise TypeError(f"Input must be a str or Path, not {type(init)}")
 
-        if not ext:
-            raise ValueError(f"Input file path does not have an extension: {init}")
+    # Could be the file is zipped; consider last 2 suffixes
+    suffixes = init.suffixes[-2:]
+    if not suffixes:
+        raise ValueError(f"Input file path does not have an extension: {init}")
 
-        if ext not in supported:  # Could be the file is zipped; try splitting again
-            path, ext = os.path.splitext(path)  # noqa: PTH122
-            ext = ext.strip(".")
-
-            if ext not in supported:
-                raise ValueError(f"Unrecognized file type for: {init}")
-
-        if ext == "json":  # Assume json input is an association
+    for suffix in suffixes[::-1]:
+        ext = suffix.strip(".")
+        if ext in ["asdf", "fits"]:
+            return ext
+        if ext == "json":
             return "asn"
-
-        return ext
-
-    if hasattr(init, "read") and hasattr(init, "seek"):
-        magic = init.read(5)
-        init.seek(0, 0)
-
-        if not magic or len(magic) < 5:
-            raise ValueError(f"Cannot get file type of {str(init)}")
-
-        if magic == b"#ASDF":
-            return "asdf"
-
-        if magic == b"SIMPL":
-            return "fits"
-
-        return "asn"
-
-    raise ValueError(f"Cannot get file type of {str(init)}")
+    raise ValueError(f"Unrecognized file type for: {init}")

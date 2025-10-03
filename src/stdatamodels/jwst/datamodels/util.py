@@ -1,88 +1,98 @@
-"""
-Various utility functions and data types
-"""
+"""Various utility functions and data types."""
 
-from collections.abc import Sequence
-import sys
-import warnings
-from pathlib import Path
+import io
 import logging
+import warnings
+from collections.abc import Sequence
+from pathlib import Path
 
 import asdf
-
 import numpy as np
+from asdf.tagged import TaggedString
 from astropy.io import fits
-from stdatamodels import filetype
+
+import stdatamodels.jwst.datamodels as dm
+from stdatamodels import filetype, fits_support
+from stdatamodels.exceptions import NoTypeWarning
 from stdatamodels.model_base import _FileReference
 
-
-__all__ = ["open", "NoTypeWarning", "can_broadcast", "to_camelcase", "is_association"]
+__all__ = ["open", "is_association"]
 
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
-class NoTypeWarning(Warning):
-    pass
-
-
-def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
+def open(init=None, guess=True, **kwargs):  # noqa: A001
     """
-    Creates a DataModel from a number of different types
+    Load a data model, list of models, or association from file.
 
     Parameters
     ----------
-    init : shape tuple, file path, file object, astropy.io.fits.HDUList,
-           numpy array, dict, None
-
-        - None: A default data model with no shape
-
-        - shape tuple: Initialize with empty data of the given shape
+    init : shape tuple, file path, astropy.io.fits.HDUList, numpy array, dict, None
 
         - file path: Initialize from the given file (FITS, JSON or ASDF)
 
-        - readable file object: Initialize from the given file object
+        - dict: Dictionary representing an association. The association will be
+          returned as a ModelContainer with the models loaded from the files
+          specified in the association dict.
 
-        - astropy.io.fits.HDUList: Initialize from the given
-          `~astropy.io.fits.HDUList`
+        - list[str]: Initialize from a list of files. The list will be returned as a
+          ModelContainer with the models loaded from the specified files.
 
-        - A numpy array: A new model with the data array initialized
-          to what was passed in.
+        - :class:`JwstDataModel`: Initialize from an existing model. The output model will
+          be a shallow copy of the input model. This is supported for pipeline code convenience,
+          but is not recommended for general use as it may cause unexpected behavior.
 
-        - dict: The object model tree for the data model
+        - None: Deprecated; use the DataModel constructor directly instead.
+          A default data model with no shape.
+
+        - tuple: Deprecated; use the DataModel constructor directly instead.
+          Initialize with empty data of the given shape.
+
+        - np.ndarray: Deprecated; use the DataModel constructor directly instead.
+          Initialize a model with primary array attribute (typically 'data') set to the input array.
+          For 2-D input an ImageModel is created, for 3-D a CubeModel, and for 4-D a QuadModel.
+
+        - :class:`~astropy.io.fits.HDUList`: Deprecated; save the HDUList to file and then call open
+          on the file instead.
+          Initialize from the given HDUList.
 
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
-
-    memmap : bool
-        Turn memmap of file on or off.  (default: False).
-
-    kwargs : dict
+    **kwargs
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
         are general, others are file format-specific.  Arguments of note are:
 
-        - General
-
-           validate_arrays : bool
-             If `True`, arrays will be validated against ndim, max_ndim, and datatype
-             validators in the schemas.
-
-        - FITS
-
-           skip_fits_update :  bool or None
-              DEPRECATED
-              `True` to skip updating the ASDF tree from the FITS headers, if possible.
-              If `None`, value will be taken from the environmental SKIP_FITS_UPDATE.
-              Otherwise, the default value is `True`.
+        - validate_arrays : bool
+          If `True`, arrays will be validated against ndim, max_ndim, and datatype
+          validators in the schemas.
 
     Returns
     -------
-    model : DataModel instance
-    """
+    DataModel
+        A new model instance.
 
-    from . import model_base
+    Warnings
+    --------
+    The ``open`` function is primarily intended for opening files and creating models from them,
+    and is not intended for creating models from scratch.
+    Init types of None, shape tuple, and numpy array
+    are deprecated and will raise a TypeError in the future.
+    Use the DataModel constructors directly instead,
+    i.e. :class:`JwstDataModel` for a generic model
+    or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
+    for specific applications. None, shape tuple, and numpy array are all valid inputs to those
+    constructors. See the documentation for each model class for details on how to use them.
+    """
+    if "memmap" in kwargs:
+        warnings.warn(
+            "Memory mapping is no longer supported; memmap is hard-coded to False "
+            "and the keyword argument no longer has any effect.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        kwargs.pop("memmap")
 
     # Initialize variables used to select model class
 
@@ -94,28 +104,26 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
     # Get special cases for opening a model out of the way
     # all special cases return a model if they match
 
-    if isinstance(init, Path):
-        init = str(init)
-
     if init is None:
-        return model_base.JwstDataModel(None, **kwargs)
+        warnings.warn(
+            "Passing None to open is deprecated; use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return dm.JwstDataModel(None, **kwargs)
 
-    elif isinstance(init, model_base.JwstDataModel):
+    elif isinstance(init, dm.JwstDataModel):
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
-    elif isinstance(init, (str, bytes)) or hasattr(init, "read"):
+    elif isinstance(init, (str, Path)):
         # If given a string, presume its a file path.
-        # if it has a read method, assume a file descriptor
-
-        if isinstance(init, bytes):
-            init = init.decode(sys.getfilesystemencoding())
 
         file_name = Path(init).name
         file_type = filetype.check(init)
 
         if file_type == "fits":
-            hdulist = fits.open(init, memmap=memmap)
+            hdulist = fits.open(init, memmap=False)
             file_to_close = hdulist
 
         elif file_type == "asn":
@@ -130,32 +138,51 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
-            asdffile = asdf.open(init, memmap=memmap)
+            asdffile = asdf.open(init, memmap=False)
 
             # Detect model type, then get defined model, and call it.
             new_class = _class_from_model_type(asdffile)
             if new_class is None:
                 # No model class found, so return generic DataModel.
-                model = model_base.JwstDataModel(asdffile, **kwargs)
+                model = dm.JwstDataModel(asdffile, **kwargs)
                 _handle_missing_model_type(model, file_name)
             else:
                 model = new_class(asdffile, **kwargs)
 
+            model._file_references.append(_FileReference(asdffile))
+
             return model
 
     elif isinstance(init, tuple):
+        warnings.warn(
+            "Passing tuple to open is deprecated; use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         for item in init:
             if not isinstance(item, int):
                 raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
         shape = init
 
     elif isinstance(init, np.ndarray):
+        warnings.warn(
+            "Passing np.ndarray to open is deprecated; "
+            "use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         shape = init.shape
 
     elif isinstance(init, fits.HDUList):
+        warnings.warn(
+            "Passing fits.HDUList to open is deprecated; "
+            "use the DataModel constructor directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         hdulist = init
 
-    elif is_association(init) or isinstance(init, Sequence):
+    elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
@@ -164,6 +191,9 @@ def open(init=None, guess=True, memmap=False, **kwargs):  # noqa: A001
             ) from err
 
         return ModelContainer(init, **kwargs)
+
+    else:
+        raise TypeError(f"Unsupported type for init argument to open {type(init)}")
 
     # If we have it, determine the shape from the science hdu
     if hdulist:
@@ -249,15 +279,17 @@ def _handle_missing_model_type(model, file_name):
 
 def _class_from_model_type(init):
     """
-    Get the model type from the primary header, lookup to get class
+    Get the model type from the primary header, lookup to get class.
 
-    Parameter
-    ---------
-    init: AsdfFile or HDUList
+    Parameters
+    ----------
+    init : AsdfFile or HDUList
+        The input metadata
 
-    Return
-    ------
-    new_class: str or None
+    Returns
+    -------
+    new_class : str or None
+        The class name.
     """
     from . import _defined_models as defined_models
 
@@ -283,7 +315,19 @@ def _class_from_model_type(init):
 
 def _class_from_ramp_type(hdulist, shape):
     """
-    Special check to see if file is ramp file
+    Check to see if file is ramp file.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    RampModel
+        The model class to use
     """
     if not hdulist:
         new_class = None
@@ -305,7 +349,19 @@ def _class_from_ramp_type(hdulist, shape):
 
 def _class_from_reftype(hdulist, shape):
     """
-    Get the class name from the reftype and other header keywords
+    Get the class name from the reftype and other header keywords.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    ReferenceDataModel
+        The model class to use
     """
     if not hdulist:
         new_class = None
@@ -335,7 +391,19 @@ def _class_from_reftype(hdulist, shape):
 
 def _class_from_shape(hdulist, shape):
     """
-    Get the class name from the shape
+    Get the class name from the shape.
+
+    Parameters
+    ----------
+    hdulist : HDUList
+        The HDUList object
+    shape : tuple
+        The shape of the data
+
+    Returns
+    -------
+    DataModel
+        The model class to use
     """
     if len(shape) == 0:
         from . import model_base
@@ -368,29 +436,201 @@ def _class_from_shape(hdulist, shape):
     return new_class
 
 
-def can_broadcast(a, b):
-    """
-    Given two shapes, returns True if they are broadcastable.
-    """
-    for i in range(1, min(len(a), len(b)) + 1):
-        adim = a[-i]
-        bdim = b[-i]
-
-        if not (adim == 1 or bdim == 1 or adim == bdim):
-            return False
-
-    return True
-
-
-def to_camelcase(token):
-    return "".join(x.capitalize() for x in token.split("_-"))
-
-
 def is_association(asn_data):
     """
-    Test if an object is an association by checking for required fields
+    Test if an object is an association by checking for required fields.
+
+    Parameters
+    ----------
+    asn_data : object
+        The object to test
+
+    Returns
+    -------
+    bool
+        True if `asn_data` is an association
     """
     if isinstance(asn_data, dict):
         if "asn_id" in asn_data and "asn_pool" in asn_data:
             return True
     return False
+
+
+def _convert_tagged_strings(tree):
+    """Convert TaggedString to string for all values of nested dict."""
+
+    def recurse(tree):
+        for key, val in tree.items():
+            if key == "wcs":
+                # Skip the WCS object because it is recursive
+                continue
+            if isinstance(val, TaggedString):
+                tree[key] = str(val)
+            elif isinstance(val, dict):
+                recurse(val)
+
+    recurse(tree)
+
+
+def _to_flat_dict(tree):
+    """
+    Convert a tree to a flat dictionary.
+
+    Lists are converted to dictionaries with keys equal to their indices as strings.
+    For example, a MultiSlitModel with two slits slits will have the attributes::
+
+        "slits.0.name", "slits.1.name", etc.
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree to flatten
+
+    Returns
+    -------
+    dict
+        The flattened dictionary
+    """
+    flat_dict = {}
+
+    def recurse(subtree, path):
+        if isinstance(subtree, dict):
+            for key, val in subtree.items():
+                if key == "wcs":
+                    # Skip the WCS object because it is recursive
+                    continue
+                current_path = path + [key]
+                recurse(val, current_path)
+        elif isinstance(subtree, (list, tuple)):
+            for i, item in enumerate(subtree):
+                indexed_key = f"{path[-1]}.{i}" if path else str(i)
+                recurse(item, path[:-1] + [indexed_key])
+        else:
+            flat_dict[".".join(path)] = subtree
+
+    recurse(tree, [])
+    return flat_dict
+
+
+def _retrieve_schema(model_type):
+    """Load schema for the input model type."""  # numpydoc ignore=RT01
+    try:
+        schema_url = getattr(dm, model_type).schema_url
+    except AttributeError:
+        raise ValueError(f"Model type {model_type} not found.") from None
+    return asdf.schema.load_schema(schema_url, resolve_references=True)
+
+
+def read_metadata(fname, model_type=None, flatten=True):
+    """
+    Load a metadata tree from a file without loading the entire datamodel into memory.
+
+    The metadata dictionary will be returned in a flat format by default,
+    such that each key is a dot-separated name. For example, the schema element
+    `meta.observation.date` will end up in the result as::
+
+        ("meta.observation.date": "2012-04-22T03:22:05.432")
+
+    If `flatten` is set to False, the metadata will be returned as a nested
+    dictionary, with the keys being the schema elements.
+
+    For FITS files, the output dictionary contains all metadata attributes
+    that are present in the FITS header and mapped to a schema element, as well
+    as any extra attributes that are present in the ASDF extension of the FITS file.
+    (If a header keyword is not mapped to a schema element, it will not be included.)
+
+    For ASDF files, the output dictionary simply contains the entire ASDF tree.
+
+    WCS objects are not loaded, as they can be recursive and can be large.
+
+    .. warning::
+
+        This function entirely bypasses schema validation. Although validation
+        is done when saving a datamodel to file, if a model is modified and then
+        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        the schema will not be validated and invalid data could be loaded here.
+
+    Parameters
+    ----------
+    fname : str or Path
+        Path to a JWSTDataModel file.
+    model_type : str, optional
+        The model type used to figure out which schema to load. If not provided,
+        the model type will be determined from the file's header information
+        ("DATAMODL" keyword for FITS files). Has no effect for ASDF input.
+    flatten : bool, optional
+        If True, the metadata will be returned as a flat dictionary. If False,
+        the metadata will be returned as a nested dictionary. Default is True.
+
+    Returns
+    -------
+    dict
+        The metadata tree.
+    """
+    if not isinstance(fname, (Path, str)):
+        raise TypeError("Input must be a file path.")
+
+    ext = filetype.check(str(fname))
+    if ext == "fits":
+        with fits.open(fname) as hdulist:
+            bs = io.BytesIO(hdulist["ASDF"].data.tobytes())
+            tree = asdf.util.load_yaml(bs)
+            if model_type is None:
+                model_type = hdulist[0].header["DATAMODL"]
+            schema = _retrieve_schema(model_type)
+
+            # hack to turn off validation without needing an entire datamodel object
+            class PlaceholderCtx:
+                def __init__(self):
+                    self._validate_on_assignment = False
+
+            context = PlaceholderCtx()
+
+            fits_support._load_from_schema(
+                hdulist,
+                schema,
+                tree,
+                context,
+                skip_fits_update=False,
+                ignore_arrays=True,
+                keep_unknown=False,
+            )
+
+    elif ext == "asdf":
+        tree = asdf.util.load_yaml(fname, tagged=True)
+        _convert_tagged_strings(tree)
+
+    else:
+        raise ValueError(f"File type {ext} not supported. Must be FITS or ASDF.")
+
+    # custom handling of cal_logs object to ensure it ends up as a single string
+    _convert_cal_logs_to_string(tree)
+
+    if flatten:
+        return _to_flat_dict(tree)
+    return tree
+
+
+def _convert_cal_logs_to_string(tree):
+    """
+    Convert cal_logs dictionary into a single string.
+
+    Output format looks similar to what was originally printed to the logs,
+    e.g. a newline-separated log
+
+    Parameters
+    ----------
+    tree : dict
+        The input tree containing the cal_logs dictionary
+    """
+    if "cal_logs" not in tree.keys():
+        return
+
+    cal_str = ""
+    for _key, val in tree["cal_logs"].items():
+        if isinstance(val, dict):
+            val = "\n".join([f"{k}: {v}" for k, v in val.items()])
+        elif isinstance(val, list):
+            val = "\n".join([str(v) for v in val])
+        cal_str += f"{val}\n"
+    tree["cal_logs"] = cal_str

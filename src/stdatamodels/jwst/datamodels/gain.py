@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["GainModel"]
 
 
@@ -8,8 +7,8 @@ class GainModel(ReferenceFileModel):
     """
     A data model for 2D gain.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The gain
     """

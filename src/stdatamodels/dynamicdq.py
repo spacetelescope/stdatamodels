@@ -1,10 +1,8 @@
-import numpy as np
-
 import logging
 
+import numpy as np
+
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.NullHandler())
 
 
 def dynamic_mask(input_model, mnemonic_map, inv=False):
@@ -17,10 +15,8 @@ def dynamic_mask(input_model, mnemonic_map, inv=False):
     ----------
     input_model : ``MaskModel``
         An instance of a Mask model defined in jwst or romancal.
-
     mnemonic_map : dict
         Dictionary of flag names and values.
-
     inv : bool
         If true, compress using the dq_def.  If false, decompress
         using the dq_def.
@@ -30,7 +26,6 @@ def dynamic_mask(input_model, mnemonic_map, inv=False):
     dqmask : ndarray
         A Numpy array
     """
-
     dq_table = input_model.dq_def
     # Get the DQ array and the flag definitions
     if (

@@ -1,16 +1,16 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["SIRSKernelModel"]
 
 
 class SIRSKernelModel(ReferenceFileModel):
     """
-    A data model for the NIR Optimized Convolution Kernel Fourier Coefficients,
-    also called Simple Improved Reference Subtraction (SIRS).
+    A data model for the NIR Optimized Convolution Kernel Fourier Coefficients.
 
-    Parameters
-    __________
+    Also called Simple Improved Reference Subtraction (SIRS).
+
+    Attributes
+    ----------
     data : numpy table
         The reference waves to correct for 1/f at the REFPIX step for NIR data.
         A table-like object containing the Fourier Coefficients for the
@@ -26,8 +26,8 @@ class SIRSKernelModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(SIRSKernelModel, self).__init__(init=init, **kwargs)
 
-    def on_save(self, path=None):
+    def on_save(self, path=None):  # noqa: D102
         self.meta.reftype = self.reftype
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         super(SIRSKernelModel, self).validate()

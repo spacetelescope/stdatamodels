@@ -1,7 +1,7 @@
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = ["LinearityModel"]
 
@@ -10,14 +10,12 @@ class LinearityModel(ReferenceFileModel):
     """
     A data model for linearity correction information.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     coeffs : numpy float32 array
          Linearity coefficients
-
     dq : numpy uint32 array
          Data quality flags
-
     dq_def : numpy table
          DQ flag definitions
     """
@@ -32,11 +30,5 @@ class LinearityModel(ReferenceFileModel):
         # Implicitly create arrays
         self.dq = self.dq
 
-    def get_primary_array_name(self):
-        """
-        Returns the name "primary" array for this model, which
-        controls the size of other arrays that are implicitly created.
-        This is intended to be overridden in the subclasses if the
-        primary array's name is not "data".
-        """
+    def get_primary_array_name(self):  # noqa: D102
         return "coeffs"

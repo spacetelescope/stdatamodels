@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["EmiModel"]
 
 
@@ -8,8 +7,8 @@ class EmiModel(ReferenceFileModel):
     """
     A data model to correct MIRI images for EMI contamination.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy table
         The reference waves to correct for MIRI EMI.
         A table-like object containing phase amplitude values
@@ -28,9 +27,9 @@ class EmiModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(EmiModel, self).__init__(init=init, **kwargs)
 
-    def on_save(self, path=None):
+    def on_save(self, path=None):  # noqa: D102
         self.meta.reftype = self.reftype
         self.meta.instrument.name = "MIRI"
 
-    def validate(self):
+    def validate(self):  # noqa: D102
         super(EmiModel, self).validate()

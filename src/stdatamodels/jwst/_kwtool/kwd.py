@@ -1,5 +1,6 @@
 """
 Since these aren't jsonschemas the usual tools won't work.
+
 - Start with a "top" schema
 - Traverse (keeping track of path, ignore combiners, properties, etc)
 - When we hit 'fits_keyword'...
@@ -9,9 +10,8 @@ Since these aren't jsonschemas the usual tools won't work.
 This follows the behavior of ``keyword_dict.py`` used by SDP, archive, etc.
 """
 
-from pathlib import Path
 import json
-
+from pathlib import Path
 
 __all__ = ["load"]
 

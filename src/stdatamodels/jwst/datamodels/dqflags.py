@@ -1,12 +1,9 @@
-"""JWST Data Quality Flags
+"""
+JWST Data Quality Flags.
 
 The definitions are documented in the JWST RTD:
 
 https://jwst-pipeline.readthedocs.io/en/latest/jwst/references_general/references_general.html#data-quality-flags
-
-
-Implementation
--------------
 
 The flags are implemented as "bit flags": Each flag is assigned a bit position
 in a byte, or multi-byte word, of memory. If that bit is set, the flag assigned
@@ -19,8 +16,9 @@ the formula `2**bit_number` where `bit_number` is the 0-index bit of interest.
 
 # These imports are here for backwards compatibility
 from astropy.nddata.bitmask import interpret_bit_flags as ap_interpret_bit_flags
-from stdatamodels.dqflags import interpret_bit_flags, dqflags_to_mnemonics
+
 from stdatamodels.basic_utils import multiple_replace
+from stdatamodels.dqflags import dqflags_to_mnemonics, interpret_bit_flags
 
 # Pixel-specific flags
 pixel = {
@@ -33,7 +31,7 @@ pixel = {
     "PERSISTENCE": 2**5,  # High persistence (was RESERVED_2)
     "AD_FLOOR": 2**6,  # Below A/D floor (0 DN, was RESERVED_3)
     "CHARGELOSS": 2**7,  # Charge migration (was RESERVED_4)
-    "UNRELIABLE_ERROR": 2**8,  # Uncertainty exceeds quoted error
+    "RESERVED": 2**8,  # Reserved for future use; unused
     "NON_SCIENCE": 2**9,  # Pixel not on science portion of detector
     "DEAD": 2**10,  # Dead pixel
     "HOT": 2**11,  # Hot pixel

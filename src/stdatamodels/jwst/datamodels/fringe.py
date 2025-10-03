@@ -1,7 +1,7 @@
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
 from .reference import ReferenceFileModel
-
 
 __all__ = ["FringeModel"]
 
@@ -10,17 +10,14 @@ class FringeModel(ReferenceFileModel):
     """
     A data model for 2D fringe correction images.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          The science data
-
     dq : numpy uint32 array
          Data quality array
-
     err : numpy float32 array
          Error array
-
     dq_def : numpy table
          DQ flag definitions
     """

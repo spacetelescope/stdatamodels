@@ -87,6 +87,33 @@ equivalent::
     print(model['meta.observation.date'])
     print(model.meta.observation.date)
 
+Reading Metadata Only
+---------------------
+
+The ``datamodels.open`` method loads the entire file into memory and validates it against
+its schema. While this is a good thing in most cases, there are times when read-only
+access to metadata is useful.
+To access the metadata without loading the entire file, use the
+``datamodels.read_metadata`` method.  For example, to access the ``s_region``, use
+the following code::
+
+.. doctest-skip::
+
+    >>> from stdatamodels.jwst.datamodels import read_metadata
+    >>> meta = read_metadata("myfile.fits")
+    >>> print(meta["meta.wcsinfo.s_region"])
+
+Notice that the metadata is returned as a flat dictionary by default.
+The keys are the dot-separated names of the metadata elements, and
+the values are the corresponding values in the file. A nested dictionary
+will be returned instead if the ``flatten`` keyword argument is set to False.
+
+.. warning::
+  
+  This method bypasses schema validation, so use it with caution.
+  It also only returns metadata that is mapped to FITS keywords,
+  so some useful items (e.g. ``meta.wcs``) will be missing.
+
 Working with lists
 ==================
 
@@ -146,7 +173,7 @@ In addition to the standard JSON Schema keywords, ``jwst.datamodels``
 also supports the following additional keywords.
 
 Arrays
-''''''
+------
 
 The following keywords have to do with validating n-dimensional arrays:
 
@@ -184,7 +211,7 @@ since this would make files less portable).
     or a list of integers.
 
 FITS-specific Schema Attributes
-'''''''''''''''''''''''''''''''
+-------------------------------
 
 `jwst.datamodels` also adds some new keys to the schema language in
 order to handle reading and writing FITS files.  These attributes all

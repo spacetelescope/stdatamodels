@@ -1,0 +1,103 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/specwcs_miri_lrs.schema"
+title: MIRI LRS Fixed Slit Specwcs Schema
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_pexptype.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_filter.schema
+- $ref: subarray.schema
+- type: object
+  properties:
+    wavetable:
+      title: Wavelengths and x, y locations of wavelengths
+      fits_hdu: WAVETABLE
+      datatype:
+      - name: x_center
+        datatype: float64
+        title: "[pixels] x location of the center of a given wavelength element"
+      - name: y_center
+        datatype: float64
+        title: "[pixels] y location of the center of a given wavelength element"
+      - name: wavelength
+        datatype: float64
+        title: "[microns] central wavelength of the wavelength element at x_center, y_center"
+      - name: x0
+        datatype: float64
+        title: "[pixels] x location of the upper left corner of a given wavelength element"
+      - name: y0
+        datatype: float64
+        title: "[pixels] y location of the upper left corner of a given wavelength element"
+      - name: x1
+        datatype: float64
+        title: "[pixels] x location of the upper right corner of a given wavelength element"
+      - name: y1
+        datatype: float64
+        title: "[pixels] y location of the upper right corner of a given wavelength element"
+      - name: x2
+        datatype: float64
+        title: "[pixels] x location of the lower right corner of a given wavelength element"
+      - name: y2
+        datatype: float64
+        title: "[pixels] y location of the lower right corner of a given wavelength element"
+      - name: x3
+        datatype: float64
+        title: "[pixels] x location of the lower left corner of a given wavelength element"
+      - name: y3
+        datatype: float64
+        title: "[pixels] y location of the lower left corner of a given wavelength element"
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        x_ref:
+          type: number
+          title: "[pixels] x coord of ref position of MIRIM_SLIT"
+          fits_keyword: IMX
+        y_ref:
+          type: number
+          title: "[pixels] y coord of ref position of MIRIM_SLIT"
+          fits_keyword: IMY
+        x_ref_slitless:
+          type: number
+          title: "[pixels] x coord of ref position of MIRIM_SLITLESS"
+          fits_keyword: IMXSLTL
+        y_ref_slitless:
+          type: number
+          title: "[pixels] y coord of ref position of MIRIM_SLITLESS"
+          fits_keyword: IMYSLTL
+        v2_vert1:
+          type: number
+          title: Slit vertex 1 in V2 frame
+          fits_keyword: V2VERT1
+        v2_vert2:
+          type: number
+          title: Slit vertex 2 in V2 frame
+          fits_keyword: V2VERT2
+        v2_vert3:
+          type: number
+          title: Slit vertex 3 in V2 frame
+          fits_keyword: V2VERT3
+        v2_vert4:
+          type: number
+          title: Slit vertex 4 in V2 frame
+          fits_keyword: V2VERT4
+        v3_vert1:
+          type: number
+          title: Slit vertex 1 in V3 frame
+          fits_keyword: V3VERT1
+        v3_vert2:
+          type: number
+          title: Slit vertex 2 in V3 frame
+          fits_keyword: V3VERT2
+        v3_vert3:
+          type: number
+          title: Slit vertex 3 in V3 frame
+          fits_keyword: V3VERT3
+        v3_vert4:
+          type: number
+          title: Slit vertex 4 in V3 frame
+          fits_keyword: V3VERT4

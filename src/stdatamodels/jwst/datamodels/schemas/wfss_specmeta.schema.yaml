@@ -1,0 +1,41 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wfss_specmeta.schema"
+type: object
+properties:
+  filename:
+    title: Filename
+    type: string
+    fits_keyword: FILENAME
+    fits_hdu: EXTRACT1D
+  group_id:
+    title: Exposure group ID
+    type: string
+    fits_keyword: EXPGRPID
+    fits_hdu: EXTRACT1D
+  dispersion_direction:
+    title: Dispersion direction
+    type: integer
+    fits_keyword: DISPAXIS
+    fits_hdu: EXTRACT1D
+  spectral_order:
+    title: Spectral order
+    type: integer
+    fits_keyword: SPORDER
+    fits_hdu: EXTRACT1D
+  exposure_time:
+    title: Exposure time
+    type: number
+    fits_keyword: EFFEXPTM
+    fits_hdu: EXTRACT1D
+  integration_time:
+    title: Integration time
+    type: number
+    fits_keyword: EFFINTTM
+    fits_hdu: EXTRACT1D
+  s_region:
+    title: Footprint of direct image(s) matched to grism observations
+    type: string
+    fits_keyword: S_REGION
+    fits_hdu: EXTRACT1D

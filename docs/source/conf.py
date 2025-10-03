@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 # Modules that automodapi will document need to be available
 # in the path:
-sys.path.insert(0, str(REPO_ROOT/"src"/"stdatamodels"))
+sys.path.insert(0, str(REPO_ROOT/"src"))
 
 with open(REPO_ROOT / "pyproject.toml", 'rb') as configuration_file:
     setup_metadata = tomllib.load(configuration_file)['project']
@@ -27,8 +27,15 @@ extensions = [
     "sphinx_automodapi.automodapi",
     "sphinxcontrib.jquery",
     "numpydoc",
-    'sphinx_asdf',
+    "sphinx_asdf",
+    "sphinx.ext.intersphinx",
 ]
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "astropy": ("https://docs.astropy.org/en/stable/", None),
+    "asdf": ("https://asdf.readthedocs.io/en/stable/", None),
+}
 
 autosummary_generate = True
 numpydoc_show_class_members = False
@@ -43,3 +50,21 @@ html_theme_options = {
 html_domain_indices = True
 html_sidebars = {"**": ["globaltoc.html", "relations.html", "searchbox.html"]}
 html_use_index = True
+
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "stdatamodels.jwst.datamodels.wcs_ref_models._SimpleModel"),
+    ("py:class", "jwst.datamodels.wcs_ref_models._SimpleModel"),
+    ("py:class", "stdatamodels.jwst.datamodels.photom._PhotomModel"),
+    ("py:class", "jwst.datamodels.photom._PhotomModel"),
+    ("py:class", "stdatamodels.properties.ObjectNode"),
+    ("py:class", "stdatamodels.properties.Node"),
+]
+for transform_base in [
+    "_NIRCAMForwardGrismDispersion",
+    "_NIRISSForwardGrismDispersion",
+    "_ForwardGrismDispersionBase",
+    "_BackwardGrismDispersionBase",
+    "_GrismDispersionBase"
+]:
+    nitpick_ignore.append(("py:class", f"stdatamodels.jwst.transforms.models.{transform_base}"))

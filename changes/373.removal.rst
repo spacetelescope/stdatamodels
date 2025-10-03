@@ -1,1 +1,0 @@
-Remove deprecated schema_editor

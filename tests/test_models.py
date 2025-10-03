@@ -1,18 +1,16 @@
 import gc
 
 import asdf
-import pytest
 import numpy as np
+import pytest
+from models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 from stdatamodels import DataModel
-
-from models import BasicModel, AnyOfModel, TableModel, TransformModel, FitsModel
-from stdatamodels.validate import ValidationWarning
+from stdatamodels.exceptions import ValidationWarning
 
 
 def test_init_from_pathlib(tmp_path):
     """Test initializing model from a PurePath object"""
-
     file_path = tmp_path / "test.asdf"
     with asdf.AsdfFile() as af:
         af["meta"] = {"telescope": "crystal ball"}
@@ -165,6 +163,28 @@ def test_default_value_anyof_schema():
     """Make sure default values are set properly when anyOf in schema"""
     with AnyOfModel() as dm:
         assert dm.meta.foo is None
+
+
+def test_multivalued_default_table_schema():
+    """Test setting list-like default values in a table schema"""
+    with TableModel((10,)) as dm:
+        defaults = dm.schema["properties"]["table"]["default"]
+        columns = [col["name"] for col in dm.schema["properties"]["table"]["datatype"]]
+        for default, name in zip(defaults, columns, strict=False):
+            if default == "NaN":
+                default = np.nan
+            elif isinstance(default, str):
+                # allclose has trouble with string comparisons
+                for elem in dm.table[name]:
+                    assert elem.decode("utf-8") == default
+                continue
+            assert np.allclose(dm.table[name], default, equal_nan=True)
+
+
+def test_multivalued_default_table_schema_bad():
+    """Test error raise if the default does not match the array type"""
+    with pytest.raises(ValueError):
+        TableModelBad((10,))
 
 
 def test_secondary_shapes():
@@ -351,3 +371,53 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             # many models which would indicate they are difficult to garbage
             # collect.
             assert len(mids) < 2
+
+
+def test_read_deprecation(tmp_path):
+    fn = tmp_path / "test.fits"
+    m = DataModel()
+    m.save(fn)
+    with pytest.warns(DeprecationWarning, match="read is deprecated"):
+        m.read(fn)
+
+
+def test_write_deprecation(tmp_path):
+    fn = tmp_path / "test.fits"
+    m = DataModel()
+    with pytest.warns(DeprecationWarning, match="write is deprecated"):
+        m.write(fn)
+
+
+def test_open_asdf_deprecation():
+    with pytest.warns(DeprecationWarning, match="open_asdf is deprecated"):
+        DataModel.open_asdf(None)
+
+
+def test_from_fits_deprecation():
+    with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
+        DataModel.from_fits({})
+
+
+def test_from_asdf_deprecation():
+    with pytest.warns(DeprecationWarning, match="from_asdf is deprecated"):
+        DataModel.from_asdf({})
+
+
+def test_memmap_deprecation():
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        DataModel(memmap=True)
+
+
+def test_open_from_file_with_kwargs_deprecation(tmp_path):
+    """
+    Test that combining init types is not allowed.
+
+    Passing keyword arguments to the open method, which are assumed to initialize data arrays,
+    raises a deprecation warning if the input type is file-like.
+    """
+    fn = tmp_path / "test.asdf"
+    m = DataModel()
+    m.save(fn)
+
+    with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
+        DataModel(fn, data=np.ones((10, 10)))

@@ -34,3 +34,63 @@ allOf:
       - name: reluncertainty
         datatype: float32
         ndim: 1
+- type: object
+  properties:
+    timecoeff_linear:
+      title: Linear time dependence coefficients for photometric corrections
+      fits_hdu: TIMECOEFF_LINEAR
+      datatype:
+      - name: filter
+        datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]
+      - name: t0
+        datatype: float32
+        description: Reference day in MJD
+      - name: lossperyear
+        datatype: float32
+        description: Fractional loss of throughput per year (linear slope)
+- type: object
+  properties:
+    timecoeff_exponential:
+      title: Exponential time dependence coefficients for photometric corrections
+      fits_hdu: TIMECOEFF_EXPONENTIAL
+      datatype:
+      - name: filter
+        datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]
+      - name: t0
+        datatype: float32
+        description: Reference day in MJD
+      - name: amplitude
+        datatype: float32
+        description: Exponential amplitude
+      - name: tau
+        datatype: float32
+        description: E-folding time constant
+      - name: const
+        datatype: float32
+        description: Long-term exponential asymptote
+- type: object
+  properties:
+    timecoeff_powerlaw:
+      title: Time dependence coefficients for photometric corrections
+      fits_hdu: TIMECOEFF_POWERLAW
+      datatype:
+      - name: filter
+        datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]
+      - name: t0
+        datatype: float32
+        description: Reference day in MJD
+      - name: year1value
+        datatype: float32
+        description: Relative throughput 1 year after t0
+      - name: tsoft
+        datatype: float32
+        description: Softening parameter for power law decline
+      - name: alpha
+        datatype: float32
+        description: Power law loss coefficient

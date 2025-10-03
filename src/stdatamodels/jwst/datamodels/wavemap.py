@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["WaveMapModel", "WaveMapSingleModel"]
 
 
@@ -23,11 +22,10 @@ class WaveMapModel(ReferenceFileModel):
     the first element of `map`.  `WaveMapSingleModel` objects can be appended
     to the `map` attribute by using its `append` method.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     map.items.data : numpy data array
          Wavelength map data
-
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wavemap.schema"
@@ -46,8 +44,8 @@ class WaveMapSingleModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS wavelength map data.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Wavelength values
     """

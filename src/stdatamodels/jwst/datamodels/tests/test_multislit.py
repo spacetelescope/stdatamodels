@@ -1,11 +1,11 @@
+import numpy as np
+import pytest
+from asdf.exceptions import ValidationError
 from astropy.io import fits
 from astropy.time import Time
-from asdf.exceptions import ValidationError
-import numpy as np
 from numpy.testing import assert_array_equal
-import pytest
 
-from stdatamodels.jwst.datamodels import MultiSlitModel, ImageModel, SlitModel
+from stdatamodels.jwst.datamodels import ImageModel, MultiSlitModel, SlitModel
 
 
 def test_multislit_model():
@@ -115,7 +115,7 @@ def test_multislit_copy(tmp_path):
     path = tmp_path / "multislit.fits"
     with MultiSlitModel() as input_file:
         for _ in range(4):
-            input_file.slits.append(input_file.slits.item(data=np.empty((50, 50))))
+            input_file.slits.append(input_file.slits.item(data=np.empty((50, 50), dtype="float32")))
 
         assert len(input_file.slits) == 4
         input_file.save(path)

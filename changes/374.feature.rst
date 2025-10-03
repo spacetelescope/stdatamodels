@@ -1,1 +1,0 @@
-Added channel keyword to MIRI LRS and imaging apcorr schemas

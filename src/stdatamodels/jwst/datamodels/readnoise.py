@@ -1,6 +1,5 @@
 from .reference import ReferenceFileModel
 
-
 __all__ = ["ReadnoiseModel"]
 
 
@@ -8,8 +7,8 @@ class ReadnoiseModel(ReferenceFileModel):
     """
     A data model for 2D readnoise.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     data : numpy float32 array
          Read noise
     """

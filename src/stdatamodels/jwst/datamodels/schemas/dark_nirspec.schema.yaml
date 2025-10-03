@@ -1,0 +1,59 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/dark_nirspec.schema"
+title: NIRSpec Dark current data model
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_readpatt.schema
+- $ref: keyword_preadpatt.schema
+- $ref: keyword_noutputs.schema
+- $ref: keyword_nframes.schema
+- $ref: keyword_ngroups.schema
+- $ref: keyword_groupgap.schema
+- $ref: keyword_gainfact.schema
+- $ref: keyword_psubarray.schema
+- $ref: keyword_darkcurrent.schema
+- $ref: keyword_grating.schema
+- $ref: keyword_pgrating.schema
+- $ref: subarray.schema
+- type: object
+  properties:
+    data:
+      title: Dark current array
+      fits_hdu: SCI
+      default: 0.0
+      ndim: 3
+      datatype: float32
+    dq:
+      title: 2-D data quality array for all planes
+      fits_hdu: DQ
+      default: 0
+      ndim: 2
+      datatype: uint32
+    err:
+      title: Error array
+      fits_hdu: ERR
+      default: 0.0
+      ndim: 3
+      datatype: float32
+    average_dark_current:
+      title: Average dark current
+      fits_hdu: AVDRKCUR
+      default: 0.0
+      ndim: 2
+      datatype: float32
+    dark_rate:
+      title: Dark rate array
+      fits_hdu: DRK
+      default: 0.0
+      ndim: 2
+      datatype: float32
+    dark_rate_unc:
+      title: Dark rate uncertainity array
+      fits_hdu: UNC
+      default: 0.0
+      ndim: 2
+      datatype: float32
+- $ref: dq_def.schema

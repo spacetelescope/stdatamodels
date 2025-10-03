@@ -48,7 +48,7 @@ allOf:
               fits_keyword: INSMODE
             derived:
               type: object
-              required: [array, content, object, observer, t3, target, vis, vis2, wavelength]
+              required: [array, content, object, observer, t3, target, vis, vis2, q4, wavelength]
               properties:
                 array:
                   type: object
@@ -172,6 +172,30 @@ allOf:
                       type: integer
                       fits_keyword: OI_REVN
                       fits_hdu: OI_VIS2
+                q4:
+                  type: object
+                  required: [array_name, date_obs, instrument_name, revn]
+                  properties:
+                    array_name:
+                      title: Array name
+                      type: string
+                      fits_keyword: ARRNAME
+                      fits_hdu: OI_Q4
+                    date_obs:
+                      title: Datetime of observation
+                      type: string
+                      fits_keyword: DATE-OBS
+                      fits_hdu: OI_Q4
+                    instrument_name:
+                      title: Instrument name
+                      type: string
+                      fits_keyword: INSNAME
+                      fits_hdu: OI_Q4
+                    revn:
+                      title: Revision number
+                      type: integer
+                      fits_keyword: OI_REVN
+                      fits_hdu: OI_Q4
                 wavelength:
                   type: object
                   required: [instrument_name, revn]
@@ -341,6 +365,44 @@ allOf:
         shape: [2]
       - name: FLAG
         datatype: int8
+    q4:
+      title: OIFITS OI_Q4 table
+      fits_hdu: OI_Q4
+      allow_extra_columns: true
+      datatype:
+      - name: TARGET_ID
+        datatype: int16
+      - name: TIME
+        datatype: float64
+      - name: MJD
+        datatype: float64
+      - name: INT_TIME
+        datatype: float64
+      - name: Q4AMP
+        datatype: float64
+      - name: Q4AMPERR
+        datatype: float64
+      - name: Q4PHI
+        datatype: float64
+      - name: Q4PHIERR
+        datatype: float64
+      - name: U1COORD
+        datatype: float64
+      - name: V1COORD
+        datatype: float64
+      - name: U2COORD
+        datatype: float64
+      - name: V2COORD
+        datatype: float64
+      - name: U3COORD
+        datatype: float64
+      - name: V3COORD
+        datatype: float64
+      - name: STA_INDEX
+        datatype: int16
+        shape: [4]
+      - name: FLAG
+        datatype: int8
     wavelength:
       title: OIFITS OI_WAVELENGTH table
       fits_hdu: OI_WAVELENGTH
@@ -357,3 +419,5 @@ allOf:
     required: [vis2]
   - type: object
     required: [t3]
+  - type: object
+    required: [q4]

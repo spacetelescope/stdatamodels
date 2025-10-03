@@ -1,6 +1,7 @@
-from .reference import ReferenceFileModel
 from stdatamodels.dynamicdq import dynamic_mask
+
 from .dqflags import pixel
+from .reference import ReferenceFileModel
 
 __all__ = ["MaskModel"]
 
@@ -9,11 +10,10 @@ class MaskModel(ReferenceFileModel):
     """
     A data model for 2D masks.
 
-    Parameters
-    __________
+    Attributes
+    ----------
     dq : numpy uint32 array
          The mask
-
     dq_def : numpy table
          DQ flag definitions
     """
@@ -29,11 +29,5 @@ class MaskModel(ReferenceFileModel):
         # Implicitly create arrays
         self.dq = self.dq
 
-    def get_primary_array_name(self):
-        """
-        Returns the name "primary" array for this model, which
-        controls the size of other arrays that are implicitly created.
-        This is intended to be overridden in the subclasses if the
-        primary array's name is not "data".
-        """
+    def get_primary_array_name(self):  # noqa: D102
         return "dq"

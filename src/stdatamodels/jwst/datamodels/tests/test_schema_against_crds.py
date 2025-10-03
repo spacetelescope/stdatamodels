@@ -1,12 +1,13 @@
-import os
 import logging
-from collections.abc import Iterable
+import os
 import warnings
+from collections.abc import Iterable
 from pathlib import Path
 
 import asdf
 import pytest
 
+from stdatamodels.exceptions import NoTypeWarning
 from stdatamodels.jwst import datamodels as dm
 
 os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
@@ -16,7 +17,6 @@ os.environ["CRDS_SERVER_URL"] = "https://jwst-crds.stsci.edu"
 import crds  # noqa: E402
 from crds.client.api import cache_references, dump_files  # noqa: E402
 from crds.core.exceptions import IrrelevantReferenceTypeError  # noqa: E402
-
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +62,12 @@ area_model_map = {
     "NRS_FIXEDSLIT": dm.NirspecSlitAreaModel,
     "NRS_IFU": dm.NirspecIfuAreaModel,
     "other": dm.PixelAreaModel,
+}
+
+bkg_model_map = {
+    "NRC_WFSS": dm.WfssBkgModel,
+    "NIS_WFSS": dm.WfssBkgModel,
+    "NIS_SOSS": dm.SossBkgModel,
 }
 
 cubepar_model_map = {
@@ -111,15 +117,26 @@ resol_model_map = {
     "other": dm.ResolutionModel,
 }
 
+specwcs_model_map = {
+    "MIR_LRS-FIXEDSLIT": dm.MiriLRSSpecwcsModel,
+    "MIR_LRS-SLITLESS": dm.MiriLRSSpecwcsModel,
+    "NRC_WFSS": dm.NIRCAMGrismModel,
+    "NIS_WFSS": dm.NIRISSGrismModel,
+    "MIR_WFSS": dm.MiriWFSSSpecwcsModel,
+    "other": dm.SpecwcsModel,
+}
+
 ref_to_multiples_dict = {
     "apcorr": apcorr_model_map,
     "area": area_model_map,
+    "bkg": bkg_model_map,
     "cubepar": cubepar_model_map,
     "distortion": distortion_model_map,
     "flat": flat_model_map,
     "pathloss": pathloss_model_map,
     "photom": photom_model_map,
     "resol": resol_model_map,
+    "specwcs": specwcs_model_map,
 }
 
 ref_to_datamodel_dict = {
@@ -167,7 +184,6 @@ ref_to_datamodel_dict = {
     "speckernel": dm.SpecKernelModel,
     "specprofile": dm.SpecProfileModel,
     "spectrace": dm.SpecTraceModel,
-    "specwcs": dm.SpecwcsModel,
     "straymask": dm.StrayLightModel,
     "superbias": dm.SuperBiasModel,
     "throughput": dm.ThroughputModel,
@@ -183,7 +199,7 @@ ref_to_datamodel_dict = {
 
 
 @pytest.mark.skipif(
-    "config.getoption('--no-crds')",
+    "config.getoption('--no-crds', True)",
     reason="no_crds option was enabled",
 )
 @pytest.mark.parametrize("instrument", ["fgs", "miri", "nircam", "niriss", "nirspec"])
@@ -218,7 +234,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     if reftype in ref_to_multiples_dict.keys():
                         model_map = ref_to_multiples_dict[reftype]
                         with warnings.catch_warnings():
-                            warnings.simplefilter("ignore", dm.util.NoTypeWarning)
+                            warnings.simplefilter("ignore", NoTypeWarning)
                             refs = cache_references(context, {reftype: f})
                             if Path(refs[reftype]).name == "jwst_fgs_distortion_0003.asdf":
                                 # jwst_fgs_distortion_0003.asdf contains an invalid set of ASDF
@@ -227,6 +243,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                                 warnings.simplefilter(
                                     "ignore", asdf.exceptions.AsdfConversionWarning
                                 )
+
                             with dm.open(refs[reftype]) as model:
                                 try:
                                     ref_exptype = model.meta.exposure.type
@@ -248,6 +265,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                     if ref_model is None:
                         log.warning(f"No datamodel found for {reftype}: skipping...")
                         break
+
                     # No need to actually load the reference file into the datamodel!
                     with ref_model() as m:
                         for key in parkeys:

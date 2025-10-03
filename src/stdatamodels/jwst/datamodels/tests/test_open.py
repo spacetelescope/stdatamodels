@@ -2,30 +2,33 @@
 Test datamodel.open
 """
 
+import io
 import os
-from pathlib import Path, PurePath
 import warnings
-
-import pytest
-import numpy as np
-from astropy.io import fits
-from stdatamodels import DataModel
-from stdatamodels.validate import ValidationError, ValidationWarning
-
-from stdatamodels.jwst.datamodels import (
-    JwstDataModel,
-    ImageModel,
-    RampModel,
-    CubeModel,
-    ReferenceFileModel,
-    ReferenceImageModel,
-    ReferenceCubeModel,
-    ReferenceQuadModel,
-)
-from stdatamodels.jwst import datamodels
-from stdatamodels.jwst.datamodels import util
+from pathlib import Path, PurePath
 
 import asdf
+import numpy as np
+import pytest
+from astropy.io import fits
+
+from stdatamodels import DataModel
+from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
+from stdatamodels.jwst import datamodels
+from stdatamodels.jwst.datamodels import (
+    CubeModel,
+    IFUImageModel,
+    ImageModel,
+    JwstDataModel,
+    QuadModel,
+    RampModel,
+    ReferenceCubeModel,
+    ReferenceFileModel,
+    ReferenceImageModel,
+    ReferenceQuadModel,
+    SlitModel,
+)
+from stdatamodels.validate import ValidationError
 
 
 @pytest.mark.parametrize("guess", [True, False])
@@ -57,6 +60,49 @@ def test_open_from_pathlib():
             assert isinstance(model, JwstDataModel)
 
 
+def test_open_from_buffer():
+    """
+    Test opening a model from buffer.
+
+    Should raise a TypeError in datamodel __init__
+    """
+    buff = io.BytesIO()
+    hdul = fits.HDUList(fits.PrimaryHDU())
+    hdul.writeto(buff)
+    buff.seek(0)
+    assert isinstance(buff, io.BytesIO)
+    with pytest.raises(TypeError):
+        JwstDataModel(buff)
+    with pytest.raises(TypeError):
+        datamodels.open(buff)
+
+
+def test_open_from_bytes():
+    """
+    Test opening a model from bytes.
+
+    Should raise ValueError: Unrecognized file type since the bytes do not represent a file path.
+    """
+    fits_file = t_path("test.fits")
+    with open(fits_file, "rb") as f:
+        data = f.read()
+    assert isinstance(data, bytes)
+    with pytest.raises(TypeError):
+        datamodels.open(data)
+    with pytest.raises(TypeError):
+        JwstDataModel(data)
+
+
+def test_open_from_filename_as_bytes():
+    """Test opening a model where the filename is passed as a byte string"""
+    fname = t_path("test.fits").as_posix().encode("utf-8")
+    assert isinstance(fname, bytes)
+    with pytest.raises(TypeError):
+        datamodels.open(fname)
+    with pytest.raises(TypeError):
+        JwstDataModel(fname)
+
+
 def test_open_fits():
     """Test opening a model from a FITS file"""
     with warnings.catch_warnings():
@@ -67,19 +113,68 @@ def test_open_fits():
 
 
 def test_open_none():
-    with datamodels.open() as model:
-        assert isinstance(model, JwstDataModel)
+    with pytest.warns(DeprecationWarning, match="Passing None to open is deprecated"):
+        with datamodels.open() as model:
+            assert isinstance(model, JwstDataModel)
 
 
 def test_open_shape():
     shape = (50, 20)
-    with datamodels.open(shape) as model:
-        assert isinstance(model, ImageModel)
-        assert model.shape == shape
+    with pytest.warns(DeprecationWarning, match="Passing tuple to open is deprecated"):
+        with datamodels.open(shape) as model:
+            assert isinstance(model, ImageModel)
+            assert model.shape == shape
+
+
+def test_open_array():
+    """Test opening a model from a numpy array"""
+    data = np.ones((2, 2), dtype=np.float32) * 3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, ImageModel)
+            assert np.array_equal(model.data, data)
+
+    data = np.ones((2, 2, 2), dtype=np.float32) * 3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, CubeModel)
+            assert np.array_equal(model.data, data)
+
+    data = np.ones((2, 2, 2, 2), dtype=np.float32) * 3
+    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
+        with datamodels.open(data) as model:
+            assert isinstance(model, QuadModel)
+            assert np.array_equal(model.data, data)
+
+
+def test_open_dict():
+    """
+    Ensure failure when opening a dict as a model.
+
+    Only association-type dicts are allowed, so this should have a custom error message.
+    """
+    init = {
+        "meta": {
+            "telescope": "JWST",
+            "instrument": {"name": "NIRCAM", "detector": "NRCA4", "channel": "SHORT"},
+        },
+        "data": np.zeros((10, 10), dtype=np.float32),
+    }
+    with pytest.raises(TypeError, match="Unsupported type for init argument to open"):
+        # The open function expects a dict to be an association, not a model.
+        datamodels.open(init)
+
+    # Should still fail even if it's an ASDF tree instead
+    asdffile = asdf.AsdfFile(init)
+    assert type(asdffile) is asdf.AsdfFile
+    assert asdffile.tree == init
+    with pytest.raises(TypeError, match="Unsupported type for init argument to open"):
+        # The open function expects a dict to be an association, not a model.
+        datamodels.open(asdffile)
 
 
 def test_open_illegal():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         init = 5
         datamodels.open(init)
 
@@ -96,10 +191,11 @@ def test_open_hdulist(tmp_path):
     path = str(tmp_path / "jwst_image.fits")
     hdulist.writeto(path)
 
-    with datamodels.open(hdulist) as model:
-        assert isinstance(model, ImageModel)
+    with pytest.warns(DeprecationWarning, match="Passing fits.HDUList to open is deprecated"):
+        with datamodels.open(hdulist) as model:
+            assert isinstance(model, ImageModel)
 
-    with pytest.warns(datamodels.util.NoTypeWarning) as record:
+    with pytest.warns(NoTypeWarning) as record:
         with datamodels.open(path) as model:
             assert isinstance(model, ImageModel)
             assert len(record) == 1
@@ -114,7 +210,7 @@ def test_open_ramp(tmp_path):
         hdulist.append(fits.ImageHDU(data=np.zeros(shape), name="SCI", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, RampModel)
 
@@ -127,7 +223,7 @@ def test_open_cube(tmp_path):
         hdulist.append(fits.ImageHDU(data=np.zeros(shape), name="SCI", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, CubeModel)
 
@@ -151,7 +247,7 @@ def test_open_reffiles(tmp_path, model_class, shape):
             hdulist.append(fits.ImageHDU(data=np.zeros(shape, dtype=np.uint), name="DQ", ver=1))
         hdulist.writeto(path)
 
-    with pytest.warns(datamodels.util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as model:
             assert isinstance(model, model_class)
 
@@ -194,7 +290,7 @@ def test_open_asdf_no_datamodel_class(tmp_path, suffix):
     # sharing the same class name as stdatamodels.DataModel (used here)
     # now that jwst.DataModel is removed, both the fits and asdf
     # files correctly report NoTypeWarning
-    with pytest.warns(util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 
@@ -205,7 +301,7 @@ def test_open_asdf(tmp_path):
     with asdf.AsdfFile(tree) as af:
         af.write_to(path)
 
-    with pytest.warns(util.NoTypeWarning):
+    with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
             assert isinstance(m, DataModel)
 
@@ -246,3 +342,42 @@ def test_open_kwargs_fits(tmp_path):
     with pytest.raises(ValidationError):
         with datamodels.open(file_path, strict_validation=True) as model:
             model.validate()
+
+
+@pytest.mark.parametrize("InitClass", [SlitModel, ImageModel])
+def test_open_does_not_clear_wht(InitClass):
+    """Cover a bug where the open function cleared the wht attribute in SlitModel."""
+    m0 = InitClass((27, 1299))
+    m0.wht[:] = 1
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.wht, 1)
+
+    m2 = datamodels.SlitModel(m0)
+    np.testing.assert_equal(m2.wht, 1)
+
+
+@pytest.mark.parametrize("InitClass", [IFUImageModel, ImageModel])
+def test_open_does_not_clear_zeroframe(InitClass):
+    """Cover a bug where the open function cleared the zeroframe attribute in IFUImageModel."""
+    m0 = InitClass((10, 10))
+    m0.zeroframe = np.ones((10, 10))
+
+    m1 = datamodels.open(m0)
+    np.testing.assert_equal(m1.zeroframe, 1)
+
+    m2 = datamodels.IFUImageModel(m0)
+    np.testing.assert_equal(m2.zeroframe, 1)
+
+
+def test_memmap_deprecation(tmp_path):
+    """
+    Test that the deprecation warning for memmap=True is raised.
+    """
+    path = str(tmp_path / "test.fits")
+    model = ImageModel((10, 10))
+    model.save(path)
+
+    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
+        with datamodels.open(path, memmap=True):
+            pass

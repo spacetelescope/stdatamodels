@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/mrs_spec.schema"
 title: Spectrum data model with residual fringe correction for MIRI MRS
 allOf:
 - $ref: core.schema
+- $ref: specmeta.schema
 - type: object
   properties:
     spec_table:
