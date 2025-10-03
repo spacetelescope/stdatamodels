@@ -998,3 +998,25 @@ def test_v23tosky_deprecated(tmp_path):
 
     with pytest.warns(DeprecationWarning, match="V23ToSky is deprecated"), asdf.open(tmp_file):
         pass
+
+
+def test_grismobject_empty_init():
+    model = models.GrismObject()
+    for att in ["order_bounding", "partial_order"]:
+        assert hasattr(model, att)
+        assert isinstance(getattr(model, att), dict)
+    for att in [
+        "sid",
+        "sky_centroid",
+        "waverange",
+        "sky_bbox_ll",
+        "sky_bbox_lr",
+        "sky_bbox_ur",
+        "sky_bbox_ul",
+        "xcentroid",
+        "ycentroid",
+        "is_extended",
+        "isophotal_abmag",
+    ]:
+        assert hasattr(model, att)
+        assert getattr(model, att) is None
