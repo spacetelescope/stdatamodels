@@ -67,6 +67,7 @@ from .photom import (
     NrsFsPhotomModel,
     NrsMosPhotomModel,
 )
+from .pictureframe import PictureFrameModel
 from .pixelarea import (
     NirspecIfuAreaModel,
     NirspecMosAreaModel,
@@ -225,6 +226,7 @@ __all__ = [
     "NrsFsPhotomModel",
     "NrsMosPhotomModel",
     "PastasossModel",
+    "PictureFrameModel",
     "PsfMaskModel",
     "QuadModel",
     "RampModel",
