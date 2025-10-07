@@ -1740,7 +1740,7 @@ class _NIRISSMIRIForwardGrismDispersion(_ForwardGrismDispersionBase):
         Returns
         -------
         x0, y0 : float or np.ndarray
-            The x0, y9 values in the direct image
+            The x0, y0 values in the direct image
         lambda : float or np.ndarray
             Wavelength in angstroms
         order : int
