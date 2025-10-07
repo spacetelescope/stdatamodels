@@ -2058,7 +2058,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         Returns
         -------
         x, y : float or np.ndarray
-            The x (dx + x0) , y(dy + y0) values in the dispersed plane.
+            The x = (dx + x0) , y=  (dy + y0) values in the dispersed plane.
         x0, y0 : float or np.ndarray
             Source object x-center, y-center in the direct image.
         order : int
