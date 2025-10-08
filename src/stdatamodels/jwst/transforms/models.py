@@ -150,9 +150,9 @@ class GrismObject(
     def __new__(
         cls,
         sid=None,
-        order_bounding={},  # noqa: B006
+        order_bounding=None,
         sky_centroid=None,
-        partial_order={},  # noqa: B006
+        partial_order=None,
         waverange=None,
         sky_bbox_ll=None,
         sky_bbox_lr=None,
@@ -199,6 +199,10 @@ class GrismObject(
         GrismObject
             A new GrismObject instance.
         """
+        if order_bounding is None:
+            order_bounding = {}
+        if partial_order is None:
+            partial_order = {}
         return super(GrismObject, cls).__new__(
             cls,
             sid=sid,
@@ -2353,21 +2357,21 @@ class Snell(Model):
         """
         # Convert to microns
         lam = np.asarray(lam * 1e6)
-        KtoC = 273.15  # kelvin to celsius conversion  # noqa: N806
-        temp -= KtoC
-        tref -= KtoC
+        k_to_c = 273.15  # kelvin to celsius conversion
+        temp -= k_to_c
+        tref -= k_to_c
         delt = temp - tref
 
-        K1, K2, K3 = kcoef  # noqa: N806
-        L1, L2, L3 = lcoef  # noqa: N806
-        D0, D1, D2, E0, E1, lam_tk = tcoef  # noqa: N806
+        k1, k2, k3 = kcoef
+        l1, l2, l3 = lcoef
+        d0, d1, d2, e0, e1, lam_tk = tcoef
 
         if delt < 20:
             n = np.sqrt(
                 1.0
-                + K1 * lam**2 / (lam**2 - L1)
-                + K2 * lam**2 / (lam**2 - L2)
-                + K3 * lam**2 / (lam**2 - L3)
+                + k1 * lam**2 / (lam**2 - l1)
+                + k2 * lam**2 / (lam**2 - l2)
+                + k3 * lam**2 / (lam**2 - l3)
             )
         else:
             # Derive the refractive index of air at the reference temperature and pressure
@@ -2391,9 +2395,9 @@ class Snell(Model):
 
             nrel = np.sqrt(
                 1.0
-                + K1 * lamrel**2 / (lamrel**2 - L1)
-                + K2 * lamrel**2 / (lamrel**2 - L2)
-                + K3 * lamrel**2 / (lamrel**2 - L3)
+                + k1 * lamrel**2 / (lamrel**2 - l1)
+                + k2 * lamrel**2 / (lamrel**2 - l2)
+                + k3 * lamrel**2 / (lamrel**2 - l3)
             )
             # Convert the relative index of refraction at the reference temperature and pressure
             # to absolute.
@@ -2401,10 +2405,10 @@ class Snell(Model):
 
             # Compute the absolute index of the glass
             delnabs = (0.5 * (nrel**2 - 1.0) / nrel) * (
-                D0 * delt
-                + D1 * delt**2
-                + D2 * delt**3
-                + (E0 * delt + E1 * delt**2) / (lamrel**2 - lam_tk**2)
+                d0 * delt
+                + d1 * delt**2
+                + d2 * delt**3
+                + (e0 * delt + e1 * delt**2) / (lamrel**2 - lam_tk**2)
             )
             nabs_obs = nabs_ref + delnabs
 
