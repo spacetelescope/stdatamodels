@@ -373,21 +373,6 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             assert len(mids) < 2
 
 
-def test_read_deprecation(tmp_path):
-    fn = tmp_path / "test.fits"
-    m = DataModel()
-    m.save(fn)
-    with pytest.warns(DeprecationWarning, match="read is deprecated"):
-        m.read(fn)
-
-
-def test_write_deprecation(tmp_path):
-    fn = tmp_path / "test.fits"
-    m = DataModel()
-    with pytest.warns(DeprecationWarning, match="write is deprecated"):
-        m.write(fn)
-
-
 def test_from_fits_deprecation():
     with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
         DataModel.from_fits({})
