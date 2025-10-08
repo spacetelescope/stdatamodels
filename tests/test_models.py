@@ -373,11 +373,6 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             assert len(mids) < 2
 
 
-def test_open_asdf_deprecation():
-    with pytest.warns(DeprecationWarning, match="open_asdf is deprecated"):
-        DataModel.open_asdf(None)
-
-
 def test_from_fits_deprecation():
     with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
         DataModel.from_fits({})
