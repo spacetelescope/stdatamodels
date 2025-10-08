@@ -622,42 +622,6 @@ class DataModel(properties.ObjectNode):
 
         return output_path
 
-    @staticmethod
-    def open_asdf(init=None, ignore_unrecognized_tag=False, **kwargs):
-        """
-        Open an ASDF object from a filename or create a new ASDF object.
-
-        Parameters
-        ----------
-        init : str, file object, `~asdf.AsdfFile`, dict
-            - str : file path: initialize from the given file
-            - readable file object: Initialize from the given file object
-            - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-            - dict : Initialize from the given dictionary.
-        ignore_unrecognized_tag : bool
-            If `True`, ignore tags that are not recognized.
-        **kwargs
-            Additional arguments passed to asdf.open.
-
-        Returns
-        -------
-        asdffile : `~asdf.AsdfFile`
-            An ASDF file object.
-        """
-        warnings.warn(
-            "open_asdf is deprecated, use asdf.open instead.", DeprecationWarning, stacklevel=2
-        )
-
-        if isinstance(init, str):
-            asdffile = asdf.open(init, ignore_unrecognized_tag=ignore_unrecognized_tag, **kwargs)
-
-        elif isinstance(init, dict):
-            asdffile = AsdfFile(None, ignore_unrecognized_tag=ignore_unrecognized_tag)
-            asdffile._tree = init
-        else:
-            asdffile = AsdfFile(init, ignore_unrecognized_tag=ignore_unrecognized_tag)
-        return asdffile
-
     @classmethod
     def from_asdf(cls, init, schema=None, **kwargs):
         """
@@ -1244,45 +1208,6 @@ class DataModel(properties.ObjectNode):
         )
 
         self._instance = properties.merge_tree(self._instance, ff.tree)
-
-    def read(self, *args, **kwargs):
-        """
-        Read the model from a file.
-
-        This method is only defined for compatibility with astropy.registry
-        and should not be called directly.  Use `__init__` instead.
-        This method is deprecated and will be removed in a future version.
-
-        Parameters
-        ----------
-        *args, **kwargs : tuple, dict
-            Additional arguments passed to the model init function.
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel`
-            A data model.
-        """
-        warnings.warn("read is deprecated, use __init__ instead.", DeprecationWarning, stacklevel=2)
-        return self.__init__(*args, **kwargs)
-
-    def write(self, path, *args, **kwargs):
-        """
-        Write the model to a file.
-
-        This method is only defined for compatibility with astropy.registry
-        and should not be called directly.  Use `save` instead.
-        This method is deprecated and will be removed in a future version.
-
-        Parameters
-        ----------
-        path : str
-            The path to the file to write to.
-        *args, **kwargs : tuple, dict
-            Additional arguments passed to the model save function.
-        """
-        warnings.warn("write is deprecated, use save instead.", DeprecationWarning, stacklevel=2)
-        self.save(path, *args, **kwargs)
 
     def getarray_noinit(self, attribute):
         """
