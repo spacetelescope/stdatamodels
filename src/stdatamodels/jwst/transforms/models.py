@@ -1711,7 +1711,7 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
         return x + dx, y + dy, x, y, order
 
 
-class _NIRISSMIRIForwardGrismDispersion(_ForwardGrismDispersionBase):
+class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
     def __init__(self, dispaxis, *args, **kwargs):
         self.dispaxis = dispaxis
         super().__init__(*args, **kwargs)
@@ -1727,6 +1727,8 @@ class _NIRISSMIRIForwardGrismDispersion(_ForwardGrismDispersionBase):
     def evaluate(self, x, y, x0, y0, order):
         """
         Transform from the dispersed plane into the direct image plane.
+
+        This code is used for both NIRISS and MIRI WFSS.
 
         Parameters
         ----------
@@ -1792,10 +1794,10 @@ class _NIRISSMIRIForwardGrismDispersion(_ForwardGrismDispersionBase):
         wavelength = dxr | tab | lmodel
         model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
 
-        return model(x, y, x0, y0, order)  # returns x0, y0 , lambda, order
+        return model(x, y, x0, y0, order)  # returns x0, y0, lambda, order
 
 
-class NIRISSForwardRowGrismDispersion(_NIRISSMIRIForwardGrismDispersion):
+class NIRISSForwardRowGrismDispersion(_WFSSForwardGrismDispersion):
     """
     Calculate the wavelengths of vertically dispersed NIRISS grism data.
 
@@ -1855,7 +1857,7 @@ class NIRISSForwardRowGrismDispersion(_NIRISSMIRIForwardGrismDispersion):
         )
 
 
-class NIRISSForwardColumnGrismDispersion(_NIRISSMIRIForwardGrismDispersion):
+class NIRISSForwardColumnGrismDispersion(_WFSSForwardGrismDispersion):
     """
     Calculate the wavelengths for horizontally dispersed NIRISS grism data.
 
@@ -2058,7 +2060,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         Returns
         -------
         x, y : float or np.ndarray
-            The x = (dx + x0) , y=  (dy + y0) values in the dispersed plane.
+            The x = (dx + x0), y = (dy + y0) values in the dispersed plane.
         x0, y0 : float or np.ndarray
             Source object x-center, y-center in the direct image.
         order : int
@@ -2086,12 +2088,9 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         return x0 + dx, y0 + dy, x0, y0, order
 
 
-class MIRIWFSSForwardDispersion(_NIRISSMIRIForwardGrismDispersion):
+class MIRIWFSSForwardDispersion(_WFSSForwardGrismDispersion):
     """
     Calculate the wavelengths of the dispersed MIRI WFSS data.
-
-    The dispersion polynomial is relative to the input x,y pixels
-    in the direct image for a given wavelength.
 
     The dispersion polynomial is relative to the input x,y pixels
     in the direct image for a given wavelength. This transform uses
