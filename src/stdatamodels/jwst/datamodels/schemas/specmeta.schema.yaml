@@ -204,9 +204,9 @@ properties:
     type: boolean
     fits_keyword: BARSHDW
     fits_hdu: EXTRACT1D
-  pa_v3:
-    title: "[deg] Position angle of telescope V3 axis"
+  position_angle:
+    title: "[deg] Position angle of aperture used"
     type: number
-    fits_keyword: PA_V3
+    fits_keyword: PA_APER
     fits_hdu: EXTRACT1D
 
