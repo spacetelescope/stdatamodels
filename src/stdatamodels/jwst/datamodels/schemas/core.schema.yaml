@@ -458,6 +458,18 @@ properties:
             fits_keyword: FILTER
             blend_table: True
             blend_rule: multi
+          filter_wheel_offset:
+            title: 'Filter wheel position offset (actual – commanded)'
+            type: number
+            fits_keyword: FWPOSOFF
+            blend_table: True
+            blend_rule: multi
+          filter_wheel_tolerance:
+            title: 'Filter wheel position tolerance'
+            type: number
+            fits_keyword: FWPOSTOL
+            blend_table: True
+            blend_rule: multi
           pupil:
             title: Name of the pupil element used
             type: string
@@ -472,6 +484,18 @@ properties:
             type: boolean
             fits_keyword: PILIN
             blend_table: True
+          pupil_wheel_offset:
+            title: 'Pupil wheel position offset (actual – commanded)'
+            type: number
+            fits_keyword: PWPOSOFF
+            blend_table: True
+            blend_rule: multi
+          pupil_wheel_tolerance:
+            title: 'Pupil wheel position tolerance'
+            type: number
+            fits_keyword: PWPOSTOL
+            blend_table: True
+            blend_rule: multi
           grating:
             title: Name of the grating element used
             type: string
