@@ -62,7 +62,7 @@ nitpick_ignore = [
 ]
 for transform_base in [
     "_NIRCAMForwardGrismDispersion",
-    "_WFSSForwadGrismDispersion",
+    "_WFSSForwardGrismDispersion",
     "_ForwardGrismDispersionBase",
     "_BackwardGrismDispersionBase",
     "_GrismDispersionBase"
