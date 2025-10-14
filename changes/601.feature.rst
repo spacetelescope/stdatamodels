@@ -1,1 +1,1 @@
-Add PA_V3 keyword to EXTRACT1D extension headers.
+Add PA_APER keyword to EXTRACT1D extension headers.
