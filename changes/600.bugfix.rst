@@ -1,1 +1,1 @@
-Updated MIRI WFSS Forward Dispersion model
+Fixed a bug where MIRI WFSS incorrectly set the along-dispersion axis to be row instead of column
