@@ -1711,7 +1711,7 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
         return x + dx, y + dy, x, y, order
 
 
-class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
+class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
     def __init__(self, dispaxis, *args, **kwargs):
         self.dispaxis = dispaxis
         super().__init__(*args, **kwargs)
@@ -1728,6 +1728,8 @@ class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
         """
         Transform from the dispersed plane into the direct image plane.
 
+        This code is used for both NIRISS and MIRI WFSS.
+
         Parameters
         ----------
         x, y :  float or np.ndarray
@@ -1739,8 +1741,8 @@ class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
 
         Returns
         -------
-        x, y : float or np.ndarray
-            The x, y values in the direct image, same as x0, y0.
+        x0, y0 : float or np.ndarray
+            The x0, y0 values in the direct image
         lambda : float or np.ndarray
             Wavelength in angstroms
         order : int
@@ -1792,10 +1794,10 @@ class _NIRISSForwardGrismDispersion(_ForwardGrismDispersionBase):
         wavelength = dxr | tab | lmodel
         model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
 
-        return model(x, y, x0, y0, order)
+        return model(x, y, x0, y0, order)  # returns x0, y0, lambda, order
 
 
-class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
+class NIRISSForwardRowGrismDispersion(_WFSSForwardGrismDispersion):
     """
     Calculate the wavelengths of vertically dispersed NIRISS grism data.
 
@@ -1855,7 +1857,7 @@ class NIRISSForwardRowGrismDispersion(_NIRISSForwardGrismDispersion):
         )
 
 
-class NIRISSForwardColumnGrismDispersion(_NIRISSForwardGrismDispersion):
+class NIRISSForwardColumnGrismDispersion(_WFSSForwardGrismDispersion):
     """
     Calculate the wavelengths for horizontally dispersed NIRISS grism data.
 
@@ -2042,13 +2044,13 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
             name=name,
         )
 
-    def evaluate(self, x, y, wavelength, order):
+    def evaluate(self, x0, y0, wavelength, order):
         """
         Transform from the direct image plane to the dispersed plane.
 
         Parameters
         ----------
-        x, y : float or np.ndarray
+        x0, y0 : float or np.ndarray
             Input x, y location in the direct image
         wavelength : float or np.ndarray
             Wavelength in microns
@@ -2058,15 +2060,15 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         Returns
         -------
         x, y : float or np.ndarray
-            The x, y values in the dispersed plane.
+            The x = (dx + x0), y = (dy + y0) values in the dispersed plane.
         x0, y0 : float or np.ndarray
-            Source object x-center, y-center in the direct image. Same as input x,y
+            Source object x-center, y-center in the direct image.
         order : int
             Output spectral order, same as input
         """
         wavelength = np.atleast_1d(wavelength)
-        x = np.atleast_1d(x)
-        y = np.atleast_1d(y)
+        x0 = np.atleast_1d(x0)
+        y0 = np.atleast_1d(y0)
 
         if (wavelength < 0).any():
             raise ValueError("Wavelength should be greater than zero")
@@ -2080,21 +2082,31 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = _poly_with_spatial_dependence(t, x, y, xmodel)
-        dy = _poly_with_spatial_dependence(t, x, y, ymodel)
+        dx = _poly_with_spatial_dependence(t, x0, y0, xmodel)
+        dy = _poly_with_spatial_dependence(t, x0, y0, ymodel)
 
-        return x + dx, y + dy, x, y, order
+        return x0 + dx, y0 + dy, x0, y0, order
 
 
-class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
+class MIRIWFSSForwardDispersion(_WFSSForwardGrismDispersion):
     """
-    Calculate the wavelengths of vertically dispersed MIRI WFSS data.
+    Calculate the wavelengths of the dispersed MIRI WFSS data.
 
     The dispersion polynomial is relative to the input x,y pixels
-    in the direct image for a given wavelength.
+    in the direct image for a given wavelength. This transform uses
+    a generic method for both MIRI and NIRISS. For MIRI the theta
+    parameter = 0,
     """
 
-    def __init__(self, orders, lmodels=None, xmodels=None, ymodels=None):
+    def __init__(
+        self,
+        orders,
+        lmodels=None,
+        xmodels=None,
+        ymodels=None,
+        theta=None,
+        sampling=10,
+    ):
         """
         Initialize the model.
 
@@ -2121,66 +2133,23 @@ class MIRIWFSSForwardDispersion(_ForwardGrismDispersionBase):
             C0(x0, y0) + C1(x0, y0) * t + C2(x0, y0) * t^2 + C3(x0,y0) * t^3.
             The inner list corresponds to the 2-D polynomials (C0, C1, C2, C3).
             The outer list corresponds to the different spectral orders.
+        theta : float
+            Set = 0 for MIRI.
+        sampling : int, optional
+            Number of sampling points in t to use; these will be linearly interpolated.
         """
+        self.theta = 0.0
+        dispaxis = "column"
         name = "miri_wfss_forward_dispersion"
         super().__init__(
+            dispaxis,
             orders,
             lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
             name=name,
+            sampling=sampling,
         )
-
-    def evaluate(self, x, y, x0, y0, order):
-        """
-        Transform from the dispersed plane into the direct image plane.
-
-        Only the xmodel and lmodels are used.
-
-        Parameters
-        ----------
-        x, y :  float or np.ndarray
-            Input x, y location in the dispersed image.
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center in the direct image.
-        order : int
-            Input spectral order
-
-        Returns
-        -------
-        x, y : float or np.ndarray
-            The x, y values in the direct image, same as x0, y0.
-        lambda : float or np.ndarray
-            Wavelength in microns
-        order : int
-            Output spectral order, same as input
-        """
-        try:
-            iorder = self._order_mapping[int(order.flatten()[0])]
-        except KeyError as err:
-            raise ValueError("Specified order is not available") from err
-
-        # The next two lines are to get around the fact that
-        # modeling.standard_broadcasting=False does not work.
-        x00 = x0.flatten()[0]
-        y00 = y0.flatten()[0]
-
-        t = np.linspace(0, 1, self.sampling)  # sample t
-        xmodel = self.xmodels[iorder]
-        lmodel = self.lmodels[iorder]
-
-        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
-
-        so = np.argsort(dx)
-        tab = Tabular1D(dx[so], t[so], bounds_error=False, fill_value=None)
-        # wavelength model takes in x, x0.
-        # it then subtracts them to get dx; that's what SubtractUfunc does
-        # next it finds the t value for that dx from the lookup table, interpolating linearly
-        # finally it applies the lmodel of t to get the wavelength
-        dxr = astmath.SubtractUfunc()
-        wavelength = dxr | tab | lmodel
-        model = Mapping((2, 3, 0, 2, 4)) | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
-        return model(x, y, x0, y0, order)
 
 
 class Rotation3DToGWA(Model):
