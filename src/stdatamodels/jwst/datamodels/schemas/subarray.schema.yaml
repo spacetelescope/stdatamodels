@@ -27,7 +27,10 @@ properties:
               # MIRI
               - enum:
                  [BRIGHTSKY, MASK1065, MASK1140, MASK1550, MASKLYOT,
-                  SLITLESSPRISM, SUB128, SUB256, SUB64, SUBPRISM]
+                  SLITLESSPRISM, SUB128, SUB256, SUB64, SUBPRISM,
+                  SUBARRAY_SHORT, SUBARRAY_LONG,
+                  MIRIFU_CH1, MIRIFU_CH2, MIRIFU_CH3, MIRIFU_CH4,
+                  SUB128_IP, SUB64_IP, SLITLESSPRISM_IP, SLITLESSPRISM_IPS, SUBSLIT]
               # NIRCam
               - enum:
                   [FULLP, MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB,
