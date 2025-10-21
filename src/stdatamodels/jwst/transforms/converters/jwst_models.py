@@ -42,7 +42,7 @@ class UnsupportedConverter(TransformConverterBase):
     """
 
     types = []
-    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
+    # tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
 
     @property
     def tags(self):
