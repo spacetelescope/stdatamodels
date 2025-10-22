@@ -83,6 +83,7 @@ when they are no longer needed by the JWST pipeline. A side-effect of this remov
 files containing serialized versions of these transforms will no longer be readable with
 the latest version of the package. This scenario will lead to an ``UnsupportedConverterError``.
 If you encounter this error, here are some possible workarounds:
+
 - If this is a file produced by the jwst pipeline, please download the latest version
   of your file from MAST.
 - Downgrade to a version of stdatamodels that still contains the needed transform.
@@ -91,9 +92,9 @@ If you encounter this error, here are some possible workarounds:
   ``True``. This will allow the file to be read, but the unsupported transform will be represented
   with a dictionary, and the WCS will not be callable. For example:
 
-.. code-block:: python
+  .. code-block:: python
 
-   import stdatamodels.jwst.datamodels as dm
-   import asdf
-   asdf.get_config().warn_on_failed_conversion = True
-   model = dm.open("foo.fits")
+     import stdatamodels.jwst.datamodels as dm
+     import asdf
+     asdf.get_config().warn_on_failed_conversion = True
+     model = dm.open("foo.fits")
