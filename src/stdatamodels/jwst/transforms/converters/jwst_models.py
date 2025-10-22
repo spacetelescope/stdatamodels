@@ -58,7 +58,7 @@ class UnsupportedConverter:
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
             "This transform is no longer supported, so this file's WCS could not be deserialized. "
-            "We recommend downloading the latest reprocessed data from MAST or"
+            "We recommend downloading the latest reprocessed data from MAST or "
             f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
             "To bypass the error and load the file anyway, use the asdf config flag "
             "warn_on_failed_conversion=True (see "
@@ -69,7 +69,7 @@ class UnsupportedConverter:
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
             "This transform is no longer supported, so this file's WCS could not be deserialized. "
-            "We recommend downloading the latest reprocessed data from MAST or"
+            "We recommend downloading the latest reprocessed data from MAST or "
             f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
             "To bypass the error and load the file anyway, use the asdf config flag "
             "warn_on_failed_conversion=True (see "
