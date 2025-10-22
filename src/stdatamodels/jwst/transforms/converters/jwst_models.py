@@ -32,7 +32,7 @@ class UnsupportedConverterError(Exception):
     pass
 
 
-class UnsupportedConverter(TransformConverterBase):
+class UnsupportedConverter:
     """
     Class to catch legacy transforms that are no longer supported.
 
@@ -42,7 +42,7 @@ class UnsupportedConverter(TransformConverterBase):
     """
 
     types = []
-    # tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
+    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
 
     @property
     def tags(self):
@@ -54,20 +54,26 @@ class UnsupportedConverter(TransformConverterBase):
                 return version
         raise ValueError(f"No max version found for tag {tag}")
 
-    def from_yaml_tree_transform(self, node, tag, ctx):
+    def from_yaml_tree(self, node, tag, ctx):
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
             "This transform is no longer supported, so this file's WCS could not be deserialized. "
-            "We recommend downloading the latest reprocessed data from MAST, or else "
-            f"downgrading to stdatamodels version <= {self.max_version(tag)}",
+            "We recommend downloading the latest reprocessed data from MAST or"
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
+            "To bypass the error and load the file anyway, use the asdf config flag "
+            "warn_on_failed_conversion=True (see "
+            "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
         )
 
-    def to_yaml_tree_transform(self, model, tag, ctx):
+    def to_yaml_tree(self, model, tag, ctx):
         raise UnsupportedConverterError(
             f"Encountered a legacy transform with tag {tag}. "
-            "This transform is no longer supported, so this file's WCS could not be serialized. "
-            "We recommend downloading the latest reprocessed data from MAST, or else "
-            f"downgrading to stdatamodels version <= {self.max_version(tag)}",
+            "This transform is no longer supported, so this file's WCS could not be deserialized. "
+            "We recommend downloading the latest reprocessed data from MAST or"
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
+            "To bypass the error and load the file anyway, use the asdf config flag "
+            "warn_on_failed_conversion=True (see "
+            "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
         )
 
 
