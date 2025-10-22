@@ -9,7 +9,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
-  "asdf>=3.3.0",
+  "asdf @ git+https://github.com/braingram/asdf.git@allow_failed_conversion",
   "asdf-transform-schemas>=0.6.0",
   "asdf-astropy>=0.6.0",
   "numpy>=1.25",
