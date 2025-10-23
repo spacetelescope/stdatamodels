@@ -16,7 +16,6 @@ JWST
 
    jwst/datamodels/index.rst
    jwst/transforms/index.rst
-   jwst/kwtool/index.rst
 
 API
 ===
