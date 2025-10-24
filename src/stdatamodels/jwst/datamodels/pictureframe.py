@@ -10,21 +10,16 @@ class PictureFrameModel(ReferenceFileModel):
     """
     A data model for 2D thermal picture frame reference files.
 
-    Parameters
+    Attributes
     ----------
-    __________
     data : numpy float32 array
-         The science data
-
+        The science data
     dq : numpy uint32 array
-         Data quality array
-
+        Data quality array
     err : numpy float32 array
-         Error array
-
+        Error array
     dq_def : numpy table
-         DQ flag definitions
-
+        DQ flag definitions
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/pictureframe.schema"
@@ -33,7 +28,3 @@ class PictureFrameModel(ReferenceFileModel):
         super(PictureFrameModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
