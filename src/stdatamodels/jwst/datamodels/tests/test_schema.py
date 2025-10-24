@@ -2,7 +2,8 @@ import numpy as np
 from asdf import schema as mschema
 from numpy.testing import assert_array_almost_equal
 
-from stdatamodels.jwst._kwtool import dmd
+import stdatamodels.jwst.datamodels as dm
+import stdatamodels.schema
 from stdatamodels.jwst.datamodels import JwstDataModel
 
 
@@ -110,9 +111,49 @@ def test_ami_wcsinfo():
             assert ami[key] == wcsinfo[key]
 
 
+def _get_subclasses(klass):
+    for subclass in klass.__subclasses__():
+        yield subclass
+        yield from _get_subclasses(subclass)
+
+
+def _get_schema_keywords_callback(ss, path, combiner, ctx, r):
+    if isinstance(ss, dict) and "fits_keyword" in ss:
+        ctx.append((path, ss))
+
+
 def test_duplicate_keywords():
     """Test that FITS keywords are not used more than once."""
-    datamodel_keywords = dmd.load()
+    datamodel_classes = list(_get_subclasses(dm.JwstDataModel))
+
+    keywords_by_datamodel = {}
+    for klass in datamodel_classes:
+        keywords = []
+        if klass.schema_url:
+            schema = mschema.load_schema(klass.schema_url, resolve_references=True)
+            stdatamodels.schema.walk_schema(schema, _get_schema_keywords_callback, keywords)
+        class_path = ".".join([klass.__module__, klass.__name__])
+        keywords_by_datamodel[class_path] = keywords
+
+    # consolidate results organizing them by fits_hdu and fits_keyword
+    datamodel_keywords = {}
+    for klass, keyword_infos in keywords_by_datamodel.items():
+        for keyword_info in keyword_infos:
+            path, keyword = keyword_info
+            fits_keyword = keyword["fits_keyword"]
+            fits_hdu = keyword.get("fits_hdu", "PRIMARY")
+
+            # the schemas sometimes use lowercase
+            key = (fits_hdu.upper(), fits_keyword.upper())
+            if key not in datamodel_keywords:
+                datamodel_keywords[key] = []
+            datamodel_keywords[key].append(
+                {
+                    "scope": klass,
+                    "path": path,
+                    "keyword": keyword,
+                }
+            )
 
     errors = {}
     for keyword, entry in datamodel_keywords.items():

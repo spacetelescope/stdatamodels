@@ -11,6 +11,16 @@ This package contains schemas of the following types:
 Data model schemas
 ------------------
 
+.. note::
+
+   For users familiar with the
+   `JWST Keyword Dictionary <https://mast.stsci.edu/portal/Mashup/Clients/jwkeywords/index.html>`_
+   it is important to note that the keyword dictionary is not used by stdatamodels.
+   Instead the datamodel schemas contain independent descriptions of the JWST files.
+   This is in part due to the unique requirements for the keyword dictionary and
+   datamodel schemas. If inconsistencies are found please open an
+   `issue <https://github.com/spacetelescope/stdatamodels/issues>`_.
+
 JWST datamodels are in part defined by an ASDF schema.
 For example ``RampModel`` uses the schema found in ``ramp.schema.yaml``.
 These data model schemas typically contain many references
