@@ -204,9 +204,13 @@ properties:
     type: boolean
     fits_keyword: BARSHDW
     fits_hdu: EXTRACT1D
+  s_region:
+    title: Spatial footprint of the observation
+    type: string
+    fits_keyword: S_REGION
+    fits_hdu: EXTRACT1D
   position_angle:
     title: "[deg] Position angle of aperture used"
     type: number
     fits_keyword: PA_APER
     fits_hdu: EXTRACT1D
-
