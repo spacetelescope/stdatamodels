@@ -25,8 +25,6 @@ TRANSFORM_MANIFESTS = list(
 
 RESOURCES = SCHEMAS + TRANSFORM_MANIFESTS
 
-DEPRECATED_TAGS = ["tag:stsci.edu:jwst_pipeline/v23tosky-0.7.0"]
-
 
 def datamodel_associated_schemas():
     """
@@ -69,9 +67,6 @@ def test_manifest_tag_versions(manifest_filename):
 
     for tag_def in manifest["tags"]:
         tag_uri = tag_def["tag_uri"]
-        if tag_uri in DEPRECATED_TAGS:
-            # Schema has been removed, so skip this test
-            continue
         tag_name, tag_version = asdf.versioning.split_tag_version(tag_uri)
         schema_uri = tag_def["schema_uri"]
         schema_name, schema_version = asdf.versioning.split_tag_version(schema_uri)
