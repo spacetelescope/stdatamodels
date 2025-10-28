@@ -459,7 +459,7 @@ properties:
             blend_table: True
             blend_rule: multi
           filter_wheel_offset:
-            title: 'Filter wheel position offset (actual – commanded)'
+            title: 'Filter wheel position offset (actual minus commanded)'
             type: number
             fits_keyword: FWPOSOFF
             blend_table: True
@@ -485,7 +485,7 @@ properties:
             fits_keyword: PILIN
             blend_table: True
           pupil_wheel_offset:
-            title: 'Pupil wheel position offset (actual – commanded)'
+            title: 'Pupil wheel position offset (actual minus commanded)'
             type: number
             fits_keyword: PWPOSOFF
             blend_table: True
