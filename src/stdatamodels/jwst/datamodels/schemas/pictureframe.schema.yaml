@@ -7,7 +7,7 @@ allOf:
 - type: object
   properties:
     data:
-      title: Picture frame slope data
+      title: Picture frame rate data
       fits_hdu: SCI
       default: 0.0
       ndim: 2
