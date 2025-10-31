@@ -1,0 +1,1 @@
+Add the following keywords to core schema for level 1b files: PWPOSOFF, PWPOSTOL, FWPOSOFF and FWPOSTOL.
