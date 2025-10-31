@@ -10,7 +10,7 @@ class PictureFrameModel(ReferenceFileModel):
     Attributes
     ----------
     data : numpy float32 array
-        Picture frame slope data.
+        Picture frame rate data.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/pictureframe.schema"
