@@ -19,6 +19,7 @@ from astropy.modeling.models import Const1D, Mapping, Rotation2D, Tabular1D
 from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
+from gwcs.utils import to_index
 
 from stdatamodels.properties import ListNode
 
@@ -298,7 +299,7 @@ class MIRI_AB2Slice(Model):  # noqa: N801
             The slice number.
         """
         s = channel * 100 + (beta - beta_zero) / beta_del + 1
-        return _toindex(s)
+        return to_index(s)
 
 
 class RefractionIndexFromPrism(Model):
@@ -1046,39 +1047,6 @@ class V2V3ToIdeal(Model):
 
     def inverse(self):  # noqa: D102
         return IdealToV2V3(self.v3idlyangle, self.v2ref, self.v3ref, self.vparity)
-
-
-def _toindex(value):
-    """
-    Convert value to an int or an int array.
-
-    Input coordinates converted to integers
-    corresponding to the center of the pixel.
-    The convention is that the center of the pixel is
-    (0, 0), while the lower left corner is (-0.5, -0.5).
-
-    Parameters
-    ----------
-    value : ndarray
-        Input coordinates.
-
-    Returns
-    -------
-    ndarray
-        Integer coordinates representing pixel centers.
-
-    Examples
-    --------
-    >>> from stdatamodels.jwst.transforms.models import _toindex
-    >>> _toindex(np.array([-0.5, 0.49999]))
-    array([0, 0])
-    >>> _toindex(np.array([0.5, 1.49999]))
-    array([1, 1])
-    >>> _toindex(np.array([1.5, 2.49999]))
-    array([2, 2])
-    """
-    indx = np.asarray(np.floor(np.asarray(value) + 0.5), dtype=int)
-    return indx
 
 
 class _GrismDispersionBase(Model):
