@@ -14,6 +14,8 @@ dependencies = [
   "asdf-astropy>=0.6.0",
   "numpy>=1.25",
   "astropy>=6.1",
+  "gwcs @ git+https://github.com/emolter/gwcs.git@zemax-bug",
+  # "gwcs>=0.26.0",
 ]
 license-files = ["LICENSE"]
 dynamic = ["version"]
