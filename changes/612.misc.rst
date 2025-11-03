@@ -1,1 +1,1 @@
-Add dependency on gwcs, and make Snell transform call gwcs transforms to avoid repeated code
+Add dependency on gwcs, and update Snell and MIRI_AB2Slice to avoid repeated code by calling gwcs methods.
