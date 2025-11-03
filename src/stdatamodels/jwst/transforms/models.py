@@ -18,6 +18,7 @@ from astropy.modeling.core import Model
 from astropy.modeling.models import Const1D, Mapping, Rotation2D, Tabular1D
 from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
+from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 
 from stdatamodels.properties import ListNode
 
@@ -2298,6 +2299,9 @@ class Snell(Model):
         """
         Calculate and return the refraction index.
 
+        Use the simpler SellmeierGlass equation if the temperature difference
+        is small (<20K), otherwise use the more complex SellmeierZemax equation.
+
         Parameters
         ----------
         lam : float or np.ndarray
@@ -2322,66 +2326,21 @@ class Snell(Model):
         n : float
             Refraction index.
         """
-        # Convert to microns
-        lam = np.asarray(lam * 1e6)
-        k_to_c = 273.15  # kelvin to celsius conversion
-        temp -= k_to_c
-        tref -= k_to_c
         delt = temp - tref
-
-        k1, k2, k3 = kcoef
-        l1, l2, l3 = lcoef
-        d0, d1, d2, e0, e1, lam_tk = tcoef
-
         if delt < 20:
-            n = np.sqrt(
-                1.0
-                + k1 * lam**2 / (lam**2 - l1)
-                + k2 * lam**2 / (lam**2 - l2)
-                + k3 * lam**2 / (lam**2 - l3)
-            )
+            return SellmeierGlass.evaluate(lam * 1.0e6, B_coef=[kcoef], C_coef=[lcoef])
         else:
-            # Derive the refractive index of air at the reference temperature and pressure
-            # and at the operational system's temperature and pressure.
-            nref = (
-                1.0
-                + (
-                    6432.8
-                    + 2949810.0 * lam**2 / (146.0 * lam**2 - 1.0)
-                    + (5540.0 * lam**2) / (41.0 * lam**2 - 1.0)
-                )
-                * 1e-8
+            return SellmeierZemax().evaluate(
+                wavelength=lam * 1.0e6,
+                temp=temp,
+                ref_temp=tref,
+                ref_pressure=pref,
+                pressure=pressure,
+                B_coef=[kcoef],
+                C_coef=[lcoef],
+                D_coef=[tcoef[:3]],
+                E_coef=[tcoef[3:]],
             )
-
-            # T should be in C, P should be in ATM
-            nair_obs = 1.0 + ((nref - 1.0) * pressure) / (1.0 + (temp - 15.0) * 3.4785e-3)
-            nair_ref = 1.0 + ((nref - 1.0) * pref) / (1.0 + (tref - 15) * 3.4785e-3)
-
-            # Compute the relative index of the glass at Tref and Pref using Sellmeier equation I.
-            lamrel = lam * nair_obs / nair_ref
-
-            nrel = np.sqrt(
-                1.0
-                + k1 * lamrel**2 / (lamrel**2 - l1)
-                + k2 * lamrel**2 / (lamrel**2 - l2)
-                + k3 * lamrel**2 / (lamrel**2 - l3)
-            )
-            # Convert the relative index of refraction at the reference temperature and pressure
-            # to absolute.
-            nabs_ref = nrel * nair_ref
-
-            # Compute the absolute index of the glass
-            delnabs = (0.5 * (nrel**2 - 1.0) / nrel) * (
-                d0 * delt
-                + d1 * delt**2
-                + d2 * delt**3
-                + (e0 * delt + e1 * delt**2) / (lamrel**2 - lam_tk**2)
-            )
-            nabs_obs = nabs_ref + delnabs
-
-            # Define the relative index at the system's operating T and P.
-            n = nabs_obs / nair_obs
-        return n
 
     def evaluate(self, lam, alpha_in, beta_in, zin):
         """
@@ -2405,9 +2364,7 @@ class Snell(Model):
             lam, self.temp, self.tref, self.pref, self.pressure, self.kcoef, self.lcoef, self.tcoef
         )
         # Apply Snell's law through front surface, eq 5.3.3 II
-        xout = alpha_in / n
-        yout = beta_in / n
-        zout = np.sqrt(1.0 - xout**2 - yout**2)
+        xout, yout, zout = Snell3D.evaluate(n, alpha_in, beta_in, zin)
 
         # Go to back surface frame # eq 5.3.3 III
         y_rotation = Rotation3DToGWA([self.prism_angle], "y")
@@ -2422,10 +2379,7 @@ class Snell(Model):
         xout, yout, zout = y_rotation(xout, yout, zout)
 
         # Snell's refraction law through front surface
-        xout = xout * n
-        yout = yout * n
-        zout = np.sqrt(1.0 - xout**2 - yout**2)
-        return xout, yout, zout
+        return Snell3D.evaluate(1.0 / n, xout, yout, zout)
 
 
 class AngleFromGratingEquation(Model):
