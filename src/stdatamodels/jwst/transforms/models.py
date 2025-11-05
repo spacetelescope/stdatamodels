@@ -2273,7 +2273,7 @@ class Snell(Model):
         Parameters
         ----------
         lam : float or np.ndarray
-            Wavelength in microns.
+            Wavelength in meters.
         temp : float
             System temperature during observation in K.
         tref : float
@@ -2317,7 +2317,7 @@ class Snell(Model):
         Parameters
         ----------
         lam : float or np.ndarray
-            Wavelength.
+            Wavelength in meters.
         alpha_in, beta_in : float or np.ndarray
             Incident angles.
         zin : float or np.ndarray
