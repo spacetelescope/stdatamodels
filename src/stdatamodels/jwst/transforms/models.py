@@ -2376,6 +2376,12 @@ class AngleFromGratingEquation(Model):
         **kwargs
             Additional keyword arguments to pass to Model base class.
         """
+        warnings.warn(
+            "AngleFromGratingEquation is deprecated and will be removed in a future version. "
+            "Use gwcs.spectroscopy.AngleFromGratingEquation3D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(groove_density=groove_density, order=order, **kwargs)
         self.inputs = ("lam", "alpha_in", "beta_in", "z")
         """ Wavelength and 3 angle coordinates going into the grating."""
@@ -2441,6 +2447,12 @@ class WavelengthFromGratingEquation(Model):
         **kwargs
             Additional keyword arguments to pass to Model base class.
         """
+        warnings.warn(
+            "WavelengthFromGratingEquation is deprecated and will be removed in a future version. "
+            "Use gwcs.spectroscopy.WavelengthFromGratingEquation instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(groove_density=groove_density, order=order, **kwargs)
         self.inputs = ("alpha_in", "beta_in", "alpha_out")
         """

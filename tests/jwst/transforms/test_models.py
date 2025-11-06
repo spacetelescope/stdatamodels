@@ -28,8 +28,6 @@ test_models = [
     DirCos2Unitless(),
     Unitless2DirCos(),
     Rotation3DToGWA(angles=[12.1, 1.3, 0.5, 3.4], axes_order="xyzx"),
-    AngleFromGratingEquation(20000, -1),
-    WavelengthFromGratingEquation(25000, 2),
     Logical("GT", 5, 10),
     Logical("LT", np.ones((10,)) * 5, np.arange(10)),
     Snell(
@@ -48,6 +46,14 @@ test_models = [
 @pytest.mark.parametrize(("model"), test_models)
 def test_model(tmpdir, model, version=None):
     assert_model_roundtrip(model, tmpdir)
+
+
+# @pytest.mark.parametrize(("model"), test_models_deprecated)
+def test_model_deprecated(tmpdir, version=None):
+    for klass in [AngleFromGratingEquation, WavelengthFromGratingEquation]:
+        with pytest.warns(DeprecationWarning):
+            model = klass(20000, 1)
+            assert_model_roundtrip(model, tmpdir)
 
 
 def test_gwa_to_slit(tmpdir):
