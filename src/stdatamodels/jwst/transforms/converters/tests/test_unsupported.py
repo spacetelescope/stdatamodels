@@ -5,8 +5,6 @@ from asdf.exceptions import AsdfConversionWarning
 import stdatamodels.jwst.datamodels as dm
 from stdatamodels.jwst.transforms.converters.jwst_models import UnsupportedConverterError
 
-"""Test attempting to load or save files with transforms that are no longer supported."""
-
 
 @pytest.fixture
 def model_with_unsupported_transform(tmp_path):
