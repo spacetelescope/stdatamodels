@@ -18,14 +18,12 @@ from .models import (
     NIRISSForwardRowGrismDispersion,
     NirissSOSSModel,
     RefractionIndexFromPrism,
-    Rotation3D,
     Rotation3DToGWA,
     Slit,
     Slit2Msa,
     Slit2MsaLegacy,
     Snell,
     V2V3ToIdeal,
-    V23ToSky,
     WavelengthFromGratingEquation,
 )
 
@@ -50,8 +48,6 @@ __all__ = [
     "IdealToV2V3",
     "RefractionIndexFromPrism",
     "Snell",
-    "V23ToSky",
-    "Rotation3D",
     "Rotation3DToGWA",
     "AngleFromGratingEquation",
     "WavelengthFromGratingEquation",

@@ -16,7 +16,7 @@ from .converters.jwst_models import (
     Slit2GwaConverter,
     Slit2MsaConverter,
     SnellConverter,
-    V23ToSkyConverter,
+    UnsupportedConverter,
 )
 
 _CONVERTERS = [
@@ -35,6 +35,7 @@ _CONVERTERS = [
     MIRIWFSSDispersionConverter(),
     GratingEquationConverter(),
     SnellConverter(),
+    UnsupportedConverter(),
 ]
 
 # The order here is important; asdf will prefer to use extensions
@@ -63,10 +64,6 @@ TRANSFORM_EXTENSIONS = [
     ManifestExtension.from_uri(
         "asdf://stsci.edu/jwst_pipeline/manifests/jwst_transforms-0.7.0",
         legacy_class_names=["jwst.transforms.jwextension.JWSTExtension"],
-        # 0.7.0 support v23tosky, register it's converter
-        converters=_CONVERTERS
-        + [
-            V23ToSkyConverter(),
-        ],
+        converters=_CONVERTERS,
     ),
 ]

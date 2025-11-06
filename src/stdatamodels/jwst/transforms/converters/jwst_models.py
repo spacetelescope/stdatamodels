@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import asdf
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
 
@@ -17,13 +18,63 @@ __all__ = [
     "MIRIWFSSDispersionConverter",
     "Rotation3DToGWAConverter",
     "GratingEquationConverter",
-    "V23ToSkyConverter",
     "SnellConverter",
     "CoordsConverter",
     "Rotation3DToGWAConverter",
     "Slit2MsaConverter",
     "Slit2GwaConverter",
+    "UnsupportedConverter",
+    "UnsupportedConverterError",
 ]
+
+
+class UnsupportedConverterError(Exception):
+    pass
+
+
+class UnsupportedConverter:
+    """
+    Class to catch legacy transforms that are no longer supported.
+
+    This converter contains tags for all converters that have been removed
+    from the JWST pipeline, but which may still be present in old files.
+    When encountered, an error will be raised and the WCS will not be deserialized.
+    """
+
+    types = []
+    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.1.0"}
+
+    @property
+    def tags(self):
+        return list(self.tag_to_max_version.keys())
+
+    def max_version(self, tag):
+        for tag_pattern, version in self.tag_to_max_version.items():
+            if asdf.util.uri_match(tag_pattern, tag):
+                return version
+        raise ValueError(f"No max version found for tag {tag}")
+
+    def from_yaml_tree(self, node, tag, ctx):
+        raise UnsupportedConverterError(
+            f"Encountered a legacy transform with tag {tag}. "
+            "This transform is no longer supported, so this file's WCS could not be deserialized. "
+            "We recommend downloading the latest reprocessed data from MAST or "
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
+            "To bypass the error and load the file anyway, use the asdf config flag "
+            "warn_on_failed_conversion=True (needs asdf>=5.1.0; see "
+            "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
+        )
+
+    def to_yaml_tree(self, model, tag, ctx):
+        raise UnsupportedConverterError(
+            f"Encountered a legacy transform with tag {tag}. "
+            "This transform is no longer supported, so this file's WCS could not be deserialized. "
+            "We recommend downloading the latest reprocessed data from MAST or "
+            f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
+            "To bypass the error and load the file anyway, use the asdf config flag "
+            "warn_on_failed_conversion=True (needs asdf>=5.1.0; see "
+            "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
+        )
 
 
 class NIRCAMGrismDispersionConverter(TransformConverterBase):
@@ -350,24 +401,6 @@ class GratingEquationConverter(TransformConverterBase):
             node["output"] = "wavelength"
         else:
             raise TypeError(f"Can't serialize an instance of {model.__class__.__name__}")
-        return node
-
-
-class V23ToSkyConverter(TransformConverterBase):
-    tags = ["tag:stsci.edu:jwst_pipeline/v23tosky-*"]
-
-    types = ["stdatamodels.jwst.transforms.models.V23ToSky"]
-
-    def from_yaml_tree_transform(self, node, tag, ctx):
-        from stdatamodels.jwst.transforms.models import V23ToSky
-
-        angles = node["angles"]
-        axes_order = node["axes_order"]
-        return V23ToSky(angles, axes_order=axes_order)
-
-    def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {"angles": list(model.angles.value)}
-        node["axes_order"] = model.axes_order
         return node
 
 
