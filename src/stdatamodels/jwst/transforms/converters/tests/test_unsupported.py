@@ -35,6 +35,10 @@ def test_load_unsupported(model_with_unsupported_transform):
         dm.open(model_with_unsupported_transform)
 
 
+@pytest.mark.skipif(
+    asdf.__version__ < "5.1.0",
+    reason="warn_on_failed_conversion requires asdf>=5.1.0",
+)
 def test_load_unsupported_with_flag(model_with_unsupported_transform):
     """Test loading same file with the warning flag set raises a warning instead."""
     asdf.get_config().warn_on_failed_conversion = True
