@@ -42,7 +42,7 @@ class UnsupportedConverter:
     """
 
     types = []
-    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.0.0"}
+    tag_to_max_version = {"tag:stsci.edu:jwst_pipeline/v23tosky-*": "4.1.0"}
 
     @property
     def tags(self):
@@ -61,7 +61,7 @@ class UnsupportedConverter:
             "We recommend downloading the latest reprocessed data from MAST or "
             f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
             "To bypass the error and load the file anyway, use the asdf config flag "
-            "warn_on_failed_conversion=True (see "
+            "warn_on_failed_conversion=True (needs asdf>=5.1.0; see "
             "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
         )
 
@@ -72,7 +72,7 @@ class UnsupportedConverter:
             "We recommend downloading the latest reprocessed data from MAST or "
             f"downgrading to stdatamodels version <= {self.max_version(tag)}. "
             "To bypass the error and load the file anyway, use the asdf config flag "
-            "warn_on_failed_conversion=True (see "
+            "warn_on_failed_conversion=True (needs asdf>=5.1.0; see "
             "https://stdatamodels.readthedocs.io/en/latest/jwst/transforms/index.html#legacy-transforms).",
         )
 

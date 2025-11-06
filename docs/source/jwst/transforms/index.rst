@@ -78,7 +78,7 @@ these transform definitions.
 
 Legacy Transforms
 -----------------
-Occasionally, transforms may be removed from this package (following a deprecation period)
+In rare cases, transforms may be removed from this package (following a deprecation period)
 when they are no longer needed by the JWST pipeline. A side-effect of this removal is that
 files containing serialized versions of these transforms will no longer be readable with
 the latest version of the package. This scenario will lead to an ``UnsupportedConverterError``.
@@ -89,7 +89,8 @@ If you encounter this error, here are some possible workarounds:
 - Downgrade to a version of stdatamodels that still contains the needed transform.
   You can check the release notes to see when transforms were removed.
 - To bypass the error, the asdf config flag ``warn_on_failed_conversion`` can be set to
-  ``True``. This will allow the file to be read, but the unsupported transform will be represented
+  ``True`` (requires asdf>=5.1.0). This will allow the file to be read,
+  but the unsupported transform will be represented
   with a dictionary, and the WCS will not be callable. For example:
 
   .. code-block:: python
