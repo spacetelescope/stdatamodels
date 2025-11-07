@@ -2378,7 +2378,7 @@ class AngleFromGratingEquation(Model):
         """
         warnings.warn(
             "AngleFromGratingEquation is deprecated and will be removed in a future version. "
-            "Use gwcs.spectroscopy.AngleFromGratingEquation3D instead.",
+            "Use gwcs.spectroscopy.AnglesFromGratingEquation3D instead.",
             DeprecationWarning,
             stacklevel=2,
         )
