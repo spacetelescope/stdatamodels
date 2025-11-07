@@ -1,0 +1,14 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/pictureframe.schema"
+allOf:
+- $ref: referencefile.schema
+- type: object
+  properties:
+    data:
+      title: Picture frame rate data
+      fits_hdu: SCI
+      default: 0.0
+      ndim: 2
+      datatype: float32
