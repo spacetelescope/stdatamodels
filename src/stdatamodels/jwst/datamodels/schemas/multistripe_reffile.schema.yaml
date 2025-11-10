@@ -1,0 +1,41 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/mask.schema"
+allOf:
+- $ref: referencefile.schema
+- $ref: subarray.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_readpatt.schema
+- $ref: keyword_preadpatt.schema
+- $ref: keyword_gainfact.schema
+- $ref: keyword_noutputs.schema
+- $ref: keyword_grating.schema
+- $ref: keyword_pgrating.schema
+- $ref: bunit.schema
+- type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        exposure:
+          type: object
+          properties:
+            ngroups:
+              title: Number of groups in integration
+              fits_keyword: NGROUPS
+- type: object
+  properties:
+    data:
+      fits_hdu: SCI
+      ndim: 4
+      datatype: float32
+    dq:
+      fits_hdu: DQ
+      ndim: 4
+      datatype: uint32
+    err:
+      fits_hdu: ERR
+      ndim: 4
+      datatype: float32
+- $ref: dq_def.schema
