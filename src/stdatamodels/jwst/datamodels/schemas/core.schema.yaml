@@ -2605,6 +2605,12 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_PHOTOM
             blend_table: True
+          picture_frame:
+            title: Picture Frame Correction
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_PCTFRM
+            blend_table: True
           pixel_replace:
             title: Pixel Replacement
             type: string

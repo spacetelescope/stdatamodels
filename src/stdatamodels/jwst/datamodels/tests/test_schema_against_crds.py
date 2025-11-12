@@ -172,6 +172,7 @@ ref_to_datamodel_dict = {
     "ote": dm.OTEModel,
     "pastasoss": dm.PastasossModel,
     "persat": dm.PersistenceSatModel,
+    "pictureframe": dm.PictureFrameModel,
     "psf": dm.SpecPsfModel,
     "psfmask": dm.PsfMaskModel,
     "readnoise": dm.ReadnoiseModel,
