@@ -1006,8 +1006,6 @@ properties:
               - enum:
                  [BRIGHTSKY, MASK1065, MASK1140, MASK1550, MASKLYOT,
                   SLITLESSPRISM, SUB128, SUB256, SUB64, SUBPRISM,
-                  MIRIFU_CH1, MIRIFU_CH2, MIRIFU_CH3, MIRIFU_CH4,
-                  SUBARRAY_SHORT, SUBARRAY_LONG,
                   SUB128_IP, SUB64_IP, SLITLESSPRISM_IP, SLITLESSPRISM_IPS, SUBSLIT]
               # NIRCam subarray
               - enum:
@@ -1051,6 +1049,22 @@ properties:
               - enum:
                   [FULL, GENERIC, N/A]
             fits_keyword: SUBARRAY
+            blend_table: True
+          subarray_short:
+            title: MIRI MRS short wavelength detector subarray
+            type: string
+            anyOf:
+              - enum:
+                  [MIRIFU_CH1, MIRIFU_CH2, MIRIFU_CH3, MIRIFU_CH4, N/A]
+            fits_keyword: SUB_SHRT
+            blend_table: True
+          subarray_long:
+            title: MIRI MRS long wavelength detectory subarray
+            type: string
+            anyOf:
+              - enum:
+                  [MIRIFU_CH1, MIRIFU_CH2, MIRIFU_CH3, MIRIFU_CH4, N/A]
+            fits_keyword: SUB_LONG
             blend_table: True
           xstart:
             title: Starting pixel in axis 1 direction
