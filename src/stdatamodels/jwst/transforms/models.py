@@ -1767,7 +1767,7 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, self.sampling)  # sample t
+        t = np.linspace(-0.1, 1.1, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
