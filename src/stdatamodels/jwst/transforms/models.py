@@ -1573,18 +1573,24 @@ def _find_min_with_linear_interpolation(resid, t0):
     """
     min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
 
-    # When the residuals are minimized near t=0 or t=1, just use those values
-    # instead of doing a linear interpolation
+    # Raise when the residuals are minimized at the edge of the defined region.
+    # This avoids recurrence of a bug where naively setting them to the
+    # min, max defined t values led to artifacts in the output.
     this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = t0[0]
-    this_t[min_ind == resid.shape[0] - 1] = t0[-1]
+    this_t[min_ind == 0] = np.nan
+    this_t[min_ind == resid.shape[0] - 1] = np.nan
+    if np.any(np.isnan(this_t)):
+        raise ValueError(
+            "Wavelength is out of bounds of the dispersion solution. "
+            "Cannot determine the inverse dispersion."
+        )
 
     # for all other indices, calculate the t value based on
     # linearly interpolating the derivative to guess where it should cross zero
     good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
     good_ind = np.expand_dims(min_ind[good], axis=0)
     resid_good = resid[:, good]
-    grad_good = np.gradient(resid_good, axis=0)
+    grad_good = np.gradient(resid_good, axis=0, edge_order=2)
     grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
     grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
     grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
@@ -1611,8 +1617,6 @@ def _find_min_with_linear_interpolation(resid, t0):
     x_intercept[grad_center == 0] = t_center[grad_center == 0]
 
     this_t[good] = x_intercept
-    this_t[this_t > 1.0] = np.nan
-    this_t[this_t < 0.0] = np.nan
     return this_t
 
 

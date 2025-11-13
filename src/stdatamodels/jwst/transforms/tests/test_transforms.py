@@ -448,7 +448,7 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     x0 = x0.flatten()
     y0 = y0.flatten()
 
-    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
+    wl = np.linspace(1.85e-6, 2.05e-6, 21)
     model = models.NIRCAMBackwardGrismDispersion(
         orders, lmodels, xmodels, ymodels, sampling=sampling
     )
@@ -461,10 +461,10 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
         t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
         t2_out[i] = t2
 
-    # new transform was updated to return NaN when best-fitting trace parameter
-    # is beyond [0, 1], whereas the old one would set to zero
-    t2_out[np.isnan(t_out)] = np.nan
-    assert_allclose(t_out, t2_out, atol=1e-3, rtol=0, equal_nan=True)
+    # new transform was updated to allow trace parameters < 0 or > 1
+    t_out[t_out < 0] = 0
+    t_out[t_out > 1] = 1.0
+    assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
 
 
 def test_nircam_backward_grism_dispersion_single():
