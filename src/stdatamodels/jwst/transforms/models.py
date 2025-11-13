@@ -1576,8 +1576,8 @@ def _find_min_with_linear_interpolation(resid, t0):
     # When the residuals are minimized near t=0 or t=1, just use those values
     # instead of doing a linear interpolation
     this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = 0.0
-    this_t[min_ind == resid.shape[0] - 1] = 1.0
+    this_t[min_ind == 0] = t0[0]
+    this_t[min_ind == resid.shape[0] - 1] = t0[-1]
 
     # for all other indices, calculate the t value based on
     # linearly interpolating the derivative to guess where it should cross zero
@@ -1611,6 +1611,8 @@ def _find_min_with_linear_interpolation(resid, t0):
     x_intercept[grad_center == 0] = t_center[grad_center == 0]
 
     this_t[good] = x_intercept
+    this_t[this_t > 1.0] = np.nan
+    this_t[this_t < 0.0] = np.nan
     return this_t
 
 
