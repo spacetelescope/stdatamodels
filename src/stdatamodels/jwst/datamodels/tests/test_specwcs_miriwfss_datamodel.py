@@ -61,7 +61,7 @@ def test_miri_wfss_specwcs():
     assert model.meta.reftype == "specwcs"
 
     # no orders is defined and it is required.
-    with pytest.raises(ValidationWarning):
+    with pytest.warns(ValidationWarning):
         model.validate()
 
     # now add order
