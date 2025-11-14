@@ -5,8 +5,9 @@ import gc
 import numpy as np
 import psutil
 import pytest
-from models import FitsModel
 from numpy.testing import assert_array_almost_equal
+
+from .models import FitsModel
 
 
 @pytest.mark.parametrize("extension", ["asdf", "fits"])

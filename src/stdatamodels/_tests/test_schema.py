@@ -4,11 +4,12 @@ import pytest
 from asdf.exceptions import ValidationError
 from asdf.tags.core import NDArrayType
 from astropy.modeling import models
-from models import BasicModel, FitsModel, TableModel, TransformModel, ValidationModel
 from numpy.testing import assert_array_equal
 
 from stdatamodels import DataModel
 from stdatamodels.schema import merge_property_trees
+
+from .models import BasicModel, FitsModel, TableModel, TransformModel, ValidationModel
 
 
 @pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
