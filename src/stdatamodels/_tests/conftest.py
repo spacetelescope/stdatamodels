@@ -1,19 +1,7 @@
-"""Project defaults for pytest."""
-
 from pathlib import Path
 
 import asdf
 import pytest
-
-
-def pytest_addoption(parser):
-    """Add options to the pytest command line."""
-    parser.addoption(
-        "--no-crds",
-        action="store_true",
-        default=False,
-        help="Skip tests against crds",
-    )
 
 
 @pytest.fixture(scope="session", autouse=True)

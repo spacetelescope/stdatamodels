@@ -123,7 +123,7 @@ doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
 addopts = "--color=yes"
-testpaths = ["docs", "tests", "src/stdatamodels/jwst"]
+testpaths = ["docs", "src"]
 filterwarnings = [
   # turn all warnings into errors, this includes ResourceWarning which
   # allows catching files left open by tests
@@ -140,9 +140,6 @@ norecursedirs = ["build", ".tox", ".eggs", "venv"]
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
 version_scheme = "release-branch-semver"
-
-[tool.coverage.run]
-omit = ['*/tests/*']
 
 [tool.towncrier]
 filename = "CHANGES.rst"
