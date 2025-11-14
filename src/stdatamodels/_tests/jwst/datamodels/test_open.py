@@ -2,7 +2,6 @@
 Test datamodel.open
 """
 
-import importlib.resources
 import io
 import os
 import warnings
@@ -33,9 +32,9 @@ from stdatamodels.validate import ValidationError
 
 
 @pytest.mark.parametrize("guess", [True, False])
-def test_guess(guess):
+def test_guess(guess, test_data_path):
     """Test the guess parameter to the open func"""
-    path = Path(t_path("test.fits"))
+    path = test_data_path / "test.fits"
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
@@ -50,9 +49,9 @@ def test_guess(guess):
                     pass
 
 
-def test_open_from_pathlib():
+def test_open_from_pathlib(test_data_path):
     """Test opening a PurePath object"""
-    path = Path(t_path("test.fits"))
+    path = test_data_path / "test.fits"
     assert isinstance(path, PurePath)
 
     with warnings.catch_warnings():
@@ -78,13 +77,13 @@ def test_open_from_buffer():
         datamodels.open(buff)
 
 
-def test_open_from_bytes():
+def test_open_from_bytes(test_data_path):
     """
     Test opening a model from bytes.
 
     Should raise ValueError: Unrecognized file type since the bytes do not represent a file path.
     """
-    fits_file = t_path("test.fits")
+    fits_file = test_data_path / "test.fits"
     with open(fits_file, "rb") as f:
         data = f.read()
     assert isinstance(data, bytes)
@@ -94,9 +93,9 @@ def test_open_from_bytes():
         JwstDataModel(data)
 
 
-def test_open_from_filename_as_bytes():
+def test_open_from_filename_as_bytes(test_data_path):
     """Test opening a model where the filename is passed as a byte string"""
-    fname = t_path("test.fits").as_posix().encode("utf-8")
+    fname = (test_data_path / "test.fits").as_posix().encode("utf-8")
     assert isinstance(fname, bytes)
     with pytest.raises(TypeError):
         datamodels.open(fname)
@@ -104,11 +103,11 @@ def test_open_from_filename_as_bytes():
         JwstDataModel(fname)
 
 
-def test_open_fits():
+def test_open_fits(test_data_path):
     """Test opening a model from a FITS file"""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "model_type not found")
-        fits_file = t_path("test.fits")
+        fits_file = test_data_path / "test.fits"
         with datamodels.open(fits_file) as model:
             assert isinstance(model, JwstDataModel)
 
@@ -271,19 +270,6 @@ def test_open_readonly(tmp_path, suffix):
     with datamodels.open(path) as model:
         assert model.meta.telescope == "JWST"
         assert isinstance(model, ImageModel)
-
-
-# Utilities
-def t_path(partial_path):
-    """Construction the full path for test files"""
-    return (
-        importlib.resources.files("stdatamodels")
-        / "jwst"
-        / "datamodels"
-        / "_tests"
-        / "data"
-        / partial_path
-    )
 
 
 @pytest.mark.parametrize("suffix", ["asdf", "fits"])

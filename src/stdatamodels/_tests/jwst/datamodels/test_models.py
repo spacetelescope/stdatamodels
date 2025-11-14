@@ -1,4 +1,3 @@
-import importlib.resources
 import shutil
 import warnings
 
@@ -31,8 +30,6 @@ from stdatamodels.jwst.datamodels import (
 )
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
-
-ROOT_DIR = importlib.resources.files("stdatamodels") / "jwst" / "datamodels" / "_tests" / "data"
 
 
 @pytest.fixture
@@ -104,9 +101,9 @@ def test_imagemodel():
         assert dm.pathloss_uniform.shape == shape
 
 
-def test_model_with_nonstandard_primary_array():
+def test_model_with_nonstandard_primary_array(test_data_path):
     class _NonstandardPrimaryArrayModel(JwstDataModel):
-        schema_url = ROOT_DIR / "nonstandard_primary_array.schema.yaml"
+        schema_url = test_data_path / "nonstandard_primary_array.schema.yaml"
 
         # The wavelength array is the primary array.
         # Try commenting this function out and the problem goes away.
@@ -332,8 +329,8 @@ def test_init_incompatible_model():
         CubeModel(im)
 
 
-def test_abvega_offset_model():
-    path = ROOT_DIR / "nircam_abvega_offset.asdf"
+def test_abvega_offset_model(test_data_path):
+    path = test_data_path / "nircam_abvega_offset.asdf"
     with ABVegaOffsetModel(path) as model:
         assert isinstance(model, ABVegaOffsetModel)
         assert hasattr(model, "abvega_offset")
@@ -709,7 +706,7 @@ def test_amioi_model_extra_meta(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
-def test_dq_def_roundtrip(tmp_path):
+def test_dq_def_roundtrip(tmp_path, test_data_path):
     """
     Open a MaskModel with a defined DQ array and dq_def that modifies the
     DQ array on open.  Save the model to a new name.  Open the new model
@@ -719,7 +716,7 @@ def test_dq_def_roundtrip(tmp_path):
     bname = "jwst_nircam_mask_ref.fits"
     nbname = bname.replace("ref", "ref_dummy")
 
-    fname = ROOT_DIR / bname
+    fname = test_data_path / bname
     new_fname = tmp_path / nbname
 
     diff = None
