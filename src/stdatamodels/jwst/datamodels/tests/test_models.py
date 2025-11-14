@@ -33,8 +33,6 @@ from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
 
 ROOT_DIR = Path(__file__).parent / "data"
-FITS_FILE = ROOT_DIR / "test.fits"
-ASN_FILE = ROOT_DIR / "association.json"
 
 
 @pytest.fixture
