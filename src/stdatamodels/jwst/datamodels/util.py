@@ -253,8 +253,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     # Close the hdulist if we opened it
     if file_to_close is not None:
-        # TODO: We need a better solution than messing with DataModel
-        # internals.
         model._file_references.append(_FileReference(file_to_close))
 
     if not has_model_type:

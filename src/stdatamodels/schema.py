@@ -188,7 +188,6 @@ def merge_property_trees(schema):
     def add_entry(path, schema, combiner):
         if not top_items:
             top_items.update(schema)
-        # TODO: Simplify?
         cursor = combined_items
         for i in range(len(path)):
             part = path[i]
