@@ -448,7 +448,7 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     x0 = x0.flatten()
     y0 = y0.flatten()
 
-    wl = np.linspace(1.85e-6, 2.05e-6, 21)
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)
     model = models.NIRCAMBackwardGrismDispersion(
         orders, lmodels, xmodels, ymodels, sampling=sampling
     )
