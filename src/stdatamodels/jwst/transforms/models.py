@@ -1221,7 +1221,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t0 = np.linspace(-0.1, 1.1, self.sampling)
+        t0 = np.linspace(-0.2, 1.2, self.sampling)
 
         # handle multiple inverse model types
         if isinstance(model, (ListNode, list, tuple)):
@@ -1520,7 +1520,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         t_out : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(-0.1, 1.1, int(self.sampling))
+        t0 = np.linspace(-0.2, 1.2, int(self.sampling))
 
         if len(model) < 2:
             # Handle legacy versions of the trace model
@@ -1573,17 +1573,9 @@ def _find_min_with_linear_interpolation(resid, t0):
     """
     min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
 
-    # Raise when the residuals are minimized at the edge of the defined region.
-    # This avoids recurrence of a bug where naively setting them to the
-    # min, max defined t values led to artifacts in the output.
     this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = np.nan
-    this_t[min_ind == resid.shape[0] - 1] = np.nan
-    if np.any(np.isnan(this_t)):
-        raise ValueError(
-            "Wavelength is out of bounds of the dispersion solution. "
-            "Cannot determine the inverse dispersion."
-        )
+    this_t[min_ind == 0] = t0[0]
+    this_t[min_ind == resid.shape[0] - 1] = t0[-1]
 
     # for all other indices, calculate the t value based on
     # linearly interpolating the derivative to guess where it should cross zero
@@ -1767,7 +1759,7 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(-0.1, 1.1, self.sampling)  # sample t
+        t = np.linspace(-0.2, 1.2, self.sampling)  # sample t
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
         lmodel = self.lmodels[iorder]
