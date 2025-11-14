@@ -1,0 +1,18 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/anyof_model
+title: Model schema with any anyOf combiner that leads to conflicting defaults.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      meta:
+        type: object
+        properties:
+          foo:
+            anyOf:
+              - type: string
+                default: bar
+              - type: string
+                default: baz
+...

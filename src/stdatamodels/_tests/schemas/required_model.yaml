@@ -1,0 +1,15 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/validation_model
+title: Model with a required attribute.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      meta:
+        type: object
+        properties:
+          required_attribute:
+            type: string
+        required: [required_attribute]
+...

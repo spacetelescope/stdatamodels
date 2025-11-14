@@ -1,0 +1,42 @@
+$schema: http://stsci.edu/schemas/yaml-schema/draft-01
+id: http://example.com/schemas/fits_model
+title: Model with fits_hdu and fits_keyword properties.
+
+allOf:
+  - $ref: core_metadata
+  - type: object
+    properties:
+      meta:
+        type: object
+        properties:
+          origin:
+            title: Organization responsible for creating file
+            type: string
+            fits_keyword: ORIGIN
+          telescope:
+            title: Telescope used to acquire the data
+            type: string
+            fits_keyword: TELESCOP
+          exposure:
+            type: object
+            properties:
+              type:
+                type: string
+                fits_keyword: EXP_TYPE
+      data:
+        title: The science data
+        fits_hdu: SCI
+        ndim: 2
+        datatype: float32
+        default: 0.0
+      dq:
+        title: Data quality array
+        fits_hdu: DQ
+        datatype: uint32
+        default: 0
+      err:
+        title: Error array
+        fits_hdu: ERR
+        datatype: float32
+        default: 0.0
+...
