@@ -59,7 +59,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 zip-safe = true
-include-package-data = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -67,12 +67,6 @@ namespaces = false
 
 [tool.setuptools.package-dir]
 "" = "src"
-
-[tool.setuptools.package-data]
-"*" = ["*.yaml"]
-"stdatamodels.jwst.transforms" = [
-  "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
-]
 
 [tool.flake8]
 exclude = [".git", "__pycache__", "docs", "build", "dist", ".tox", ".eggs"]
