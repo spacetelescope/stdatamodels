@@ -1,4 +1,4 @@
-from pathlib import Path
+import importlib.resources
 
 import asdf
 import pytest
@@ -7,7 +7,7 @@ import pytest
 @pytest.fixture(scope="session", autouse=True)
 def register_schemas():
     """Register the schemas directory with asdf."""
-    schemas_root = Path(__file__).parent / "schemas"
+    schemas_root = importlib.resources.files("stdatamodels") / "_tests" / "schemas"
     with asdf.config_context() as config:
         config.add_resource_mapping(
             asdf.resource.DirectoryResourceMapping(schemas_root, "http://example.com/schemas")
