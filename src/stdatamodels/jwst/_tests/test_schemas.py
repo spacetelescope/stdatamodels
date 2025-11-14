@@ -1,4 +1,4 @@
-from pathlib import Path
+import importlib.resources
 
 import asdf
 import astropy.units
@@ -10,13 +10,13 @@ from stdatamodels.schema import walk_schema
 
 # relative paths to schema directories
 SCHEMA_RELATIVE_PATHS = [
-    "../datamodels/schemas",
-    "../transforms/resources/schemas/stsci.edu/jwst_pipeline",
+    "datamodels/schemas",
+    "transforms/resources/schemas/stsci.edu/jwst_pipeline",
 ]
 
 
 def _get_schema_ids():
-    root_path = Path(__file__).parent
+    root_path = importlib.resources.files("stdatamodels") / "jwst"
     schema_ids = []
     for schema_relative_path in SCHEMA_RELATIVE_PATHS:
         path = root_path / schema_relative_path

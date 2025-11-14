@@ -1,6 +1,6 @@
+import importlib.resources
 import shutil
 import warnings
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -32,7 +32,7 @@ from stdatamodels.jwst.datamodels import (
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.schema import walk_schema
 
-ROOT_DIR = Path(__file__).parent / "data"
+ROOT_DIR = importlib.resources.files("stdatamodels") / "jwst" / "datamodels" / "_tests" / "data"
 
 
 @pytest.fixture

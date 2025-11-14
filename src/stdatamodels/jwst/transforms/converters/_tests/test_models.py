@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import importlib.resources
 import warnings
-from pathlib import Path
 
 import asdf
 import numpy as np
@@ -90,7 +90,14 @@ def test_niriss_soss(tmpdir):
 
 
 def test_niriss_soss_legacy():
-    data_path = Path(__file__).parent / "data"
+    data_path = (
+        importlib.resources.files("stdatamodels")
+        / "jwst"
+        / "transforms"
+        / "converters"
+        / "_tests"
+        / "data"
+    )
     data = data_path / "niriss_soss.asdf"
 
     # confirm that the file contains the legacy tag

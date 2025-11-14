@@ -2,6 +2,7 @@
 Test datamodel.open
 """
 
+import importlib.resources
 import io
 import os
 import warnings
@@ -275,8 +276,14 @@ def test_open_readonly(tmp_path, suffix):
 # Utilities
 def t_path(partial_path):
     """Construction the full path for test files"""
-    test_dir = Path(__file__).parent / "data"
-    return test_dir / partial_path
+    return (
+        importlib.resources.files("stdatamodels")
+        / "jwst"
+        / "datamodels"
+        / "_tests"
+        / "data"
+        / partial_path
+    )
 
 
 @pytest.mark.parametrize("suffix", ["asdf", "fits"])
