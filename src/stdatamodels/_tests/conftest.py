@@ -1,4 +1,5 @@
 import importlib.resources
+import os
 
 import asdf
 import pytest
@@ -24,3 +25,18 @@ def patch_env_variables(monkeypatch):
         "VALIDATE_ON_ASSIGNMENT",
     ]:
         monkeypatch.delenv(var, raising=False)
+
+
+@pytest.fixture
+def test_data_path():
+    return importlib.resources.files("stdatamodels") / "_tests" / "data"
+
+
+@pytest.fixture
+def jail_environ():
+    """Lock changes to the environment."""
+    original = os.environ.copy()
+    try:
+        yield
+    finally:
+        os.environ = original  # noqa: B003

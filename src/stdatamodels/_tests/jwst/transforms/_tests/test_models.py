@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import importlib.resources
 import warnings
 
 import asdf
@@ -89,16 +88,8 @@ def test_niriss_soss(tmpdir):
     assert "tag:stsci.edu:jwst_pipeline/niriss_soss" in tagged_tree["model"]._tag
 
 
-def test_niriss_soss_legacy():
-    data_path = (
-        importlib.resources.files("stdatamodels")
-        / "jwst"
-        / "transforms"
-        / "converters"
-        / "_tests"
-        / "data"
-    )
-    data = data_path / "niriss_soss.asdf"
+def test_niriss_soss_legacy(test_data_path):
+    data = test_data_path / "niriss_soss.asdf"
 
     # confirm that the file contains the legacy tag
     tagged_tree = asdf.util.load_yaml(data, tagged=True)

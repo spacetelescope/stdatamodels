@@ -65,7 +65,7 @@ def test_miri_wfss_specwcs():
         model.validate()
 
     # now add order
-    orders = [int(1)]
+    orders = [1]
     model = datamodels.MiriWFSSSpecwcsModel(
         dispx=dispx, dispy=dispy, displ=displ, invdispl=invdispl, orders=orders
     )
