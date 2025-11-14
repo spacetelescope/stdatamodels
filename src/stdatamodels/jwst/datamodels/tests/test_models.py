@@ -330,7 +330,7 @@ def test_ifuimage():
 def test_init_incompatible_model():
     data = np.arange(24).reshape((6, 4))
     im = ImageModel(data=data, err=data / 2, dq=data)
-    with pytest.raises(ValidationWarning):
+    with pytest.warns(ValidationWarning):
         CubeModel(im)
 
 
