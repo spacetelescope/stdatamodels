@@ -1,5 +1,5 @@
+import importlib.resources
 import warnings
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -7,7 +7,14 @@ from numpy.testing import assert_array_almost_equal
 
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
 
-FITS_FILE = Path(__file__).parent / "data" / "sip.fits"
+FITS_FILE = (
+    importlib.resources.files("stdatamodels")
+    / "jwst"
+    / "datamodels"
+    / "_tests"
+    / "data"
+    / "sip.fits"
+)
 
 
 def test_get_fits_wcs_deprecation():
