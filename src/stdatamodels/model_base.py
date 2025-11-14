@@ -609,6 +609,9 @@ class DataModel(properties.ObjectNode):
         output_path = os.path.join(path_head, path_tail)  # noqa: PTH118
 
         if ext == ".fits":
+            # default to overwriting files unlike astropy
+            if "overwrite" not in kwargs:
+                kwargs["overwrite"] = True
             self.to_fits(output_path, *args, **kwargs)
         elif ext == ".asdf":
             self.to_asdf(output_path, *args, **kwargs)
