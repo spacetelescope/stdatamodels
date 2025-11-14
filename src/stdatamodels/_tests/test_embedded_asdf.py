@@ -6,10 +6,11 @@ import numpy as np
 import pytest
 from asdf.constants import ASDF_MAGIC
 from astropy.io import fits
-from models import FitsModel
 from numpy.testing import assert_array_equal
 
 from stdatamodels.fits_support import _NDARRAY_TAG
+
+from .models import FitsModel
 
 
 def create_fits_model():

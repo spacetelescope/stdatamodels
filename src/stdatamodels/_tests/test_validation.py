@@ -6,9 +6,10 @@ import asdf
 import numpy as np
 import pytest
 from asdf.exceptions import ValidationError
-from models import BasicModel, FitsModel, RequiredModel, ValidationModel
 
 from stdatamodels.exceptions import ValidationWarning
+
+from .models import BasicModel, FitsModel, RequiredModel, ValidationModel
 
 
 class _DoesNotRaiseContext:

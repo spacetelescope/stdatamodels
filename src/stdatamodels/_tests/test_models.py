@@ -3,10 +3,11 @@ import gc
 import asdf
 import numpy as np
 import pytest
-from models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 from stdatamodels import DataModel
 from stdatamodels.exceptions import ValidationWarning
+
+from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 
 def test_init_from_pathlib(tmp_path):
