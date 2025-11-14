@@ -1,0 +1,1 @@
+Fix artifacts at ends of NIRCam WFSS dispersed spectra due to bad edge case handling in grism dispersion models
