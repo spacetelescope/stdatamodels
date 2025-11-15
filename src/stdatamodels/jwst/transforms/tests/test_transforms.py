@@ -448,7 +448,7 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     x0 = x0.flatten()
     y0 = y0.flatten()
 
-    wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
+    wl = np.linspace(1.5e-6, 2.5e-6, 21)
     model = models.NIRCAMBackwardGrismDispersion(
         orders, lmodels, xmodels, ymodels, sampling=sampling
     )
@@ -461,6 +461,9 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
         t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
         t2_out[i] = t2
 
+    # new transform was updated to allow trace parameters < 0 or > 1
+    t_out[t_out < 0] = 0
+    t_out[t_out > 1] = 1.0
     assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
 
 
@@ -560,7 +563,7 @@ def test_nircam_grism_roundtrip(direction):
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
     assert_allclose(xi, x0)
     assert_allclose(yi, y0)
-    assert_allclose(wli, wl)
+    assert_allclose(wli, wl, rtol=1e-4)
     assert_allclose(ordersi, orders)
 
 

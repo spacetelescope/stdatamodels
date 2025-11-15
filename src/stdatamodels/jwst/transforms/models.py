@@ -1221,7 +1221,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t0 = np.linspace(0.0, 1.0, self.sampling)
+        t0 = np.linspace(-0.2, 1.2, self.sampling)
 
         # handle multiple inverse model types
         if isinstance(model, (ListNode, list, tuple)):
@@ -1520,7 +1520,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         t_out : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(0.0, 1.0, int(self.sampling))
+        t0 = np.linspace(-0.2, 1.2, int(self.sampling))
 
         if len(model) < 2:
             # Handle legacy versions of the trace model
@@ -1573,18 +1573,16 @@ def _find_min_with_linear_interpolation(resid, t0):
     """
     min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
 
-    # When the residuals are minimized near t=0 or t=1, just use those values
-    # instead of doing a linear interpolation
     this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = 0.0
-    this_t[min_ind == resid.shape[0] - 1] = 1.0
+    this_t[min_ind == 0] = t0[0]
+    this_t[min_ind == resid.shape[0] - 1] = t0[-1]
 
     # for all other indices, calculate the t value based on
     # linearly interpolating the derivative to guess where it should cross zero
     good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
     good_ind = np.expand_dims(min_ind[good], axis=0)
     resid_good = resid[:, good]
-    grad_good = np.gradient(resid_good, axis=0)
+    grad_good = np.gradient(resid_good, axis=0, edge_order=2)
     grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
     grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
     grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
