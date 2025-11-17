@@ -1,5 +1,5 @@
-import importlib.resources
 import os
+from pathlib import Path
 
 import asdf
 import pytest
@@ -8,7 +8,7 @@ import pytest
 @pytest.fixture(scope="session", autouse=True)
 def register_schemas():
     """Register the schemas directory with asdf."""
-    schemas_root = importlib.resources.files("stdatamodels") / "_tests" / "schemas"
+    schemas_root = Path(__file__).parent / "schemas"
     with asdf.config_context() as config:
         config.add_resource_mapping(
             asdf.resource.DirectoryResourceMapping(schemas_root, "http://example.com/schemas")
@@ -29,7 +29,7 @@ def patch_env_variables(monkeypatch):
 
 @pytest.fixture
 def test_data_path():
-    return importlib.resources.files("stdatamodels") / "_tests" / "data"
+    return Path(__file__).parent / "data"
 
 
 @pytest.fixture

@@ -78,7 +78,7 @@ ignore-fully-untyped = true # Turn of annotation checking for fully untyped code
 "src/stdatamodels/jwst/datamodels/wcs_ref_models.py" = [
   "D102",
 ] # all public methods are overriding base class, so are the same
-"**/_tests/**" = [
+"**/tests/**" = [
   "E",    # pycodestyle (part of default flake8)
   "W",    # pycodestyle (part of default flake8)
   "D",    # docstrings, see also numpydoc pre-commit action

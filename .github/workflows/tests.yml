@@ -56,7 +56,7 @@ jobs:
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
         - linux: py311-xdist
-        - linux: py312-xdist-pyargs
+        - linux: py312-xdist
         - linux: py313-xdist
         - linux: py314-cov-xdist
           coverage: codecov
