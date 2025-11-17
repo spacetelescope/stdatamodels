@@ -59,7 +59,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 zip-safe = true
-include-package-data = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -67,12 +67,6 @@ namespaces = false
 
 [tool.setuptools.package-dir]
 "" = "src"
-
-[tool.setuptools.package-data]
-"*" = ["*.yaml"]
-"stdatamodels.jwst.transforms" = [
-  "resources/schemas/stsci.edu/jwst_pipeline/*.yaml",
-]
 
 [tool.flake8]
 exclude = [".git", "__pycache__", "docs", "build", "dist", ".tox", ".eggs"]
@@ -123,7 +117,7 @@ doctest_plus = true
 doctest_rst = true
 text_file_format = "rst"
 addopts = "--color=yes"
-testpaths = ["docs", "tests", "src/stdatamodels/jwst"]
+testpaths = ["docs", "src", "tests"]
 filterwarnings = [
   # turn all warnings into errors, this includes ResourceWarning which
   # allows catching files left open by tests
@@ -140,9 +134,6 @@ norecursedirs = ["build", ".tox", ".eggs", "venv"]
 [tool.setuptools_scm]
 write_to = "src/stdatamodels/_version.py"
 version_scheme = "release-branch-semver"
-
-[tool.coverage.run]
-omit = ['*/tests/*']
 
 [tool.towncrier]
 filename = "CHANGES.rst"

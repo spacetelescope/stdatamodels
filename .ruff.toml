@@ -71,7 +71,6 @@ ignore-fully-untyped = true # Turn of annotation checking for fully untyped code
 
 [lint.per-file-ignores]
 "**/test_*.py" = ["S101", "SLF001", "B011", "D104"]
-"tests/**" = ["INP001"]
 "src/stdatamodels/jwst/datamodels/darkMIRI.py" = ["N999"]
 "src/stdatamodels/jwst/transforms/converters/jwst_models.py" = [
   "D",
@@ -79,7 +78,7 @@ ignore-fully-untyped = true # Turn of annotation checking for fully untyped code
 "src/stdatamodels/jwst/datamodels/wcs_ref_models.py" = [
   "D102",
 ] # all public methods are overriding base class, so are the same
-"**/*tests/test_*.py" = [
+"**/tests/**" = [
   "E",    # pycodestyle (part of default flake8)
   "W",    # pycodestyle (part of default flake8)
   "D",    # docstrings, see also numpydoc pre-commit action

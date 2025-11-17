@@ -2,10 +2,11 @@ import numpy as np
 import pytest
 import yaml
 from astropy.io import fits
-from models import FitsModel
 from numpy.testing import assert_array_almost_equal
 
 from stdatamodels import asdf_in_fits
+
+from .models import FitsModel
 
 
 def test_write_linked(tmp_path):

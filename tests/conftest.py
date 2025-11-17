@@ -1,19 +1,8 @@
-"""Project defaults for pytest."""
-
+import os
 from pathlib import Path
 
 import asdf
 import pytest
-
-
-def pytest_addoption(parser):
-    """Add options to the pytest command line."""
-    parser.addoption(
-        "--no-crds",
-        action="store_true",
-        default=False,
-        help="Skip tests against crds",
-    )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -36,3 +25,18 @@ def patch_env_variables(monkeypatch):
         "VALIDATE_ON_ASSIGNMENT",
     ]:
         monkeypatch.delenv(var, raising=False)
+
+
+@pytest.fixture
+def test_data_path():
+    return Path(__file__).parent / "data"
+
+
+@pytest.fixture
+def jail_environ():
+    """Lock changes to the environment."""
+    original = os.environ.copy()
+    try:
+        yield
+    finally:
+        os.environ = original  # noqa: B003

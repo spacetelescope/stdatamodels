@@ -3,10 +3,11 @@ import gc
 import asdf
 import numpy as np
 import pytest
-from models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 from stdatamodels import DataModel
 from stdatamodels.exceptions import ValidationWarning
+
+from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
 
 
 def test_init_from_pathlib(tmp_path):
@@ -120,7 +121,7 @@ def test_init_incompatible_datamodel():
     input_model = FitsModel((50, 50))
     schema = input_model._schema
     schema["properties"]["data"]["ndim"] = 3
-    with pytest.raises(ValidationWarning):
+    with pytest.warns(ValidationWarning):
         BasicModel(input_model, schema=schema)
 
 
