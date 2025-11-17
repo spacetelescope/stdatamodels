@@ -257,7 +257,6 @@ class DataModel(properties.ObjectNode):
                 )
                 self._file_references.append(_FileReference(asdffile))
             else:
-                # TODO handle json files as well
                 raise OSError("File does not appear to be a FITS or ASDF file.")
 
         else:
@@ -609,11 +608,10 @@ class DataModel(properties.ObjectNode):
             path_head = dir_path
         output_path = os.path.join(path_head, path_tail)  # noqa: PTH118
 
-        # TODO: Support gzip-compressed FITS
         if ext == ".fits":
-            # TODO: remove 'clobber' check once depreciated fully in astropy
-            if "clobber" not in kwargs:
-                kwargs.setdefault("overwrite", True)
+            # default to overwriting files unlike astropy
+            if "overwrite" not in kwargs:
+                kwargs["overwrite"] = True
             self.to_fits(output_path, *args, **kwargs)
         elif ext == ".asdf":
             self.to_asdf(output_path, *args, **kwargs)
