@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import warnings
-
 import asdf
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
-from astropy.modeling.models import Identity, Mapping, Scale
 
 from stdatamodels.properties import ListNode
 
@@ -375,15 +372,8 @@ class GratingEquationConverter(TransformConverterBase):
     ]
 
     def from_yaml_tree_transform(self, node, tag, ctx):
-        warnings.warn(
-            "Encountered deprecated stdatamodels GratingEquation model. "
-            "An attempt will be made to convert to its equivalent replacement "
-            "using the transforms from the gwcs.spectroscopy module.",
-            UserWarning,
-            stacklevel=2,
-        )
-        from gwcs.spectroscopy import (
-            AnglesFromGratingEquation3D,
+        from stdatamodels.jwst.transforms.models import (
+            AngleFromGratingEquation,
             WavelengthFromGratingEquation,
         )
 
@@ -391,23 +381,11 @@ class GratingEquationConverter(TransformConverterBase):
         order = node["order"]
         output = node["output"]
         if output == "wavelength":
-            model = (
-                # Don't need beta angle so map it out
-                # alpha angle has opposite sign convention in gwcs
-                Mapping((0, 2), n_inputs=3)
-                | WavelengthFromGratingEquation(groove_density, order, name="lambda_from_gratingeq")
-                | Scale(-1)
-            )
+            model = WavelengthFromGratingEquation(groove_density, order)
         elif output == "angle":
-            # Don't need z coordinate for angle computation so map it out
-            # alpha angle has opposite sign convention in gwcs
-            model = (
-                Mapping((0, 1, 2), n_inputs=4)
-                | Identity(1) & Scale(-1) & Identity(1)
-                | AnglesFromGratingEquation3D(groove_density, order)
-            )
+            model = AngleFromGratingEquation(groove_density, order)
         else:
-            raise ValueError(f"Can't create a GratingEquation model with output {output}")
+            raise ValueError(f"Can't create a GratingEquation model withoutput {output}")
         return model
 
     def to_yaml_tree_transform(self, model, tag, ctx):
