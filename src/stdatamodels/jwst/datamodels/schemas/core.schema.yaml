@@ -2690,6 +2690,12 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SUPERB
             blend_table: True
+          ta_center:
+            title: Target Acquisition Centering
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_TACNTR
+            blend_table: True
           tso_photometry:
             title: TSO Imaging Photometry
             type: string
@@ -2742,6 +2748,16 @@ properties:
         title: WFSS direct image filename
         type: string
         fits_keyword: DIRIMAGE
+      source_xpos:
+        title: Source position in detector frame (x-axis)
+        type: number
+        fits_keyword: SRCXPOS
+        fits_hdu: SCI
+      source_ypos:
+        title: Source position in detector frame (y-axis)
+        type: number
+        fits_keyword: SRCYPOS
+        fits_hdu: SCI
       resample:
         title: Resample Parameters
         type: object
