@@ -1,0 +1,1 @@
+Deprecate AngleFromGratingEquation and WavelengthFromGratingEquation; use gwcs.spectroscopy.WavelengthFromGratingEquation and gwcs.spectroscopy.AnglesFromGratingEquation3D instead.
