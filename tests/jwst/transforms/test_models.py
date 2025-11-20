@@ -5,14 +5,9 @@ import asdf
 import numpy as np
 import pytest
 from asdf_astropy.testing.helpers import assert_model_roundtrip
-from astropy.modeling import CompoundModel
 from astropy.modeling.models import Const1D, Rotation2D, Shift
-from gwcs.spectroscopy import AnglesFromGratingEquation3D
-from gwcs.spectroscopy import WavelengthFromGratingEquation as WavelengthGWCS
-from numpy.testing import assert_allclose
 
 from stdatamodels.jwst.transforms.models import (
-    AngleFromGratingEquation,
     DirCos2Unitless,
     Gwa2Slit,
     Logical,
@@ -21,7 +16,6 @@ from stdatamodels.jwst.transforms.models import (
     Slit,
     Snell,
     Unitless2DirCos,
-    WavelengthFromGratingEquation,
 )
 
 m1 = Shift(1) & Shift(2) | Rotation2D(3.1)
@@ -50,84 +44,6 @@ test_models = [
 @pytest.mark.parametrize(("model"), test_models)
 def test_model_roundtrip(tmpdir, model, version=None):
     assert_model_roundtrip(model, tmpdir)
-
-
-def test_anglefromgratingequation_replace(tmpdir, version=None):
-    """Ensure that replacement of deprecated AngleFromGratingEquation with gwcs equivalent works."""
-
-    # Create the deprecated model
-    groove_density = 20000.0
-    order = -1
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        deprecated_model = AngleFromGratingEquation(groove_density, order)
-
-    # Test serialization
-    path = str(tmpdir / "anglefromgrating.asdf")
-    with asdf.AsdfFile({"model": deprecated_model}) as af:
-        af.write_to(path)
-
-    # Test deserialization - should convert to gwcs model and raise UserWarning
-    with pytest.warns(UserWarning, match="deprecated stdatamodels GratingEquation"):
-        with asdf.open(path) as af:
-            loaded_model = af["model"]
-
-    assert isinstance(loaded_model, CompoundModel)
-    assert isinstance(loaded_model[4], AnglesFromGratingEquation3D)
-
-    # Test that the models produce equivalent results
-    lam = 2.0e-6
-    alpha_in = np.array([0.1, 0.2])
-    beta_in = np.array([0.05, 0.1])
-    z = np.array([0.9, 0.95])
-
-    # Evaluate both models in identical ways
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        alpha_out_old, beta_out_old, z_out_old = deprecated_model(lam, alpha_in, beta_in, z)
-    alpha_out_new, beta_out_new, z_out_new = loaded_model(lam, alpha_in, beta_in, z)
-
-    # Results should be equivalent
-    assert_allclose(alpha_out_new, alpha_out_old, rtol=1e-10)
-    assert_allclose(beta_out_new, beta_out_old, rtol=1e-10)
-    assert_allclose(z_out_new, z_out_old, rtol=1e-10)
-
-
-def test_wavelengthfromgratingequation_replace(tmpdir, version=None):
-    """Ensure that replacement of deprecated WavelengthFromGratingEquation with gwcs equivalent works."""
-    # Create the deprecated model
-    groove_density = 25000.0
-    order = 2
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        deprecated_model = WavelengthFromGratingEquation(groove_density, order)
-
-    # Test serialization
-    path = str(tmpdir / "wavelengthfromgrating.asdf")
-    with asdf.AsdfFile({"model": deprecated_model}) as af:
-        af.write_to(path)
-
-    # Test deserialization - should convert to gwcs model and raise UserWarning
-    with pytest.warns(UserWarning, match="deprecated stdatamodels GratingEquation"):
-        with asdf.open(path) as af:
-            loaded_model = af["model"]
-    assert isinstance(loaded_model, CompoundModel)
-    assert isinstance(loaded_model[1], WavelengthGWCS)
-
-    # Test that the models produce equivalent results
-    alpha_in = np.array([0.1, 0.2])
-    beta_in = np.array([0.05, 0.1])
-    alpha_out = np.array([0.15, 0.25])
-
-    # Evaluate both models in identical ways
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        lam_old = deprecated_model(alpha_in, beta_in, alpha_out)
-    lam_new = loaded_model(alpha_in, beta_in, alpha_out)
-
-    # Results should be equivalent
-    assert_allclose(lam_new, lam_old, rtol=1e-10)
 
 
 def test_gwa_to_slit(tmpdir):
