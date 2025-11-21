@@ -2748,16 +2748,6 @@ properties:
         title: WFSS direct image filename
         type: string
         fits_keyword: DIRIMAGE
-      source_xpos:
-        title: Source position in detector frame (x-axis)
-        type: number
-        fits_keyword: SRCXPOS
-        fits_hdu: SCI
-      source_ypos:
-        title: Source position in detector frame (y-axis)
-        type: number
-        fits_keyword: SRCYPOS
-        fits_hdu: SCI
       resample:
         title: Resample Parameters
         type: object
@@ -2863,3 +2853,13 @@ properties:
             type: number
             fits_keyword: BKGD_SCL
             blend_table: True
+  source_xpos:
+    title: Source position in detector frame (x-axis)
+    type: number
+    fits_keyword: SRCXPOS
+    fits_hdu: SCI
+  source_ypos:
+    title: Source position in detector frame (y-axis)
+    type: number
+    fits_keyword: SRCYPOS
+    fits_hdu: SCI
