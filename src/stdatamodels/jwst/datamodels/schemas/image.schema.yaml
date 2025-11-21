@@ -59,3 +59,13 @@ allOf:
       datatype: uint32
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
+  source_xpos:
+    title: Source position in detector frame (x-axis)
+    type: number
+    fits_keyword: SRCXPOS
+    fits_hdu: SCI
+  source_ypos:
+    title: Source position in detector frame (y-axis)
+    type: number
+    fits_keyword: SRCYPOS
+    fits_hdu: SCI
