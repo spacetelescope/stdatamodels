@@ -57,15 +57,15 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
+    source_xpos:
+      title: Source position in detector frame (x-axis)
+      type: number
+      fits_keyword: SRCXPOS
+      fits_hdu: SCI
+    source_ypos:
+      title: Source position in detector frame (y-axis)
+      type: number
+      fits_keyword: SRCYPOS
+      fits_hdu: SCI
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
-  source_xpos:
-    title: Source position in detector frame (x-axis)
-    type: number
-    fits_keyword: SRCXPOS
-    fits_hdu: SCI
-  source_ypos:
-    title: Source position in detector frame (y-axis)
-    type: number
-    fits_keyword: SRCYPOS
-    fits_hdu: SCI
