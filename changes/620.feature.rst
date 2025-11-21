@@ -1,0 +1,1 @@
+Add source_xpos, source_ypos, and meta.cal_step.ta_center attributes to core schema in support of new ta_center step
