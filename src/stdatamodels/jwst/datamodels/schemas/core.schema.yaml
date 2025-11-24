@@ -58,7 +58,7 @@ properties:
         fits_keyword: CAL_VER
         blend_table: True
       calibration_software_revision:
-        title: Calibration software version control sys number
+        title: Calibration Software Repository Version
         type: string
         fits_keyword: CAL_VCS
         blend_table: True
@@ -845,7 +845,7 @@ properties:
             fits_keyword: GROUPGAP
             blend_table: True
           drop_frames1:
-            title: Number of frames dropped prior to first integration
+            title: Number of frames dropped prior to 1st integration
             type: integer
             fits_keyword: DRPFRMS1
             blend_table: True
@@ -1529,7 +1529,7 @@ properties:
         type: object
         properties:
           name:
-            title: PRD science aperture used
+            title: S&OC PRD science aperture used
             type: string
             fits_keyword: APERNAME
             blend_table: True
@@ -2811,7 +2811,7 @@ properties:
             fits_keyword: BKGMETH
             blend_table: True
           level:
-            title: Computed/Matched constant background level
+            title: Computed constant background level
             type: number
             fits_keyword: BKGLEVEL
             blend_table: True
