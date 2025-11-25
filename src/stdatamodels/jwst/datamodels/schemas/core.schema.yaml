@@ -1773,7 +1773,7 @@ properties:
             fits_keyword: FGS_APER
             blend_table: True
           gs_ideal_x:
-            title: Guide star ideal y coordinate
+            title: Guide star ideal x coordinate
             type: number
             fits_keyword: GSIDL_X
             blend_table: True
