@@ -1,3 +1,5 @@
+.. _jwst-transforms-index:
+
 ====================
 WCS Transform Models
 ====================
@@ -75,6 +77,18 @@ these transform definitions.
    slit_to_msa-1.0.0
    snell-1.0.0
 
+Converters
+----------
+WCS transforms typically take the form of callable Astropy models. Since these
+cannot be directly serialized to ASDF files, this package also defines
+a converter for each transform type that describes how to represent the transform
+in ASDF. When a datamodel containing a transform is saved, the ``to_yaml_tree`` method
+of the appropriate converter is called to produce a YAML-compatible representation
+of the transform. When a datamodel is loaded from a file, the ``from_yaml_tree`` method
+is called to reconstruct the transform model from its YAML representation.
+
+See :py:mod:`stdatamodels.jwst.transforms.converters` for documentation
+of all the available converters and implementation details.
 
 Legacy Transforms
 -----------------

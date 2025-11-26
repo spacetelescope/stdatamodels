@@ -35,6 +35,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "astropy": ("https://docs.astropy.org/en/stable/", None),
     "asdf": ("https://asdf.readthedocs.io/en/stable/", None),
+    "asdf_astropy": ("https://asdf-astropy.readthedocs.io/en/stable/", None),
 }
 
 autosummary_generate = True
