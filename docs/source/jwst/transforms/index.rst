@@ -1,6 +1,6 @@
-==========
-Transforms
-==========
+====================
+WCS Transform Models
+====================
 
 .. toctree::
    :maxdepth: 2

@@ -1,11 +1,11 @@
 .. -*- coding: utf-8 -*-
 
 
-Creating a new model
-====================
+Defining a new model type
+=========================
 
 This tutorial describes the steps necessary to define a new model type
-using `jwst.datamodels`.
+using `stdatamodels`.
 
 For further reading and details, see the reference materials in
 :ref:`metadata`.

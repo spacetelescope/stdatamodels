@@ -2,20 +2,21 @@ Welcome to stdatamodels's documentation!
 ========================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   
+   quickstart.rst
+   what-is-stdatamodels.rst
 
-   asdf_in_fits.rst
-   changes.rst
+.. toctree::
+   :maxdepth: 3
 
-JWST
-====
+   jwst/datamodels/index.rst
 
 .. toctree::
    :maxdepth: 2
 
-   jwst/datamodels/index.rst
    jwst/transforms/index.rst
+   asdf_in_fits.rst
 
 API
 ===
@@ -32,3 +33,11 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Change Log
+==========
+
+.. toctree::
+   :maxdepth: 1
+
+   changes.rst

@@ -1,11 +1,79 @@
-JWST schemas
-============
+Datamodel Schemas
+=================
 
 This package contains schemas of the following types:
 
 - Data model schemas
 - Reference file schemas
 - Transform schemas (not covered here)
+
+
+
+The `jwst.datamodels` library defines its metadata using `Draft 4 of
+the JSON Schema specification
+<http://tools.ietf.org/html/draft-zyp-json-schema-04>`_, but
+jwst.datamodels uses YAML for the syntax.  A good resource for
+learning about JSON schema is the book `Understanding JSON Schema
+<http://spacetelescope.github.com/understanding-json-schema>`_.  The
+mapping from Javascript to Python concepts (such as Javascript “array”
+== Python “list”) is added where applicable.
+
+In addition to the standard JSON Schema keywords, ``jwst.datamodels``
+also supports the following additional keywords.
+
+Arrays
+------
+
+The following keywords have to do with validating n-dimensional arrays:
+
+- ``ndim``: The number of dimensions of the array.
+
+- ``max_ndim``: The maximum number of dimensions of the array.
+
+- ``datatype``: For defining an array, ``datatype`` should be a string.
+  For defining a table, it should be a list.
+
+- **array**: ``datatype`` should be one of the following strings,
+  representing fixed-length datatypes:
+
+  bool8, int8, int16, int32, int64, uint8, uint16, uint32,
+  uint64, float16, float32, float64, float128, complex64,
+  complex128, complex256
+
+Or, for fixed-length strings, an array ``[ascii, XX]`` where
+``XX`` is the maximum length of the string.
+
+(Datatypes whose size depend on the platform are not supported
+since this would make files less portable).
+
+- **table**: ``datatype`` should be a list of dictionaries.  Each
+  element in the list defines a column and has the following keys:
+
+  - ``datatype``: A string to select the type of the column.
+    This is the same as the ``datatype`` for an array (as
+    described above).
+
+  - ``name`` (optional): An optional name for the column.
+
+  - ``shape`` (optional): The shape of the data in the column.
+    May be either an integer (for a single-dimensional shape),
+    or a list of integers.
+
+FITS-specific Schema Attributes
+-------------------------------
+
+`jwst.datamodels` also adds some new keys to the schema language in
+order to handle reading and writing FITS files.  These attributes all
+have the prefix ``fits_``.
+
+- ``fits_keyword``: Specifies the FITS keyword to store the value in.
+  Must be a string with a maximum length of 8 characters.
+
+- ``fits_hdu``: Specifies the FITS HDU to store the value in.  May be
+  a number (to specify the nth HDU) or a name (to specify the
+  extension with the given ``EXTNAME``).  By default this is set to 0,
+  and therefore refers to the primary HDU.
+
 
 
 Data model schemas

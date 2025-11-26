@@ -1,41 +1,13 @@
 .. _datamodels:
 
-About models
-============
-
-The purpose of the data model is to abstract away the peculiarities of
-the underlying file format.  The same data model may be used for data
-created from scratch in memory, or loaded from FITS or ASDF files or
-some future file format.
-
-
-Hierarchy of models
--------------------
-
-There are different data model classes for different kinds of data.
-
-One model instance, many arrays
--------------------------------
-
-Each model instance generally has many arrays that are associated with
-it.  For example, the `ImageModel` class has the following arrays
-associated with it:
-
-    - `data`: The science data
-    - `dq`: The data quality array
-    - `err`: The error array
-
-The shape of these arrays must be broadcast-compatible.  If you try to
-assign an array to one of these members that is not
-broadcast-compatible with the data array, an exception is raised.
-
 Working with models
 ===================
 
 Creating a data model from scratch
 ----------------------------------
 
-To create a new `ImageModel`, just call its constructor.  To create a
+To create a new :class:`~stdatamodels.jwst.datamodels.ImageModel`,
+just call its constructor.  To create a
 new model where all of the arrays will have default values, simply
 provide a shape as the first argument::
 
@@ -44,7 +16,7 @@ provide a shape as the first argument::
         ...
 
 In this form, the memory for the arrays will not be allocated until
-the arrays are accessed.  This is useful if, for example, you don’t
+the arrays are accessed.  This is useful if, for example, you don't
 need a data quality array -- the memory for such an array will not be
 consumed::
 
@@ -60,23 +32,23 @@ using that array by passing it in as a data keyword argument::
     with ImageModel(data=data, dq=dq) as im:
         ...
 
-Creating a data model from a file
----------------------------------
+Loading a data model from a file
+--------------------------------
 
-The `jwst.datamodels.open` function is a convenient way to create a
+The :func:`~stdatamodels.jwst.datamodels.open` function is a convenient way to create a
 model from a file on disk.  It may be passed any of the following:
 
     - a path to a FITS file
     - a path to an ASDF file
-    - a `astropy.io.fits.HDUList` object
+    - a :class:`astropy.io.fits.HDUList` object
     - a readable file-like object
 
 The file will be opened, and based on the nature of the data in the
 file, the correct data model class will be returned.  For example, if
-the file contains 2-dimensional data, an `ImageModel` instance will be
+the file contains 2-dimensional data, an :class:`~stdatamodels.jwst.datamodels.ImageModel` instance will be
 returned.  You will generally want to instantiate a model using a
-`with` statement so that the file will be closed automatically when
-exiting the `with` block.
+``with`` statement so that the file will be closed automatically when
+exiting the ``with`` block.
 
 ::
 
@@ -100,74 +72,47 @@ shape.
 Saving a data model to a file
 -----------------------------
 
-Simply call the `save` method on the model instance.  The format to
+Simply call the :meth:`~stdatamodels.DataModel.save` method on the model instance.  The format to
 save into will either be deduced from the filename (if provided) or
-the `format` keyword argument::
+the ``format`` keyword argument::
 
     im.save("myimage.fits")
 
 .. note::
 
-   Unlike ``astropy.io.fits``, `save` always clobbers the output file.
+   Unlike :mod:`astropy.io.fits`, :meth:`~stdatamodels.DataModel.save` always clobbers the output file.
 
+Reading Metadata Only
+---------------------
 
-Copying a model
----------------
+The ``datamodels.open`` method loads the entire file into memory and validates it against
+its schema. While this is a good thing in most cases, there are times when read-only
+access to metadata is useful.
+To access the metadata without loading the entire file, use the
+``datamodels.read_metadata`` method.  For example, to access the ``s_region``, use
+the following code::
 
-To create a new model based on another model, simply use its `copy`
-method.  This will perform a deep-copy: that is, no changes to the
-original model will propagate to the new model::
+.. doctest-skip::
 
-    new_model = old_model.copy()
+    >>> from stdatamodels.jwst.datamodels import read_metadata
+    >>> meta = read_metadata("myfile.fits")
+    >>> print(meta["meta.wcsinfo.s_region"])
 
-It is also possible to copy all of the known metadata from one
-model into a new one using the update method::
+Notice that the metadata is returned as a flat dictionary by default.
+The keys are the dot-separated names of the metadata elements, and
+the values are the corresponding values in the file. A nested dictionary
+will be returned instead if the ``flatten`` keyword argument is set to False.
 
-    new_model.update(old_model)
-
-History information
--------------------
-
-Models contain a list of history records, accessed through the
-`history` attribute.  This is just an ordered list of strings --
-nothing more sophisticated.
-
-To get to the history::
-
-    entries = model.history
-    for entry in entries:
-      pass
-
-To add an entry to the history, first create the entry by calling
-`stdatamodels.util.create_history_entry` and appending the entry to the model
-history::
-
-    import stdatamodels
-    entry = stdatamodels.util.create_history_entry("Processed through the frobulator step")
-    model.history.append(entry)
-
-These history entries are stored in ``HISTORY`` keywords when saving
-to FITS format. As an option, history entries can contain a dictionary
-with a description of the software used. The dictionary must have the
-following keys:
-
-  ``name``: The name of the software
-  ``author``: The author or institution that produced the software
-  ``homepage``: A URI to the homepage of the software
-  ``version``: The version of the software
-
-The calling sequence to create  a history entry with the software
-description is::
-
-  entry =  stdatamodels.util.create_history_entry(description, software=software_dict)
-
-where the second argument is the dictionary with the keywords
-mentioned.
+.. warning::
+  
+  This method bypasses schema validation, so use it with caution.
+  It also only returns metadata that is mapped to FITS keywords,
+  so some useful items (e.g. ``meta.wcs``) will be missing.
 
 Looking at the contents of a model
 ----------------------------------
 
-Use ``model.info()`` to look at the contents of a data model. It renders
+Use :meth:`~stdatamodels.DataModel.info` to look at the contents of a data model. It renders
 the underlying ASDF tree starting at the root or a specified ``node``.
 The number of displayed rows is controlled by the ``max_row`` argument::
 
@@ -201,7 +146,7 @@ The number of displayed rows is controlled by the ``max_row`` argument::
 Searching a model
 -----------------
 
-``model.search()`` can be used to search the ASDF tree by ``key`` or
+:meth:`~stdatamodels.DataModel.search` can be used to search the ASDF tree by ``key`` or
 ``value``::
 
   im.search(key='filter')
@@ -213,125 +158,199 @@ Searching a model
   └─ref_file (dict)
     └─filteroffset (dict)
 
+Data Arrays
+-----------
+Most datamodels have one or more data arrays as attributes.
+For most datamodels containing science data, the primary data array is
+accessible through the ``data`` attribute.  Other commonly used data arrays
+are ``dq`` (data quality) and ``err`` (uncertainty/error).
 
+The ``data``, ``err``, ``dq``, etc., attributes of most models are assumed to be
+numpy.ndarray arrays, or at least objects that have some of the attributes
+of these arrays.  ``numpy`` is used explicitly to create these arrays in some
+cases (e.g. when a default value is needed).  The ``data`` and ``err`` arrays
+are a floating point type, and the data quality arrays are an integer type.
 
-Converting from ``astropy.io.fits``
-===================================
-
-This section describes how to port code that uses ``astropy.io.fits``
-to use `jwst.datamodels`.
-
-.. _datamodels-open:
-
-Opening a file
---------------
-
-Instead of::
-
-    astropy.io.fits.open("myfile.fits")
-
-use::
-
-    from stdatamodels.jwst.datamodels import ImageModel
-    with ImageModel("myfile.fits") as model:
-        ...
-
-In place of `ImageModel`, use the type of data one expects to find in
-the file.  For example, if spectrographic data is expected, use
-`SpecModel`.  If it doesn't matter (perhaps the application is only
-sorting FITS files into categories) use the base class `JwstDataModel`.
-
-An alternative is to use::
-
-    from stdatamodels.jwst import datamodels
-    with datamodels.open("myfile.fits") as model:
-        ...
-
-The `datamodels.open()` method checks if the `DATAMODL` FITS keyword has
-been set (or, for ASDF files, the `meta.model_type attribute`), 
-which records the DataModel that was used to create the file.
-If the keyword is not set, then `datamodels.open()` does its best to
-guess the best DataModel to use and emits a `NoTypeWarning`.
-
-Accessing data
---------------
-
-Data should be accessed through one of the pre-defined data members on
-the model (`data`, `dq`, `err`).  There is no longer a need to hunt
-through the HDU list to find the data.
-
-Instead of::
-
-    hdulist['SCI'].data
-
-use::
-
-    model.data
-
-Accessing keywords
-------------------
-
-The data model hides direct access to FITS header keywords.  Instead,
-use the :ref:`metadata` tree.
-
-There is a convenience method, `find_fits_keyword` to find where a
-FITS keyword is used in the metadata tree::
-
-    >>> from stdatamodels.jwst.datamodels import JwstDataModel
-    >>> # First, create a model of the desired type
-    >>> model = JwstDataModel()
-    >>> model.find_fits_keyword('DATE-OBS')
-    [u'meta.observation.date']
-
-This information shows that instead of::
-
-    print(hdulist[0].header['DATE-OBS'])
-
-use::
+Metadata
+--------
+Metadata information associated with a data model is accessed through
+its `meta` member.  For example, to access the date that an
+observation was made::
 
     print(model.meta.observation.date)
 
-Extra FITS keywords
+Metadata values are automatically type-checked against the schema when
+they are set. Therefore, setting a keyword which expects a number to a
+string will raise an exception::
+
+    >>> from stdatamodels.jwst.datamodels import ImageModel
+    >>> model = ImageModel()
+    >>> model.meta.target.ra = "foo"    # doctest: +SKIP
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
+        object.__setattr__(self, attr, val)
+      File "site-packages/jwst.datamodels/schema.py", line 490, in __set__
+        val = self.to_basic_type(val)
+      File "site-packages/jwst.datamodels/schema.py", line 422, in to_basic_type
+        raise ValueError(e.message)
+    ValueError: 'foo' is not of type u'number'
+
+The set of available metadata elements is defined in a YAML Schema
+that ships with `jwst.datamodels`.
+
+There is also a utility method for finding elements in the metadata
+schema.  `search_schema` will search the schema for the given
+substring in metadata names as well as their documentation.  The
+search is case-insensitive::
+
+    >>> from stdatamodels.jwst.datamodels import ImageModel
+    >>> # Create a model of the desired type
+    >>> model = ImageModel()
+    >>> # Call `search_schema` on it to find possibly related elements.
+    >>> model.search_schema('target')
+    meta.target
+    <BLANKLINE>
+    meta.target.catalog_name
+    <BLANKLINE>
+    meta.target.category
+    <BLANKLINE>
+    meta.target.dec
+    <BLANKLINE>
+    meta.target.dec_uncertainty
+    <BLANKLINE>
+    meta.target.description
+    <BLANKLINE>
+    meta.target.proper_motion_dec
+    <BLANKLINE>
+    meta.target.proper_motion_epoch
+    <BLANKLINE>
+    meta.target.proper_motion_ra
+    <BLANKLINE>
+    meta.target.proposer_dec
+    <BLANKLINE>
+    meta.target.proposer_name
+    <BLANKLINE>
+    meta.target.proposer_ra
+    <BLANKLINE>
+    meta.target.ra
+    <BLANKLINE>
+    meta.target.ra_uncertainty
+    <BLANKLINE>
+    meta.target.source_type
+    <BLANKLINE>
+    meta.target.source_type_apt
+    <BLANKLINE>
+    meta.target.type
+    <BLANKLINE>
+    meta.visit.internal_target
+    <BLANKLINE>
+
+
+An alternative method to get and set metadata values is to use a
+dot-separated name as a dictionary lookup.  This is useful for
+databases, such as CRDS, where the path to the metadata element is
+most conveniently stored as a string.  The following two lines are
+equivalent::
+
+    print(model['meta.observation.date'])
+    print(model.meta.observation.date)
+
+Copying a model
+---------------
+
+To create a new model based on another model, simply use its :meth:`~stdatamodels.DataModel.copy`
+method.  This will perform a deep-copy: that is, no changes to the
+original model will propagate to the new model::
+
+    new_model = old_model.copy()
+
+It is also possible to copy all of the known metadata from one
+model into a new one using the :meth:`~stdatamodels.DataModel.update` method::
+
+    new_model.update(old_model)
+
+History information
 -------------------
 
-When loading arbitrary FITS files, there may be keywords that are not
-listed in the schema for that data model.  These "extra" FITS keywords
-are put into the model in the ``extra_fits`` namespace.
+Models contain a list of history records, accessed through the
+``history`` attribute.  This is just an ordered list of strings --
+nothing more sophisticated.
 
-Under the ``extra_fits`` namespace is a section for each FITS extension
-that contains schema-unmapped header information or data,
-and within those are the extra FITS keywords.  For example, if
-the FITS file contains keywords ``FOO="bar"`` and ``BAZ="qux"`` in the primary header
-that are not defined in the schema, they will be loaded into::
-    
-    model.extra_fits.PRIMARY.header
+To get to the history::
 
-as a list-of-lists: ``[['FOO', 'bar', ''], ['BAZ', 'qux', '']]``.
+    entries = model.history
+    for entry in entries:
+      pass
 
-The ``extra_fits`` namespace may also hold entire hdus that are not
-mapped to a data model.  For example, if the FITS file contains an
-extension called ``EXTRA``, it can be accessed using::
+To add an entry to the history, first create the entry by calling
+``stdatamodels.util.create_history_entry`` and appending the entry to the model
+history::
 
-    model.extra_fits.EXTRA
+    import stdatamodels
+    entry = stdatamodels.util.create_history_entry("Processed through the frobulator step")
+    model.history.append(entry)
 
-and its data array can be accessed using::
+These history entries are stored in ``HISTORY`` keywords when saving
+to FITS format. As an option, history entries can contain a dictionary
+with a description of the software used. The dictionary must have the
+following keys:
 
-    model.extra_fits.EXTRA.data
+  ``name``: The name of the software
+  ``author``: The author or institution that produced the software
+  ``homepage``: A URI to the homepage of the software
+  ``version``: The version of the software
 
-To get a list of everything in ``extra_fits`` as a dictionary, use::
+The calling sequence to create  a history entry with the software
+description is::
 
-    model.extra_fits.instance
+  entry =  stdatamodels.util.create_history_entry(description, software=software_dict)
 
-(``instance`` can be used at any node in the tree, not just ``extra_fits``,
-to return a dictionary of rest of the tree structure at that node.)
+where the second argument is the dictionary with the keywords
+mentioned.
 
-.. note::
+Working with lists
+------------------
 
-    The ``jwst`` pipeline never directly accesses information
-    from ``extra_fits``, as this would bypass the schema validation and partly defeat
-    the purpose of the data model. If you are developing a model for pipeline use, 
-    it is strongly recommended to define any new
-    (meta)data in the datamodel schema early on in the development process.
+Unlike ordinary Python lists, lists in the schema may be restricted to
+only accept a certain set of values.  Items may be added to lists in
+two ways: by passing a dictionary containing the desired key/value
+pairs for the object, or using the lists special method `item` to
+create a metadata object and then assigning that to the list.
+
+For example, suppose the metadata element `meta.transformations` is a
+list of transformation objects, each of which has a `type` (string)
+and a `coeff` (number) member.  We can assign elements to the list in
+the following equivalent ways::
+
+.. doctest-skip::
+
+    >>> trans = model.meta.transformations.item()
+    >>> trans.type = 'SIN'
+    >>> trans.coeff = 42.0
+    >>> model.meta.transformations.append(trans)
+    >>> model.meta.transformations.append({'type': 'SIN', 'coeff': 42.0})
+
+When accessing the items of the list, the result is a normal metadata
+object where the attributes are type-checked::
+
+.. doctest-skip::
+  
+    >>> trans = model.meta.transformations[0]
+    >>> print(trans)
+    <jwst.datamodels.schema.Transformations object at 0x123a810>
+    >>> print(trans.type)
+    SIN
+    >>> trans.type = 42.0
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
+         object.__setattr__(self, attr, val)
+      File "site-packages/jwst.datamodels/schema.py", line 490, in __set__
+         val = self.to_basic_type(val)
+      File "site-packages/jwst.datamodels/schema.py", line 422, in to_basic_type
+         raise ValueError(e.message)
+    ValueError: 42.0 is not of type u'string'
 
 Environment Variables
 ---------------------
@@ -339,22 +358,21 @@ Environment Variables
 There are a number of environment variables that affect how models are read.
 
 PASS_INVALID_VALUES
-  Used by `~jwst.datamodels.JwstDataModel` when instantiating
+  Used by :class:`~stdatamodels.jwst.datamodels.JwstDataModel` when instantiating
   a model from a file. If ``True``, values that do not validate the schema will
   still be added to the metadata. If ``False``, they will be set to ``None``.
   Default is ``False``.
 
 STRICT_VALIDATION
-  Used by `~jwst.datamodels.JwstDataModel` when instantiating a model from a file.
+  Used by :class:`~stdatamodels.jwst.datamodels.JwstDataModel` when instantiating a model from a file.
   If ``True``, schema validation errors will generate an exception.
   If ``False``, they will generate a warning.
   Default is ``False``.
 
 DMODEL_ALLOWED_MEMORY
-  Implemented by the utility function
-  `jwst.datamodels.util.check_memory_allocation` and used by
-  `~jwst.outlier_detection.OutlierDetectionStep` and
-  `~jwst.resample.ResampleStep`. When defined, determines how much of currently
+  Used by
+  ``jwst.outlier_detection.OutlierDetectionStep`` and
+  ``jwst.resample.ResampleStep``. When defined, determines how much of currently
   available memory should be used to instantiated an output resampled image. If
   not defined, no check is made.
 
