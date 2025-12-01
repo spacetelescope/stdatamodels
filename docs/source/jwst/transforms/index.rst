@@ -79,16 +79,20 @@ these transform definitions.
 
 Converters
 ----------
-WCS transforms typically take the form of callable Astropy models. Since these
-cannot be directly serialized to ASDF files, this package also defines
-a converter for each transform type that describes how to represent the transform
-in ASDF. When a datamodel containing a transform is saved, the ``to_yaml_tree`` method
-of the appropriate converter is called to produce a YAML-compatible representation
-of the transform. When a datamodel is loaded from a file, the ``from_yaml_tree`` method
-is called to reconstruct the transform model from its YAML representation.
+WCS transforms typically take the form of callable Astropy models. In order for these
+models to be serialized, ASDF needs to be told what information to keep in its representation
+on save, and how to initialize the model on load. This is done with a converter class,
+containing:
+
+- a ``to_yaml_tree`` or ``to_yaml_tree_transform`` method that converts the model into a YAML-compatible
+  tree structure for serialization
+- a ``from_yaml_tree`` or ``from_yaml_tree_transform`` method that reconstructs the model from
+  its YAML representation
+- a ``tags`` attribute that lists the ASDF tags that this converter handles.
+- a ``types`` attribute that lists the Python types that this converter handles.
 
 See the `asdf converters docs <https://www.asdf-format.org/projects/asdf/en/latest/asdf/extending/converters.html>`_
-for documentation of all the available converters and implementation details.
+for additional details and documentation.
 
 Legacy Transforms
 -----------------
