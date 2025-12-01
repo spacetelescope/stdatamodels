@@ -1,6 +1,6 @@
 from .reference import ReferenceFileModel
 
-__all__ = ["ResolutionModel", "MiriResolutionModel"]
+__all__ = ["MiriResolutionModel", "ResolutionModel"]
 
 
 class ResolutionModel(ReferenceFileModel):

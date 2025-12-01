@@ -1,6 +1,6 @@
 from .reference import ReferenceFileModel
 
-__all__ = ["PathlossModel", "MirLrsPathlossModel"]
+__all__ = ["MirLrsPathlossModel", "PathlossModel"]
 
 
 class PathlossModel(ReferenceFileModel):

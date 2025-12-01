@@ -1,6 +1,6 @@
 from .model_base import JwstDataModel
 
-__all__ = ["SpecModel", "MRSSpecModel", "TSOSpecModel", "WFSSSpecModel"]
+__all__ = ["MRSSpecModel", "SpecModel", "TSOSpecModel", "WFSSSpecModel"]
 
 
 class SpecModel(JwstDataModel):

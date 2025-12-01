@@ -10,7 +10,7 @@ from astropy.io import fits
 from . import schema as mschema
 from . import util, validate
 
-__all__ = ["ObjectNode", "ListNode"]
+__all__ = ["ListNode", "ObjectNode"]
 
 
 def _is_struct_array(val):

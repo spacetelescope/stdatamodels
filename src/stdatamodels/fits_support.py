@@ -23,7 +23,7 @@ from . import schema as mschema
 log = logging.getLogger(__name__)
 
 
-__all__ = ["to_fits", "from_fits", "get_hdu", "is_builtin_fits_keyword"]
+__all__ = ["from_fits", "get_hdu", "is_builtin_fits_keyword", "to_fits"]
 
 
 _ASDF_EXTENSION_NAME = "ASDF"

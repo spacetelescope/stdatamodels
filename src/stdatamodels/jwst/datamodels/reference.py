@@ -6,7 +6,7 @@ from stdatamodels.exceptions import ValidationWarning
 from .dqflags import pixel
 from .model_base import JwstDataModel
 
-__all__ = ["ReferenceFileModel", "ReferenceImageModel", "ReferenceCubeModel", "ReferenceQuadModel"]
+__all__ = ["ReferenceCubeModel", "ReferenceFileModel", "ReferenceImageModel", "ReferenceQuadModel"]
 
 
 class ReferenceFileModel(JwstDataModel):
