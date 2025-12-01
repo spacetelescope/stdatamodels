@@ -13,5 +13,3 @@ stdatamodels API
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.jwst.transforms
    :no-inheritance-diagram:
-.. automodapi:: stdatamodels.jwst.transforms.converters
-   :no-inheritance-diagram:
