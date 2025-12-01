@@ -17,9 +17,9 @@ The primary entry point for loading and saving datamodels is the
 ``stdatamodels.jwst.datamodels`` module.  To load a datamodel from a file, use
 the ``open`` function.  For example, to load a file called ``example.fits``::
 
-    from stdatamodels.jwst.datamodels import open
+    import stdatamodels.jwst.datamodels as dm
 
-    model = open("example.fits")
+    model = dm.open("example.fits")
 
 To save the datamodel back to a file, use the ``save`` method of the model
 instance.  For example, to save the model to a file called ``output.fits``::
