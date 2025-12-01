@@ -369,16 +369,6 @@ STRICT_VALIDATION
   If ``False``, they will generate a warning.
   Default is ``False``.
 
-DMODEL_ALLOWED_MEMORY
-  Used by
-  ``jwst.outlier_detection.OutlierDetectionStep`` and
-  ``jwst.resample.ResampleStep``. When defined, determines how much of currently
-  available memory should be used to instantiated an output resampled image. If
-  not defined, no check is made.
-
-  Examples would be: ``1.0`` would allow all available memory to be used. ``0.5``
-  would allow only half the available memory to be used.
-
 For flag or boolean variables, any value in ``('true', 't', 'yes', 'y')`` or a
 non-zero number, will evaluate as ``True``. Any value in ``('false', 'f', 'no',
 'n', '0')`` will evaluate as ``False``. The values are case-insensitive.

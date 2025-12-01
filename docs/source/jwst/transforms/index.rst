@@ -87,8 +87,8 @@ of the appropriate converter is called to produce a YAML-compatible representati
 of the transform. When a datamodel is loaded from a file, the ``from_yaml_tree`` method
 is called to reconstruct the transform model from its YAML representation.
 
-See :py:mod:`stdatamodels.jwst.transforms.converters` for documentation
-of all the available converters and implementation details.
+See the `asdf converters docs <https://www.asdf-format.org/projects/asdf/en/latest/asdf/extending/converters.html>`_
+for documentation of all the available converters and implementation details.
 
 Legacy Transforms
 -----------------

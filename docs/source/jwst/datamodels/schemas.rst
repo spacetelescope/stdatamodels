@@ -12,9 +12,7 @@ to ensure that it conforms to the expected structure.
 ``stdatamodels`` defines its metadata using `Draft 4 of
 the JSON Schema specification
 <http://tools.ietf.org/html/draft-zyp-json-schema-04>`_, but
-``stdatamodels`` uses YAML for the syntax.  A good resource for
-learning about JSON schema is the book `Understanding JSON Schema
-<http://spacetelescope.github.com/understanding-json-schema>`_.
+``stdatamodels`` uses YAML for the syntax.
 
 Data model schemas
 ------------------
