@@ -2492,6 +2492,12 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_FRSTFR
             blend_table: True
+          fit_profile:
+            title: Fit Spatial Profile
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_FITPRF
+            blend_table: True
           flat_field:
             title: Flat Field Correction
             type: string
