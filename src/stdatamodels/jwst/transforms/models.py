@@ -1190,7 +1190,8 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         if len(dx.shape) == 2:
             dx = dx[0, :]
 
-        t0 = np.linspace(0.0, 1.0, self.sampling)
+        # NIRCam t functions have been calibrated such that being just outside (0, 1) is okay
+        t0 = np.linspace(-0.1, 1.1, self.sampling)
 
         # handle multiple inverse model types
         if isinstance(model, (ListNode, list, tuple)):
@@ -1489,7 +1490,8 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         t_out : float
             The inverse dispersion value for the given wavelength
         """
-        t0 = np.linspace(0.0, 1.0, int(self.sampling))
+        # NIRCam t functions have been calibrated such that being just outside (0, 1) is okay
+        t0 = np.linspace(-0.1, 1.1, int(self.sampling))
 
         if len(model) < 2:
             # Handle legacy versions of the trace model
