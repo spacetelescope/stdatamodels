@@ -182,7 +182,7 @@ string will raise an exception::
 
     >>> from stdatamodels.jwst.datamodels import ImageModel
     >>> model = ImageModel()
-    >>> model.meta.target.ra = "foo"    # doctest: +SIGNORE_EXCEPTION_DETAIL
+    >>> model.meta.target.ra = "foo"    # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
