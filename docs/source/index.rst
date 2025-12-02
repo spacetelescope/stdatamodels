@@ -4,8 +4,13 @@ Welcome to stdatamodels's documentation!
 .. toctree::
    :maxdepth: 1
    
-   quickstart.rst
    what-is-stdatamodels.rst
+   quickstart.rst
+
+.. toctree::
+   :maxdepth: 2
+
+   installation.rst
 
 .. toctree::
    :maxdepth: 3
@@ -33,11 +38,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-Change Log
-==========
-
-.. toctree::
-   :maxdepth: 1
-
-   changes.rst

@@ -11,7 +11,9 @@ Opening a file
 
 Instead of::
 
-    astropy.io.fits.open("myfile.fits")
+    from astropy.io import fits
+    with fits.open("myfile.fits") as hdulist:
+        ...
 
 use::
 
@@ -36,12 +38,11 @@ the file.  For example, if spectrographic data is expected, use
 :class:`~stdatamodels.jwst.datamodels.SpecModel`.  If it doesn't matter (perhaps the application is only
 sorting FITS files into categories) use the base class :class:`~stdatamodels.jwst.datamodels.JwstDataModel`.
 
-
 Accessing data
 --------------
 
 Data should be accessed through one of the pre-defined data members on
-the model (``data``, ``dq``, ``err``).  There is no longer a need to hunt
+the model (``data``, ``dq``, ``err``).  There is no longer a need to search
 through the HDU list to find the data.
 
 Instead of::
@@ -65,7 +66,7 @@ FITS keyword is used in the metadata tree::
     >>> # First, create a model of the desired type
     >>> model = JwstDataModel()
     >>> model.find_fits_keyword('DATE-OBS')
-    [u'meta.observation.date']
+    ['meta.observation.date']
 
 This information shows that instead of::
 

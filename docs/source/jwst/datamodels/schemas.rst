@@ -99,7 +99,6 @@ also have associated ASDF schemas for validating their representation
 in ASDF files. See :ref:`the transforms documentation <jwst-transforms-index>`
 for more details.
 
-
 Custom Schema Keywords
 ----------------------
 

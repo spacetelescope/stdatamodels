@@ -1,5 +1,5 @@
-What is stdatamodels?
-=====================
+Overview of stdatamodels
+========================
 
 ``stdatamodels`` is a Python package that provides a framework for
 defining, creating, loading, and manipulating data models for
@@ -16,5 +16,5 @@ was created.
 The ``jwst`` data processing pipeline makes extensive use of
 ``stdatamodels`` to represent the data at various stages of processing.
 However, ``stdatamodels`` remains a standalone package to allow
-the use of datamodels without needing to
+the use of JWST data products without needing to
 install the entire JWST pipeline infrastructure.

@@ -18,8 +18,9 @@ The primary entry point for loading and saving datamodels is the
 the ``open`` function.  For example, to load a file called ``example.fits``::
 
     import stdatamodels.jwst.datamodels as dm
-
-    model = dm.open("example.fits")
+    with dm.open("example.fits") as model:
+        # work with the model here
+        ...
 
 To save the datamodel back to a file, use the ``save`` method of the model
 instance.  For example, to save the model to a file called ``output.fits``::
@@ -31,10 +32,10 @@ Accessing Data and Metadata
 Once a datamodel is loaded, the data and metadata may be accessed via
 attributes of the model instance. Datamodels are structured as a nested tree,
 similar to the ASDF file format. For example, to access the data array and
-the ``observation.date`` metadata element::
+the ``exposure.start_time`` metadata element::
 
     data = model.data
-    date = model.meta.observation.date
+    date = model.meta.exposure.start_time
 
 Inspect the Datamodel
 ---------------------

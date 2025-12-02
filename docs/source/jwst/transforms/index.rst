@@ -91,7 +91,7 @@ containing:
 - a ``tags`` attribute that lists the ASDF tags that this converter handles.
 - a ``types`` attribute that lists the Python types that this converter handles.
 
-See the `asdf converters docs <https://www.asdf-format.org/projects/asdf/en/latest/asdf/extending/converters.html>`_
+See the :ref:`asdf converters docs <asdf:extending_converters>`
 for additional details and documentation.
 
 Legacy Transforms

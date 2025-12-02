@@ -48,9 +48,7 @@ file, the correct data model class will be returned.  For example, if
 the file contains 2-dimensional data, an :class:`~stdatamodels.jwst.datamodels.ImageModel` instance will be
 returned.  You will generally want to instantiate a model using a
 ``with`` statement so that the file will be closed automatically when
-exiting the ``with`` block.
-
-::
+exiting the ``with`` block.::
 
     from stdatamodels.jwst import datamodels
     with datamodels.open("myimage.fits") as im:
@@ -92,11 +90,9 @@ To access the metadata without loading the entire file, use the
 ``datamodels.read_metadata`` method.  For example, to access the ``s_region``, use
 the following code::
 
-.. doctest-skip::
-
-    >>> from stdatamodels.jwst.datamodels import read_metadata
-    >>> meta = read_metadata("myfile.fits")
-    >>> print(meta["meta.wcsinfo.s_region"])
+    from stdatamodels.jwst.datamodels import read_metadata
+    meta = read_metadata("myfile.fits")
+    print(meta["meta.wcsinfo.s_region"])
 
 Notice that the metadata is returned as a flat dictionary by default.
 The keys are the dot-separated names of the metadata elements, and
@@ -107,7 +103,7 @@ will be returned instead if the ``flatten`` keyword argument is set to False.
   
   This method bypasses schema validation, so use it with caution.
   It also only returns metadata that is mapped to FITS keywords,
-  so some useful items (e.g. ``meta.wcs``) will be missing.
+  so some useful items (e.g., ``meta.wcs``) will be missing.
 
 Looking at the contents of a model
 ----------------------------------
@@ -117,6 +113,7 @@ the underlying ASDF tree starting at the root or a specified ``node``.
 The number of displayed rows is controlled by the ``max_row`` argument::
 
   im.info()
+
   root.tree (AsdfObject)
   ├─asdf_library (Software)
   │ ├─author (str): Space Telescope Science Institute
@@ -168,13 +165,13 @@ are ``dq`` (data quality) and ``err`` (uncertainty/error).
 The ``data``, ``err``, ``dq``, etc., attributes of most models are assumed to be
 numpy.ndarray arrays, or at least objects that have some of the attributes
 of these arrays.  ``numpy`` is used explicitly to create these arrays in some
-cases (e.g. when a default value is needed).  The ``data`` and ``err`` arrays
+cases (, when a default value is needed).  The ``data`` and ``err`` arrays
 are a floating point type, and the data quality arrays are an integer type.
 
 Metadata
 --------
 Metadata information associated with a data model is accessed through
-its `meta` member.  For example, to access the date that an
+its ``meta`` member.  For example, to access the date that an
 observation was made::
 
     print(model.meta.observation.date)
@@ -185,7 +182,7 @@ string will raise an exception::
 
     >>> from stdatamodels.jwst.datamodels import ImageModel
     >>> model = ImageModel()
-    >>> model.meta.target.ra = "foo"    # doctest: +SKIP
+    >>> model.meta.target.ra = "foo"    # doctest: +SIGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
@@ -197,17 +194,17 @@ string will raise an exception::
     ValueError: 'foo' is not of type u'number'
 
 The set of available metadata elements is defined in a YAML Schema
-that ships with `jwst.datamodels`.
+that ships with ``stdatamodels``.
 
 There is also a utility method for finding elements in the metadata
-schema.  `search_schema` will search the schema for the given
+schema.  ``search_schema`` will search the schema for the given
 substring in metadata names as well as their documentation.  The
 search is case-insensitive::
 
     >>> from stdatamodels.jwst.datamodels import ImageModel
     >>> # Create a model of the desired type
     >>> model = ImageModel()
-    >>> # Call `search_schema` on it to find possibly related elements.
+    >>> # Call search_schema on it to find possibly related elements.
     >>> model.search_schema('target')
     meta.target
     <BLANKLINE>
@@ -245,7 +242,6 @@ search is case-insensitive::
     <BLANKLINE>
     meta.visit.internal_target
     <BLANKLINE>
-
 
 An alternative method to get and set metadata values is to use a
 dot-separated name as a dictionary lookup.  This is useful for
@@ -296,15 +292,15 @@ to FITS format. As an option, history entries can contain a dictionary
 with a description of the software used. The dictionary must have the
 following keys:
 
-  ``name``: The name of the software
-  ``author``: The author or institution that produced the software
-  ``homepage``: A URI to the homepage of the software
-  ``version``: The version of the software
+  * ``name``: The name of the software
+  * ``author``: The author or institution that produced the software
+  * ``homepage``: A URI to the homepage of the software
+  * ``version``: The version of the software
 
-The calling sequence to create  a history entry with the software
+The calling sequence to create a history entry with the software
 description is::
 
-  entry =  stdatamodels.util.create_history_entry(description, software=software_dict)
+    entry =  stdatamodels.util.create_history_entry(description, software=software_dict)
 
 where the second argument is the dictionary with the keywords
 mentioned.
@@ -315,26 +311,22 @@ Working with lists
 Unlike ordinary Python lists, lists in the schema may be restricted to
 only accept a certain set of values.  Items may be added to lists in
 two ways: by passing a dictionary containing the desired key/value
-pairs for the object, or using the lists special method `item` to
+pairs for the object, or using the lists special method ``item`` to
 create a metadata object and then assigning that to the list.
 
-For example, suppose the metadata element `meta.transformations` is a
-list of transformation objects, each of which has a `type` (string)
-and a `coeff` (number) member.  We can assign elements to the list in
+For example, suppose the metadata element ``meta.transformations`` is a
+list of transformation objects, each of which has a ``type`` (string)
+and a ``coeff`` (number) member.  We can assign elements to the list in
 the following equivalent ways::
 
-.. doctest-skip::
-
-    >>> trans = model.meta.transformations.item()
-    >>> trans.type = 'SIN'
-    >>> trans.coeff = 42.0
-    >>> model.meta.transformations.append(trans)
-    >>> model.meta.transformations.append({'type': 'SIN', 'coeff': 42.0})
+    trans = model.meta.transformations.item()
+    trans.type = 'SIN'
+    trans.coeff = 42.0
+    model.meta.transformations.append(trans)
+    model.meta.transformations.append({'type': 'SIN', 'coeff': 42.0})
 
 When accessing the items of the list, the result is a normal metadata
 object where the attributes are type-checked::
-
-.. doctest-skip::
   
     >>> trans = model.meta.transformations[0]
     >>> print(trans)
