@@ -1,5 +1,5 @@
-***********
-Change  Log
-***********
+*********
+Changelog
+*********
 
 .. include:: ../../CHANGES.rst

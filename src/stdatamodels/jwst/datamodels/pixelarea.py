@@ -1,6 +1,6 @@
 from .reference import ReferenceFileModel
 
-__all__ = ["PixelAreaModel", "NirspecSlitAreaModel", "NirspecMosAreaModel", "NirspecIfuAreaModel"]
+__all__ = ["NirspecIfuAreaModel", "NirspecMosAreaModel", "NirspecSlitAreaModel", "PixelAreaModel"]
 
 
 class PixelAreaModel(ReferenceFileModel):

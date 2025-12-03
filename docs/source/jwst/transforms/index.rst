@@ -1,6 +1,8 @@
-==========
-Transforms
-==========
+.. _jwst-transforms-index:
+
+====================
+WCS Transform Models
+====================
 
 .. toctree::
    :maxdepth: 2
@@ -63,18 +65,34 @@ these transform definitions.
    :schema_root: ../../src/stdatamodels/jwst/transforms/resources/schemas
    :standard_prefix: stsci.edu/jwst_pipeline
 
-   grating_equation-1.0.0
-   gwa_to_slit-1.0.0
-   logical-1.0.0
-   miri_ab2slice-1.0.0
-   nircam_grism_dispersion-1.0.0
-   niriss_grism_dispersion-1.0.0
-   niriss_soss-1.0.0
-   refraction_index_from_prism-1.0.0
-   rotation_sequence-1.0.0
-   slit_to_msa-1.0.0
-   snell-1.0.0
+   grating_equation-1.2.0
+   gwa_to_slit-1.2.0
+   logical-1.2.0
+   miri_ab2slice-1.2.0
+   nircam_grism_dispersion-1.2.0
+   niriss_grism_dispersion-1.2.0
+   niriss_soss-1.2.0
+   refraction_index_from_prism-1.2.0
+   rotation_sequence-1.2.0
+   slit_to_msa-1.2.0
+   snell-1.2.0
 
+Converters
+----------
+WCS transforms typically take the form of callable Astropy models. In order for these
+models to be serialized, ASDF needs to be told what information to keep in its representation
+on save, and how to initialize the model on load. This is done with a converter class,
+containing:
+
+- a ``to_yaml_tree`` or ``to_yaml_tree_transform`` method that converts the model into a YAML-compatible
+  tree structure for serialization
+- a ``from_yaml_tree`` or ``from_yaml_tree_transform`` method that reconstructs the model from
+  its YAML representation
+- a ``tags`` attribute that lists the ASDF tags that this converter handles.
+- a ``types`` attribute that lists the Python types that this converter handles.
+
+See the :ref:`asdf converters docs <asdf:extending_converters>`
+for additional details and documentation.
 
 Legacy Transforms
 -----------------

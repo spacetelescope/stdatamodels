@@ -5,7 +5,7 @@ from astropy.io import fits
 
 from . import fits_support
 
-__all__ = ["write", "open", "to_hdulist"]
+__all__ = ["open", "to_hdulist", "write"]
 
 # This API is intended to replace the removed asdf.AsdfInFits
 # for community (non-pipeline) usage. When considering changes
