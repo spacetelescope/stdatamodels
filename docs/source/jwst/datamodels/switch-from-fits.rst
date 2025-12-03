@@ -2,7 +2,10 @@ Switching over from ``astropy.io.fits``
 =======================================
 
 This section describes how to port code that uses :mod:`astropy.io.fits`
-to use :mod:`stdatamodels.jwst.datamodels`.
+to use :mod:`stdatamodels.jwst.datamodels`. Please note that ``stdatamodels``
+is only intended for use with JWST data products, and is not a general-purpose
+FITS file reader/writer. If you attempt to load arbitrary FITS files, you may
+encounter unexpected behavior.
 
 .. _datamodels-open:
 
@@ -34,9 +37,8 @@ An alternative is to use::
         ...
 
 In place of :class:`~stdatamodels.jwst.datamodels.ImageModel`, use the type of data one expects to find in
-the file.  For example, if spectrographic data is expected, use
-:class:`~stdatamodels.jwst.datamodels.SpecModel`.  If it doesn't matter (perhaps the application is only
-sorting FITS files into categories) use the base class :class:`~stdatamodels.jwst.datamodels.JwstDataModel`.
+the file.  For example, if a spectrum is expected, use
+:class:`~stdatamodels.jwst.datamodels.SpecModel`.
 
 Accessing data
 --------------
@@ -48,10 +50,14 @@ through the HDU list to find the data.
 Instead of::
 
     hdulist['SCI'].data
+    hdulist['DQ'].data
+    hdulist['ERR'].data
 
 use::
 
     model.data
+    model.dq
+    model.err
 
 Accessing keywords
 ------------------
@@ -79,7 +85,7 @@ use::
 Extra FITS keywords
 -------------------
 
-When loading arbitrary FITS files, there may be keywords that are not
+When loading FITS files, there may be keywords that are not
 listed in the schema for that data model.  These "extra" FITS keywords
 are put into the model in the ``extra_fits`` namespace.
 

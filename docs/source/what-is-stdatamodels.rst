@@ -18,3 +18,7 @@ The ``jwst`` data processing pipeline makes extensive use of
 However, ``stdatamodels`` remains a standalone package to allow
 the use of JWST data products without needing to
 install the entire JWST pipeline infrastructure.
+
+Please note that ``stdatamodels`` is not intended to be a general-purpose
+FITS or ASDF file reader/writer.  The available data model schemas correspond
+to specific file formats generated or expected by the JWST pipeline.
