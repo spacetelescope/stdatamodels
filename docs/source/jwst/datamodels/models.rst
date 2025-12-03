@@ -320,16 +320,14 @@ the following equivalent ways::
     model.meta.transformations.append({'type': 'SIN', 'coeff': 42.0})
 
 When accessing the items of the list, the result is a normal metadata
-object where the attributes are type-checked:
-
-.. doctest-skip::
+object where the attributes are type-checked::
   
-    >>> trans = model.meta.transformations[0]
-    >>> print(trans)
+    >>> trans = model.meta.transformations[0] # doctest: +SKIP
+    >>> print(trans) # doctest: +SKIP
     <jwst.datamodels.schema.Transformations object at 0x123a810>
-    >>> print(trans.type)
+    >>> print(trans.type) # doctest: +SKIP
     SIN
-    >>> trans.type = 42.0
+    >>> trans.type = 42.0 # doctest: +SKIP
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
