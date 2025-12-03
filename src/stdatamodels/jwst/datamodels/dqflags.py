@@ -72,9 +72,9 @@ group = {
 
 __all__ = [
     "ap_interpret_bit_flags",
-    "interpret_bit_flags",
     "dqflags_to_mnemonics",
+    "group",
+    "interpret_bit_flags",
     "multiple_replace",
     "pixel",
-    "group",
 ]

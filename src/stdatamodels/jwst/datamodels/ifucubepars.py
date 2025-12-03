@@ -1,6 +1,6 @@
 from .reference import ReferenceFileModel
 
-__all__ = ["NirspecIFUCubeParsModel", "MiriIFUCubeParsModel"]
+__all__ = ["MiriIFUCubeParsModel", "NirspecIFUCubeParsModel"]
 
 
 class NirspecIFUCubeParsModel(ReferenceFileModel):
