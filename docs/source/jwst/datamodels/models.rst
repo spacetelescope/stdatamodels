@@ -165,7 +165,7 @@ are ``dq`` (data quality) and ``err`` (uncertainty/error).
 The ``data``, ``err``, ``dq``, etc., attributes of most models are assumed to be
 numpy.ndarray arrays, or at least objects that have some of the attributes
 of these arrays.  ``numpy`` is used explicitly to create these arrays in some
-cases (, when a default value is needed).  The ``data`` and ``err`` arrays
+cases (e.g., when a default value is needed).  The ``data`` and ``err`` arrays
 are a floating point type, and the data quality arrays are an integer type.
 
 Metadata
@@ -178,20 +178,14 @@ observation was made::
 
 Metadata values are automatically type-checked against the schema when
 they are set. Therefore, setting a keyword which expects a number to a
-string will raise an exception::
+string will raise a ``ValidationWarning`` which by default is raised to an error::
 
     >>> from stdatamodels.jwst.datamodels import ImageModel
     >>> model = ImageModel()
-    >>> model.meta.target.ra = "foo"    # doctest: +IGNORE_EXCEPTION_DETAIL
+    >>> model.meta.target.ra = "foo"  # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "site-packages/jwst.datamodels/schema.py", line 672, in __setattr__
-        object.__setattr__(self, attr, val)
-      File "site-packages/jwst.datamodels/schema.py", line 490, in __set__
-        val = self.to_basic_type(val)
-      File "site-packages/jwst.datamodels/schema.py", line 422, in to_basic_type
-        raise ValueError(e.message)
-    ValueError: 'foo' is not of type u'number'
+      ...
+    ValidationWarning: While validating ra the following error occurred: 'foo' is not of type 'number'
 
 The set of available metadata elements is defined in a YAML Schema
 that ships with ``stdatamodels``.
@@ -292,10 +286,10 @@ to FITS format. As an option, history entries can contain a dictionary
 with a description of the software used. The dictionary must have the
 following keys:
 
-  * ``name``: The name of the software
-  * ``author``: The author or institution that produced the software
-  * ``homepage``: A URI to the homepage of the software
-  * ``version``: The version of the software
+* ``name``: The name of the software
+* ``author``: The author or institution that produced the software
+* ``homepage``: A URI to the homepage of the software
+* ``version``: The version of the software
 
 The calling sequence to create a history entry with the software
 description is::
@@ -326,7 +320,9 @@ the following equivalent ways::
     model.meta.transformations.append({'type': 'SIN', 'coeff': 42.0})
 
 When accessing the items of the list, the result is a normal metadata
-object where the attributes are type-checked::
+object where the attributes are type-checked:
+
+.. doctest-skip::
   
     >>> trans = model.meta.transformations[0]
     >>> print(trans)

@@ -35,7 +35,7 @@ similar to the ASDF file format. For example, to access the data array and
 the ``exposure.start_time`` metadata element::
 
     data = model.data
-    date = model.meta.exposure.start_time
+    start_time = model.meta.exposure.start_time
 
 Inspect the Datamodel
 ---------------------
