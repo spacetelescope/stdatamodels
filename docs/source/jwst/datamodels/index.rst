@@ -8,8 +8,6 @@ Data Models
    :maxdepth: 2
 
    models.rst
-   attributes.rst
-   metadata.rst
    new_model.rst
-   structure.rst
    schemas.rst
+   switch-from-fits.rst

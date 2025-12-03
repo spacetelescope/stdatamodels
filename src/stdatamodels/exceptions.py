@@ -1,4 +1,4 @@
-__all__ = ["ValidationWarning", "NoTypeWarning"]
+__all__ = ["NoTypeWarning", "ValidationWarning"]
 
 
 class ValidationWarning(Warning):

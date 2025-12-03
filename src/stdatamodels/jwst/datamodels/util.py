@@ -16,7 +16,7 @@ from stdatamodels import filetype, fits_support
 from stdatamodels.exceptions import NoTypeWarning
 from stdatamodels.model_base import _FileReference
 
-__all__ = ["open", "is_association"]
+__all__ = ["is_association", "open"]
 
 
 log = logging.getLogger(__name__)

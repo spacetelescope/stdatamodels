@@ -1,6 +1,6 @@
 from .model_base import JwstDataModel
 
-__all__ = ["SlitModel", "SlitDataModel"]
+__all__ = ["SlitDataModel", "SlitModel"]
 
 
 class SlitDataModel(JwstDataModel):

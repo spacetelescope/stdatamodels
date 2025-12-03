@@ -10,11 +10,11 @@ __all__ = [
     "MirImgPhotomModel",
     "MirLrsPhotomModel",
     "MirMrsPhotomModel",
-    "NrcImgPhotomModel",
-    "NrcWfssPhotomModel",
     "NisImgPhotomModel",
     "NisSossPhotomModel",
     "NisWfssPhotomModel",
+    "NrcImgPhotomModel",
+    "NrcWfssPhotomModel",
     "NrsFsPhotomModel",
     "NrsMosPhotomModel",
 ]

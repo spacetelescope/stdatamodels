@@ -7,22 +7,22 @@ from astropy.modeling import Model
 from stdatamodels.properties import ListNode
 
 __all__ = [
+    "CoordsConverter",
+    "GratingEquationConverter",
     "Gwa2SlitConverter",
-    "Msa2SlitConverter",
     "LogicalConverter",
-    "NirissSOSSConverter",
-    "RefractionIndexConverter",
+    "MIRIWFSSDispersionConverter",
     "MIRI_AB2SliceConverter",
+    "Msa2SlitConverter",
     "NIRCAMGrismDispersionConverter",
     "NIRISSGrismDispersionConverter",
-    "MIRIWFSSDispersionConverter",
+    "NirissSOSSConverter",
+    "RefractionIndexConverter",
     "Rotation3DToGWAConverter",
-    "GratingEquationConverter",
-    "SnellConverter",
-    "CoordsConverter",
     "Rotation3DToGWAConverter",
-    "Slit2MsaConverter",
     "Slit2GwaConverter",
+    "Slit2MsaConverter",
+    "SnellConverter",
     "UnsupportedConverter",
     "UnsupportedConverterError",
 ]
@@ -78,6 +78,8 @@ class UnsupportedConverter:
 
 
 class NIRCAMGrismDispersionConverter(TransformConverterBase):
+    """ASDF converter for NIRCam grism dispersion transforms."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/nircam_grism_dispersion-*"]
 
     types = [
@@ -143,6 +145,8 @@ class NIRCAMGrismDispersionConverter(TransformConverterBase):
 
 
 class NIRISSGrismDispersionConverter(TransformConverterBase):
+    """ASDF converter for NIRISS grism dispersion transforms."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/niriss_grism_dispersion-*"]
 
     types = [
@@ -178,6 +182,8 @@ class NIRISSGrismDispersionConverter(TransformConverterBase):
 
 
 class MIRIWFSSDispersionConverter(TransformConverterBase):
+    """ASDF converter for MIRI WFSS dispersion transforms."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/miri_wfss_dispersion-*"]
 
     types = [
@@ -210,6 +216,8 @@ class MIRIWFSSDispersionConverter(TransformConverterBase):
 
 
 class Gwa2SlitConverter(TransformConverterBase):
+    """ASDF converter for the Gwa2Slit transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/gwa_to_slit-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Gwa2Slit"]
@@ -225,6 +233,8 @@ class Gwa2SlitConverter(TransformConverterBase):
 
 
 class Slit2GwaConverter(TransformConverterBase):
+    """ASDF converter for the Slit2Gwa transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/slit_to_gwa-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Slit2Gwa"]
@@ -240,6 +250,8 @@ class Slit2GwaConverter(TransformConverterBase):
 
 
 class Slit2MsaConverter(TransformConverterBase):
+    """ASDF converter for the Slit2Msa transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/slit_to_msa-*"]
 
     types = [
@@ -265,6 +277,8 @@ class Slit2MsaConverter(TransformConverterBase):
 
 
 class Msa2SlitConverter(TransformConverterBase):
+    """ASDF converter for the Msa2Slit transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/msa_to_slit-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Msa2Slit"]
@@ -283,6 +297,8 @@ class Msa2SlitConverter(TransformConverterBase):
 
 
 class LogicalConverter(TransformConverterBase):
+    """ASDF converter for the Logical transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/logical-*"]
     types = ["stdatamodels.jwst.transforms.models.Logical"]
 
@@ -297,6 +313,8 @@ class LogicalConverter(TransformConverterBase):
 
 
 class NirissSOSSConverter(TransformConverterBase):
+    """ASDF converter for the NIRISS SOSS transform."""
+
     tags = [
         "tag:stsci.edu:jwst_pipeline/niriss-soss-*",
         "tag:stsci.edu:jwst_pipeline/niriss_soss-*",
@@ -314,6 +332,8 @@ class NirissSOSSConverter(TransformConverterBase):
 
 
 class RefractionIndexConverter(TransformConverterBase):
+    """ASDF converter for the RefractionIndexFromPrism transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/refraction_index_from_prism-*"]
     types = ["stdatamodels.jwst.transforms.models.RefractionIndexFromPrism"]
 
@@ -328,6 +348,8 @@ class RefractionIndexConverter(TransformConverterBase):
 
 
 class MIRI_AB2SliceConverter(TransformConverterBase):  # noqa: N801
+    """ASDF converter for the MIRI_AB2Slice transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/miri_ab2slice-*"]
     types = ["stdatamodels.jwst.transforms.models.MIRI_AB2Slice"]
 
@@ -346,6 +368,8 @@ class MIRI_AB2SliceConverter(TransformConverterBase):  # noqa: N801
 
 
 class Rotation3DToGWAConverter(TransformConverterBase):
+    """ASDF converter for the Rotation3DToGWA transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/rotation_sequence-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Rotation3DToGWA"]
@@ -364,6 +388,8 @@ class Rotation3DToGWAConverter(TransformConverterBase):
 
 
 class GratingEquationConverter(TransformConverterBase):
+    """ASDF converter for WavelengthFromGratingEquation and AngleFromGratingEquation transforms."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/grating_equation-*"]
 
     types = [
@@ -405,6 +431,8 @@ class GratingEquationConverter(TransformConverterBase):
 
 
 class SnellConverter(TransformConverterBase):
+    """ASDF converter for the Snell transform."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/snell-*"]
 
     types = ["stdatamodels.jwst.transforms.models.Snell"]
@@ -438,6 +466,8 @@ class SnellConverter(TransformConverterBase):
 
 
 class CoordsConverter(TransformConverterBase):
+    """ASDF converter for coordinate transforms (Unitless2DirCos and DirCos2Unitless)."""
+
     tags = ["tag:stsci.edu:jwst_pipeline/coords-*"]
 
     types = [
