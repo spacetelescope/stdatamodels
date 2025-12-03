@@ -1841,7 +1841,7 @@ properties:
             fits_keyword: GS_EPOCH
             blend_table: True
           gs_mura:
-            title: Guide star IRCS right ascension proper motion
+            title: Guide star ICRS right ascension proper motion
             type: number
             fits_keyword: GS_MURA
             blend_table: True
