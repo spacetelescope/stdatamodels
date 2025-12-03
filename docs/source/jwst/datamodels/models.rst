@@ -178,7 +178,7 @@ observation was made::
 
 Metadata values are automatically type-checked against the schema when
 they are set. Therefore, setting a keyword which expects a number to a
-string will raise a ``ValidationWarning`` which by default is raised to an error::
+string will raise a ``ValidationWarning``::
 
     >>> from stdatamodels.jwst.datamodels import ImageModel
     >>> model = ImageModel()
@@ -186,6 +186,8 @@ string will raise a ``ValidationWarning`` which by default is raised to an error
     Traceback (most recent call last):
       ...
     ValidationWarning: While validating ra the following error occurred: 'foo' is not of type 'number'
+
+Such validation warnings are typically promoted to errors in the JWST pipeline.
 
 The set of available metadata elements is defined in a YAML Schema
 that ships with ``stdatamodels``.
