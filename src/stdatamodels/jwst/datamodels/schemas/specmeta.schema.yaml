@@ -197,6 +197,7 @@ properties:
   pathloss_correction_type:
     title: Type of pathloss correction applied
     type: string
+    enum: [POINT, UNIFORM]
     fits_keyword: PTHLOSS
     fits_hdu: EXTRACT1D
   barshadow_corrected:
