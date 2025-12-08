@@ -239,7 +239,7 @@ properties:
           template:
             title: Observation template used
             type: string
-            enum: ["FGS External Calibration", "FGS Focus", "FGS Internal Flat", "ISIM ASIC Tuning",
+            enum: ["N/A", "FGS External Calibration", "FGS Focus", "FGS Internal Flat", "ISIM ASIC Tuning",
                    "ISIM Dictionary File Update", "MIRI Anneal", "MIRI Coronagraphic Imaging",
                    "MIRI Coronagraphic Photometric Calibration", "MIRI Dark", "MIRI Imaging",
                    "MIRI Low Resolution Spectroscopy", "MIRI Medium Resolution Spectroscopy",
