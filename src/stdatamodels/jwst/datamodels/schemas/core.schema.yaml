@@ -357,7 +357,7 @@ properties:
           type:
             title: Type of target (fixed, moving, generic)
             type: string
-            enum: [FIXED, GENERIC, MOVING, UNKNOWN]
+            enum: [FIXED, GENERIC, MOVING, UNKNOWN, "N/A"]
             fits_keyword: TARGTYPE
             blend_table: True
           category:
