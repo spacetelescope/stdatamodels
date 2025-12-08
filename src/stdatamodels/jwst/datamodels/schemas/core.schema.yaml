@@ -141,7 +141,7 @@ properties:
           sub_category:
             title: Program sub-category
             type: string
-            enum: [ERO', FGS, MIRI, NIRCAM, NIRISS, NIRSPEC, NONE, OTE, SC, "N/A"]
+            enum: [CROSS, ERO, FGS, MIRI, NIRCAM, NIRISS, NIRSPEC, NONE, OTE, SC, "N/A"]
             fits_keyword: SUBCAT
             blend_table: True
           science_category:
