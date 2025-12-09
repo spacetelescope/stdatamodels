@@ -22,3 +22,23 @@ properties:
       datatype: float64
     - name: int_end_BJD_TDB
       datatype: float64
+  int_times_stripe:
+    title: table of times for each integration
+    fits_hdu: INT_TIMES_STRIPE
+    datatype:
+    - name: integration_number
+      datatype: int32
+    - name: stripe_number
+      datatype: int32
+    - name: int_start_MJD_UTC
+      datatype: float64
+    - name: int_mid_MJD_UTC
+      datatype: float64
+    - name: int_end_MJD_UTC
+      datatype: float64
+    - name: int_start_BJD_TDB
+      datatype: float64
+    - name: int_mid_BJD_TDB
+      datatype: float64
+    - name: int_end_BJD_TDB
+      datatype: float64
