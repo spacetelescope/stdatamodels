@@ -1,0 +1,1 @@
+Warn when ``DataModel.history`` is used and add replacement ``DataModel.add_history_entry``.
