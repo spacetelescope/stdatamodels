@@ -5,4 +5,3 @@ id: "http://stsci.edu/schemas/jwst_datamodel/slit.schema"
 allOf:
 - $ref: core.schema
 - $ref: slitdata.schema
-- $ref: int_times.schema

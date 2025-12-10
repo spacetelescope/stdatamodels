@@ -47,6 +47,7 @@ allOf:
       fits_hdu: CON
       default: 0
       datatype: int32
+- $ref: int_times.schema
 - $ref: variance.schema
 - $ref: flatcorr.schema
 - $ref: pathlosscorr.schema
