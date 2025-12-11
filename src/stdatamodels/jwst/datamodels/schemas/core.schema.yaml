@@ -2690,7 +2690,7 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_SUPERB
             blend_table: True
-          ta_center:
+          targ_centroid:
             title: Target Acquisition Centering
             type: string
             enum: [SKIPPED, COMPLETE]

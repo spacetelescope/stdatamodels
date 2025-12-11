@@ -1,1 +1,1 @@
-Add source_xpos and source_ypos to ImageModel and CubeModel schemas, and meta.cal_step.ta_center attribute to core schema in support of new ta_center step
+Add ta_xpos and ta_ypos attributes to SlitModel schemas, and meta.cal_step.targ_centroid attribute to core schema, in support of new targ_centroid step
