@@ -29,6 +29,10 @@ class IFUImageModel(JwstDataModel):
          pathloss correction for uniform source
     area : numpy float32 array
          Pixel area map array
+    regions : numpy float32 array
+         Slice regions map array
+    profile : numpy float32 array
+         Spatial profile array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuimage.schema"
