@@ -17,6 +17,7 @@ def test_context_management(extension, tmp_path):
     new_path = tmp_path / f"new.{extension}"
 
     process = psutil.Process()
+    gc.collect(2)
     base_count = len(process.open_files())
 
     rng = np.random.default_rng(42)
@@ -67,6 +68,7 @@ def test_close(extension, tmp_path):
     new_path = tmp_path / f"new.{extension}"
 
     process = psutil.Process()
+    gc.collect(2)
     base_count = len(process.open_files())
 
     rng = np.random.default_rng(42)
@@ -116,6 +118,7 @@ def test_multiple_close(extension, tmp_path):
     file_path = tmp_path / f"test.{extension}"
 
     process = psutil.Process()
+    gc.collect(2)
     base_count = len(process.open_files())
 
     rng = np.random.default_rng(42)
@@ -166,6 +169,7 @@ def test_delete(extension, tmp_path):
     new_path = tmp_path / f"new.{extension}"
 
     process = psutil.Process()
+    gc.collect(2)
     base_count = len(process.open_files())
 
     rng = np.random.default_rng(42)
