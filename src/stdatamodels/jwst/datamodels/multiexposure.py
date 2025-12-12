@@ -71,6 +71,7 @@ class MultiExposureModel(JwstDataModel):
             self.exposures[0].photom_point = init.photom_point
             self.exposures[0].photom_uniform = init.photom_uniform
             self.exposures[0].area = init.area
+            self.exposures[0].trace_model = init.trace_model
             return
 
         super(MultiExposureModel, self).__init__(init=init, schema=schema, **kwargs)

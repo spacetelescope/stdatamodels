@@ -39,6 +39,8 @@ class SlitDataModel(JwstDataModel):
         photom array for uniform source
     area : numpy float32 array
         Pixel area map array
+    trace_model : numpy float32 array
+        Trace model array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/slitdata.schema"
@@ -91,6 +93,8 @@ class SlitModel(JwstDataModel):
         Photom array for uniform source
     area : numpy float32 array
         Pixel area map array
+    trace_model : numpy float32 array
+        Trace model array
     int_times : numpy table
         Table of times for each integration
     """
