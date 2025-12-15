@@ -51,8 +51,8 @@ properties:
     title: TA verification source y-position in slit
     type: number
     default: 0.0
-    fits_keyword: EXTRACT1D
-    fits_hdu: SCI
+    fits_keyword: TA_YPOS
+    fits_hdu: EXTRACT1D
   source_xpos:
     title: Source position in slit (x-axis)
     type: number
