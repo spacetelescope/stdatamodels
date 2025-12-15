@@ -2426,12 +2426,6 @@ properties:
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_AMIANA
             blend_table: True
-          ami_average:
-            title: AMI Fringe Averaging
-            type: string
-            enum: [SKIPPED, COMPLETE]
-            fits_keyword: S_AMIAVG
-            blend_table: True
           ami_normalize:
             title: AMI Fringe Normalization
             type: string
