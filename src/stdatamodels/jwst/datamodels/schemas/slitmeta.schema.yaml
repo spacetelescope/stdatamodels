@@ -71,16 +71,16 @@ properties:
     title: Flag indicating whether the source is extended
     type: boolean
   ta_xpos:
-    title: Target acquisition verification image position in slit (x-axis)
+    title: TA verification source x-position in slit
     type: number
     default: 0.0
-    fits_keyword: TAXPOS
+    fits_keyword: TA_XPOS
     fits_hdu: SCI
   ta_ypos:
-    title: Target acquisition verification image position in slit (y-axis)
+    title: TA verification source y-position in slit
     type: number
     default: 0.0
-    fits_keyword: TAYPOS
+    fits_keyword: TA_YPOS
     fits_hdu: SCI
   source_xpos:
     title: Source position in slit (x-axis)
