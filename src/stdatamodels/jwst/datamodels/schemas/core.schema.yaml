@@ -2776,11 +2776,11 @@ properties:
             type: integer
             fits_keyword: INT2SKIP
           keep_bright_firstgroup_int1:
-            title: For first int number of pixels where first group used
+            title: For 1st int # pixels where 1st group used
             type: integer
             fits_keyword: USEGP1
           keep_bright_firstgroup_int2p:
-            title: For second int and higher number of pixels where first group used
+            title: For 2nd int or higher # pixels where 1st grp used
             type: integer
             fits_keyword: USEGP2
       soss_extract1d:
