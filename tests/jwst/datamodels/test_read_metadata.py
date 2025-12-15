@@ -196,8 +196,8 @@ def test_equivalent_to_get_crds_parameters(multislit_path):
     meta = read_metadata(multislit_path)
 
     # load the model and get the CRDS parameters
-    model = dm.open(multislit_path)
-    crds_meta = model.get_crds_parameters()
+    with dm.open(multislit_path) as model:
+        crds_meta = model.get_crds_parameters()
 
     # ensure all keys in crds_meta are in meta and have the same values
     for key, val in crds_meta.items():
@@ -233,9 +233,9 @@ def test_error_read_json():
 
 def test_error_read_open_model(model_path):
     """Attempting to read_metadata on an open datamodel should raise an error."""
-    model = dm.open(model_path)
-    with pytest.raises(TypeError):
-        read_metadata(model)
+    with dm.open(model_path) as model:
+        with pytest.raises(TypeError):
+            read_metadata(model)
 
 
 def test_error_schema_not_found(model_path):
