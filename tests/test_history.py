@@ -1,6 +1,8 @@
 import datetime
 
+import asdf
 import numpy as np
+import pytest
 from asdf.tags.core import HistoryEntry
 from astropy.io import fits
 from astropy.time import Time
@@ -8,6 +10,7 @@ from astropy.time import Time
 from stdatamodels import DataModel
 
 
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_historylist_methods():
     m = DataModel()
     h1 = m.history
@@ -43,6 +46,7 @@ def test_historylist_methods():
     assert len(h1) == 0, "Clear history list"
 
 
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_history_from_model_to_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
     m = DataModel()
@@ -75,6 +79,7 @@ def test_history_from_model_to_fits(tmp_path):
         assert list(hdulist[0].header["HISTORY"]) == ["First entry", "Second entry"]
 
 
+@pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_history_from_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
     header = fits.Header()
@@ -93,3 +98,36 @@ def test_history_from_fits(tmp_path):
 
     with DataModel(tmpfits2) as m:
         assert m.history == [{"description": "Second entry"}, {"description": "Third entry"}]
+
+
+def test_history_get_deprecation():
+    m = DataModel()
+    with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
+        m.history
+
+
+def test_history_set_deprecation():
+    m = DataModel()
+    with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
+        m.history = []
+
+
+@pytest.mark.parametrize("filename", ["test.asdf", "test.fits"])
+def test_add_history_entry(tmp_path, filename):
+    msgs = ["foo", "bar"]
+    path = tmp_path / filename
+    m = DataModel()
+    for msg in msgs:
+        m.add_history_entry(msg)
+    m.save(path)
+
+    if "asdf" in filename:
+        with asdf.open(path, lazy_load=False) as af:
+            written_msgs = [entry["description"] for entry in af["history"]["entries"]]
+    else:
+        with fits.open(path, memmap=False) as ff:
+            written_msgs = [
+                card.value for card in ff["PRIMARY"].header.cards if card.keyword == "HISTORY"
+            ]
+
+    assert set(msgs) == set(written_msgs)

@@ -1,3 +1,5 @@
+import warnings
+
 from .model_base import JwstDataModel
 
 __all__ = ["AmiLgModel"]
@@ -28,6 +30,15 @@ class AmiLgModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/amilg.schema"
+
+    def __init__(self, init=None, **kwargs):
+        warnings.warn(
+            "AmiLgModel is deprecated and will be removed in a future version. "
+            "Please use AmiLgFitModel instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(init=init, **kwargs)
 
     def get_primary_array_name(self):  # noqa: D102
         return "fit_image"
