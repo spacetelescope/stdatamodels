@@ -2763,6 +2763,26 @@ properties:
             title: Pixel scale ratio relative to native detector scale
             type: number
             fits_keyword: PXSCLRT
+      rscd:
+        title: RSCD parameters
+        type: object
+        properties:
+          ngroups_skip_int1:
+            title: Number of groups skipped in int 1
+            type: integer
+            fits_keyword: INT1SKIP
+          ngroups_skip_int2p:
+            title: Number of groups skippped in int 2 and higher
+            type: integer
+            fits_keyword: INT2SKIP
+          keep_bright_firstgroup_int1:
+            title: For first int number of pixels where first group used
+            type: integer
+            fits_keyword: USEGP1
+          keep_bright_firstgroup_int2p:
+            title: For second int and higher number of pixels where first group used
+            type: integer
+            fits_keyword: USEGP2
       soss_extract1d:
         title: NIRISS SOSS Extract1D Parameters
         type: object
