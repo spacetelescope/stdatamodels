@@ -29,6 +29,7 @@ from stdatamodels.jwst.datamodels import (
     SlitModel,
 )
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
+from stdatamodels.jwst.datamodels import _deprecated_models as deprecated_models
 from stdatamodels.schema import walk_schema
 
 
@@ -363,7 +364,11 @@ def test_all_datamodels_init(model):
     """
     Test that all current datamodels can be initialized.
     """
-    model()
+    if model.__name__ in deprecated_models:
+        with pytest.warns(DeprecationWarning):
+            model()
+    else:
+        model()
 
 
 @pytest.mark.parametrize("model", list(defined_models.values()))
