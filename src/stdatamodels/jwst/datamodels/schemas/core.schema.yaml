@@ -141,7 +141,7 @@ properties:
           sub_category:
             title: Program sub-category
             type: string
-            enum: [CROSS, ERO, FGS, MIRI, NIRCAM, NIRISS, NIRSPEC, NONE, OTE, SC, "N/A"]
+            enum: [UNKNOWN, CROSS, ERO, FGS, MIRI, NIRCAM, NIRISS, NIRSPEC, NONE, OTE, SC, "N/A"]
             fits_keyword: SUBCAT
             blend_table: True
           science_category:
@@ -239,23 +239,29 @@ properties:
           template:
             title: Observation template used
             type: string
-            enum: ["N/A", "FGS External Calibration", "FGS Focus", "FGS Internal Flat", "ISIM ASIC Tuning",
-                   "ISIM Dictionary File Update", "MIRI Anneal", "MIRI Coronagraphic Imaging",
-                   "MIRI Coronagraphic Photometric Calibration", "MIRI Dark", "MIRI Imaging",
-                   "MIRI Low Resolution Spectroscopy", "MIRI Medium Resolution Spectroscopy",
-                   "MIRI Multi-Instrument Multi-Field Imaging", "Momentum Unload",
+            enum: ["N/A",
+                   "FGS External Calibration", "FGS Focus", "FGS Internal Flat",
+                   "ISIM ASIC Tuning", "ISIM Dictionary File Update",
+                   "MIRI Anneal", "MIRI Coronagraphic Imaging", "MIRI Coronagraphic Photometric Calibration",
+                   "MIRI Dark", "MIRI Imaging", "MIRI Low Resolution Spectroscopy",
+                   "MIRI Medium Resolution Spectroscopy", "MIRI Multi-Instrument Multi-Field Imaging",
+                   "Momentum Unload",
                    "NIRCam Coronagraphic Imaging", "NIRCam Dark", "NIRCam Engineering Imaging",
                    "NIRCam External Flat", "NIRCam Focus", "NIRCam Grism Time Series",
                    "NIRCam IPR Imaging", "NIRCam Imaging", "NIRCam PIL Imaging",
-                   "NIRCam Time Series", "NIRCam Wheel Exercise", "NIRISS Aperture Masking Interferometry",
-                   "NIRISS Dark", "NIRISS Focus", "NIRISS Imaging", "NIRISS Internal Flat",
-                   "NIRISS Single-Object Slitless Spectroscopy", "NIRISS Wide Field Slitless Spectroscopy",
+                   "NIRCam Time Series", "NIRCam Wheel Exercise", "NIRCam Wide Field Slitless Spectroscopy",
+                   "NIRISS Aperture Masking Interferometry", "NIRISS Dark", "NIRISS Focus",
+                   "NIRISS Imaging", "NIRISS Internal Flat", "NIRISS Single-Object Slitless Spectroscopy",
+                   "NIRISS Wide Field Slitless Spectroscopy",
                    "NIRSpec Bright Object Time Series", "NIRSpec Dark", "NIRSpec Filter/Grating Wheel Test",
                    "NIRSpec Fixed Slit Spectroscopy", "NIRSpec Focus Reference", "NIRSpec Focus",
                    "NIRSpec IFU Spectroscopy", "NIRSpec Imaging", "NIRSpec Internal Lamp",
                    "NIRSpec MSA Anneal", "NIRSpec MSA Masking", "NIRSpec MSA Short Detection",
                    "NIRSpec Multi-Instrument Multi-Field Imaging", "NIRSpec MultiObject Spectroscopy",
-                   "Pointing Only", "Realtime Commanding", "Safe Mode Recovery", "Station Keeping",
+                   "Pointing Only",
+                   "Realtime Commanding",
+                   "Safe Mode Recovery",
+                   "Station Keeping",
                    "WFSC Commissioning Control Only", "WFSC Commissioning", "WFSC Global Alignment",
                    "WFSC NIRCam Coarse Phasing", "WFSC NIRCam Fine Phasing"]
             fits_keyword: TEMPLATE
@@ -587,7 +593,9 @@ properties:
           msa_state:
             title: State of the MSA
             type: string
-            enum: [LAUNCHLOCK_ALLCLOSED, PRIMARYPARK_ALLCLOSED, PRIMARYPARK_ALLOPEN, PRIMARYPARK_CONFIGURED]
+            # PRIMARYPARK_CONFIGURED remains for backward compatibility
+            enum: [LAUNCHLOCK_ALLCLOSED, PRIMARYPARK_ALLCLOSED, PRIMARYPARK_ALLOPEN,
+                   PRIMARYPARK_CONFIGURED, PRIMARYPARK_CONFIG, IFU_ALLCLOSED]
             fits_keyword: MSASTATE
             blend_table: True
           msa_metadata_file:
@@ -1306,8 +1314,10 @@ properties:
           primary_dither_type:
             title: Primary dither points and packing
             type: string
-            enum: [1-17, 21, 25, 27, 2MINUS, 2PLUS, 2TIGHTGAPS, 36, 3TIGHT, 3TIGHTGAPS,
-                   45, 4TIGHT, 5TIGHT, 6TIGHT, 8NIRSPEC, 8NIRSPECTIGHT]
+            enum: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                   "11", "12", "13", "14", "15", "16", "17", "21", "25", "27",
+                   2MINUS, 2PLUS, 2TIGHTGAPS, 36, 3TIGHT, 3TIGHTGAPS,
+                   "45", 4TIGHT, 5TIGHT, 6TIGHT, 8NIRSPEC, 8NIRSPECTIGHT]
             fits_keyword: PRIDTYPE
             blend_table: True
           primary_points:
@@ -1368,7 +1378,7 @@ properties:
           subpixel_pattern:
             title: Subpixel dither pattern type
             type: string
-            enum: [2-POINT, 2_POINT, 2_POINT_LARGE_WITH_NIRISS, 2_POINT_MEDIUM_WITH_NIRISS,
+            enum: [WFSS, 2-POINT, 2_POINT, 2_POINT_LARGE_WITH_NIRISS, 2_POINT_MEDIUM_WITH_NIRISS,
                    2_POINT_WITH_MIRI_F1000W, 2_POINT_WITH_MIRI_F1280W, 2_POINT_WITH_MIRI_F1500W,
                    2_POINT_WITH_MIRI_F1800W, 2_POINT_WITH_MIRI_F2100W, 2_POINT_WITH_MIRI_F2550W,
                    2_POINT_WITH_MIRI_F770W, 3_POINT_LARGE_WITH_NIRISS, 3_POINT_MEDIUM_WITH_NIRISS,
