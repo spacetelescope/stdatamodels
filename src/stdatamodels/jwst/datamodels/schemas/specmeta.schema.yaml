@@ -42,13 +42,13 @@ properties:
     fits_keyword: SRCTYPE
     fits_hdu: EXTRACT1D
   ta_xpos:
-    title: TA verification source x-position in slit
+    title: Source x-position in TA verification image
     type: number
     default: 0.0
     fits_keyword: TA_XPOS
     fits_hdu: EXTRACT1D
   ta_ypos:
-    title: TA verification source y-position in slit
+    title: Source y-position in TA verification image
     type: number
     default: 0.0
     fits_keyword: TA_YPOS
