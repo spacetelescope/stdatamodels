@@ -252,7 +252,7 @@ properties:
                    "NIRCam Time Series", "NIRCam Wheel Exercise", "NIRCam Wide Field Slitless Spectroscopy",
                    "NIRISS Aperture Masking Interferometry", "NIRISS Dark", "NIRISS Focus",
                    "NIRISS Imaging", "NIRISS Internal Flat", "NIRISS Single-Object Slitless Spectroscopy",
-                   "NIRISS Wide Field Slitless Spectroscopy",
+                   "NIRISS Wide Field Slitless Spectroscopy", "NIRISS External Calibration",
                    "NIRSpec Bright Object Time Series", "NIRSpec Dark", "NIRSpec Filter/Grating Wheel Test",
                    "NIRSpec Fixed Slit Spectroscopy", "NIRSpec Focus Reference", "NIRSpec Focus",
                    "NIRSpec IFU Spectroscopy", "NIRSpec Imaging", "NIRSpec Internal Lamp",
@@ -595,7 +595,7 @@ properties:
             type: string
             # PRIMARYPARK_CONFIGURED remains for backward compatibility
             enum: [LAUNCHLOCK_ALLCLOSED, PRIMARYPARK_ALLCLOSED, PRIMARYPARK_ALLOPEN,
-                   PRIMARYPARK_CONFIGURED, PRIMARYPARK_CONFIG, IFU_ALLCLOSED]
+                   PRIMARYPARK_CONFIGURED, PRIMARYPARK_CONFIG, IFU_ALLCLOSED, IFU_ALLOPEN]
             fits_keyword: MSASTATE
             blend_table: True
           msa_metadata_file:
@@ -1392,7 +1392,7 @@ properties:
                    9-POINT, 9_POINT, 9_POINT_LARGE_WITH_NIRISS, 9_POINT_MEDIUM_WITH_NIRISS,
                    9_POINT_WITH_MIRI_F1000W, 9_POINT_WITH_MIRI_F1500W, 9_POINT_WITH_MIRI_F1800W,
                    9_POINT_WITH_MIRI_F2100W, 9_POINT_WITH_MIRI_F770W, BOTH, IMAGING, NONE,
-                   SMALL_GRID_DITHER, SPATIAL, SPECTRAL, STANDARD]
+                   SMALL_GRID_DITHER, SMALL-GRID-DITHER, SPATIAL, SPECTRAL, STANDARD]
             fits_keyword: SUBPXPAT
             blend_table: True
           spectral_position_number:
