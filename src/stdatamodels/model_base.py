@@ -137,7 +137,7 @@ class DataModel(properties.ObjectNode):
             are defined in the schema and the schema expects an array-like value.
             Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
             Example usage::
-            
+
                 model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))
         """
         if "memmap" in kwargs:
