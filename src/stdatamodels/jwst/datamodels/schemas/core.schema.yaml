@@ -2372,6 +2372,12 @@ properties:
         title: Calibration step information
         type: object
         properties:
+          adaptive_trace_model:
+            title: Adaptive Trace Model
+            type: string
+            enum: [SKIPPED, COMPLETE]
+            fits_keyword: S_ADTRMD
+            blend_table: True
           align_psfs:
             title: Coronagraphic PSF Alignment
             type: string
@@ -2491,12 +2497,6 @@ properties:
             type: string
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_FRSTFR
-            blend_table: True
-          fit_profile:
-            title: Fit Spatial Profile
-            type: string
-            enum: [SKIPPED, COMPLETE]
-            fits_keyword: S_FITPRF
             blend_table: True
           flat_field:
             title: Flat Field Correction
