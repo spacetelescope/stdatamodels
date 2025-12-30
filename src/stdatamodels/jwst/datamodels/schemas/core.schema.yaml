@@ -2376,7 +2376,7 @@ properties:
             title: Adaptive Trace Model
             type: string
             enum: [SKIPPED, COMPLETE]
-            fits_keyword: S_ADTRMD
+            fits_keyword: S_TRCMOD
             blend_table: True
           align_psfs:
             title: Coronagraphic PSF Alignment
