@@ -32,6 +32,10 @@ def get_resource_mappings():
             resources_root / "manifests",
             "asdf://stsci.edu/jwst_pipeline/manifests/",
         ),
+        DirectoryResourceMapping(
+            resources_root / "legacy" / "schemas" / "stsci.edu" / "jwst_pipeline",
+            "http://stsci.edu/schemas/jwst_pipeline/",
+        ),
     ]
 
 
