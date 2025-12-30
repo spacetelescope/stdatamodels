@@ -31,8 +31,8 @@ class IFUImageModel(JwstDataModel):
          Pixel area map array
     regions : numpy float32 array
          Slice regions map array
-    profile : numpy float32 array
-         Spatial profile array
+    trace model : numpy float32 array
+         Trace model array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuimage.schema"
