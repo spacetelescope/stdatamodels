@@ -37,9 +37,9 @@ allOf:
       title: Slice regions map
       fits_hdu: REGIONS
       datatype: int32
-    profile:
-      title: Spatial profile
-      fits_hdu: PROFILE
+    trace_model:
+      title: Trace model
+      fits_hdu: TRACEMODEL
       datatype: float32
 - $ref: variance.schema
 - type: object
