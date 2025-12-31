@@ -65,15 +65,19 @@ these transform definitions.
    :schema_root: ../../src/stdatamodels/jwst/transforms/resources/schemas
    :standard_prefix: stsci.edu/jwst_pipeline
 
+   coords-1.2.0
    grating_equation-1.2.0
    gwa_to_slit-1.2.0
    logical-1.2.0
    miri_ab2slice-1.2.0
+   miri_wfss_dispersion-1.0.0
+   msa_to_slit-1.0.0
    nircam_grism_dispersion-1.2.0
    niriss_grism_dispersion-1.2.0
    niriss_soss-1.2.0
    refraction_index_from_prism-1.2.0
    rotation_sequence-1.2.0
+   slit_to_gwa-1.0.0
    slit_to_msa-1.2.0
    snell-1.2.0
 
@@ -117,3 +121,12 @@ If you encounter this error, here are some possible workarounds:
      import asdf
      asdf.get_config().warn_on_failed_conversion = True
      model = dm.open("foo.fits")
+
+These legacy schemas will not receive updates and should not be used for new
+files or software.
+
+.. asdf-autoschemas::
+   :schema_root: ../../src/stdatamodels/jwst/transforms/resources/legacy/schemas
+   :standard_prefix: stsci.edu/jwst_pipeline
+
+   v23tosky-0.7.0
