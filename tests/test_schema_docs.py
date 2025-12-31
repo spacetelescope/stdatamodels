@@ -5,13 +5,13 @@ import re
 
 import pytest
 
-repo_path = pathlib.Path(__file__).parent.parent
-docs_path = repo_path / "docs"
-transforms_docs = docs_path / "source" / "jwst" / "transforms" / "index.rst"
-transforms_resources_path = repo_path / "src" / "stdatamodels" / "jwst" / "transforms" / "resources"
-transforms_schemas_path = transforms_resources_path / "schemas" / "stsci.edu" / "jwst_pipeline"
-legacy_transforms_schemas_path = (
-    transforms_resources_path / "legacy" / "schemas" / "stsci.edu" / "jwst_pipeline"
+REPO_PATH = pathlib.Path(__file__).parent.parent
+DOCS_PATH = REPO_PATH / "docs"
+TRANSFORMS_DOCS = DOCS_PATH / "source" / "jwst" / "transforms" / "index.rst"
+TRANSFORMS_RESOURCES_PATH = REPO_PATH / "src" / "stdatamodels" / "jwst" / "transforms" / "resources"
+TRANSFORMS_SCHEMAS_PATH = TRANSFORMS_RESOURCES_PATH / "schemas" / "stsci.edu" / "jwst_pipeline"
+LEGACY_TRANSFORMS_SCHEMAS_PATH = (
+    TRANSFORMS_RESOURCES_PATH / "legacy" / "schemas" / "stsci.edu" / "jwst_pipeline"
 )
 
 
@@ -37,19 +37,19 @@ def latest_schemas(resource_path):
 
 @pytest.fixture()
 def latest_transforms_schemas():
-    return [path.stem for path in latest_schemas(transforms_schemas_path)]
+    return [path.stem for path in latest_schemas(TRANSFORMS_SCHEMAS_PATH)]
 
 
 @pytest.fixture()
 def latest_legacy_transforms_schemas():
-    return [path.stem for path in latest_schemas(legacy_transforms_schemas_path)]
+    return [path.stem for path in latest_schemas(LEGACY_TRANSFORMS_SCHEMAS_PATH)]
 
 
 def iter_autoschema_blocks():
     in_autoschema_block = False
     schema_root = None
     schemas = []
-    with transforms_docs.open() as f:
+    with TRANSFORMS_DOCS.open() as f:
         for line in f:
             # skip empty lines
             if not line.strip():
