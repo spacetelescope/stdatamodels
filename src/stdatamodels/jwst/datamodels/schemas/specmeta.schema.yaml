@@ -41,6 +41,18 @@ properties:
     type: string
     fits_keyword: SRCTYPE
     fits_hdu: EXTRACT1D
+  ta_xpos:
+    title: Source x-position in TA verification image
+    type: number
+    default: 0.0
+    fits_keyword: TA_XPOS
+    fits_hdu: EXTRACT1D
+  ta_ypos:
+    title: Source y-position in TA verification image
+    type: number
+    default: 0.0
+    fits_keyword: TA_YPOS
+    fits_hdu: EXTRACT1D
   source_xpos:
     title: Source position in slit (x-axis)
     type: number
