@@ -70,6 +70,18 @@ properties:
   is_extended:
     title: Flag indicating whether the source is extended
     type: boolean
+  ta_xpos:
+    title: Source x-position in TA verification image
+    type: number
+    default: 0.0
+    fits_keyword: TA_XPOS
+    fits_hdu: SCI
+  ta_ypos:
+    title: Source y-position in TA verification image
+    type: number
+    default: 0.0
+    fits_keyword: TA_YPOS
+    fits_hdu: SCI
   source_xpos:
     title: Source position in slit (x-axis)
     type: number
