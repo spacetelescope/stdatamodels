@@ -31,7 +31,7 @@ class IFUImageModel(JwstDataModel):
          Pixel area map array
     regions : numpy float32 array
          Slice regions map array
-    trace model : numpy float32 array
+    trace_model : numpy float32 array
          Trace model array
     """
 
