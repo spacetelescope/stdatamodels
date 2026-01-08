@@ -20,6 +20,7 @@ INPUT_TIME = "2021-01-01 00:00:00.000"
 def recursive_tree():
     """Create a recursive tree to substitute for a WCS object"""
     from gwcs import examples
+
     return examples.gwcs_2d_shift_scale()
 
 
