@@ -2211,7 +2211,7 @@ class Rotation3DToGWA(Model):
         orig_shape = x.shape or (1,)
         for ang, ax in zip(angles[0], self.axes_order, strict=False):
             x, y, z = self._func_map[ax](x, y, z, theta=ang)
-        x.shape = y.shape = z.shape = orig_shape
+        x, y, z = [np.reshape(arr, orig_shape) for arr in (x, y, z)]
 
         return x, y, z
 

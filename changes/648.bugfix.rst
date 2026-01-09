@@ -1,0 +1,1 @@
+Replace array shape assignments with reshape to avoid upcoming deprecation warnings from numpy.
