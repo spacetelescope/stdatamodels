@@ -2409,10 +2409,9 @@ class AngleFromGratingEquation(Model):
         if alpha_in.shape != beta_in.shape != z.shape:
             raise ValueError("Expected input arrays to have the same shape")
         orig_shape = alpha_in.shape or (1,)
-        xout = -alpha_in - groove_density * order * lam
-        yout = -beta_in
+        xout = (-alpha_in - groove_density * order * lam).reshape(orig_shape)
+        yout = (-beta_in).reshape(orig_shape)
         zout = np.sqrt(1 - xout**2 - yout**2)
-        xout.shape = yout.shape = zout.shape = orig_shape
         return xout, yout, zout
 
 
