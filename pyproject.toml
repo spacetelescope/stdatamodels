@@ -125,6 +125,8 @@ filterwarnings = [
   "error",
   # astropy table issues this warning on import so we ignore it here
   "ignore:numpy.ndarray size changed:RuntimeWarning",
+  # dev numpy deprecated shape assignment which astropy still uses
+  "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning:astropy.*",
 ]
 asdf_schema_tests_enabled = true
 asdf_schema_xfail_tests = "v23tosky-0.7.0.yaml::test_example_0"
