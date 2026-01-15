@@ -32,6 +32,7 @@ jobs:
       OBSERVATORY: jwst
       CRDS_PATH: /tmp/crds_cache
       CRDS_SERVER_URL: https://jwst-crds.stsci.edu
+      CRDS_LOCKING_MODE: filelock
     steps:
       - id: crds_context
         run: >

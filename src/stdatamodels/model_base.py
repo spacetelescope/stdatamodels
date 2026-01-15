@@ -68,7 +68,7 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None
+        init : str, tuple, astropy.io.fits.HDUList, ndarray, dict, None
 
             - None : Create a default data model with no shape.
 
@@ -80,8 +80,8 @@ class DataModel(properties.ObjectNode):
             - readable file object: Initialize from the given file
               object
 
-            - `~astropy.io.fits.HDUList` : Initialize from the given
-              `~astropy.io.fits.HDUList`.
+            - astropy.io.fits.HDUList : Initialize from the given
+              astropy.io.fits.HDUList.
 
             - A numpy array: Used to initialize the data array
 
@@ -136,8 +136,9 @@ class DataModel(properties.ObjectNode):
             the data model. These will be initialized with the given values only if they
             are defined in the schema and the schema expects an array-like value.
             Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
-            Example usage:
-            >>> model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))  # doctest: +SKIP
+            Example usage::
+
+                model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))
         """
         if "memmap" in kwargs:
             warnings.warn(

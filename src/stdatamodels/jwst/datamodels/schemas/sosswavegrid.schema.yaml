@@ -10,4 +10,4 @@ allOf:
       title: Wavelength grid
       fits_hdu: WAVEGRID
       ndim: 1
-      datatype: float32
+      datatype: float64

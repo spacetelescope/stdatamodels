@@ -1,0 +1,1 @@
+Document "legacy" schemas that will no longer receive updates.
