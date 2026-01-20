@@ -210,15 +210,27 @@ def test_grating_equation():
     beta_in = np.array([np.pi / 8, np.pi / 8])  # angle of incidence in radians
     z = np.array([0.0, 0.0])  # z-coordinate, not used in this model
 
-    angle_transform = models.AngleFromGratingEquation(groovedensity, order)
+    with pytest.warns(DeprecationWarning, match="AngleFromGratingEquation is deprecated"):
+        angle_transform = models.AngleFromGratingEquation(groovedensity, order)
     alpha_out, beta_out, _zout = angle_transform.evaluate(
         lam, alpha_in, beta_in, z, groovedensity, order
     )
     assert_allclose(beta_out, -beta_in)
 
-    wavelength_transform = models.WavelengthFromGratingEquation(groovedensity, order)
+    with pytest.warns(DeprecationWarning, match="WavelengthFromGratingEquation is deprecated"):
+        wavelength_transform = models.WavelengthFromGratingEquation(groovedensity, order)
     lam_out = wavelength_transform.evaluate(alpha_in, beta_in, alpha_out, groovedensity, order)
     assert_allclose(lam_out, lam)
+
+
+def test_angle_from_grating_equation_deprecation():
+    with pytest.warns(DeprecationWarning, match="AngleFromGratingEquation is deprecated"):
+        models.AngleFromGratingEquation(1000.0, 1)
+
+
+def test_wavelength_from_grating_equation_deprecation():
+    with pytest.warns(DeprecationWarning, match="WavelengthFromGratingEquation is deprecated"):
+        models.WavelengthFromGratingEquation(1000.0, 1)
 
 
 @pytest.mark.parametrize(

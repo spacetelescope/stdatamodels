@@ -8,7 +8,6 @@ from asdf_astropy.testing.helpers import assert_model_roundtrip
 from astropy.modeling.models import Const1D, Rotation2D, Shift
 
 from stdatamodels.jwst.transforms.models import (
-    AngleFromGratingEquation,
     DirCos2Unitless,
     Gwa2Slit,
     Logical,
@@ -17,7 +16,6 @@ from stdatamodels.jwst.transforms.models import (
     Slit,
     Snell,
     Unitless2DirCos,
-    WavelengthFromGratingEquation,
 )
 
 m1 = Shift(1) & Shift(2) | Rotation2D(3.1)
@@ -28,8 +26,6 @@ test_models = [
     DirCos2Unitless(),
     Unitless2DirCos(),
     Rotation3DToGWA(angles=[12.1, 1.3, 0.5, 3.4], axes_order="xyzx"),
-    AngleFromGratingEquation(20000, -1),
-    WavelengthFromGratingEquation(25000, 2),
     Logical("GT", 5, 10),
     Logical("LT", np.ones((10,)) * 5, np.arange(10)),
     Snell(
@@ -46,7 +42,7 @@ test_models = [
 
 
 @pytest.mark.parametrize(("model"), test_models)
-def test_model(tmpdir, model, version=None):
+def test_model_roundtrip(tmpdir, model, version=None):
     assert_model_roundtrip(model, tmpdir)
 
 
