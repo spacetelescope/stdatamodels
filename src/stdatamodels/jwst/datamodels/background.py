@@ -49,6 +49,5 @@ class WfssBkgModel(ReferenceFileModel):
 
         self.dq = dynamic_mask(self, pixel)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "err"):
+            self.set_default("err")

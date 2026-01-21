@@ -43,7 +43,7 @@ def test_from_new_hdulist2():
     science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
-        dq = dm.dq
+        dq = dm.set_default("dq")
         assert dq is not None
 
 
@@ -76,6 +76,7 @@ def test_from_scratch(tmp_path):
         with FitsModel(file_path) as dm2:
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
+            dm2.set_default("dq")
             assert dm2.dq.dtype.name == "uint32"
             assert np.all(dm2.data == data)
 
@@ -455,7 +456,7 @@ def test_from_hdulist(tmp_path):
 
     with fits.open(file_path, memmap=False) as hdulist:
         with FitsModel(hdulist) as dm:
-            dm.data  # noqa: B018
+            dm.set_default("data")
         assert not hdulist.fileinfo(0)["file"].closed
 
 

@@ -301,9 +301,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # Initialization occurs when the primary array is first
-            # referenced. Do so now.
-            getattr(self, primary_array_name)
+            # Initialize the primary array to the given shape with default value.
+            self.set_default(primary_array_name)
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -1244,6 +1243,47 @@ class DataModel(properties.ObjectNode):
         if attribute in self.instance:
             return getattr(self, attribute)
         raise AttributeError(f'{self} has no attribute "{attribute}"')
+
+    def set_default(self, attr):
+        """
+        Set the value of an attribute to its schema-defined default value.
+
+        TODO: this implementation is ugly
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value. Can be a dotted path
+            to a sub-object, e.g. "meta.foo".
+        """
+        # Handle dotted paths like "meta.foo"
+        parts = attr.split(".")
+
+        if len(parts) == 1:
+            # Simple case: single attribute name
+            subschema = properties._get_schema_for_property(self._schema, attr)
+            default_arr = properties._make_default(attr, subschema, self._ctx)
+            setattr(self, attr, default_arr)
+        else:
+            # Navigate to the parent object
+            parent = self
+            parent_schema = self._schema
+
+            for part in parts[:-1]:
+                # Get the parent object
+                try:
+                    parent = getattr(parent, part)
+                except AttributeError as err:
+                    raise KeyError(repr(attr)) from err
+
+                # Get the schema for the parent
+                parent_schema = properties._get_schema_for_property(parent_schema, part)
+
+            # Get schema and create default for the final attribute
+            final_attr = parts[-1]
+            subschema = properties._get_schema_for_property(parent_schema, final_attr)
+            default_arr = properties._make_default(final_attr, subschema, self._ctx)
+            setattr(parent, final_attr, default_arr)
 
 
 class _FileReference:

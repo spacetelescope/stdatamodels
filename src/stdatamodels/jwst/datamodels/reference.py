@@ -103,9 +103,10 @@ class ReferenceImageModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceImageModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
 
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
@@ -130,9 +131,10 @@ class ReferenceCubeModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceCubeModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
 
 
 class ReferenceQuadModel(ReferenceFileModel):
@@ -154,6 +156,7 @@ class ReferenceQuadModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceQuadModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")

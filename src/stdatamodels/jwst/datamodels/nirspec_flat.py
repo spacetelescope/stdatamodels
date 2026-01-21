@@ -63,12 +63,13 @@ class NirspecFlatModel(ReferenceFileModel):
 
         super(NirspecFlatModel, self).__init__(init=init, **kwargs)
 
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
+
         if self.dq is not None or self.dq_def is not None:
             self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
 
     def _migrate_hdulist(self, hdulist):
         return _migrate_fast_variation_table(hdulist)
