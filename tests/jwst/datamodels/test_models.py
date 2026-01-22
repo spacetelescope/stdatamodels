@@ -767,6 +767,7 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
 
     m = model()
     if model == NirspecQuadFlatModel:
+        m.set_default("quadrants.0.flat_table")
         m.quadrants.append(m.quadrants.item())
         m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
     else:
