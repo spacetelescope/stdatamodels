@@ -24,11 +24,11 @@ class ReferenceFileModel(JwstDataModel):
         to_fix = []
         to_check = ["description", "reftype", "author", "pedigree", "useafter"]
         for field in to_check:
-            if getattr(self.meta, field) is None:
+            if getattr(self.meta, field, None) is None:
                 to_fix.append(field)
-        if self.meta.instrument.name is None:
+        if getattr(self.meta.instrument, "name", None) is None:
             to_fix.append("instrument.name")
-        if self.meta.telescope != "JWST":
+        if getattr(self.meta, "telescope", None) != "JWST":
             to_fix.append("telescope")
         if to_fix:
             self.print_err(f"Model.meta is missing values for {to_fix}")
@@ -103,9 +103,10 @@ class ReferenceImageModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceImageModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
 
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
@@ -130,9 +131,10 @@ class ReferenceCubeModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceCubeModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
 
 
 class ReferenceQuadModel(ReferenceFileModel):
@@ -154,6 +156,7 @@ class ReferenceQuadModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceQuadModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")

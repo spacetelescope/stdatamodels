@@ -26,6 +26,7 @@ class IFUCubeModel(JwstDataModel):
     def __init__(self, init=None, **kwargs):
         super(IFUCubeModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")

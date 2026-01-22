@@ -109,7 +109,7 @@ class _SimpleModel(ReferenceFileModel):
                 "FGS",
                 "NIRISS",
             ]
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -131,7 +131,7 @@ class DistortionModel(_SimpleModel):
                 assert self.meta.instrument.module is not None
                 assert self.meta.instrument.channel is not None
                 assert self.meta.instrument.p_pupil is not None
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -247,7 +247,7 @@ class DistortionMRSModel(ReferenceFileModel):
             assert all(isinstance(m, Model) for m in self.beta_model)
             assert len(self.abv2v3_model.model) == 2
             assert len(self.abv2v3_model.channel_band) == 2
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -281,7 +281,7 @@ class SpecwcsModel(_SimpleModel):
                 "FGS",
                 "NIRISS",
             ]
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -368,7 +368,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
             assert self.meta.instrument.name == "NIRCAM"
             assert self.meta.exposure.type == "NRC_WFSS"
             assert self.meta.reftype == self.reftype
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -450,7 +450,7 @@ class NIRISSGrismModel(ReferenceFileModel):
             assert self.meta.exposure.type == "NIS_WFSS"
             assert self.meta.instrument.detector == "NIS"
             assert self.meta.reftype == self.reftype
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -532,7 +532,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             assert len(self.displ) == n_orders
             assert len(self.dispx) == n_orders
             assert len(self.dispy) == n_orders
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -650,7 +650,7 @@ class MiriLRSSpecwcsModel(ReferenceFileModel):
             assert self.meta.instrument.name == "MIRI"
             assert self.meta.instrument.detector == "MIRIMAGE"
             assert self.meta.reftype.lower() == self.reftype
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -711,7 +711,7 @@ class RegionsModel(ReferenceFileModel):
                 "LONG-MEDIUM",
             )
             assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -778,7 +778,7 @@ class WavelengthrangeModel(ReferenceFileModel):
         super().validate()
         try:
             assert self.meta.instrument.name in ("MIRI", "NIRSPEC", "NIRCAM", "NIRISS")
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -859,7 +859,7 @@ class FPAModel(ReferenceFileModel):
         try:
             assert isinstance(self.nrs1_model, Model)
             assert isinstance(self.nrs2_model, Model)
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -1131,7 +1131,7 @@ class DisperserModel(ReferenceFileModel):
                 "MIRROR",
                 "PRISM",
             ]
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -1184,7 +1184,7 @@ class FilteroffsetModel(ReferenceFileModel):
     def validate(self):
         super().validate()
 
-        instrument_name = self.meta.instrument.name
+        instrument_name = getattr(self.meta.instrument, "name", None)
         nircam_channels = ["SHORT", "LONG"]
         nircam_module = ["A", "B"]
         if instrument_name not in ["MIRI", "NIRCAM", "NIRISS"]:
@@ -1194,12 +1194,12 @@ class FilteroffsetModel(ReferenceFileModel):
         if instrument_name == "MIRI" and self.meta.instrument.detector != "MIRIMAGE":
             self.print_err("Expected detector to be MIRIMAGE for instrument MIRI")
         elif instrument_name == "NIRCAM":
-            if self.meta.instrument.channel not in nircam_channels:
+            if getattr(self.meta.instrument, "channel", None) not in nircam_channels:
                 self.print_err(
                     "Expected meta.instrument.channel for instrument "
                     f"NIRCAM to be one of {nircam_channels}"
                 )
-            if self.meta.instrument.module not in nircam_module:
+            if getattr(self.meta.instrument, "module", None) not in nircam_module:
                 self.print_err(
                     "Expected meta.instrument.module for instrument "
                     f"NIRCAM to be one of {nircam_module}"
@@ -1299,7 +1299,7 @@ class FOREModel(_SimpleModel):
                 "F170LP",
                 "F290LP",
             ]
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:
@@ -1358,7 +1358,7 @@ class WaveCorrModel(ReferenceFileModel):
         try:
             assert self.aperture_names is not None
             assert self.apertures is not None
-        except AssertionError:
+        except (AssertionError, AttributeError):
             if self._strict_validation:
                 raise
             else:

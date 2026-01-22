@@ -251,7 +251,7 @@ def test_crds_selectors_vs_datamodel(jail_environ, instrument):
                                     ref_exptype = model.meta.exposure.type
                                 except AttributeError:
                                     ref_exptype = None
-                                ref_instrument = model.meta.instrument.name
+                                ref_instrument = getattr(model.meta.instrument, "name", None)
                         if ref_exptype in model_map.keys():
                             ref_model = model_map[ref_exptype]
                         elif ref_instrument in model_map.keys():

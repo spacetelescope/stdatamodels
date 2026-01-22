@@ -60,6 +60,8 @@ def test_multislit():
     rng = np.random.default_rng(42)
     with MultiSlitModel() as dm:
         dm.slits.append(dm.slits.item())
+        for attr in ["wavelength", "pathloss_point", "pathloss_uniform", "barshadow"]:
+            dm.set_default(f"slits.-1.{attr}")
         slit = dm.slits[-1]
         slit.data = rng.random((5, 5))
         slit.dm = rng.random((5, 5))
@@ -163,6 +165,6 @@ def test_slit_from_multislit():
     model = MultiSlitModel()
     slit = SlitModel()
     # access int_times so it's created
-    slit.int_times = slit.int_times
+    slit.set_default("int_times")
     model.slits.append(slit)
     slit = SlitModel(model.slits[0].instance)

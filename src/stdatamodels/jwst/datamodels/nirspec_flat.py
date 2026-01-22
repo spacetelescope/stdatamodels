@@ -63,12 +63,13 @@ class NirspecFlatModel(ReferenceFileModel):
 
         super(NirspecFlatModel, self).__init__(init=init, **kwargs)
 
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
+
         if self.dq is not None or self.dq_def is not None:
             self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
 
     def _migrate_hdulist(self, hdulist):
         return _migrate_fast_variation_table(hdulist)
@@ -106,12 +107,16 @@ class NirspecQuadFlatModel(ReferenceFileModel):
             super(NirspecQuadFlatModel, self).__init__(init=None, **kwargs)
             self.update(init)
             self.quadrants.append(self.quadrants.item())
-            self.quadrants[0].data = init.data
-            self.quadrants[0].dq = init.dq
-            self.quadrants[0].err = init.err
-            self.quadrants[0].wavelength = init.wavelength
-            self.quadrants[0].flat_table = init.flat_table
-            self.quadrants[0].dq_def = init.dq_def
+            for att in [
+                "data",
+                "dq",
+                "err",
+                "wavelength",
+                "flat_table",
+                "dq_def",
+            ]:
+                init.set_default(att)
+                setattr(self.quadrants[0], att, getattr(init, att, None))
             self.quadrants[0].dq = dynamic_mask(self.quadrants[0], pixel)
             return
 

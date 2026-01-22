@@ -142,13 +142,14 @@ def test_table_array_shape_ndim(filename, tmp_path):
 
 def test_implicit_creation_lower_dimensionality():
     with BasicModel(np.zeros((10, 20))) as m:
+        m.set_default("dq")
         assert m.dq.shape == (20,)
 
 
 def test_add_schema_entry():
     with DataModel(strict_validation=True) as dm:
         dm.add_schema_entry("meta.foo.bar", {"enum": ["foo", "bar", "baz"]})
-        dm.meta.foo.bar  # noqa: B018
+        dm.set_default("meta.foo.bar")
         dm.meta.foo.bar = "bar"
         try:
             dm.meta.foo.bar = "what?"

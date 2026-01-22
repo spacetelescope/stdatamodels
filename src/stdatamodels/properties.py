@@ -377,6 +377,11 @@ class ObjectNode(Node):
             if schema == {}:
                 raise AttributeError(f"No attribute '{attr}'") from err
 
+            # only make default if the attribute's schema has subschema
+            # otherwise raise AttributeError
+            if "properties" not in schema.keys() and "items" not in schema.keys():
+                raise AttributeError(f"No attribute '{attr}'") from err
+
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
                 self._instance[attr] = val

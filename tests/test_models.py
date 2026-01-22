@@ -52,7 +52,7 @@ def test_delete():
         dm.meta.telescope = "JWST"
         assert dm.meta.telescope == "JWST"
         del dm.meta.telescope
-        assert dm.meta.telescope is None
+        assert not hasattr(dm.meta, "telescope")
 
 
 def test_copy():
@@ -69,7 +69,7 @@ def test_copy():
             dm2.meta.foo = "BAZ"
             assert dm.meta.foo == "BAR"
             dm2.meta.origin = "STScI"
-            assert dm.meta.origin is None
+            assert not hasattr(dm.meta, "origin")
 
 
 def test_stringify(tmp_path):
@@ -146,6 +146,7 @@ def test_base_model_has_no_arrays():
 
 def test_array_type():
     with BasicModel() as dm:
+        dm.set_default("dq")
         assert dm.dq.dtype == np.uint32
 
 
@@ -163,6 +164,7 @@ def test_dtype_match():
 def test_default_value_anyof_schema():
     """Make sure default values are set properly when anyOf in schema"""
     with AnyOfModel() as dm:
+        dm.set_default("meta.foo")
         assert dm.meta.foo is None
 
 
@@ -194,6 +196,7 @@ def test_secondary_shapes():
     specified in the initializer.
     """
     with BasicModel((256, 256)) as dm:
+        dm.set_default("area")
         assert dm.area.shape == (256, 256)
 
 

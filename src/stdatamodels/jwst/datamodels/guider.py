@@ -32,9 +32,10 @@ class GuiderRawModel(JwstDataModel):
     def __init__(self, init=None, **kwargs):
         super(GuiderRawModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")
 
 
 class GuiderCalModel(JwstDataModel):
@@ -66,6 +67,7 @@ class GuiderCalModel(JwstDataModel):
     def __init__(self, init=None, **kwargs):
         super(GuiderCalModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
+        if not hasattr(self, "dq"):
+            self.set_default("dq")
+        if not hasattr(self, "err"):
+            self.set_default("err")

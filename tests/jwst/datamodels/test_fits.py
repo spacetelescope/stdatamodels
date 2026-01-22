@@ -35,7 +35,7 @@ def test_delete(fits_file):
         dm.meta.instrument.name = "NIRCAM"
         assert dm.meta.instrument.name == "NIRCAM"
         del dm.meta.instrument.name
-        assert dm.meta.instrument.name is None
+        assert not hasattr(dm.meta.instrument, "name")
 
 
 def test_fits_without_sci():
@@ -95,7 +95,7 @@ def test_units_roundtrip(tmp_path):
     # this next line is required for stdatamodels to cast
     # spec_table to a FITS_rec (similar to having data assigned
     # to the attribute)
-    m.spec_table = m.spec_table
+    m.set_default("spec_table")
     m.spec_table.columns["WAVELENGTH"].unit = "nm"
 
     fn = tmp_path / "test1.fits"

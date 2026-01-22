@@ -29,5 +29,7 @@ class RampModel(JwstDataModel):
         super(RampModel, self).__init__(init=init, **kwargs)
 
         # Implicitly create arrays
-        self.pixeldq = self.pixeldq
-        self.groupdq = self.groupdq
+        if not hasattr(self, "pixeldq"):
+            self.set_default("pixeldq")
+        if not hasattr(self, "groupdq"):
+            self.set_default("groupdq")
