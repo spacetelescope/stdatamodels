@@ -53,13 +53,15 @@ def test_miri_lrs_specwcs():
     assert model.meta.y_ref == 400
 
     # for slitless case assert the v2/v3 vertices are None if not in the file
-    assert model.meta.v2_vert1 is None
-    assert model.meta.v2_vert2 is None
-    assert model.meta.v2_vert3 is None
-    assert model.meta.v2_vert4 is None
-
-    assert model.meta.v3_vert1 is None
-    assert model.meta.v3_vert2 is None
-    assert model.meta.v3_vert3 is None
-    assert model.meta.v3_vert4 is None
+    for attr in [
+        "v2_vert1",
+        "v2_vert2",
+        "v2_vert3",
+        "v2_vert4",
+        "v3_vert1",
+        "v3_vert2",
+        "v3_vert3",
+        "v3_vert4",
+    ]:
+        assert getattr(model.meta, attr, None) is None
     model.validate()

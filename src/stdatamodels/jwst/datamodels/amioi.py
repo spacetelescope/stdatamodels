@@ -18,22 +18,22 @@ class AmiOIModel(JwstDataModel):
         # (and defined) metadata, copy the data to the OIFITS compatible
         # locations
 
-        self.meta.oifits.derived.observer = self.meta.program.pi_name
-        self.meta.oifits.derived.object = (
-            self.meta.target.proposer_name or self.meta.target.catalog_name
-        )
+        self.meta.oifits.derived.observer = getattr(self.meta.program, "pi_name", None)
+        self.meta.oifits.derived.object = getattr(
+            self.meta.target, "proposer_name", None
+        ) or getattr(self.meta.target, "catalog_name", None)
 
         # This file contains OIFITS2 content
         self.meta.oifits.derived.content = "OIFITS2"
 
         # each OIFITS data table needs specific cross-referencing keywords
-        array_name = self.meta.oifits.array_name
+        array_name = getattr(self.meta.oifits, "array_name", None)
         self.meta.oifits.derived.t3.array_name = array_name
         self.meta.oifits.derived.vis.array_name = array_name
         self.meta.oifits.derived.vis2.array_name = array_name
         self.meta.oifits.derived.q4.array_name = array_name
 
-        insname = self.meta.instrument.name
+        insname = getattr(self.meta.instrument, "name", None)
         self.meta.oifits.derived.wavelength.instrument_name = insname
         self.meta.oifits.derived.t3.instrument_name = insname
         self.meta.oifits.derived.vis.instrument_name = insname
@@ -49,7 +49,7 @@ class AmiOIModel(JwstDataModel):
         # Currently this code leaves the value as-is (expressed
         # as a date only) to avoid complications for other JWST
         # code.
-        date_obs = self.meta.observation.date
+        date_obs = getattr(self.meta.observation, "date", None)
         self.meta.oifits.derived.t3.date_obs = date_obs
         self.meta.oifits.derived.vis.date_obs = date_obs
         self.meta.oifits.derived.vis2.date_obs = date_obs
@@ -64,13 +64,13 @@ class AmiOIModel(JwstDataModel):
         self.meta.oifits.derived.wavelength.revn = 2
 
         # fill in possibly missing OI_ARRAY meta data
-        if self.meta.oifits.derived.array.frame is None:
+        if getattr(self.meta.oifits.derived.array, "frame", None) is None:
             self.meta.oifits.derived.array.frame = "SKY"
-        if self.meta.oifits.derived.array.x is None:
+        if getattr(self.meta.oifits.derived.array, "x", None) is None:
             self.meta.oifits.derived.array.x = 0.0
-        if self.meta.oifits.derived.array.y is None:
+        if getattr(self.meta.oifits.derived.array, "y", None) is None:
             self.meta.oifits.derived.array.y = 0.0
-        if self.meta.oifits.derived.array.z is None:
+        if getattr(self.meta.oifits.derived.array, "z", None) is None:
             self.meta.oifits.derived.array.z = 0.0
 
     def on_save(self, path=None):  # noqa: D102

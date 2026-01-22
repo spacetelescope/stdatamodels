@@ -107,12 +107,16 @@ class NirspecQuadFlatModel(ReferenceFileModel):
             super(NirspecQuadFlatModel, self).__init__(init=None, **kwargs)
             self.update(init)
             self.quadrants.append(self.quadrants.item())
-            self.quadrants[0].data = init.data
-            self.quadrants[0].dq = init.dq
-            self.quadrants[0].err = init.err
-            self.quadrants[0].wavelength = init.wavelength
-            self.quadrants[0].flat_table = init.flat_table
-            self.quadrants[0].dq_def = init.dq_def
+            for att in [
+                "data",
+                "dq",
+                "err",
+                "wavelength",
+                "flat_table",
+                "dq_def",
+            ]:
+                init.set_default(att)
+                setattr(self.quadrants[0], att, getattr(init, att, None))
             self.quadrants[0].dq = dynamic_mask(self.quadrants[0], pixel)
             return
 

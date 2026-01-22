@@ -53,6 +53,7 @@ class SlitDataModel(JwstDataModel):
         if kwargs:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
+        self.set_default("wavelength")
 
 
 class SlitModel(JwstDataModel):

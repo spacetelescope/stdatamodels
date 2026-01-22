@@ -43,8 +43,8 @@ def test_from_new_hdulist2():
     science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
-        dq = dm.set_default("dq")
-        assert dq is not None
+        dm.set_default("dq")
+        assert dm.dq is not None
 
 
 def test_setting_arrays_on_fits():
@@ -347,7 +347,7 @@ def test_table_with_unsigned_int(tmp_path):
         "$schema": "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0",
         "type": "object",
         "properties": {
-            "meta": {"type": "object", "properties": {}},
+            "meta": {"type": "object", "properties": {"filename": {"type": "string"}}},
             "test_table": {
                 "title": "Test table",
                 "fits_hdu": "TESTTABL",
@@ -372,7 +372,8 @@ def test_table_with_unsigned_int(tmp_path):
         uint32_arr[-1] = uint32_info.max
 
         test_table = np.array(
-            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.test_table.dtype
+            list(zip(float64_arr, uint32_arr, strict=False)),
+            dtype=[("FLOAT64_COL", np.float64), ("UINT32_COL", np.uint32)],
         )
 
         def assert_table_correct(model):
@@ -648,7 +649,7 @@ def test_table_linking(tmp_path):
         "$schema": "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0",
         "type": "object",
         "properties": {
-            "meta": {"type": "object", "properties": {}},
+            "meta": {"type": "object", "properties": {"filename": {"type": "string"}}},
             "test_table": {
                 "title": "Test table",
                 "fits_hdu": "TESTTABL",

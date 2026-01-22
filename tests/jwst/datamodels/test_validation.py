@@ -9,7 +9,7 @@ from stdatamodels.jwst.datamodels import JwstDataModel
 
 def test_strict_validation_enum():
     with JwstDataModel(strict_validation=True) as dm:
-        assert dm.meta.instrument.name is None
+        assert not hasattr(dm.meta.instrument, "name")
         with pytest.raises(ValidationError):
             # FOO is not in the allowed enumerated values
             dm.meta.instrument.name = "FOO"

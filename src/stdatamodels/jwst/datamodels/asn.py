@@ -25,6 +25,8 @@ class AsnModel(JwstDataModel):
         self.input_rootnames = []
         self.num_inputs = 0
 
+        if not hasattr(self, "asn_table"):
+            self.asn_table = []
         if not len(self.asn_table):
             return
 

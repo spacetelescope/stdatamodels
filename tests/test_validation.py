@@ -34,7 +34,7 @@ does_not_raise = _DoesNotRaiseContext()
 def test_scalar_attribute_assignment():
     model = ValidationModel()
 
-    assert model.meta.string_attribute is None
+    assert not hasattr(model.meta, "string_attribute")
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         model.meta.string_attribute = "foo"
@@ -53,7 +53,7 @@ def test_scalar_attribute_assignment():
 def test_object_attribute_assignment():
     model = ValidationModel()
 
-    assert model.meta.object_attribute.string_attribute is None
+    assert not hasattr(model.meta.object_attribute, "string_attribute")
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         model.meta.object_attribute = {"string_attribute": "foo"}
@@ -70,7 +70,7 @@ def test_object_attribute_assignment():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         model.meta.object_attribute = None
-    assert model.meta.object_attribute.string_attribute is None
+    assert not hasattr(model.meta.object_attribute, "string_attribute")
 
 
 def test_list_attribute_ssignment():
@@ -130,7 +130,7 @@ def test_pass_invalid_values_attribute_assignment(monkeypatch, init_value, env_v
     if passed:
         assert model.meta.string_attribute == 42
     else:
-        assert model.meta.string_attribute is None
+        assert not hasattr(model.meta, "string_attribute")
 
 
 @pytest.mark.parametrize(
@@ -175,7 +175,7 @@ def test_strict_validation_attribute_assignment(
 
     with expected_context_manager:
         model.meta.string_attribute = 42
-    assert model.meta.string_attribute is None
+    assert not hasattr(model.meta, "string_attribute")
 
 
 def test_validate():
@@ -233,7 +233,7 @@ def test_validate_on_assignment(
 
     with expected_context_manager:
         model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute is string_attribute_value
+    assert getattr(model.meta, "string_attribute", None) is string_attribute_value
 
 
 @pytest.mark.parametrize(
@@ -266,7 +266,7 @@ def test_validate_on_assignment_setitem(init_value, warning_class, string_attrib
         with pytest.warns(warning_class):
             model.meta.list_attribute[0] = {"string_attribute": value3}
 
-    assert model.meta.list_attribute[0].string_attribute == string_attribute_value
+    assert getattr(model.meta.list_attribute[0], "string_attribute", None) == string_attribute_value
 
 
 @pytest.mark.parametrize(
@@ -291,7 +291,7 @@ def test_validate_on_assignment_insert(
     else:
         with pytest.warns(warning_class):
             model.meta.list_attribute.insert(0, {"string_attribute": 42})
-    assert model.meta.list_attribute[0].string_attribute == string_attribute_value
+    assert getattr(model.meta.list_attribute[0], "string_attribute", None) == string_attribute_value
 
 
 # --------------------------------------------------------------------
@@ -319,7 +319,7 @@ def test_validate_on_assignment_strict_validation(
 
     with expected_context_manager:
         model.meta.string_attribute = 42
-    assert model.meta.string_attribute is value
+    assert getattr(model.meta, "string_attribute", None) is value
 
 
 @pytest.mark.parametrize(
@@ -342,7 +342,7 @@ def test_validate_on_assignment_pass_invalid_values(
     # even with validate_on_assignment=True
     with expected_context_manager:
         model.meta.string_attribute = 42  # Bad assignment
-    assert model.meta.string_attribute == value
+    assert getattr(model.meta, "string_attribute", None) == value
 
 
 def test_ndarray_validation(tmp_path):
@@ -386,7 +386,7 @@ def test_validation_memory_leak():
     a reference to the assigned array.
     """
     # basic model validates `data` to be a float32 with 2 dimensions
-    model = BasicModel()
+    model = BasicModel((10, 10))
 
     # get the default array
     original_array = model.data

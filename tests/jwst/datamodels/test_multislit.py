@@ -163,6 +163,6 @@ def test_slit_from_multislit():
     model = MultiSlitModel()
     slit = SlitModel()
     # access int_times so it's created
-    slit.int_times = slit.int_times
+    slit.set_default("int_times")
     model.slits.append(slit)
     slit = SlitModel(model.slits[0].instance)

@@ -90,16 +90,17 @@ def test_asnmodel_table_size_zero():
 def test_imagemodel():
     shape = (10, 10)
     with ImageModel(shape) as dm:
+        dm.set_default("err")
+        dm.set_default("dq")
         assert dm.data.shape == shape
         assert dm.err.shape == shape
         assert dm.dq.shape == shape
         assert dm.data.mean() == 0.0
         assert dm.err.mean() == 0.0
         assert dm.dq.mean() == 0.0
-        assert dm.zeroframe.shape == shape
-        assert dm.area.shape == shape
-        assert dm.pathloss_point.shape == shape
-        assert dm.pathloss_uniform.shape == shape
+        for attr in ["zeroframe", "area", "pathloss_point", "pathloss_uniform"]:
+            dm.set_default(attr)
+            assert getattr(dm, attr).shape == shape
 
 
 def test_model_with_nonstandard_primary_array(test_data_path):
@@ -462,6 +463,7 @@ def test_ramp_model_zero_frame_by_dimensions():
     zdims = (nints, nrows, ncols)
 
     with datamodels.RampModel(dims) as ramp:
+        ramp.set_default("zeroframe")
         assert ramp.zeroframe.shape == zdims
 
 
@@ -768,6 +770,7 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
         m.quadrants.append(m.quadrants.item())
         m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
     else:
+        m.set_default("flat_table")
         m.flat_table = make_data(m.flat_table.dtype)
     m.save(fn)
     fn2 = tmp_path / "test2.fits"
@@ -804,6 +807,7 @@ def test_moving_target_table_migration(tmp_path):
         return np.array(fake_data, dtype=dtype)
 
     m = Level1bModel()
+    m.set_default("moving_target")
     m.moving_target = make_data(m.moving_target.dtype)
     m.save(fn)
     fn2 = tmp_path / "test_mt2.fits"
