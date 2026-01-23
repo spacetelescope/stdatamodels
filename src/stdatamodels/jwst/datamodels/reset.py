@@ -28,7 +28,3 @@ class ResetModel(ReferenceFileModel):
         super(ResetModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

@@ -146,6 +146,7 @@ def test_base_model_has_no_arrays():
 
 def test_array_type():
     with BasicModel() as dm:
+        dm.get_default("dq")
         assert dm.dq.dtype == np.uint32
 
 
@@ -204,6 +205,7 @@ def test_secondary_shapes():
     specified in the initializer.
     """
     with BasicModel((256, 256)) as dm:
+        dm.get_default("area")
         assert dm.area.shape == (256, 256)
 
 

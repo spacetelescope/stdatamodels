@@ -28,6 +28,3 @@ class FlatModel(ReferenceFileModel):
         super(FlatModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.err = self.err

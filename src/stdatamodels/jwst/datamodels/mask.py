@@ -23,11 +23,8 @@ class MaskModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(MaskModel, self).__init__(init=init, **kwargs)
 
-        if self.dq is not None or self.dq_def is not None:
+        if getattr(self, "dq", None) is not None or getattr(self, "dq_def", None) is not None:
             self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
 
     def get_primary_array_name(self):  # noqa: D102
         return "dq"

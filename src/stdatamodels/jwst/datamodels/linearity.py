@@ -27,8 +27,5 @@ class LinearityModel(ReferenceFileModel):
 
         self.dq = dynamic_mask(self, pixel)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-
     def get_primary_array_name(self):  # noqa: D102
         return "coeffs"

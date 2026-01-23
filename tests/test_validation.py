@@ -386,7 +386,7 @@ def test_validation_memory_leak():
     a reference to the assigned array.
     """
     # basic model validates `data` to be a float32 with 2 dimensions
-    model = BasicModel()
+    model = BasicModel((10, 10))
 
     # get the default array
     original_array = model.data
