@@ -32,7 +32,7 @@ class AsnModel(JwstDataModel):
         self.input_rootnames = []
         self.num_inputs = 0
 
-        if not len(self.asn_table):
+        if getattr(self, "asn_table", None) is None:
             return
 
         for i, etype in enumerate(self.asn_table.exptype):
@@ -52,3 +52,6 @@ class AsnModel(JwstDataModel):
                         break
                 self.input_rootnames.append(rootname)
                 self.num_inputs += 1
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "asn_table"

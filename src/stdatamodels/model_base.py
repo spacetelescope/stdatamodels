@@ -73,7 +73,7 @@ class DataModel(properties.ObjectNode):
             - None : Create a default data model with no shape.
 
             - tuple : Shape of the data array.
-              Initialize with empty data array with shape specified by the.
+              Initialize with default data array with shape specified by the tuple.
 
             - file path: Initialize from the given file (FITS or ASDF)
 
@@ -301,9 +301,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # Initialization occurs when the primary array is first
-            # referenced. Do so now.
-            getattr(self, primary_array_name)
+            # Initialize the primary array to the given shape with default value.
+            self.get_default(primary_array_name)
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -1244,6 +1243,73 @@ class DataModel(properties.ObjectNode):
         if attribute in self.instance:
             return getattr(self, attribute)
         raise AttributeError(f'{self} has no attribute "{attribute}"')
+
+    def get_default(self, attr):
+        """
+        Set the value of an attribute to its schema-defined default value.
+
+        TODO: this implementation is ugly
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value. Can be a dotted path
+            to a sub-object, e.g. "meta.foo" or "quadrants.0.flat_table"
+            where numeric parts refer to list indices. If a list index
+            doesn't exist, empty items will be created up to that index.
+        """
+        # Handle dotted paths like "meta.foo" or "quadrants.0.flat_table"
+        parts = attr.split(".")
+
+        if len(parts) == 1:
+            # Simple case: single attribute name
+            subschema = properties._get_schema_for_property(self._schema, attr)
+            default_arr = properties._make_default(attr, subschema, self._ctx)
+            setattr(self, attr, default_arr)
+        else:
+            # Navigate to the parent object
+            parent = self
+            parent_schema = self._schema
+
+            for part in parts[:-1]:
+                # Try to convert part to an integer (for list indexing)
+                try:
+                    index = int(part)
+                except ValueError:
+                    # Not an integer, treat as attribute name
+                    try:
+                        parent = getattr(parent, part)
+                    except AttributeError as err:
+                        raise KeyError(repr(attr)) from err
+                    # Get the schema for the parent
+                    parent_schema = properties._get_schema_for_property(parent_schema, part)
+                else:
+                    # It's an integer, use list indexing
+                    # If the list doesn't have enough items, add empty items
+                    while len(parent) <= index:
+                        parent.append(parent.item())
+                    parent = parent[index]
+                    # Get the schema for the indexed item
+                    parent_schema = properties._get_schema_for_index(parent_schema, index)
+
+            # Get schema and create default for the final attribute
+            final_attr = parts[-1]
+            # Try to convert final part to an integer
+            try:
+                final_index = int(final_attr)
+            except ValueError:
+                # Not an integer, treat as attribute name
+                subschema = properties._get_schema_for_property(parent_schema, final_attr)
+                default_arr = properties._make_default(final_attr, subschema, self._ctx)
+                setattr(parent, final_attr, default_arr)
+            else:
+                # Final part is an integer index
+                # If the list doesn't have enough items, add empty items
+                while len(parent) <= final_index:
+                    parent.append(parent.item())
+                subschema = properties._get_schema_for_index(parent_schema, final_index)
+                default_arr = properties._make_default(final_index, subschema, self._ctx)
+                parent[final_index] = default_arr
 
 
 class _FileReference:
