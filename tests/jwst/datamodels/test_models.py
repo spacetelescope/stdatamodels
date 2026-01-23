@@ -85,6 +85,7 @@ def test_skip_fits_update(make_models, which_file):
 def test_asnmodel_table_size_zero():
     with pytest.warns(DeprecationWarning, match="AsnModel is deprecated"):
         with AsnModel() as dm:
+            dm.get_default("asn_table")
             assert len(dm.asn_table) == 0
 
 
@@ -92,6 +93,8 @@ def test_imagemodel():
     shape = (10, 10)
     with ImageModel(shape) as dm:
         assert dm.data.shape == shape
+        for attr in ["err", "dq", "zeroframe", "area", "pathloss_point", "pathloss_uniform"]:
+            dm.get_default(attr)
         assert dm.err.shape == shape
         assert dm.dq.shape == shape
         assert dm.data.mean() == 0.0
@@ -294,6 +297,7 @@ def test_slit_from_image():
     im.meta.instrument.name = "MIRI"
     slit_dm = SlitDataModel(im)
     assert_allclose(im.data, slit_dm.data)
+    slit_dm.get_default("wavelength")
     assert hasattr(slit_dm, "wavelength")
     # this should be enabled after gwcs starts using non-coordinate inputs
     # assert not hasattr(slit_dm, 'meta')
@@ -302,6 +306,7 @@ def test_slit_from_image():
     assert type(slit) is SlitModel
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
+    slit.get_default("wavelength")
     assert hasattr(slit, "wavelength")
     assert slit.meta.instrument.name == "MIRI"
 
@@ -463,6 +468,7 @@ def test_ramp_model_zero_frame_by_dimensions():
     zdims = (nints, nrows, ncols)
 
     with datamodels.RampModel(dims) as ramp:
+        ramp.get_default("zeroframe")
         assert ramp.zeroframe.shape == zdims
 
 
@@ -767,8 +773,10 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     m = model()
     if model == NirspecQuadFlatModel:
         m.quadrants.append(m.quadrants.item())
+        m.get_default("quadrants.0.flat_table")
         m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
     else:
+        m.get_default("flat_table")
         m.flat_table = make_data(m.flat_table.dtype)
     m.save(fn)
     fn2 = tmp_path / "test2.fits"
@@ -805,6 +813,7 @@ def test_moving_target_table_migration(tmp_path):
         return np.array(fake_data, dtype=dtype)
 
     m = Level1bModel()
+    m.get_default("moving_target")
     m.moving_target = make_data(m.moving_target.dtype)
     m.save(fn)
     fn2 = tmp_path / "test_mt2.fits"
