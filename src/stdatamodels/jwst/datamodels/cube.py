@@ -30,10 +30,3 @@ class CubeModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/cube.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(CubeModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

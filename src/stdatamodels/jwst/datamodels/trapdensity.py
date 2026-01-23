@@ -26,6 +26,3 @@ class TrapDensityModel(ReferenceFileModel):
         super(TrapDensityModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
