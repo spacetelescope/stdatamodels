@@ -22,10 +22,3 @@ class IFUCubeModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifucube.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(IFUCubeModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
