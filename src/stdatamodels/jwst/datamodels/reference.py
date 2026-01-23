@@ -103,10 +103,6 @@ class ReferenceImageModel(ReferenceFileModel):
     def __init__(self, init=None, **kwargs):
         super(ReferenceImageModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
-
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
 
@@ -127,13 +123,6 @@ class ReferenceCubeModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencecube.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(ReferenceCubeModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
-
 
 class ReferenceQuadModel(ReferenceFileModel):
     """
@@ -150,10 +139,3 @@ class ReferenceQuadModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencequad.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(ReferenceQuadModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
