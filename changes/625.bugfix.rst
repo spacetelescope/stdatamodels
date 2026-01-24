@@ -1,0 +1,1 @@
+Fix incorrect parametrization of trace models for NIRCam WFSS transforms
