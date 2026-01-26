@@ -7,7 +7,15 @@ import pytest
 from stdatamodels import DataModel
 from stdatamodels.exceptions import ValidationWarning
 
-from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
+from .models import (
+    AnyOfModel,
+    BasicModel,
+    DefaultsModel,
+    FitsModel,
+    TableModel,
+    TableModelBad,
+    TransformModel,
+)
 
 
 def test_init_from_pathlib(tmp_path):
@@ -146,8 +154,54 @@ def test_base_model_has_no_arrays():
 
 def test_array_type():
     with BasicModel() as dm:
-        dm.get_default("dq")
+        dm.dq = dm.get_default("dq")
         assert dm.dq.dtype == np.uint32
+
+
+def test_primary_not_created_when_blank():
+    """Primary array should not be created if not initialized with shape nor data."""
+    with DefaultsModel() as im:
+        assert not hasattr(im, "primary")
+
+
+def test_primary_created_when_shape():
+    """Primary array should be created on init if initialized with shape."""
+    with DefaultsModel((10, 10)) as im:
+        assert im.primary.shape == (10, 10)
+        np.testing.assert_allclose(im.primary, 2.0)
+
+
+def test_non_primary_not_created_when_shape():
+    """Non-primary arrays shouldn't be created on init from shape, and hasattr should be False."""
+    with DefaultsModel((10, 10)) as im:
+        assert not hasattr(im, "data")
+
+
+def test_get_default_arr():
+    """Test get_default for non-primary array attribute gives proper shape and value."""
+    with DefaultsModel((10, 10)) as im:
+        assert not hasattr(im, "data")
+        default_data = im.get_default("data")
+        assert default_data.shape == (10, 10)
+        np.testing.assert_allclose(default_data, 3.0)
+
+
+def test_get_default_meta():
+    """Test get_default for metadata attributes both with and without schema-defined defaults."""
+    with DefaultsModel() as im:
+        default_meta = im.get_default("meta.default_meta")
+        assert default_meta == "default"
+        non_default_meta = im.get_default("meta.no_default_meta")
+        assert non_default_meta is None
+
+
+def test_implicit_meta_creation():
+    """Test that metadata attributes are created on access, and hasattr is True."""
+    with DefaultsModel() as im:
+        assert hasattr(im.meta, "no_default_meta")
+        assert hasattr(im.meta, "default_meta")
+        assert im.meta.default_meta == "default"
+        assert im.meta.no_default_meta is None
 
 
 def test_copy_model():
@@ -205,7 +259,7 @@ def test_secondary_shapes():
     specified in the initializer.
     """
     with BasicModel((256, 256)) as dm:
-        dm.get_default("area")
+        dm.area = dm.get_default("area")
         assert dm.area.shape == (256, 256)
 
 

@@ -302,7 +302,7 @@ class DataModel(properties.ObjectNode):
                 )
 
             # Initialize the primary array to the given shape with default value.
-            self.get_default(primary_array_name)
+            setattr(self, primary_array_name, self.get_default(primary_array_name))
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -1246,9 +1246,7 @@ class DataModel(properties.ObjectNode):
 
     def get_default(self, attr):
         """
-        Set the value of an attribute to its schema-defined default value.
-
-        TODO: this implementation is ugly
+        Retrieve the schema-defined default value of an attribute.
 
         Parameters
         ----------
@@ -1257,6 +1255,11 @@ class DataModel(properties.ObjectNode):
             to a sub-object, e.g. "meta.foo" or "quadrants.0.flat_table"
             where numeric parts refer to list indices. If a list index
             doesn't exist, empty items will be created up to that index.
+
+        Returns
+        -------
+        default_value : object
+            The default value for the given attribute.
         """
         # Handle dotted paths like "meta.foo" or "quadrants.0.flat_table"
         parts = attr.split(".")
@@ -1264,8 +1267,7 @@ class DataModel(properties.ObjectNode):
         if len(parts) == 1:
             # Simple case: single attribute name
             subschema = properties._get_schema_for_property(self._schema, attr)
-            default_arr = properties._make_default(attr, subschema, self._ctx)
-            setattr(self, attr, default_arr)
+            return properties._make_default(attr, subschema, self._ctx)
         else:
             # Navigate to the parent object
             parent = self
@@ -1300,16 +1302,14 @@ class DataModel(properties.ObjectNode):
             except ValueError:
                 # Not an integer, treat as attribute name
                 subschema = properties._get_schema_for_property(parent_schema, final_attr)
-                default_arr = properties._make_default(final_attr, subschema, self._ctx)
-                setattr(parent, final_attr, default_arr)
+                return properties._make_default(final_attr, subschema, self._ctx)
             else:
                 # Final part is an integer index
                 # If the list doesn't have enough items, add empty items
                 while len(parent) <= final_index:
                     parent.append(parent.item())
                 subschema = properties._get_schema_for_index(parent_schema, final_index)
-                default_arr = properties._make_default(final_index, subschema, self._ctx)
-                parent[final_index] = default_arr
+                return properties._make_default(final_index, subschema, self._ctx)
 
 
 class _FileReference:

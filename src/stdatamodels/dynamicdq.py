@@ -27,7 +27,7 @@ def dynamic_mask(input_model, mnemonic_map, inv=False):
         A Numpy array
     """
     if not hasattr(input_model, "dq"):
-        input_model.get_default("dq")
+        input_model.dq = input_model.get_default("dq")
     dq_table = getattr(input_model, "dq_def", None)
     # Get the DQ array and the flag definitions
     if (
