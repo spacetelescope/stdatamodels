@@ -110,7 +110,7 @@ class NirspecQuadFlatModel(ReferenceFileModel):
                 "dq_def",
             ]:
                 if not hasattr(init, attr):
-                    init.get_default(attr)
+                    setattr(init, attr, init.get_default(attr))
             self.quadrants.append(self.quadrants.item())
             self.quadrants[0].data = init.data
             self.quadrants[0].dq = init.dq
