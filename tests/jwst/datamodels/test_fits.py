@@ -92,7 +92,7 @@ def test_resave_duplication_bug(tmp_path):
 
 def test_units_roundtrip(tmp_path):
     m = SpecModel()
-    m.get_default("spec_table")
+    m.spec_table = m.get_default("spec_table")
     m.spec_table.columns["WAVELENGTH"].unit = "nm"
 
     fn = tmp_path / "test1.fits"

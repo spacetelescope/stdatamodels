@@ -43,7 +43,7 @@ def test_from_new_hdulist2():
     science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
-        dm.get_default("dq")
+        dm.dq = dm.get_default("dq")
         dq = dm.dq
         assert dq is not None
 
@@ -75,7 +75,7 @@ def test_from_scratch(tmp_path):
         dm.to_fits(file_path)
 
         with FitsModel(file_path) as dm2:
-            dm2.get_default("dq")
+            dm2.dq = dm2.get_default("dq")
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
             assert dm2.dq.dtype.name == "uint32"
