@@ -134,3 +134,9 @@ class DQMixin(_DataModel):
         # if dq_def is in the schema, attempt to apply dq flag mapping
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
+
+        # do the same handling for err array
+        # this is only here to minimize number of downstream failures and
+        # should be removed in the future once we can fix downstream patterns
+        if not hasattr(self, "err") and self.hasattr("err"):
+            self.err = self.get_default("err")
