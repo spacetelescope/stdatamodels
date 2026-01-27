@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import DQMixin, JwstDataModel
 
 __all__ = ["GuiderCalModel", "GuiderRawModel"]
 
 
-class GuiderRawModel(JwstDataModel):
+class GuiderRawModel(JwstDataModel, DQMixin):
     """
     A data model for Guide Star pipeline raw data files.
 
@@ -30,7 +30,7 @@ class GuiderRawModel(JwstDataModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/guider_raw.schema"
 
 
-class GuiderCalModel(JwstDataModel):
+class GuiderCalModel(JwstDataModel, DQMixin):
     """
     A data model for Guide Star pipeline calibrated files.
 
