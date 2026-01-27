@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["DarkMIRIModel", "DarkModel", "DarkNirspecModel"]
 
 
-class DarkModel(ReferenceFileModel):
+class DarkModel(ReferenceFileModel, DQMixin):
     """
     A data model for dark reference files.
 
@@ -22,13 +21,8 @@ class DarkModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/dark.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(DarkModel, self).__init__(init=init, **kwargs)
 
-        self.dq = dynamic_mask(self, pixel)
-
-
-class DarkMIRIModel(ReferenceFileModel):
+class DarkMIRIModel(ReferenceFileModel, DQMixin):
     """
     A data model for dark MIRI reference files.
 
@@ -44,13 +38,8 @@ class DarkMIRIModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/darkMIRI.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(DarkMIRIModel, self).__init__(init=init, **kwargs)
 
-        self.dq = dynamic_mask(self, pixel)
-
-
-class DarkNirspecModel(ReferenceFileModel):
+class DarkNirspecModel(ReferenceFileModel, DQMixin):
     """
     A data model for NIRSpec dark reference files.
 
@@ -71,8 +60,3 @@ class DarkNirspecModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/dark_nirspec.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(DarkNirspecModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
