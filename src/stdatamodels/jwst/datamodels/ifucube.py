@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import DQMixin, JwstDataModel
 
 __all__ = ["IFUCubeModel"]
 
 
-class IFUCubeModel(JwstDataModel):
+class IFUCubeModel(JwstDataModel, DQMixin):
     """
     A data model for 3D IFU  cubes.
 
