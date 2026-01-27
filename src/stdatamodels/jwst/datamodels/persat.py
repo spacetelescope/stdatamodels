@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["PersistenceSatModel"]
 
 
-class PersistenceSatModel(ReferenceFileModel):
+class PersistenceSatModel(ReferenceFileModel, DQMixin):
     """
     A data model for the persistence saturation value (full well).
 
@@ -21,8 +20,3 @@ class PersistenceSatModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/persat.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(PersistenceSatModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)

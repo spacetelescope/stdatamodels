@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["TrapDensityModel"]
 
 
-class TrapDensityModel(ReferenceFileModel):
+class TrapDensityModel(ReferenceFileModel, DQMixin):
     """
     A data model for the trap density of a detector, for persistence.
 
@@ -21,8 +20,3 @@ class TrapDensityModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/trapdensity.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(TrapDensityModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
