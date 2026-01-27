@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["SaturationModel"]
 
 
-class SaturationModel(ReferenceFileModel):
+class SaturationModel(ReferenceFileModel, DQMixin):
     """
     A data model for saturation checking information.
 
@@ -21,8 +20,3 @@ class SaturationModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/saturation.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(SaturationModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
