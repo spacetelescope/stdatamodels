@@ -138,5 +138,5 @@ class DQMixin(_DataModel):
         # do the same handling for err array
         # this is only here to minimize number of downstream failures and
         # should be removed in the future once we can fix downstream patterns
-        if not hasattr(self, "err") and self.hasattr("err"):
+        if not hasattr(self, "err") and "err" in self.schema["properties"]:
             self.err = self.get_default("err")
