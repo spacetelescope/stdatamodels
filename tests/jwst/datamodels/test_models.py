@@ -17,6 +17,7 @@ from stdatamodels.jwst.datamodels import (
     ABVegaOffsetModel,
     AsnModel,
     CubeModel,
+    FlatModel,
     IFUImageModel,
     ImageModel,
     JwstDataModel,
@@ -836,3 +837,37 @@ def test_moving_target_table_migration(tmp_path):
     # and with DataModel(fn)
     with Level1bModel(fn2) as dm:
         check_error_column(dm)
+
+
+@pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
+def test_dq_mixin_from_shape(ModelClass):
+    """
+    Classes inheriting from DQMixin should have dq array created when init from shape or array.
+
+    Three test cases chosen as follows:
+    - ImageModel: basic case, directly inherits from DQMixin
+    - FlatModel: inherits from ReferenceModel and DQMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array
+    """
+    shape = (10, 10)
+    # basic case: ImageModel
+    with ModelClass(shape) as im:
+        assert im.hasattr("dq")
+        assert im.dq.shape == shape
+
+    data = np.zeros(shape, dtype=np.float32)
+    # basic case: ImageModel
+    with ModelClass(data) as im2:
+        assert im2.hasattr("dq")
+        assert im2.dq.shape == shape
+
+
+def test_dq_mixin_from_empty():
+    """Classes inheriting from DQMixin should NOT have dq array created when init empty."""
+    with ImageModel() as im:
+        assert not hasattr(im, "dq")
+        assert im.get_default("dq").size == 0
+
+        shape = (5, 5)
+        im.data = np.zeros(shape, dtype=np.float32)
+        assert im.get_default("dq").shape == shape
