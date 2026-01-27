@@ -3,8 +3,11 @@ import copy
 from astropy.time import Time
 
 from stdatamodels import DataModel as _DataModel
+from stdatamodels.dynamicdq import dynamic_mask
 
-__all__ = ["JwstDataModel"]
+from .dqflags import pixel
+
+__all__ = ["DQMixin", "JwstDataModel"]
 
 
 class JwstDataModel(_DataModel):
@@ -112,3 +115,22 @@ class JwstDataModel(_DataModel):
 
         # Call the parent update
         super().update(d, only=only, extra_fits=extra_fits)
+
+
+class DQMixin(_DataModel):
+    """Mixin for models that should have dq array initialized on init."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If data array hasn't been initialized, do not initialize DQ
+        if not hasattr(self, self.get_primary_array_name()):
+            return
+
+        # Otherwise, ensure DQ array exists
+        if not hasattr(self, "dq"):
+            self.dq = self.get_default("dq")
+
+        # if dq_def is in the schema, attempt to apply dq flag mapping
+        if self.hasattr("dq_def"):
+            self.dq = dynamic_mask(self, pixel)

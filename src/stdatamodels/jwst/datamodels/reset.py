@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["ResetModel"]
 
 
-class ResetModel(ReferenceFileModel):
+class ResetModel(ReferenceFileModel, DQMixin):
     """
     A data model for reset correction reference files.
 
@@ -23,8 +22,3 @@ class ResetModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/reset.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(ResetModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
