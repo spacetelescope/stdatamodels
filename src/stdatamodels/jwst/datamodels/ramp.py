@@ -24,3 +24,14 @@ class RampModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ramp.schema"
+
+    def __init__(self, init=None, **kwargs):
+        super(RampModel, self).__init__(init=init, **kwargs)
+
+        # Ensure that if data exists, pixeldq and groupdq arrays exist
+        if not hasattr(self, "data"):
+            return
+        if not hasattr(self, "pixeldq") and "pixeldq" in self.schema["properties"]:
+            self.pixeldq = self.get_default("pixeldq")
+        if not hasattr(self, "groupdq") and "groupdq" in self.schema["properties"]:
+            self.groupdq = self.get_default("groupdq")
