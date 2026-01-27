@@ -854,12 +854,22 @@ def test_dq_mixin_from_shape(ModelClass):
     with ModelClass(shape) as im:
         assert im.hasattr("dq")
         assert im.dq.shape == shape
+        if isinstance(im, MaskModel):
+            assert not hasattr(im, "err")
+        else:
+            assert im.hasattr("err")
+            assert im.err.shape == shape
 
     data = np.zeros(shape, dtype=np.float32)
     # basic case: ImageModel
     with ModelClass(data) as im2:
         assert im2.hasattr("dq")
         assert im2.dq.shape == shape
+        if isinstance(im2, MaskModel):
+            assert not hasattr(im2, "err")
+        else:
+            assert im2.hasattr("err")
+            assert im2.err.shape == shape
 
 
 def test_dq_mixin_from_empty():
@@ -871,3 +881,4 @@ def test_dq_mixin_from_empty():
         shape = (5, 5)
         im.data = np.zeros(shape, dtype=np.float32)
         assert im.get_default("dq").shape == shape
+        assert im.get_default("err").shape == shape
