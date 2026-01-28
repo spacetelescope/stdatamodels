@@ -135,6 +135,16 @@ class DQMixin(_DataModel):
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
 
+    def __setattr__(self, attr, value):
+        """Override setattr of primary array to ensure dq is created."""
+        super().__setattr__(attr, value)  # set it first, so get_default("dq") sees correct shape
+        if not hasattr(self, "_schema"):  # get_primary_array_name() relies on schema being present
+            return
+
+        if attr == self.get_primary_array_name():
+            if not hasattr(self, "dq"):
+                self.dq = self.get_default("dq")
+
 
 class DefaultErrMixin(_DataModel):
     """Mixin for models that should have err array initialized on init."""
@@ -142,8 +152,22 @@ class DefaultErrMixin(_DataModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # If data array hasn't been initialized, do not initialize err
+        if not hasattr(self, self.get_primary_array_name()):
+            return
+
         # do the same handling for err array
         # this is only here to minimize number of downstream failures and
         # should be removed in the future once we can fix downstream patterns
-        if not hasattr(self, "err") and "err" in self.schema["properties"]:
+        if not hasattr(self, "err"):
             self.err = self.get_default("err")
+
+    def __setattr__(self, attr, value):
+        """Override setattr of primary array to ensure err is created."""
+        super().__setattr__(attr, value)  # set it first, so get_default("err") sees correct shape
+        if not hasattr(self, "_schema"):  # get_primary_array_name() relies on schema being present
+            return
+
+        if attr == self.get_primary_array_name():
+            if not hasattr(self, "err"):
+                self.err = self.get_default("err")
