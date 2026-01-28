@@ -3,6 +3,7 @@ from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin
 
 from .dqflags import pixel
 from .reference import ReferenceFileModel
@@ -35,7 +36,7 @@ def _migrate_fast_variation_table(hdulist):
     return hdulist
 
 
-class NirspecFlatModel(ReferenceFileModel):
+class NirspecFlatModel(ReferenceFileModel, DefaultErrMixin):
     """
     A data model for NIRSpec flat-field reference files.
 
