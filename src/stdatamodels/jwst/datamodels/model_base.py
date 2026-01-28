@@ -135,6 +135,13 @@ class DQMixin(_DataModel):
         if self.hasattr("dq_def"):
             self.dq = dynamic_mask(self, pixel)
 
+
+class DefaultErrMixin(_DataModel):
+    """Mixin for models that should have err array initialized on init."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         # do the same handling for err array
         # this is only here to minimize number of downstream failures and
         # should be removed in the future once we can fix downstream patterns
