@@ -882,3 +882,29 @@ def test_mixins_from_empty():
         im.data = np.zeros(shape, dtype=np.float32)
         assert im.get_default("dq").shape == shape
         assert im.get_default("err").shape == shape
+
+
+def test_mixins_from_array_init():
+    """Classes inheriting from DQMixin and DefaultErrMixin should have dq and err arrays created when init from array."""
+    shape = (10, 10)
+    data = np.zeros(shape, dtype=np.float32)
+    with ImageModel(data) as im:
+        assert im.hasattr("dq")
+        assert im.dq.shape == shape
+        assert im.hasattr("err")
+        assert im.err.shape == shape
+
+
+def test_mixins_from_array_set():
+    """Setting data array on an existing model should update dq and err arrays."""
+    shape = (10, 10)
+    data = np.zeros(shape, dtype=np.float32)
+    with ImageModel() as im:
+        assert not hasattr(im, "dq")
+        assert not hasattr(im, "err")
+
+        im.data = data
+        assert im.hasattr("dq")
+        assert im.dq.shape == shape
+        assert im.hasattr("err")
+        assert im.err.shape == shape
