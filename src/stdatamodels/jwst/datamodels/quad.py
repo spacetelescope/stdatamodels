@@ -1,9 +1,9 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin, JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin, JwstDataModel
 
 __all__ = ["QuadModel"]
 
 
-class QuadModel(JwstDataModel, DQMixin):
+class QuadModel(JwstDataModel, DQMixin, DefaultErrMixin):
     """
     A data model for 4D image arrays.
 

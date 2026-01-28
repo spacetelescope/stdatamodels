@@ -1,4 +1,4 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin
 
 from .reference import ReferenceFileModel
 
@@ -22,7 +22,7 @@ class SossBkgModel(ReferenceFileModel, DQMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/sossbkg.schema"
 
 
-class WfssBkgModel(ReferenceFileModel, DQMixin):
+class WfssBkgModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
     """
     A data model for 2D WFSS master background reference files.
 
