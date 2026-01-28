@@ -1,9 +1,9 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin, JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin, JwstDataModel
 
 __all__ = ["IFUImageModel"]
 
 
-class IFUImageModel(JwstDataModel, DQMixin):
+class IFUImageModel(JwstDataModel, DQMixin, DefaultErrMixin):
     """
     A data model for 2D IFU images.
 
