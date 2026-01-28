@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin
 
 from .model_base import JwstDataModel
 
 __all__ = ["ImageModel"]
 
 
-class ImageModel(JwstDataModel, DQMixin):
+class ImageModel(JwstDataModel, DQMixin, DefaultErrMixin):
     """
     A data model for 2D images.
 

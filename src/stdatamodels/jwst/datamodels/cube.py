@@ -1,11 +1,9 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
-
-from .model_base import JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin, JwstDataModel
 
 __all__ = ["CubeModel"]
 
 
-class CubeModel(JwstDataModel, DQMixin):
+class CubeModel(JwstDataModel, DQMixin, DefaultErrMixin):
     """
     A data model for 3D image cubes.
 
