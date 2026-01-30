@@ -24,6 +24,7 @@ from stdatamodels.jwst.datamodels import (
     Level1bModel,
     MaskModel,
     MultiSlitModel,
+    MultiSpecModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
     SlitDataModel,
@@ -908,3 +909,9 @@ def test_mixins_from_array_set():
         assert im.dq.shape == shape
         assert im.hasattr("err")
         assert im.err.shape == shape
+
+
+def test_nested_get_dtype():
+    with MultiSpecModel() as dm:
+        dtype = dm.get_dtype("spec.0.spec_table")
+        assert isinstance(dtype, np.dtype)

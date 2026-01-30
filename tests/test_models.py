@@ -195,6 +195,13 @@ def test_get_default_meta():
         assert non_default_meta is None
 
 
+def test_get_default_attribute_error():
+    """Test get_default raises AttributeError for non-existent attribute."""
+    with DefaultsModel() as im:
+        with pytest.raises(AttributeError, match='has no attribute "non_existent_attribute"'):
+            im.get_default("non_existent_attribute")
+
+
 def test_implicit_meta_creation():
     """Test that metadata attributes are created on access, and hasattr is True."""
     with DefaultsModel() as im:
@@ -202,6 +209,45 @@ def test_implicit_meta_creation():
         assert hasattr(im.meta, "default_meta")
         assert im.meta.default_meta == "default"
         assert im.meta.no_default_meta is None
+
+
+def test_get_dtype_basic():
+    with BasicModel() as dm:
+        dtype = dm.get_dtype("data")
+        assert dtype == np.dtype(np.float32)
+        assert not hasattr(dm, "data")
+
+
+def test_get_dtype_table():
+    with TableModel() as dm:
+        dtype = dm.get_dtype("table")
+        assert isinstance(dtype, np.dtype)
+        expected_dtype = np.dtype(
+            [
+                ("int16_column", "<i2"),
+                ("uint16_column", "<u2"),
+                ("float32_column", "<f4"),
+                ("ascii_column", "S64"),
+                ("float32_column_with_shape", "<f4", (3, 2)),
+                ("float32_column_with_ndim", "<f4"),
+            ]
+        )
+        assert dtype == expected_dtype
+        assert not hasattr(dm, "table")
+
+
+def test_get_dtype_attribute_error():
+    with BasicModel() as dm:
+        with pytest.raises(AttributeError, match='has no attribute "non_existent_attribute"'):
+            dm.get_dtype("non_existent_attribute")
+
+
+def test_get_dtype_no_datatype():
+    with BasicModel() as dm:
+        with pytest.raises(
+            AttributeError, match='Attribute "meta" has no datatype defined in the schema.'
+        ):
+            dm.get_dtype("meta")
 
 
 def test_copy_model():
