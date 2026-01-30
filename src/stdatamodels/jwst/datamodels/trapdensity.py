@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["TrapDensityModel"]
 
 
-class TrapDensityModel(ReferenceFileModel, DQMixin):
+class TrapDensityModel(ReferenceFileModel, _DQMixin):
     """
     A data model for the trap density of a detector, for persistence.
 
