@@ -1,8 +1,7 @@
 import numpy as np
 
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import _DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = [
@@ -139,7 +138,7 @@ class MirLrsPhotomModel(_PhotomModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
 
 
-class MirMrsPhotomModel(ReferenceFileModel):
+class MirMrsPhotomModel(ReferenceFileModel, _DQMixin):
     """
     A data model for MIRI MRS photom reference files.
 
@@ -180,11 +179,6 @@ class MirMrsPhotomModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirmrs_photom.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(MirMrsPhotomModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
 
 
 class NrcImgPhotomModel(_PhotomModel):

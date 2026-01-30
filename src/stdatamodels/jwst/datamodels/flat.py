@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["FlatModel"]
 
 
-class FlatModel(ReferenceFileModel):
+class FlatModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D flat-field images.
 
@@ -23,11 +22,3 @@ class FlatModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/flat.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(FlatModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.err = self.err
