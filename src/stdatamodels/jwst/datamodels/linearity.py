@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["LinearityModel"]
 
 
-class LinearityModel(ReferenceFileModel, DQMixin):
+class LinearityModel(ReferenceFileModel, _DQMixin):
     """
     A data model for linearity correction information.
 

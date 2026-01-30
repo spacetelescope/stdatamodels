@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["SuperBiasModel"]
 
 
-class SuperBiasModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class SuperBiasModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D super-bias images.
 

@@ -2,7 +2,7 @@ import warnings
 
 from stdatamodels.dynamicdq import dynamic_mask
 from stdatamodels.exceptions import ValidationWarning
-from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin, JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import JwstDataModel, _DefaultErrMixin, _DQMixin
 
 from .dqflags import pixel
 
@@ -84,7 +84,7 @@ class ReferenceFileModel(JwstDataModel):
             warnings.warn(message, ValidationWarning, stacklevel=2)
 
 
-class ReferenceImageModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class ReferenceImageModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D reference images.
 
@@ -101,7 +101,7 @@ class ReferenceImageModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referenceimage.schema"
 
 
-class ReferenceCubeModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class ReferenceCubeModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 3D reference images.
 
@@ -118,7 +118,7 @@ class ReferenceCubeModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencecube.schema"
 
 
-class ReferenceQuadModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class ReferenceQuadModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 4D reference images.
 
