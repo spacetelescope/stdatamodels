@@ -181,6 +181,16 @@ def test_multivalued_default_table_schema():
                 continue
             assert np.allclose(dm.table[name], default, equal_nan=True)
 
+        # test shapes
+        shape_col = dm.table["float32_column_with_shape"]
+        assert shape_col.shape == (10, 3, 2)
+        ndim_col = dm.table["float32_column_with_ndim"]
+        assert ndim_col.shape == (10, 0, 0)
+        ndim_shape_col = dm.table["float32_column_with_ndim_and_shape"]
+        assert ndim_shape_col.shape == (10, 3, 2)
+        max_ndim_col = dm.table["float32_column_with_max_ndim"]
+        assert max_ndim_col.shape == (10, 0, 0)
+
 
 def test_multivalued_default_table_schema_bad():
     """Test error raise if the default does not match the array type"""
