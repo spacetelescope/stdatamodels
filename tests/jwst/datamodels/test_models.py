@@ -776,10 +776,9 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     if model == NirspecQuadFlatModel:
         m.quadrants.append(m.quadrants.item())
         m.quadrants[0].flat_table = m.get_default("quadrants.0.flat_table")
-        m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
+        m.quadrants[0].flat_table = make_data(m.get_dtype("quadrants.0.flat_table"))
     else:
-        m.flat_table = m.get_default("flat_table")
-        m.flat_table = make_data(m.flat_table.dtype)
+        m.flat_table = make_data(m.get_dtype("flat_table"))
     m.save(fn)
     fn2 = tmp_path / "test2.fits"
     with fits.open(fn) as ff:
@@ -815,8 +814,7 @@ def test_moving_target_table_migration(tmp_path):
         return np.array(fake_data, dtype=dtype)
 
     m = Level1bModel()
-    m.moving_target = m.get_default("moving_target")
-    m.moving_target = make_data(m.moving_target.dtype)
+    m.moving_target = make_data(m.get_dtype("moving_target"))
     m.save(fn)
     fn2 = tmp_path / "test_mt2.fits"
     with fits.open(fn) as ff:
