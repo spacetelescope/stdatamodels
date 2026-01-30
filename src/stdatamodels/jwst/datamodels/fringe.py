@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["FringeModel"]
 
 
-class FringeModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class FringeModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D fringe correction images.
 

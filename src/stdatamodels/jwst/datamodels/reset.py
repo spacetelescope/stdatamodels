@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DefaultErrMixin, DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["ResetModel"]
 
 
-class ResetModel(ReferenceFileModel, DQMixin, DefaultErrMixin):
+class ResetModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for reset correction reference files.
 
