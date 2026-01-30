@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["DarkMIRIModel", "DarkModel", "DarkNirspecModel"]
 
 
-class DarkModel(ReferenceFileModel, DQMixin):
+class DarkModel(ReferenceFileModel, _DQMixin):
     """
     A data model for dark reference files.
 
@@ -22,7 +22,7 @@ class DarkModel(ReferenceFileModel, DQMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/dark.schema"
 
 
-class DarkMIRIModel(ReferenceFileModel, DQMixin):
+class DarkMIRIModel(ReferenceFileModel, _DQMixin):
     """
     A data model for dark MIRI reference files.
 
@@ -39,7 +39,7 @@ class DarkMIRIModel(ReferenceFileModel, DQMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/darkMIRI.schema"
 
 
-class DarkNirspecModel(ReferenceFileModel, DQMixin):
+class DarkNirspecModel(ReferenceFileModel, _DQMixin):
     """
     A data model for NIRSpec dark reference files.
 
