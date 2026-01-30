@@ -1261,55 +1261,30 @@ class DataModel(properties.ObjectNode):
         default_value : object
             The default value for the given attribute.
         """
-        # Handle dotted paths like "meta.foo" or "quadrants.0.flat_table"
         parts = attr.split(".")
+        final_attr = parts[-1]
 
-        if len(parts) == 1:
-            # Simple case: single attribute name
-            subschema = properties._get_schema_for_property(self._schema, attr)
-            return properties._make_default(attr, subschema, self._ctx)
-        else:
-            # Navigate to the parent object
-            parent = self
-            parent_schema = self._schema
-
-            for part in parts[:-1]:
-                # Try to convert part to an integer (for list indexing)
-                try:
-                    index = int(part)
-                except ValueError:
-                    # Not an integer, treat as attribute name
-                    try:
-                        parent = getattr(parent, part)
-                    except AttributeError as err:
-                        raise KeyError(repr(attr)) from err
-                    # Get the schema for the parent
-                    parent_schema = properties._get_schema_for_property(parent_schema, part)
-                else:
-                    # It's an integer, use list indexing
-                    # If the list doesn't have enough items, add empty items
-                    while len(parent) <= index:
-                        parent.append(parent.item())
-                    parent = parent[index]
-                    # Get the schema for the indexed item
-                    parent_schema = properties._get_schema_for_index(parent_schema, index)
-
-            # Get schema and create default for the final attribute
-            final_attr = parts[-1]
-            # Try to convert final part to an integer
+        # Navigate to the parent object
+        parent = self
+        parent_schema = self._schema
+        for part in parts[:-1]:
             try:
-                final_index = int(final_attr)
+                # Treat part as an integer list index
+                index = int(part)
             except ValueError:
                 # Not an integer, treat as attribute name
-                subschema = properties._get_schema_for_property(parent_schema, final_attr)
-                return properties._make_default(final_attr, subschema, self._ctx)
+                try:
+                    parent = getattr(parent, part)
+                except AttributeError as err:
+                    raise KeyError(repr(attr)) from err
+                # Get the schema for the parent
+                parent_schema = properties._get_schema_for_property(parent_schema, part)
             else:
-                # Final part is an integer index
-                # If the list doesn't have enough items, add empty items
-                while len(parent) <= final_index:
-                    parent.append(parent.item())
-                subschema = properties._get_schema_for_index(parent_schema, final_index)
-                return properties._make_default(final_index, subschema, self._ctx)
+                parent_schema = properties._get_schema_for_index(parent_schema, index)
+
+        # Get schema and create default for the final attribute
+        subschema = properties._get_schema_for_property(parent_schema, final_attr)
+        return properties._make_default(final_attr, subschema, self._ctx)
 
 
 class _FileReference:
