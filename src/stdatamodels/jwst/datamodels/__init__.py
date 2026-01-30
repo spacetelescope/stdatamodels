@@ -279,7 +279,7 @@ __all__ = [
 
 
 _all_models = __all__[:-2]
-_deprecated_models = ["AmiLgModel"]
+_deprecated_models = ["AmiLgModel", "AsnModel"]
 _local_dict = locals()
 _defined_models = {k: _local_dict[k] for k in _all_models}
 
