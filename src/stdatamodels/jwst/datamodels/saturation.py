@@ -1,11 +1,11 @@
-from stdatamodels.jwst.datamodels.model_base import DQMixin
+from stdatamodels.jwst.datamodels.model_base import _DQMixin
 
 from .reference import ReferenceFileModel
 
 __all__ = ["SaturationModel"]
 
 
-class SaturationModel(ReferenceFileModel, DQMixin):
+class SaturationModel(ReferenceFileModel, _DQMixin):
     """
     A data model for saturation checking information.
 

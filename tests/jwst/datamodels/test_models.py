@@ -842,12 +842,12 @@ def test_moving_target_table_migration(tmp_path):
 @pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
 def test_mixins_from_shape(ModelClass):
     """
-    Classes inheriting from DQMixin and DefaultErrMixin should have dq and err arrays created when init from shape or array.
+    Classes inheriting from _DQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape or array.
 
     Three test cases chosen as follows:
-    - ImageModel: basic case, directly inherits from DQMixin and DefaultErrMixin
-    - FlatModel: inherits from ReferenceModel, DQMixin, and DefaultErrMixin
-    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from DefaultErrMixin
+    - ImageModel: basic case, directly inherits from _DQMixin and _DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, _DQMixin, and _DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
     """
     shape = (10, 10)
     # basic case: ImageModel
@@ -873,7 +873,7 @@ def test_mixins_from_shape(ModelClass):
 
 
 def test_mixins_from_empty():
-    """Classes inheriting from DQMixin and DefaultErrMixin should NOT have arrays created when init empty."""
+    """Classes inheriting from _DQMixin and _DefaultErrMixin should NOT have arrays created when init empty."""
     with ImageModel() as im:
         assert not hasattr(im, "dq")
         assert im.get_default("dq").size == 0
@@ -885,7 +885,7 @@ def test_mixins_from_empty():
 
 
 def test_mixins_from_array_init():
-    """Classes inheriting from DQMixin and DefaultErrMixin should have dq and err arrays created when init from array."""
+    """Classes inheriting from _DQMixin and _DefaultErrMixin should have dq and err arrays created when init from array."""
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
     with ImageModel(data) as im:
