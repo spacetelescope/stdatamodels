@@ -98,6 +98,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 "STRING",
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
+                [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
+                [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
             )
         ]
         assert x.table.dtype == [
@@ -107,6 +109,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
             ("ascii_column", "S64"),
             ("float32_column_with_shape", "=f4", (3, 2)),
             ("float32_column_with_ndim", "=f4", (3, 2)),
+            ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),
+            ("float32_column_with_max_ndim", "=f4", (3, 2)),
         ]
 
         x.save(file_path)
@@ -121,6 +125,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 ("ascii_column", "S64"),
                 ("float32_column_with_shape", "=f4", (3, 2)),
                 ("float32_column_with_ndim", "=f4", (3, 2)),
+                ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),
+                ("float32_column_with_max_ndim", "=f4", (3, 2)),
             ],
             "equiv",
         )
@@ -135,6 +141,8 @@ def test_table_array_shape_ndim(filename, tmp_path):
                     "STRING",
                     # This element should fail because it's shape is (2, 2) and not (3, 2):
                     [[37.5, 38.0], [39.0, 40.0]],
+                    [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
+                    [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
                     [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
                 )
             ]

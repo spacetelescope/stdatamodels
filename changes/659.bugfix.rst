@@ -1,0 +1,1 @@
+Fix a bug where ndim and max_ndim within table-like datatypes were ignored during default array creation
