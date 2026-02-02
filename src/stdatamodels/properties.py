@@ -407,8 +407,8 @@ class ObjectNode(Node):
             self.__dict__[attr] = val
         else:
             schema = _get_schema_for_property(self._schema, attr)
-            if val is None:
-                val = _make_default(attr, schema, self._ctx)
+            # if val is None:
+            #     val = _make_default(attr, schema, self._ctx)
             val = _cast(val, schema)
 
             node = ObjectNode(attr, val, schema, self._ctx, self)

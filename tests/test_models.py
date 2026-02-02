@@ -166,11 +166,12 @@ def test_primary_not_created_when_blank():
         im.validate()
 
 
-def test_cannot_set_primary_to_none():
+def test_set_arr_to_none():
     """Primary array should not be settable to None."""
-    with DefaultsModel((10, 10)) as im:
+    with DefaultsModel((10, 10), strict_validation=True) as im:
         im.primary = None
-        np.testing.assert_allclose(im.primary, 2.0)
+        im.validate()
+        assert im.primary is None
 
 
 def test_primary_created_when_shape():
