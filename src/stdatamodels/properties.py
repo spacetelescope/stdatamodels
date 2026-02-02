@@ -384,12 +384,11 @@ class ObjectNode(Node):
             if schema == {}:
                 raise AttributeError(f"No attribute '{attr}'") from err
 
-            # # Do not populate default for arrays or tables
-            # if "max_ndim" in schema or "ndim" in schema or "datatype" in schema:
-            #     raise AttributeError(
-            #         f"Array-like attribute '{attr}' defined in schema but not set."
-            #     ) from err
+            if "max_ndim" in schema or "ndim" in schema or "datatype" in schema:
+                val = None
+                return None
 
+            val = schema.get("default", None)
             val = _make_default(attr, schema, self._ctx)
             if val is not None:
                 self._instance[attr] = val

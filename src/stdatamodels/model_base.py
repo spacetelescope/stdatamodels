@@ -385,7 +385,7 @@ class DataModel(properties.ObjectNode):
         buf = ["<"]
         buf.append(self._model_type)
 
-        if self.shape:
+        if getattr(self, "shape", None) is not None:
             buf.append(str(self.shape))
 
         try:

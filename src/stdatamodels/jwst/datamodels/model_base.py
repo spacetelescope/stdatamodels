@@ -122,15 +122,15 @@ class _DQMixin(_DataModel):
         super().__init__(*args, **kwargs)
 
         # If data array hasn't been initialized, do not initialize DQ
-        if not hasattr(self, self.get_primary_array_name()):
+        if getattr(self, self.get_primary_array_name(), None) is None:
             return
 
         # Otherwise, ensure DQ array exists
-        if not hasattr(self, "dq"):
+        if getattr(self, "dq", None) is None:
             self.dq = self.get_default("dq")
 
         # if dq_def is in the schema, attempt to apply dq flag mapping
-        if self.hasattr("dq_def"):
+        if getattr(self, "dq_def", None) is not None:
             self.dq = dynamic_mask(self, pixel)
 
     def __setattr__(self, attr, value):
@@ -140,7 +140,7 @@ class _DQMixin(_DataModel):
             return
 
         if attr == self.get_primary_array_name():
-            if not hasattr(self, "dq"):
+            if getattr(self, "dq", None) is None:
                 self.dq = self.get_default("dq")
 
 
@@ -151,13 +151,13 @@ class _DefaultErrMixin(_DataModel):
         super().__init__(*args, **kwargs)
 
         # If data array hasn't been initialized, do not initialize err
-        if not hasattr(self, self.get_primary_array_name()):
+        if getattr(self, self.get_primary_array_name(), None) is None:
             return
 
         # do the same handling for err array
         # this is only here to minimize number of downstream failures and
         # should be removed in the future once we can fix downstream patterns
-        if not hasattr(self, "err"):
+        if getattr(self, "err", None) is None:
             self.err = self.get_default("err")
 
     def __setattr__(self, attr, value):
@@ -167,5 +167,5 @@ class _DefaultErrMixin(_DataModel):
             return
 
         if attr == self.get_primary_array_name():
-            if not hasattr(self, "err"):
+            if getattr(self, "err", None) is None:
                 self.err = self.get_default("err")
