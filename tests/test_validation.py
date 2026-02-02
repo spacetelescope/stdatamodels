@@ -70,10 +70,10 @@ def test_object_attribute_assignment():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         model.meta.object_attribute = None
-    assert model.meta.object_attribute.string_attribute is None
+    assert model.meta.object_attribute is None
 
 
-def test_list_attribute_ssignment():
+def test_list_attribute_assignment():
     model = ValidationModel()
 
     assert len(model.meta.list_attribute) == 0
@@ -90,7 +90,7 @@ def test_list_attribute_ssignment():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         model.meta.list_attribute = None
-    assert len(model.meta.list_attribute) == 0
+    assert model.meta.list_attribute is None
 
 
 def test_object_assignment_with_nested_null():
