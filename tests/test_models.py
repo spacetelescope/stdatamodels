@@ -245,7 +245,7 @@ def test_get_dtype_attribute_error():
 def test_get_dtype_no_datatype():
     with BasicModel() as dm:
         with pytest.raises(
-            AttributeError, match='Attribute "meta" has no datatype defined in the schema.'
+            ValueError, match='Attribute "meta" has no datatype defined in the schema.'
         ):
             dm.get_dtype("meta")
 
