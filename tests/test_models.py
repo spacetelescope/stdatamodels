@@ -158,11 +158,19 @@ def test_array_type():
         assert dm.dq.dtype == np.uint32
 
 
-@pytest.mark.xfail(reason="Test should pass when default array setting work is complete.")
 def test_primary_not_created_when_blank():
     """Primary array should not be created if not initialized with shape nor data."""
-    with DefaultsModel() as im:
-        assert not hasattr(im, "primary")
+    with DefaultsModel(strict_validation=True) as im:
+        assert hasattr(im, "primary")
+        assert im.primary is None
+        im.validate()
+
+
+def test_cannot_set_primary_to_none():
+    """Primary array should not be settable to None."""
+    with DefaultsModel((10, 10)) as im:
+        im.primary = None
+        np.testing.assert_allclose(im.primary, 2.0)
 
 
 def test_primary_created_when_shape():
@@ -172,11 +180,12 @@ def test_primary_created_when_shape():
         np.testing.assert_allclose(im.primary, 2.0)
 
 
-@pytest.mark.xfail(reason="Test should pass when default array setting work is complete.")
 def test_non_primary_not_created_when_shape():
     """Non-primary arrays shouldn't be created on init from shape, and hasattr should be False."""
-    with DefaultsModel((10, 10)) as im:
-        assert not hasattr(im, "data")
+    with DefaultsModel((10, 10), strict_validation=True) as im:
+        assert hasattr(im, "data")
+        assert im.data is None
+        im.validate()
 
 
 def test_get_default_arr():
@@ -216,7 +225,7 @@ def test_get_dtype_basic():
     with BasicModel() as dm:
         dtype = dm.get_dtype("data")
         assert dtype == np.dtype(np.float32)
-        assert not dm.hasattr("data")
+        assert "data" not in dm._instance
 
 
 def test_get_dtype_table():
@@ -236,7 +245,7 @@ def test_get_dtype_table():
             ]
         )
         assert dtype == expected_dtype
-        assert not dm.hasattr("table")
+        assert "table" not in dm._instance
 
 
 def test_get_dtype_attribute_error():
