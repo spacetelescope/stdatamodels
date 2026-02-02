@@ -188,6 +188,13 @@ def _get_schema_type(schema):
 def _make_default_array(attr, schema, ctx):
     dtype = schema.get("datatype")
     if dtype is not None:
+        # asdf_datatype_to_numpy_dtype does not handle "ndim" or "max_ndim",
+        # so we need to convert to shape
+        if isinstance(dtype, list):
+            for dt in dtype:
+                ndim = dt.get("ndim", dt.get("max_ndim"))
+                if ndim is not None and "shape" not in dt:
+                    dt["shape"] = tuple([0] * ndim)
         dtype = ndarray.asdf_datatype_to_numpy_dtype(dtype)
     ndim = schema.get("ndim", schema.get("max_ndim"))
     default = schema.get("default", None)
