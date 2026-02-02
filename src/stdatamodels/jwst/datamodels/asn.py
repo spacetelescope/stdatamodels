@@ -34,6 +34,8 @@ class AsnModel(JwstDataModel):
 
         if getattr(self, "asn_table", None) is None:
             return
+        if not len(self.asn_table):
+            return
 
         for i, etype in enumerate(self.asn_table.exptype):
             if "prod" in etype.lower():
