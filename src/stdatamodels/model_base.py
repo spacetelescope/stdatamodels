@@ -1330,7 +1330,7 @@ class DataModel(properties.ObjectNode):
         if not schema:
             raise AttributeError(f'{self} has no attribute "{attribute}"')
         if "datatype" not in schema:
-            raise AttributeError(f'Attribute "{attribute}" has no datatype defined in the schema.')
+            raise ValueError(f'Attribute "{attribute}" has no datatype defined in the schema.')
         return ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
 
 
