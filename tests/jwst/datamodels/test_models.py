@@ -874,7 +874,8 @@ def test_mixins_from_shape(ModelClass):
 def test_mixins_from_empty():
     """Classes inheriting from _DQMixin and _DefaultErrMixin should NOT have arrays created when init empty."""
     with ImageModel() as im:
-        # assert not hasattr(im, "dq")
+        assert hasattr(im, "dq")
+        assert im.dq is None
         assert im.get_default("dq").size == 0
 
         shape = (5, 5)
