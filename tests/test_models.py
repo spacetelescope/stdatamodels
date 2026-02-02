@@ -231,6 +231,8 @@ def test_get_dtype_table():
                 ("ascii_column", "S64"),
                 ("float32_column_with_shape", "<f4", (3, 2)),
                 ("float32_column_with_ndim", "<f4"),
+                ("float32_column_with_ndim_and_shape", "<f4", (3, 2)),
+                ("float32_column_with_max_ndim", "<f4"),
             ]
         )
         assert dtype == expected_dtype
@@ -279,7 +281,7 @@ def test_multivalued_default_table_schema():
             elif isinstance(default, str):
                 # allclose has trouble with string comparisons
                 for elem in dm.table[name]:
-                    assert elem.decode("utf-8") == default
+                    assert elem == default
                 continue
             assert np.allclose(dm.table[name], default, equal_nan=True)
 
