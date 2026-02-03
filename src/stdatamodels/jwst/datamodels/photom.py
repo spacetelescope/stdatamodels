@@ -1,7 +1,6 @@
 import numpy as np
 
-from stdatamodels.jwst.datamodels.model_base import _DQMixin
-
+from .model_base import _DQMixin
 from .reference import ReferenceFileModel
 
 __all__ = [

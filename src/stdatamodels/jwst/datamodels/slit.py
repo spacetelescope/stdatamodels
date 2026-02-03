@@ -1,4 +1,4 @@
-from stdatamodels.jwst.datamodels.model_base import JwstDataModel, _DQMixin
+from .model_base import JwstDataModel, _DQMixin
 
 __all__ = ["SlitDataModel", "SlitModel"]
 

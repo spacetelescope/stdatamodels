@@ -2,9 +2,9 @@ import warnings
 
 from stdatamodels.dynamicdq import dynamic_mask
 from stdatamodels.exceptions import ValidationWarning
-from stdatamodels.jwst.datamodels.model_base import JwstDataModel, _DefaultErrMixin, _DQMixin
 
 from .dqflags import pixel
+from .model_base import JwstDataModel, _DefaultErrMixin, _DQMixin
 
 __all__ = ["ReferenceCubeModel", "ReferenceFileModel", "ReferenceImageModel", "ReferenceQuadModel"]
 
