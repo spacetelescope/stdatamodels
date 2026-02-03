@@ -1,6 +1,4 @@
-from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
-
-from .model_base import JwstDataModel
+from .model_base import JwstDataModel, _DefaultErrMixin, _DQMixin
 
 __all__ = ["ImageModel"]
 
