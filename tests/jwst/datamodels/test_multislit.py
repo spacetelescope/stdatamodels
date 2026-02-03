@@ -65,7 +65,7 @@ def test_multislit():
         slit.dm = rng.random((5, 5))
         slit.err = rng.random((5, 5))
         for attr in ["wavelength", "pathloss_point", "pathloss_uniform", "barshadow"]:
-            setattr(dm.slits[-1], attr, dm.get_default(f"slits.-1.{attr}"))
+            setattr(dm.slits[-1], attr, dm.slits[-1].get_default(attr))
         assert slit.wavelength.shape == (0, 0)
         assert slit.pathloss_point.shape == (0, 0)
         assert slit.pathloss_uniform.shape == (0, 0)

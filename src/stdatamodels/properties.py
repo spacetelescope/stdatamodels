@@ -446,6 +446,46 @@ class ObjectNode(Node):
                 val = getattr(val, field)
             yield (key, val)
 
+    def get_default(self, attr):
+        """
+        Retrieve the schema-defined default value of an attribute.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value.
+
+        Returns
+        -------
+        object
+            The default value for the given attribute.
+        """
+        subschema = _get_schema_for_property(self._schema, attr)
+        if not subschema:
+            raise AttributeError(f'{self} has no attribute "{attr}"')
+        return _make_default(attr, subschema, self._ctx)
+
+    def get_dtype(self, attr):
+        """
+        Retrieve the numpy dtype for an attribute, if defined.
+
+        Parameters
+        ----------
+        attr : str
+            The attribute to retrieve the dtype for.
+
+        Returns
+        -------
+        `numpy.dtype`
+            The numpy dtype for the attribute.
+        """
+        schema = _get_schema_for_property(self._schema, attr)
+        if not schema:
+            raise AttributeError(f'{self} has no attribute "{attr}"')
+        if "datatype" not in schema:
+            raise ValueError(f'Attribute "{attr}" has no datatype defined in the schema.')
+        return ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
+
 
 class ListNode(Node):
     """A list-like Node."""
