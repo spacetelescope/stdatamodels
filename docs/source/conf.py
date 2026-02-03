@@ -60,6 +60,8 @@ nitpick_ignore = [
     ("py:class", "jwst.datamodels.photom._PhotomModel"),
     ("py:class", "stdatamodels.properties.ObjectNode"),
     ("py:class", "stdatamodels.properties.Node"),
+    ("py:class", "stdatamodels.jwst.datamodels.model_base._DQMixin"),
+    ("py:class", "stdatamodels.jwst.datamodels.model_base._DefaultErrMixin"),
 ]
 for transform_base in [
     "_NIRCAMForwardGrismDispersion",
