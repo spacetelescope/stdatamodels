@@ -102,16 +102,6 @@ class NirspecQuadFlatModel(ReferenceFileModel):
         if isinstance(init, NirspecFlatModel):
             super(NirspecQuadFlatModel, self).__init__(init=None, **kwargs)
             self.update(init)
-            for attr in [
-                "data",
-                "dq",
-                "err",
-                "wavelength",
-                "flat_table",
-                "dq_def",
-            ]:
-                if not hasattr(init, attr):
-                    setattr(init, attr, init.get_default(attr))
             self.quadrants.append(self.quadrants.item())
             self.quadrants[0].data = init.data
             self.quadrants[0].dq = init.dq
