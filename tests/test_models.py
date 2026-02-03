@@ -166,12 +166,21 @@ def test_primary_not_created_when_blank():
         im.validate()
 
 
-def test_set_arr_to_none():
-    """Primary array should not be settable to None."""
+def test_set_arr_to_none(tmp_cwd):
+    """Primary array is settable to None, and this raises no ValidationError."""
     with DefaultsModel((10, 10), strict_validation=True) as im:
         im.primary = None
         im.validate()
         assert im.primary is None
+        assert im._instance["primary"] is None
+
+        # ensure save-load works properly here too
+        im.save("test.asdf")
+
+    with DefaultsModel("test.asdf", strict_validation=True) as im2:
+        assert im2.primary is None
+        assert im2._instance["primary"] is None
+        im2.validate()
 
 
 def test_primary_created_when_shape():
@@ -182,11 +191,11 @@ def test_primary_created_when_shape():
 
 
 def test_non_primary_not_created_when_shape():
-    """Non-primary arrays shouldn't be created on init from shape, and hasattr should be False."""
-    with DefaultsModel((10, 10), strict_validation=True) as im:
+    """Non-primary arrays shouldn't be created on init from shape."""
+    with DefaultsModel((10, 10)) as im:
         assert hasattr(im, "data")
         assert im.data is None
-        im.validate()
+        assert "data" not in im._instance
 
 
 def test_get_default_arr():

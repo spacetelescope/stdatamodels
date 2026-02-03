@@ -909,12 +909,16 @@ def test_mixins_from_array_set():
 
 
 def test_mixins_set_to_none():
-    """Setting data array to None should not set dq and err arrays to default."""
+    """Setting data array to None should not set dq and err arrays."""
     with ImageModel() as im:
         im.data = None
         assert im.data is None
+        # getattr returns None for array-like attributes not found, instead of AttributeError
         assert im.dq is None
         assert im.err is None
+        # but in reality these have not been set at all
+        assert "dq" not in im._instance
+        assert "err" not in im._instance
 
 
 def test_nested_get_dtype():
