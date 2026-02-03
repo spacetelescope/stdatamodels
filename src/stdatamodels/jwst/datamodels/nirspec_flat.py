@@ -3,9 +3,9 @@ from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
-from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin
 
 from .dqflags import pixel
+from .model_base import _DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["NirspecFlatModel", "NirspecQuadFlatModel"]
