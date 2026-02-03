@@ -50,7 +50,7 @@ docs = [
   "sphinx",
   "sphinx-automodapi",
   "numpydoc",
-  "sphinx-rtd-theme",
+  "sphinx-rtd-theme>1.2.0",
   "sphinx-asdf>=0.1.1",
 ]
 
