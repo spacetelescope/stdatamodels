@@ -895,20 +895,26 @@ def test_mixins_from_array_init():
         assert im.err.shape == shape
 
 
-@pytest.mark.xfail(reason="Test should pass when default array setting work is complete.")
 def test_mixins_from_array_set():
     """Setting data array on an existing model should update dq and err arrays."""
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
     with ImageModel() as im:
-        assert not hasattr(im, "dq")
-        assert not hasattr(im, "err")
+        assert im.dq is None
+        assert im.err is None
 
         im.data = data
-        assert im.hasattr("dq")
         assert im.dq.shape == shape
-        assert im.hasattr("err")
         assert im.err.shape == shape
+
+
+def test_mixins_set_to_none():
+    """Setting data array to None should not set dq and err arrays to default."""
+    with ImageModel() as im:
+        im.data = None
+        assert im.data is None
+        assert im.dq is None
+        assert im.err is None
 
 
 def test_nested_get_dtype():
