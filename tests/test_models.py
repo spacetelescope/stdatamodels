@@ -208,9 +208,9 @@ def test_get_default_arr():
 def test_get_default_meta():
     """Test get_default for metadata attributes both with and without schema-defined defaults."""
     with DefaultsModel() as im:
-        default_meta = im.get_default("meta.default_meta")
+        default_meta = im.meta.get_default("default_meta")
         assert default_meta == "default"
-        non_default_meta = im.get_default("meta.no_default_meta")
+        non_default_meta = im.meta.get_default("no_default_meta")
         assert non_default_meta is None
 
 
