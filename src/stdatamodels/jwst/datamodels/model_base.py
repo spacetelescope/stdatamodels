@@ -140,6 +140,9 @@ class _DQMixin(_DataModel):
             return
 
         if attr == self.get_primary_array_name():
+            if getattr(self, attr, None) is None:
+                # do not set if primary is being set to None
+                return
             if getattr(self, "dq", None) is None:
                 self.dq = self.get_default("dq")
 
@@ -167,5 +170,8 @@ class _DefaultErrMixin(_DataModel):
             return
 
         if attr == self.get_primary_array_name():
+            if getattr(self, attr, None) is None:
+                # do not set if primary is being set to None
+                return
             if getattr(self, "err", None) is None:
                 self.err = self.get_default("err")
