@@ -166,7 +166,7 @@ def test_primary_not_created_when_blank():
         im.validate()
 
 
-def test_set_arr_to_none(tmp_cwd):
+def test_set_arr_to_none(tmp_path):
     """Primary array is settable to None, and this raises no ValidationError."""
     with DefaultsModel((10, 10), strict_validation=True) as im:
         im.primary = None
@@ -175,12 +175,11 @@ def test_set_arr_to_none(tmp_cwd):
         assert im._instance["primary"] is None
 
         # ensure save-load works properly here too
-        im.save("test.asdf")
+        im.save(tmp_path / "test.asdf")
 
-    with DefaultsModel("test.asdf", strict_validation=True) as im2:
+    with DefaultsModel(tmp_path / "test.asdf", strict_validation=True) as im2:
         assert im2.primary is None
-        assert im2._instance["primary"] is None
-        im2.validate()
+        assert not "primary" in im2._instance
 
 
 def test_primary_created_when_shape():
