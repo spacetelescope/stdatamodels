@@ -29,6 +29,7 @@ from stdatamodels.jwst.datamodels import (
     NirspecQuadFlatModel,
     SlitDataModel,
     SlitModel,
+    SpecModel,
 )
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.jwst.datamodels import _deprecated_models as deprecated_models
@@ -775,8 +776,7 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     m = model()
     if model == NirspecQuadFlatModel:
         m.quadrants.append(m.quadrants.item())
-        m.quadrants[0].flat_table = m.get_default("quadrants.0.flat_table")
-        m.quadrants[0].flat_table = make_data(m.get_dtype("quadrants.0.flat_table"))
+        m.quadrants[0].flat_table = make_data(m.quadrants[0].get_dtype("flat_table"))
     else:
         m.flat_table = make_data(m.get_dtype("flat_table"))
     m.save(fn)
@@ -923,5 +923,6 @@ def test_mixins_set_to_none():
 
 def test_nested_get_dtype():
     with MultiSpecModel() as dm:
-        dtype = dm.get_dtype("spec.0.spec_table")
+        dm.spec.append(SpecModel())
+        dtype = dm.spec[0].get_dtype("spec_table")
         assert isinstance(dtype, np.dtype)
