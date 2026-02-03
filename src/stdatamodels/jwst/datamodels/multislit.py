@@ -16,7 +16,7 @@ class MultiSlitModel(JwstDataModel):
         >>> multislit_model = MultiSlitModel()
         >>> multislit_model.slits.append(SlitModel())
         >>> multislit_model[0]
-        <SlitModel(0, 0, 0)>
+        <SlitModel>
 
     If ``init`` is a file name or an ``ImageModel`` or a ``SlitModel``instance,
     an empty ``SlitModel`` will be created and assigned to attribute ``slits[0]``,
