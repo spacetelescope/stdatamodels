@@ -32,7 +32,7 @@ class AsnModel(JwstDataModel):
         self.input_rootnames = []
         self.num_inputs = 0
 
-        if getattr(self, "asn_table", None) is None:
+        if self.asn_table is None:
             return
         if not len(self.asn_table):
             return

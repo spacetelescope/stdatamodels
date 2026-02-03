@@ -64,7 +64,7 @@ class NirspecFlatModel(ReferenceFileModel, _DefaultErrMixin):
 
         super(NirspecFlatModel, self).__init__(init=init, **kwargs)
 
-        if getattr(self, "dq", None) is not None or getattr(self, "dq_def", None) is not None:
+        if self.dq is not None or self.dq_def is not None:
             self.dq = dynamic_mask(self, pixel)
 
     def _migrate_hdulist(self, hdulist):

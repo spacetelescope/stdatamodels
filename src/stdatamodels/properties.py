@@ -385,7 +385,9 @@ class ObjectNode(Node):
                 raise AttributeError(f"No attribute '{attr}'") from err
 
             if "max_ndim" in schema or "ndim" in schema or "datatype" in schema:
-                val = None
+                # data-like attributes should return None if not set
+                # not AttributeError, because we want hasattr(model, 'data') to be True
+                # but also don't want to set the array in getattr
                 return None
 
             val = schema.get("default", None)
