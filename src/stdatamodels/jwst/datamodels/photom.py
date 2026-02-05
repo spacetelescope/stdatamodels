@@ -1,6 +1,6 @@
 import numpy as np
 
-from .model_base import _DQMixin
+from .model_base import _DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = [
@@ -137,7 +137,7 @@ class MirLrsPhotomModel(_PhotomModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
 
 
-class MirMrsPhotomModel(ReferenceFileModel, _DQMixin):
+class MirMrsPhotomModel(ReferenceFileModel, _DefaultDQMixin):
     """
     A data model for MIRI MRS photom reference files.
 

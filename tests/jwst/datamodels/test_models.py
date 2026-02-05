@@ -300,7 +300,6 @@ def test_slit_from_image():
     im.meta.instrument.name = "MIRI"
     slit_dm = SlitDataModel(im)
     assert_allclose(im.data, slit_dm.data)
-    slit_dm.wavelength = slit_dm.get_default("wavelength")
     assert hasattr(slit_dm, "wavelength")
     # this should be enabled after gwcs starts using non-coordinate inputs
     # assert not hasattr(slit_dm, 'meta')
@@ -309,7 +308,6 @@ def test_slit_from_image():
     assert type(slit) is SlitModel
     assert_allclose(im.data, slit.data)
     assert_allclose(im.err, slit.err)
-    slit.wavelength = slit.get_default("wavelength")
     assert hasattr(slit, "wavelength")
     assert slit.meta.instrument.name == "MIRI"
 
@@ -841,11 +839,11 @@ def test_moving_target_table_migration(tmp_path):
 @pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
 def test_mixins_from_shape(ModelClass):
     """
-    Classes inheriting from _DQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape or array.
+    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape or array.
 
     Three test cases chosen as follows:
-    - ImageModel: basic case, directly inherits from _DQMixin and _DefaultErrMixin
-    - FlatModel: inherits from ReferenceModel, _DQMixin, and _DefaultErrMixin
+    - ImageModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
     - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
     """
     shape = (10, 10)
@@ -872,7 +870,7 @@ def test_mixins_from_shape(ModelClass):
 
 
 def test_mixins_from_empty():
-    """Classes inheriting from _DQMixin and _DefaultErrMixin should NOT have arrays created when init empty."""
+    """Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should NOT have arrays created when init empty."""
     with ImageModel() as im:
         assert hasattr(im, "dq")
         assert im.dq is None
@@ -885,7 +883,7 @@ def test_mixins_from_empty():
 
 
 def test_mixins_from_array_init():
-    """Classes inheriting from _DQMixin and _DefaultErrMixin should have dq and err arrays created when init from array."""
+    """Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from array."""
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
     with ImageModel(data) as im:
