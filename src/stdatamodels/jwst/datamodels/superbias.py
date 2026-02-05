@@ -1,10 +1,10 @@
-from .model_base import _DefaultErrMixin, _DQMixin
+from .model_base import _DefaultDQMixin, _DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["SuperBiasModel"]
 
 
-class SuperBiasModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
+class SuperBiasModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for 2D super-bias images.
 
