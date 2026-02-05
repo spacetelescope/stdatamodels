@@ -1,10 +1,10 @@
-from .model_base import _DefaultErrMixin, _DQMixin
+from .model_base import _DefaultDQMixin, _DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["ResetModel"]
 
 
-class ResetModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
+class ResetModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for reset correction reference files.
 

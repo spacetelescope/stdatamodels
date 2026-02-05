@@ -115,7 +115,7 @@ class JwstDataModel(_DataModel):
         super().update(d, only=only, extra_fits=extra_fits)
 
 
-class _DQMixin(_DataModel):
+class _DefaultDQMixin(_DataModel):
     """Mixin for models that should have dq array initialized on init."""
 
     def __init__(self, *args, **kwargs):
