@@ -7,7 +7,15 @@ import pytest
 from stdatamodels import DataModel
 from stdatamodels.exceptions import ValidationWarning
 
-from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
+from .models import (
+    AnyOfModel,
+    BasicModel,
+    DefaultsModel,
+    FitsModel,
+    TableModel,
+    TableModelBad,
+    TransformModel,
+)
 
 
 def test_init_from_pathlib(tmp_path):
@@ -146,7 +154,103 @@ def test_base_model_has_no_arrays():
 
 def test_array_type():
     with BasicModel() as dm:
+        dm.dq = dm.get_default("dq")
         assert dm.dq.dtype == np.uint32
+
+
+@pytest.mark.xfail(reason="Test should pass when default array setting work is complete.")
+def test_primary_not_created_when_blank():
+    """Primary array should not be created if not initialized with shape nor data."""
+    with DefaultsModel() as im:
+        assert not hasattr(im, "primary")
+
+
+def test_primary_created_when_shape():
+    """Primary array should be created on init if initialized with shape."""
+    with DefaultsModel((10, 10)) as im:
+        assert im.primary.shape == (10, 10)
+        np.testing.assert_allclose(im.primary, 2.0)
+
+
+@pytest.mark.xfail(reason="Test should pass when default array setting work is complete.")
+def test_non_primary_not_created_when_shape():
+    """Non-primary arrays shouldn't be created on init from shape, and hasattr should be False."""
+    with DefaultsModel((10, 10)) as im:
+        assert not hasattr(im, "data")
+
+
+def test_get_default_arr():
+    """Test get_default for non-primary array attribute gives proper shape and value."""
+    with DefaultsModel((10, 10)) as im:
+        default_data = im.get_default("data")
+        assert default_data.shape == (10, 10)
+        np.testing.assert_allclose(default_data, 3.0)
+
+
+def test_get_default_meta():
+    """Test get_default for metadata attributes both with and without schema-defined defaults."""
+    with DefaultsModel() as im:
+        default_meta = im.get_default("meta.default_meta")
+        assert default_meta == "default"
+        non_default_meta = im.get_default("meta.no_default_meta")
+        assert non_default_meta is None
+
+
+def test_get_default_attribute_error():
+    """Test get_default raises AttributeError for non-existent attribute."""
+    with DefaultsModel() as im:
+        with pytest.raises(AttributeError, match='has no attribute "non_existent_attribute"'):
+            im.get_default("non_existent_attribute")
+
+
+def test_implicit_meta_creation():
+    """Test that metadata attributes are created on access, and hasattr is True."""
+    with DefaultsModel() as im:
+        assert hasattr(im.meta, "no_default_meta")
+        assert hasattr(im.meta, "default_meta")
+        assert im.meta.default_meta == "default"
+        assert im.meta.no_default_meta is None
+
+
+def test_get_dtype_basic():
+    with BasicModel() as dm:
+        dtype = dm.get_dtype("data")
+        assert dtype == np.dtype(np.float32)
+        assert not dm.hasattr("data")
+
+
+def test_get_dtype_table():
+    with TableModel() as dm:
+        dtype = dm.get_dtype("table")
+        assert isinstance(dtype, np.dtype)
+        expected_dtype = np.dtype(
+            [
+                ("int16_column", "<i2"),
+                ("uint16_column", "<u2"),
+                ("float32_column", "<f4"),
+                ("ascii_column", "S64"),
+                ("float32_column_with_shape", "<f4", (3, 2)),
+                ("float32_column_with_ndim", "<f4"),
+                ("float32_column_with_ndim_and_shape", "<f4", (3, 2)),
+                ("float32_column_with_max_ndim", "<f4"),
+            ]
+        )
+        assert dtype == expected_dtype
+        assert not dm.hasattr("table")
+
+
+def test_get_dtype_attribute_error():
+    with BasicModel() as dm:
+        with pytest.raises(AttributeError, match='has no attribute "non_existent_attribute"'):
+            dm.get_dtype("non_existent_attribute")
+
+
+def test_get_dtype_no_datatype():
+    with BasicModel() as dm:
+        with pytest.raises(
+            ValueError, match='Attribute "meta" has no datatype defined in the schema.'
+        ):
+            dm.get_dtype("meta")
 
 
 def test_copy_model():
@@ -177,7 +281,7 @@ def test_multivalued_default_table_schema():
             elif isinstance(default, str):
                 # allclose has trouble with string comparisons
                 for elem in dm.table[name]:
-                    assert elem.decode("utf-8") == default
+                    assert elem == default
                 continue
             assert np.allclose(dm.table[name], default, equal_nan=True)
 
@@ -204,6 +308,7 @@ def test_secondary_shapes():
     specified in the initializer.
     """
     with BasicModel((256, 256)) as dm:
+        dm.area = dm.get_default("area")
         assert dm.area.shape == (256, 256)
 
 

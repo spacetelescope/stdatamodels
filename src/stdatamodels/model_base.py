@@ -12,7 +12,7 @@ import asdf
 import numpy as np
 from asdf import AsdfFile
 from asdf import schema as asdf_schema
-from asdf.tags.core import NDArrayType
+from asdf.tags.core import NDArrayType, ndarray
 from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
@@ -73,7 +73,7 @@ class DataModel(properties.ObjectNode):
             - None : Create a default data model with no shape.
 
             - tuple : Shape of the data array.
-              Initialize with empty data array with shape specified by the.
+              Initialize with default data array with shape specified by the tuple.
 
             - file path: Initialize from the given file (FITS or ASDF)
 
@@ -301,9 +301,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # Initialization occurs when the primary array is first
-            # referenced. Do so now.
-            getattr(self, primary_array_name)
+            # Initialize the primary array to the given shape with default value.
+            setattr(self, primary_array_name, self.get_default(primary_array_name))
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -1244,6 +1243,95 @@ class DataModel(properties.ObjectNode):
         if attribute in self.instance:
             return getattr(self, attribute)
         raise AttributeError(f'{self} has no attribute "{attribute}"')
+
+    def _navigate_to_parent_schema(self, attr):
+        """
+        Navigate through a dotted attribute path to find the parent schema.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute path, e.g., "data", "meta.foo" or "quadrants.0.flat_table").
+
+        Returns
+        -------
+        parent_schema : dict
+            The schema for the parent of the final attribute.
+        final_attr : str
+            The final attribute name.
+        """
+        parts = attr.split(".")
+        final_attr = parts[-1]
+        parent = self
+        parent_schema = self._schema
+
+        for part in parts[:-1]:
+            try:
+                # Treat part as an integer list index
+                index = int(part)
+            except ValueError:
+                # Not an integer, treat as attribute name
+                try:
+                    parent = getattr(parent, part)
+                except AttributeError as err:
+                    raise KeyError(repr(attr)) from err
+                parent_schema = properties._get_schema_for_property(parent_schema, part)
+            else:
+                # It's an integer, use list indexing
+                parent_schema = properties._get_schema_for_index(parent_schema, index)
+
+        return parent_schema, final_attr
+
+    def get_default(self, attr):
+        """
+        Retrieve the schema-defined default value of an attribute.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value. Can be a dotted path
+            to a sub-object, e.g. "meta.foo" or "quadrants.0.flat_table"
+            where numeric parts refer to list indices. If a list index
+            doesn't exist, empty items will be created up to that index.
+
+        Returns
+        -------
+        default_value : object
+            The default value for the given attribute.
+        """
+        parent_schema, final_attr = self._navigate_to_parent_schema(attr)
+
+        # Get schema and create default for the final attribute
+        subschema = properties._get_schema_for_property(parent_schema, final_attr)
+        if not subschema:
+            raise AttributeError(f'{self} has no attribute "{attr}"')
+        return properties._make_default(final_attr, subschema, self._ctx)
+
+    def get_dtype(self, attribute):
+        """
+        Retrieve the numpy dtype for an attribute.
+
+        Parameters
+        ----------
+        attribute : str
+            The attribute to retrieve the dtype for. Can be a dotted path
+            to a sub-object, e.g. "meta.foo" or "quadrants.0.flat_table"
+            where numeric parts refer to list indices.
+
+        Returns
+        -------
+        dtype : `numpy.dtype`
+            The numpy dtype for the attribute.
+        """
+        parent_schema, final_attr = self._navigate_to_parent_schema(attribute)
+
+        # Get schema for the final attribute
+        schema = properties._get_schema_for_property(parent_schema, final_attr)
+        if not schema:
+            raise AttributeError(f'{self} has no attribute "{attribute}"')
+        if "datatype" not in schema:
+            raise ValueError(f'Attribute "{attribute}" has no datatype defined in the schema.')
+        return ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
 
 
 class _FileReference:

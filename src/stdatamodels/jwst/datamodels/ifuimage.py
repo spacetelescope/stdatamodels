@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from stdatamodels.jwst.datamodels.model_base import JwstDataModel, _DefaultErrMixin, _DQMixin
 
 __all__ = ["IFUImageModel"]
 
 
-class IFUImageModel(JwstDataModel):
+class IFUImageModel(JwstDataModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D IFU images.
 
@@ -36,10 +36,3 @@ class IFUImageModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuimage.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(IFUImageModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

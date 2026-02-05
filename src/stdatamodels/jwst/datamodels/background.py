@@ -1,12 +1,11 @@
-from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin, _DQMixin
 
-from .dqflags import pixel
 from .reference import ReferenceFileModel
 
 __all__ = ["WfssBkgModel"]
 
 
-class SossBkgModel(ReferenceFileModel):
+class SossBkgModel(ReferenceFileModel, _DQMixin):
     """
     A data model of 2D background reference templates for NIRISS SOSS data.
 
@@ -22,11 +21,8 @@ class SossBkgModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/sossbkg.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(SossBkgModel, self).__init__(init=init, **kwargs)
 
-
-class WfssBkgModel(ReferenceFileModel):
+class WfssBkgModel(ReferenceFileModel, _DQMixin, _DefaultErrMixin):
     """
     A data model for 2D WFSS master background reference files.
 
@@ -43,12 +39,3 @@ class WfssBkgModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfssbkg.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(WfssBkgModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

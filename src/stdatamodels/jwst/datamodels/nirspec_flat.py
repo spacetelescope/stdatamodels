@@ -3,6 +3,7 @@ from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
 from stdatamodels.dynamicdq import dynamic_mask
+from stdatamodels.jwst.datamodels.model_base import _DefaultErrMixin
 
 from .dqflags import pixel
 from .reference import ReferenceFileModel
@@ -35,7 +36,7 @@ def _migrate_fast_variation_table(hdulist):
     return hdulist
 
 
-class NirspecFlatModel(ReferenceFileModel):
+class NirspecFlatModel(ReferenceFileModel, _DefaultErrMixin):
     """
     A data model for NIRSpec flat-field reference files.
 
@@ -63,12 +64,8 @@ class NirspecFlatModel(ReferenceFileModel):
 
         super(NirspecFlatModel, self).__init__(init=init, **kwargs)
 
-        if self.dq is not None or self.dq_def is not None:
+        if getattr(self, "dq", None) is not None or getattr(self, "dq_def", None) is not None:
             self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
 
     def _migrate_hdulist(self, hdulist):
         return _migrate_fast_variation_table(hdulist)
@@ -105,6 +102,16 @@ class NirspecQuadFlatModel(ReferenceFileModel):
         if isinstance(init, NirspecFlatModel):
             super(NirspecQuadFlatModel, self).__init__(init=None, **kwargs)
             self.update(init)
+            for attr in [
+                "data",
+                "dq",
+                "err",
+                "wavelength",
+                "flat_table",
+                "dq_def",
+            ]:
+                if not hasattr(init, attr):
+                    setattr(init, attr, init.get_default(attr))
             self.quadrants.append(self.quadrants.item())
             self.quadrants[0].data = init.data
             self.quadrants[0].dq = init.dq
