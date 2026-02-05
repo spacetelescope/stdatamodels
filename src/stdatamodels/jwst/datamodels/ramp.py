@@ -31,7 +31,7 @@ class RampModel(JwstDataModel):
         # Ensure that if data exists, pixeldq and groupdq arrays exist
         if self.data is None:
             return
-        if self.pixeldq is None and "pixeldq" in self.schema["properties"]:
+        if self.pixeldq is None:
             self.pixeldq = self.get_default("pixeldq")
-        if self.groupdq is None and "groupdq" in self.schema["properties"]:
+        if self.groupdq is None:
             self.groupdq = self.get_default("groupdq")

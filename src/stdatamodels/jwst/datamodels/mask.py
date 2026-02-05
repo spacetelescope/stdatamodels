@@ -1,10 +1,10 @@
-from .model_base import _DQMixin
+from .model_base import _DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["MaskModel"]
 
 
-class MaskModel(ReferenceFileModel, _DQMixin):
+class MaskModel(ReferenceFileModel, _DefaultDQMixin):
     """
     A data model for 2D masks.
 
