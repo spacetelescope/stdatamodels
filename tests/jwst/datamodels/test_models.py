@@ -894,7 +894,7 @@ def test_mixins_from_array_init():
 
 
 def test_mixins_from_array_set():
-    """Setting data array on an existing model should update dq and err arrays."""
+    """Setting data array on an existing model should not update dq and err arrays."""
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
     with ImageModel() as im:
@@ -902,8 +902,8 @@ def test_mixins_from_array_set():
         assert im.err is None
 
         im.data = data
-        assert im.dq.shape == shape
-        assert im.err.shape == shape
+        assert "dq" not in im
+        assert "err" not in im
 
 
 def test_mixins_set_to_none():
@@ -915,8 +915,8 @@ def test_mixins_set_to_none():
         assert im.dq is None
         assert im.err is None
         # but in reality these have not been set at all
-        assert "dq" not in im._instance
-        assert "err" not in im._instance
+        assert "dq" not in im
+        assert "err" not in im
 
 
 def test_nested_get_dtype():
