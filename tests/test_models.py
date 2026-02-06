@@ -221,13 +221,19 @@ def test_get_default_attribute_error():
             im.get_default("non_existent_attribute")
 
 
-def test_implicit_meta_creation():
-    """Test that metadata attributes are created on access, and hasattr is True."""
+def test_implicit_meta_none():
+    """
+    Test access to undefined metadata attributes.
+
+    Ensure returns None, even if there is a schema-defined default.
+    Ensure the attribute is not set during getattr."""
     with DefaultsModel() as im:
         assert hasattr(im.meta, "no_default_meta")
         assert hasattr(im.meta, "default_meta")
-        assert im.meta.default_meta == "default"
+        assert im.meta.default_meta is None
         assert im.meta.no_default_meta is None
+        assert "default_meta" not in im.meta._instance
+        assert "no_default_meta" not in im.meta._instance
 
 
 def test_get_dtype_basic():
