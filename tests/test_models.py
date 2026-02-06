@@ -179,7 +179,7 @@ def test_set_arr_to_none(tmp_path):
 
     with DefaultsModel(tmp_path / "test.asdf", strict_validation=True) as im2:
         assert im2.primary is None
-        assert not "primary" in im2._instance
+        assert not "primary" in im2
 
 
 def test_primary_created_when_shape():
@@ -194,7 +194,7 @@ def test_non_primary_not_created_when_shape():
     with DefaultsModel((10, 10)) as im:
         assert hasattr(im, "data")
         assert im.data is None
-        assert "data" not in im._instance
+        assert "data" not in im
 
 
 def test_get_default_arr():
@@ -232,15 +232,15 @@ def test_implicit_meta_none():
         assert hasattr(im.meta, "default_meta")
         assert im.meta.default_meta is None
         assert im.meta.no_default_meta is None
-        assert "default_meta" not in im.meta._instance
-        assert "no_default_meta" not in im.meta._instance
+        assert "default_meta" not in im.meta
+        assert "no_default_meta" not in im.meta
 
 
 def test_get_dtype_basic():
     with BasicModel() as dm:
         dtype = dm.get_dtype("data")
         assert dtype == np.dtype(np.float32)
-        assert "data" not in dm._instance
+        assert "data" not in dm
 
 
 def test_get_dtype_table():
@@ -260,7 +260,7 @@ def test_get_dtype_table():
             ]
         )
         assert dtype == expected_dtype
-        assert "table" not in dm._instance
+        assert "table" not in dm
 
 
 def test_get_dtype_attribute_error():
@@ -428,7 +428,7 @@ def test_skip_serializing_null(tmp_path, filename):
 
     with BasicModel(file_path) as model:
         # Make sure that 'telescope' is not in the tree
-        assert "telescope" not in model.meta._instance
+        assert "telescope" not in model.meta
 
 
 def test_delete_failed_model():
@@ -467,7 +467,7 @@ def test_on_save_hook(tmp_path):
             self.meta.foo = "bar"
 
     model = OnSaveModel()
-    assert "foo" not in model.meta._instance
+    assert "foo" not in model.meta
     model.save(tmp_path / "test.asdf")
     assert model.meta.foo == "bar"
 
