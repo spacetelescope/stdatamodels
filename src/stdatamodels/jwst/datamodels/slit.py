@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from .model_base import JwstDataModel, _DefaultDQMixin
 
 __all__ = ["SlitDataModel", "SlitModel"]
 
 
-class SlitDataModel(JwstDataModel):
+class SlitDataModel(JwstDataModel, _DefaultDQMixin):
     """
     A data model for 2D slit images.
 
@@ -55,7 +55,7 @@ class SlitDataModel(JwstDataModel):
                 setattr(self, key, kwargs[key])
 
 
-class SlitModel(JwstDataModel):
+class SlitModel(JwstDataModel, _DefaultDQMixin):
     """
     A data model for 2D images.
 

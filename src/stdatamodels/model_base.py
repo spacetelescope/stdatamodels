@@ -73,7 +73,7 @@ class DataModel(properties.ObjectNode):
             - None : Create a default data model with no shape.
 
             - tuple : Shape of the data array.
-              Initialize with empty data array with shape specified by the.
+              Initialize with default data array with shape specified by the tuple.
 
             - file path: Initialize from the given file (FITS or ASDF)
 
@@ -301,9 +301,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # Initialization occurs when the primary array is first
-            # referenced. Do so now.
-            getattr(self, primary_array_name)
+            # Initialize the primary array to the given shape with default value.
+            setattr(self, primary_array_name, self.get_default(primary_array_name))
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -386,7 +385,7 @@ class DataModel(properties.ObjectNode):
         buf = ["<"]
         buf.append(self._model_type)
 
-        if self.shape:
+        if getattr(self, "shape", None) is not None:
             buf.append(str(self.shape))
 
         try:

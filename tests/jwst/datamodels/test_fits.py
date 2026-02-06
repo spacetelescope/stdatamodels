@@ -92,10 +92,7 @@ def test_resave_duplication_bug(tmp_path):
 
 def test_units_roundtrip(tmp_path):
     m = SpecModel()
-    # this next line is required for stdatamodels to cast
-    # spec_table to a FITS_rec (similar to having data assigned
-    # to the attribute)
-    m.spec_table = m.spec_table
+    m.spec_table = m.get_default("spec_table")
     m.spec_table.columns["WAVELENGTH"].unit = "nm"
 
     fn = tmp_path / "test1.fits"

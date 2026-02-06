@@ -1,12 +1,10 @@
-from stdatamodels.dynamicdq import dynamic_mask
-
-from .dqflags import pixel
+from .model_base import _DefaultDQMixin, _DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["SuperBiasModel"]
 
 
-class SuperBiasModel(ReferenceFileModel):
+class SuperBiasModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for 2D super-bias images.
 
@@ -23,12 +21,3 @@ class SuperBiasModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/superbias.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(SuperBiasModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

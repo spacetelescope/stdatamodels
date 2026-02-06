@@ -1,12 +1,10 @@
-from stdatamodels.dynamicdq import dynamic_mask
-
-from .dqflags import pixel
+from .model_base import _DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["PersistenceSatModel"]
 
 
-class PersistenceSatModel(ReferenceFileModel):
+class PersistenceSatModel(ReferenceFileModel, _DefaultDQMixin):
     """
     A data model for the persistence saturation value (full well).
 
@@ -21,11 +19,3 @@ class PersistenceSatModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/persat.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(PersistenceSatModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
