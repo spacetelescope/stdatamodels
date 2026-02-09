@@ -11,6 +11,7 @@ import asdf
 import numpy as np
 from asdf import generic_io, tagged, treeutil
 from asdf import schema as asdf_schema
+from asdf.exceptions import ValidationError
 from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict
 from astropy import time
@@ -372,6 +373,17 @@ def _get_validators(hdulist):
     fits_context = FitsContext(hdulist)
 
     validators = HashableDict(asdf_schema.YAML_VALIDATORS)
+    tag_validator = validators["tag"]
+
+    def validate_tag(validator, tag_pattern, instance, schema):
+        af = asdf.AsdfFile()
+        if af.extension_manager.handles_type(instance.__class__):
+            for tag in af.extension_manager.get_converter_for_type(instance.__class__).tags:
+                tag_validator(validator, tag_pattern, tag, schema)
+            return
+        raise ValidationError(
+            f"Unsupported {instance} does not have a tag matching pattern {tag_pattern}"
+        )
 
     partial_fits_array_writer = partial(_fits_array_writer, fits_context)
 
@@ -384,6 +396,7 @@ def _get_validators(hdulist):
             "items": partial(_fits_item_recurse, fits_context),
             "properties": partial(_fits_comment_section_handler, fits_context),
             "type": partial(_fits_type, fits_context),
+            "tag": validate_tag,
         }
     )
 
