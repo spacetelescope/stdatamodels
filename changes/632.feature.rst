@@ -1,0 +1,2 @@
+Add a ``cal_step`` status keyword for the ``adaptive_trace_model`` step.
+Add a ``trace_model`` image to the IFUImageModel schema.

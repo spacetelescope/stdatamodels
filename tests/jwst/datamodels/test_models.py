@@ -83,8 +83,9 @@ def test_skip_fits_update(make_models, which_file):
 
 
 def test_asnmodel_table_size_zero():
-    with AsnModel() as dm:
-        assert len(dm.asn_table) == 0
+    with pytest.warns(DeprecationWarning, match="AsnModel is deprecated"):
+        with AsnModel() as dm:
+            assert len(dm.asn_table) == 0
 
 
 def test_imagemodel():

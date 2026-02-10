@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 from .model_base import JwstDataModel
@@ -12,6 +13,12 @@ class AsnModel(JwstDataModel):
     supported_formats = ["yaml", "json", "fits"]
 
     def __init__(self, init=None, **kwargs):
+        warnings.warn(
+            "AsnModel is deprecated and will be removed in a future version. ",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         super(AsnModel, self).__init__(init=init, **kwargs)
 
         # apply logic to identify output product
