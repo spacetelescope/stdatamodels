@@ -7,6 +7,8 @@ from stdatamodels.dynamicdq import dynamic_mask
 
 from .dqflags import pixel
 
+__all__ = ["JwstDataModel"]
+
 
 class JwstDataModel(_DataModel):
     """Base class for JWST data models."""
