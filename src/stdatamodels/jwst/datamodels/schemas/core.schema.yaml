@@ -141,6 +141,7 @@ properties:
           sub_category:
             title: Program sub-category
             type: string
+            enum: [UNKNOWN, CROSS, ERO, FGS, MIRI, NIRCAM, NIRISS, NIRSPEC, NONE, OTE, SC, "N/A"]
             fits_keyword: SUBCAT
             blend_table: True
           science_category:
@@ -238,6 +239,31 @@ properties:
           template:
             title: Observation template used
             type: string
+            enum: ["N/A",
+                   "FGS External Calibration", "FGS Focus", "FGS Internal Flat",
+                   "ISIM ASIC Tuning", "ISIM Dictionary File Update",
+                   "MIRI Anneal", "MIRI Coronagraphic Imaging", "MIRI Coronagraphic Photometric Calibration",
+                   "MIRI Dark", "MIRI Imaging", "MIRI Low Resolution Spectroscopy",
+                   "MIRI Medium Resolution Spectroscopy", "MIRI Multi-Instrument Multi-Field Imaging",
+                   "Momentum Unload",
+                   "NIRCam Coronagraphic Imaging", "NIRCam Dark", "NIRCam Engineering Imaging",
+                   "NIRCam External Flat", "NIRCam Focus", "NIRCam Grism Time Series",
+                   "NIRCam IPR Imaging", "NIRCam Imaging", "NIRCam PIL Imaging",
+                   "NIRCam Time Series", "NIRCam Wheel Exercise", "NIRCam Wide Field Slitless Spectroscopy",
+                   "NIRISS Aperture Masking Interferometry", "NIRISS Dark", "NIRISS Focus",
+                   "NIRISS Imaging", "NIRISS Internal Flat", "NIRISS Single-Object Slitless Spectroscopy",
+                   "NIRISS Wide Field Slitless Spectroscopy", "NIRISS External Calibration",
+                   "NIRSpec Bright Object Time Series", "NIRSpec Dark", "NIRSpec Filter/Grating Wheel Test",
+                   "NIRSpec Fixed Slit Spectroscopy", "NIRSpec Focus Reference", "NIRSpec Focus",
+                   "NIRSpec IFU Spectroscopy", "NIRSpec Imaging", "NIRSpec Internal Lamp",
+                   "NIRSpec MSA Anneal", "NIRSpec MSA Masking", "NIRSpec MSA Short Detection",
+                   "NIRSpec Multi-Instrument Multi-Field Imaging", "NIRSpec MultiObject Spectroscopy",
+                   "Pointing Only",
+                   "Realtime Commanding",
+                   "Safe Mode Recovery",
+                   "Station Keeping",
+                   "WFSC Commissioning Control Only", "WFSC Commissioning", "WFSC Global Alignment",
+                   "WFSC NIRCam Coarse Phasing", "WFSC NIRCam Fine Phasing"]
             fits_keyword: TEMPLATE
             blend_table: True
           observation_label:
@@ -288,6 +314,7 @@ properties:
           status:
             title: Status of a visit
             type: string
+            enum: [DATALOSS, SKIPPED, SKIPPED_COORDINATED, SUCCESSFUL, UNSUCCESSFUL]
             fits_keyword: VISITSTA
             blend_table: True
           total_exposures:
@@ -336,6 +363,7 @@ properties:
           type:
             title: Type of target (fixed, moving, generic)
             type: string
+            enum: [FIXED, GENERIC, MOVING, UNKNOWN, "N/A"]
             fits_keyword: TARGTYPE
             blend_table: True
           category:
@@ -565,7 +593,9 @@ properties:
           msa_state:
             title: State of the MSA
             type: string
-            #enum: [ALL OPEN, ALL CLOSED, CONFIGURED]
+            # PRIMARYPARK_CONFIGURED remains for backward compatibility
+            enum: [LAUNCHLOCK_ALLCLOSED, PRIMARYPARK_ALLCLOSED, PRIMARYPARK_ALLOPEN,
+                   PRIMARYPARK_CONFIGURED, PRIMARYPARK_CONFIG, IFU_ALLCLOSED, IFU_ALLOPEN]
             fits_keyword: MSASTATE
             blend_table: True
           msa_metadata_file:
@@ -1284,6 +1314,10 @@ properties:
           primary_dither_type:
             title: Primary dither points and packing
             type: string
+            enum: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                   "11", "12", "13", "14", "15", "16", "17", "21", "25", "27",
+                   2MINUS, 2PLUS, 2TIGHTGAPS, 36, 3TIGHT, 3TIGHTGAPS,
+                   "45", 4TIGHT, 5TIGHT, 6TIGHT, 8NIRSPEC, 8NIRSPECTIGHT]
             fits_keyword: PRIDTYPE
             blend_table: True
           primary_points:
@@ -1327,11 +1361,13 @@ properties:
           pattern_size:
             title: "Primary dither pattern size"
             type: string
+            enum: [DEFAULT, LARGE, MEDIUM, NONE, SMALL]
             fits_keyword: PATTSIZE
             blend_table: True
           small_grid_pattern:
             title: Name of small grid dither pattern
             type: string
+            enum: [1-9, 5-POINT-BOX, 5-POINT-DIAMOND, 9-POINT-CIRCLE]
             fits_keyword: SMGRDPAT
             blend_table: True
           subpixel_total_points:
@@ -1342,6 +1378,21 @@ properties:
           subpixel_pattern:
             title: Subpixel dither pattern type
             type: string
+            enum: [WFSS, 2-POINT, 2_POINT, 2_POINT_LARGE_WITH_NIRISS, 2_POINT_MEDIUM_WITH_NIRISS,
+                   2_POINT_WITH_MIRI_F1000W, 2_POINT_WITH_MIRI_F1280W, 2_POINT_WITH_MIRI_F1500W,
+                   2_POINT_WITH_MIRI_F1800W, 2_POINT_WITH_MIRI_F2100W, 2_POINT_WITH_MIRI_F2550W,
+                   2_POINT_WITH_MIRI_F770W, 3_POINT_LARGE_WITH_NIRISS, 3_POINT_MEDIUM_WITH_NIRISS,
+                   3_POINT_SMALL_WITH_NIRISS, 3_POINT_WITH_MIRI_F1000W, 3_POINT_WITH_MIRI_F1280W,
+                   3_POINT_WITH_MIRI_F1500W, 3_POINT_WITH_MIRI_F1800W, 3_POINT_WITH_MIRI_F2100W,
+                   3_POINT_WITH_MIRI_F2550W, 3_POINT_WITH_MIRI_F560W, 3_POINT_WITH_MIRI_F770W,
+                   4-POINT, 4_POINT, 4_POINT_LARGE_WITH_NIRISS, 4_POINT_MEDIUM_WITH_NIRISS,
+                   4_POINT_SMALL_WITH_NIRISS, 4_POINT_WITH_MIRI_F1000W, 4_POINT_WITH_MIRI_F1280W,
+                   4_POINT_WITH_MIRI_F1500W, 4_POINT_WITH_MIRI_F1800W, 4_POINT_WITH_MIRI_F2100W,
+                   4_POINT_WITH_MIRI_F2550W, 4_POINT_WITH_MIRI_F560W, 4_POINT_WITH_MIRI_F770W,
+                   9-POINT, 9_POINT, 9_POINT_LARGE_WITH_NIRISS, 9_POINT_MEDIUM_WITH_NIRISS,
+                   9_POINT_WITH_MIRI_F1000W, 9_POINT_WITH_MIRI_F1500W, 9_POINT_WITH_MIRI_F1800W,
+                   9_POINT_WITH_MIRI_F2100W, 9_POINT_WITH_MIRI_F770W, BOTH, IMAGING, NONE,
+                   SMALL_GRID_DITHER, SMALL-GRID-DITHER, SPATIAL, SPECTRAL, STANDARD]
             fits_keyword: SUBPXPAT
             blend_table: True
           spectral_position_number:
@@ -1770,6 +1821,7 @@ properties:
           fgs_aperture:
             title: Aperture used for guide star acquisition
             type: string
+            enum: [FGS1_FULL_OSS, FGS2_FULL_OSS]
             fits_keyword: FGS_APER
             blend_table: True
           gs_ideal_x:
