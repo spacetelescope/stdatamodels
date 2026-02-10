@@ -16,13 +16,15 @@ allOf:
           type: array
           items:
             type: number
-          ndim: 1
+            minItems: 2
+            maxItems: 2
         pwcpos_bounds:
           title: Pupil wheel position bounds for this configuration
           type: array
           items:
             type: number
-          ndim: 1
+            minItems: 2
+            maxItems: 2
         pwcpos_cmd:
           title: Commanded position
           type: number
