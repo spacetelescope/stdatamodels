@@ -250,7 +250,7 @@ properties:
             fits_keyword: PS3_1
             fits_hdu: SCI
           s_region:
-            title: "spatial extent of the observation, footprint"
+            title: Spatial footprint of the observation
             type: string
             default: " "
             fits_keyword: S_REGION

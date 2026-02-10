@@ -58,7 +58,7 @@ properties:
         fits_keyword: CAL_VER
         blend_table: True
       calibration_software_revision:
-        title: Calibration software version control sys number
+        title: Calibration Software Repository Version
         type: string
         fits_keyword: CAL_VCS
         blend_table: True
@@ -254,7 +254,7 @@ properties:
         type: object
         properties:
           engineering_quality:
-            title: Engineering data quality indicator from EngDB
+            title: Engineering DB quality indicator
             type: string
             enum: [OK, SUSPECT]
             fits_keyword: ENG_QUAL
@@ -480,7 +480,7 @@ properties:
             fits_keyword: PUPIL
             blend_table: True
           pupil_imaging_lens:
-            title: Pupil imaging lens in the optical path?
+            title: "Pupil imaging lens in the optical path: T/F"
             type: boolean
             fits_keyword: PILIN
             blend_table: True
@@ -845,7 +845,7 @@ properties:
             fits_keyword: GROUPGAP
             blend_table: True
           drop_frames1:
-            title: Number of frames dropped prior to first integration
+            title: Number of frames dropped prior to 1st integration
             type: integer
             fits_keyword: DRPFRMS1
             blend_table: True
@@ -1529,7 +1529,7 @@ properties:
         type: object
         properties:
           name:
-            title: PRD science aperture used
+            title: S&OC PRD science aperture used
             type: string
             fits_keyword: APERNAME
             blend_table: True
@@ -1760,11 +1760,11 @@ properties:
             fits_keyword: VISITEND
             blend_table: True
           gs_function_start_time:
-            title: Observatory UTC time at guider function start
+            title: UTC time when the guider function started
             type: string
             fits_keyword: GF_START
           gs_function_end_time:
-            title: Observatory UTC time at guider function end
+            title: UTC time when the guider function ended
             type: string
             fits_keyword: GF_END
           fgs_aperture:
@@ -1773,7 +1773,7 @@ properties:
             fits_keyword: FGS_APER
             blend_table: True
           gs_ideal_x:
-            title: Guide star ideal y coordinate
+            title: Guide star ideal x coordinate
             type: number
             fits_keyword: GSIDL_X
             blend_table: True
@@ -1924,7 +1924,7 @@ properties:
             type: object
             properties:
               name:
-                title: NIR Simple Improved Reference Subtraction
+                title: SIRS refpix reference file name
                 type: string
                 fits_keyword: R_SIRSKL
                 blend_table: True
@@ -2044,7 +2044,7 @@ properties:
             type: object
             properties:
               name:
-                title: Fringe Frequency reference file name
+                title: MRS Fringe Frequency reference file name
                 type: string
                 fits_keyword: R_FRIFRQ
                 blend_table: True
@@ -2421,7 +2421,7 @@ properties:
             fits_keyword: S_BPXSLF
             blend_table: True
           barshadow:
-            title: Bar shadow correction
+            title: NIRSpec bar shadow correction
             type: string
             enum: [SKIPPED, COMPLETE]
             fits_keyword: S_BARSHA
@@ -2817,7 +2817,7 @@ properties:
             fits_keyword: BKGMETH
             blend_table: True
           level:
-            title: Computed/Matched constant background level
+            title: Computed constant background level
             type: number
             fits_keyword: BKGLEVEL
             blend_table: True
