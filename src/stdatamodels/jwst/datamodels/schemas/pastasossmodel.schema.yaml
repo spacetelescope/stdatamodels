@@ -11,8 +11,40 @@ allOf:
     meta:
       type: object
       properties:
+        order2_separation_cutoff:
+          title: Order 2 separation cutoff wavelengths
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+        pwcpos_bounds:
+          title: Pupil wheel position bounds for this configuration
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
         pwcpos_cmd:
           title: Commanded position
+          type: number
+        soss_xdim:
+          title: SOSS subarray x dimension
+          type: integer
+        soss_ydim:
+          title: SOSS subarray y dimension
+          type: integer
+        subarray_ymin:
+          title: SOSS subarray minimum y pixel
+          type: integer
+        wavemap_nwl:
+          title: Number of wavelength points in wavemap
+          type: integer
+        wavemap_wlmax:
+          title: Maximum wavelength in wavemap
+          type: number
+        wavemap_wlmin:
+          title: Minimum wavelength in wavemap
           type: number
     traces:
       type: array
