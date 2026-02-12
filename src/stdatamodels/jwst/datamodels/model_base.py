@@ -3,6 +3,9 @@ import copy
 from astropy.time import Time
 
 from stdatamodels import DataModel as _DataModel
+from stdatamodels.dynamicdq import dynamic_mask
+
+from .dqflags import pixel
 
 __all__ = ["JwstDataModel"]
 
@@ -112,3 +115,39 @@ class JwstDataModel(_DataModel):
 
         # Call the parent update
         super().update(d, only=only, extra_fits=extra_fits)
+
+
+class _DefaultDQMixin(_DataModel):
+    """Mixin for models that should have dq array initialized on init."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If data array hasn't been initialized, do not initialize DQ
+        if getattr(self, self.get_primary_array_name(), None) is None:
+            return
+
+        # Otherwise, ensure DQ array exists
+        if getattr(self, "dq", None) is None:
+            self.dq = self.get_default("dq")
+
+        # if dq_def is in the schema, attempt to apply dq flag mapping
+        if getattr(self, "dq_def", None) is not None:
+            self.dq = dynamic_mask(self, pixel)
+
+
+class _DefaultErrMixin(_DataModel):
+    """Mixin for models that should have err array initialized on init."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If data array hasn't been initialized, do not initialize err
+        if getattr(self, self.get_primary_array_name(), None) is None:
+            return
+
+        # do the same handling for err array
+        # this is only here to minimize number of downstream failures and
+        # should be removed in the future once we can fix downstream patterns
+        if getattr(self, "err", None) is None:
+            self.err = self.get_default("err")

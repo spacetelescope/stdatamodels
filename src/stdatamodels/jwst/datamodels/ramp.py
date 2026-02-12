@@ -28,6 +28,10 @@ class RampModel(JwstDataModel):
     def __init__(self, init=None, **kwargs):
         super(RampModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.pixeldq = self.pixeldq
-        self.groupdq = self.groupdq
+        # Ensure that if data exists, pixeldq and groupdq arrays exist
+        if self.data is None:
+            return
+        if self.pixeldq is None:
+            self.pixeldq = self.get_default("pixeldq")
+        if self.groupdq is None:
+            self.groupdq = self.get_default("groupdq")

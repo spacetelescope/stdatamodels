@@ -341,6 +341,7 @@ def test_open_kwargs_fits(tmp_path):
 def test_open_does_not_clear_wht(InitClass):
     """Cover a bug where the open function cleared the wht attribute in SlitModel."""
     m0 = InitClass((27, 1299))
+    m0.wht = m0.get_default("wht")
     m0.wht[:] = 1
 
     m1 = datamodels.open(m0)

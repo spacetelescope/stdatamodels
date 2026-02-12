@@ -1,12 +1,10 @@
-from stdatamodels.dynamicdq import dynamic_mask
-
-from .dqflags import pixel
+from .model_base import _DefaultDQMixin, _DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["LastFrameModel"]
 
 
-class LastFrameModel(ReferenceFileModel):
+class LastFrameModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for Last frame correction reference files.
 
@@ -23,12 +21,3 @@ class LastFrameModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/lastframe.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(LastFrameModel, self).__init__(init=init, **kwargs)
-
-        self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

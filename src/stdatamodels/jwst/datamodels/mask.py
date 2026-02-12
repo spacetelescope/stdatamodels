@@ -1,12 +1,10 @@
-from stdatamodels.dynamicdq import dynamic_mask
-
-from .dqflags import pixel
+from .model_base import _DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["MaskModel"]
 
 
-class MaskModel(ReferenceFileModel):
+class MaskModel(ReferenceFileModel, _DefaultDQMixin):
     """
     A data model for 2D masks.
 
@@ -19,15 +17,6 @@ class MaskModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mask.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(MaskModel, self).__init__(init=init, **kwargs)
-
-        if self.dq is not None or self.dq_def is not None:
-            self.dq = dynamic_mask(self, pixel)
-
-        # Implicitly create arrays
-        self.dq = self.dq
 
     def get_primary_array_name(self):  # noqa: D102
         return "dq"

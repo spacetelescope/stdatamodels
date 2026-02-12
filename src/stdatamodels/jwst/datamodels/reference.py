@@ -4,7 +4,7 @@ from stdatamodels.dynamicdq import dynamic_mask
 from stdatamodels.exceptions import ValidationWarning
 
 from .dqflags import pixel
-from .model_base import JwstDataModel
+from .model_base import JwstDataModel, _DefaultDQMixin, _DefaultErrMixin
 
 __all__ = ["ReferenceCubeModel", "ReferenceFileModel", "ReferenceImageModel", "ReferenceQuadModel"]
 
@@ -84,7 +84,7 @@ class ReferenceFileModel(JwstDataModel):
             warnings.warn(message, ValidationWarning, stacklevel=2)
 
 
-class ReferenceImageModel(ReferenceFileModel):
+class ReferenceImageModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for 2D reference images.
 
@@ -100,18 +100,8 @@ class ReferenceImageModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referenceimage.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(ReferenceImageModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
-
-        if self.hasattr("dq_def"):
-            self.dq = dynamic_mask(self, pixel)
-
-
-class ReferenceCubeModel(ReferenceFileModel):
+class ReferenceCubeModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for 3D reference images.
 
@@ -127,15 +117,8 @@ class ReferenceCubeModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencecube.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(ReferenceCubeModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
-
-
-class ReferenceQuadModel(ReferenceFileModel):
+class ReferenceQuadModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for 4D reference images.
 
@@ -150,10 +133,3 @@ class ReferenceQuadModel(ReferenceFileModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/referencequad.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(ReferenceQuadModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

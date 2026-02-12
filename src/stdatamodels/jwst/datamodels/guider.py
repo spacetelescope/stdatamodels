@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from .model_base import JwstDataModel, _DefaultDQMixin, _DefaultErrMixin
 
 __all__ = ["GuiderCalModel", "GuiderRawModel"]
 
 
-class GuiderRawModel(JwstDataModel):
+class GuiderRawModel(JwstDataModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for Guide Star pipeline raw data files.
 
@@ -29,15 +29,8 @@ class GuiderRawModel(JwstDataModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/guider_raw.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(GuiderRawModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
-
-
-class GuiderCalModel(JwstDataModel):
+class GuiderCalModel(JwstDataModel, _DefaultDQMixin, _DefaultErrMixin):
     """
     A data model for Guide Star pipeline calibrated files.
 
@@ -62,10 +55,3 @@ class GuiderCalModel(JwstDataModel):
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/guider_cal.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(GuiderCalModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err
