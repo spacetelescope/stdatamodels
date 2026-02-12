@@ -11,12 +11,12 @@ allOf:
 - type: object
   properties:
     phot_unit:
-      title: Photometric flux conversion unit
+      title: Unit of phot table photmjsr column
       fits_keyword: PHOTUNIT
       fits_hdu: PHOTOM
       type: string
     wave_unit:
-      title: Wavelength unit for photometric table
+      title: Unit of phot table wavelength column
       fits_keyword: WAVEUNIT
       fits_hdu: PHOTOM
       type: string
