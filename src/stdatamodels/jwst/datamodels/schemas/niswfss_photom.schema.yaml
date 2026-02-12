@@ -10,6 +10,18 @@ allOf:
 - $ref: keyword_pixelarea.schema
 - type: object
   properties:
+    phot_unit:
+      title: Photometric flux conversion unit
+      fits_keyword: PHOTUNIT
+      fits_hdu: PHOTOM
+      type: string
+    wave_unit:
+      title: Wavelength unit for photometric table
+      fits_keyword: WAVEUNIT
+      fits_hdu: PHOTOM
+      type: string
+- type: object
+  properties:
     phot_table:
       title: Photometric flux conversion factors table
       fits_hdu: PHOTOM
