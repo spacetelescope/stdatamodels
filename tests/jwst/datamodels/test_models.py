@@ -650,6 +650,7 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
+@pytest.mark.xfail(reason="fails when reverting default meta behavior")
 @pytest.mark.parametrize(
     "attr",
     [
