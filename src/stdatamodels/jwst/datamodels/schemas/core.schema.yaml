@@ -2802,7 +2802,7 @@ properties:
           keep_groups_saturation_int2p:
             title: Int 2+- RSCD back-off due to sat.
             type: integer
-            fits_keyword: INT2BORS	    
+            fits_keyword: INT2BORS
       soss_extract1d:
         title: NIRISS SOSS Extract1D Parameters
         type: object
