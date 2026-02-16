@@ -2788,13 +2788,21 @@ properties:
             type: integer
             fits_keyword: INT2SKIP
           keep_bright_firstgroup_int1:
-            title: For 1st int # pixels where 1st group used
+            title: Int 1- Pixels where 1st grp is kept
             type: integer
-            fits_keyword: USEGP1
+            fits_keyword: INT1UGP1
           keep_bright_firstgroup_int2p:
-            title: For 2nd int or higher # pixels where 1st grp used
+            title: Int 2+- Pixels where 1st grp is kept
             type: integer
-            fits_keyword: USEGP2
+            fits_keyword: INT2UGP1
+          keep_groups_saturation_int1:
+            title: Int 1- RSCD back-off due to sat.
+            type: integer
+            fits_keyword: INT1BORS
+          keep_groups_saturation_int2p:
+            title: Int 2+- RSCD back-off due to sat.
+            type: integer
+            fits_keyword: INT2BORS	    
       soss_extract1d:
         title: NIRISS SOSS Extract1D Parameters
         type: object
