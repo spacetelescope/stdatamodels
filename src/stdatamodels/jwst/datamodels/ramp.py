@@ -37,5 +37,3 @@ class RampModel(JwstDataModel):
             self.pixeldq = self.get_default("pixeldq")
         if self.groupdq is None:
             self.groupdq = self.get_default("groupdq")
-        if self.average_dark_current is None:
-            self.average_dark_current = self.get_default("average_dark_current")
