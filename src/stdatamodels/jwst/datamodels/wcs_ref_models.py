@@ -721,11 +721,11 @@ class RegionsModel(ReferenceFileModel):
                 "SUB260STRIPE4_DHS",
             )
             assert self.meta.instrument.detector in (
-                'NRCA1',
-                'NRCA2',
-                'NRCA3',
-                'NRCA4',
-                'NRCALONG',
+                "NRCA1",
+                "NRCA2",
+                "NRCA3",
+                "NRCA4",
+                "NRCALONG",
             )
 
     def get_primary_array_name(self):  # noqa: D102
