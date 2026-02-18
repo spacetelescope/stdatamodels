@@ -5,7 +5,6 @@ id: "http://stsci.edu/schemas/jwst_datamodel/rscd.schema"
 title: RSCD reference file model
 allOf:
 - $ref: referencefile.schema
-- $ref: keyword_exptype.schema
 - type: object
   properties:
     rscd_group_skip_table:
