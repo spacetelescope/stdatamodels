@@ -74,6 +74,9 @@ allOf:
             title: Native pixel-size padding around the image
             type: integer
             default: 0
+          cutoff:
+            title: Pixel cutoff for trace validity
+            type: integer
     wavecal_models:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
