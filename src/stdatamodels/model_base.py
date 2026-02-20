@@ -974,6 +974,8 @@ class DataModel(properties.ObjectNode):
 
         def included(cursor, part):
             # Test if part is in the cursor
+            if cursor is None:
+                return False
             if isinstance(part, int):
                 return part >= 0 and part < len(cursor)
             else:
