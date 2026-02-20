@@ -1,0 +1,1 @@
+Bugfix for possible string as a frame used in NIRCAM IFU WCS.
