@@ -25,7 +25,7 @@ def _migrate_rscd_table(hdulist):
         if "group_skip1" not in table_data.dtype.names:
             # Create the missing column.
             # Defaulting to 1 as per the baseline requirement.
-            new_col = np.full(table_data.shape[0], 1, dtype=">i4")
+            new_col = np.full(table_data.shape[0], 0, dtype=">i4")
 
             # This returns a new structured array with the column attached
             ext.data = append_fields(
