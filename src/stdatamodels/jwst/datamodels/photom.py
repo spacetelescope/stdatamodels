@@ -10,6 +10,7 @@ __all__ = [
     "MirImgPhotomModel",
     "MirLrsPhotomModel",
     "MirMrsPhotomModel",
+    "MirWfssPhotomModel",
     "NisImgPhotomModel",
     "NisSossPhotomModel",
     "NisWfssPhotomModel",
@@ -185,6 +186,32 @@ class MirMrsPhotomModel(ReferenceFileModel):
         super(MirMrsPhotomModel, self).__init__(init=init, **kwargs)
 
         self.dq = dynamic_mask(self, pixel)
+
+
+class MirWfssPhotomModel(_PhotomModel):
+    """
+    A data model for MIRI WFSS photom reference files.
+
+    Attributes
+    ----------
+    phot_table : numpy table
+        Photometric flux conversion factors table
+        A table-like object containing row selection criteria made up
+        of instrument mode parameters and photometric conversion
+        factors associated with those modes.
+
+        - filter: str[12]
+        - pupil: str[15]
+        - order: int16
+        - photmjsr: float32
+        - uncertainty: float32
+        - nelem: int16
+        - wavelength: float32[*]
+        - relresponse: float32[*]
+        - reluncertainty: float32[*]
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirwfss_photom.schema"
 
 
 class NrcImgPhotomModel(_PhotomModel):
