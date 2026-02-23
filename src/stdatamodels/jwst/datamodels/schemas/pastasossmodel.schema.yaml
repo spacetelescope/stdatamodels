@@ -77,6 +77,9 @@ allOf:
           cutoff:
             title: Pixel cutoff for trace validity
             type: integer
+          short_cutoff:
+            title: Min wavelength cutoff for trace in um
+            type: number
     wavecal_models:
       type: array
       title: Polynomial regression model fitting wavelength to x, offset
