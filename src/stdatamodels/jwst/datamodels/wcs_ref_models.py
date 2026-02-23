@@ -682,54 +682,16 @@ class RegionsModel(ReferenceFileModel):
         super().__init__(init=init, **kwargs)
         if regions is not None:
             self.regions = regions
-        if init is None:
-            self.populate_meta()
 
     def on_save(self, path=None):
         self.meta.reftype = self.reftype
 
-    def populate_meta(self):
-        pass
-
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
 
-    def validate(self):
-        super().validate()
-        if self.meta.instrument.name == "MIRI":
-            assert isinstance(self.regions, (np.ndarray, NDArrayType))
-            assert self.meta.exposure.type == "MIR_MRS"
-            assert self.meta.instrument.channel in ("12", "34", "1", "2", "3", "4")
-            assert self.meta.instrument.band in (
-                "SHORT",
-                "MEDIUM",
-                "LONG",
-                "SHORT-LONG",
-                "SHORT-MEDIUM",
-                "MEDIUM-SHORT",
-                "MEDIUM-LONG",
-                "LONG-SHORT",
-                "LONG-MEDIUM",
-            )
-            assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
-        elif self.meta.instrument.name == "NIRCAM":
-            assert self.meta.exposure.type == "NRC_TSGRISM"
-            assert self.meta.subarray.name in (
-                "SUB41STRIPE1_DHS",
-                "SUB82STRIPE2_DHS",
-                "SUB164STRIPE4_DHS",
-                "SUB260STRIPE4_DHS",
-            )
-            assert self.meta.instrument.detector in (
-                "NRCA1",
-                "NRCA2",
-                "NRCA3",
-                "NRCA4",
-                "NRCALONG",
-            )
-
-    def get_primary_array_name(self):  # noqa: D102
+    def get_primary_array_name(self):
         return "regions"
+
 
 
 class WavelengthrangeModel(ReferenceFileModel):
