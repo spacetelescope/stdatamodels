@@ -30,6 +30,7 @@ from stdatamodels.jwst.datamodels import (
     SlitDataModel,
     SlitModel,
     SpecModel,
+    WfssBkgModel,
 )
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.jwst.datamodels import _deprecated_models as deprecated_models
@@ -837,13 +838,13 @@ def test_moving_target_table_migration(tmp_path):
         check_error_column(dm)
 
 
-@pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
+@pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
 def test_mixins_from_shape(ModelClass):
     """
     Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape.
 
     Three test cases chosen as follows:
-    - ImageModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
+    - WfssBkgModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
     - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
     - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
     """
@@ -858,13 +859,13 @@ def test_mixins_from_shape(ModelClass):
             assert im.err.shape == shape
 
 
-@pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
+@pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
 def test_mixins_from_array(ModelClass):
     """
     Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from array.
 
     Three test cases chosen as follows:
-    - ImageModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
+    - WfssBkgModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
     - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
     - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
     """
