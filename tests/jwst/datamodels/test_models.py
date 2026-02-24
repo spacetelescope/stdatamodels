@@ -840,7 +840,7 @@ def test_moving_target_table_migration(tmp_path):
 @pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
 def test_mixins_from_shape(ModelClass):
     """
-    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape or array.
+    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape.
 
     Three test cases chosen as follows:
     - ImageModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
@@ -848,7 +848,6 @@ def test_mixins_from_shape(ModelClass):
     - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
     """
     shape = (10, 10)
-    # basic case: ImageModel
     with ModelClass(shape) as im:
         assert im.hasattr("dq")
         assert im.dq.shape == shape
@@ -858,8 +857,19 @@ def test_mixins_from_shape(ModelClass):
             assert im.hasattr("err")
             assert im.err.shape == shape
 
+
+@pytest.mark.parametrize("ModelClass", [ImageModel, FlatModel, MaskModel])
+def test_mixins_from_array(ModelClass):
+    """
+    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from array.
+
+    Three test cases chosen as follows:
+    - ImageModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
+    """
+    shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
-    # basic case: ImageModel
     with ModelClass(data) as im2:
         assert im2.hasattr("dq")
         assert im2.dq.shape == shape
@@ -881,17 +891,6 @@ def test_mixins_from_empty():
         im.data = np.zeros(shape, dtype=np.float32)
         assert im.get_default("dq").shape == shape
         assert im.get_default("err").shape == shape
-
-
-def test_mixins_from_array_init():
-    """Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from array."""
-    shape = (10, 10)
-    data = np.zeros(shape, dtype=np.float32)
-    with ImageModel(data) as im:
-        assert im.hasattr("dq")
-        assert im.dq.shape == shape
-        assert im.hasattr("err")
-        assert im.err.shape == shape
 
 
 def test_mixins_from_array_set():
