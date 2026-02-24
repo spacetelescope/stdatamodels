@@ -396,7 +396,8 @@ class ObjectNode(Node):
             val = _make_default(attr, schema, self._ctx)
             # if not isinstance(val, (dict, list)):
             #     return None
-            self._instance[attr] = val
+            if val is not None:
+                self._instance[attr] = val
 
         if isinstance(val, dict):
             node = ObjectNode(attr, val, schema, self._ctx, self)
@@ -473,8 +474,14 @@ class ObjectNode(Node):
 
         Returns
         -------
-        object
-            The default value for the given attribute.
+        object or None
+            The default value for the given attribute. If the attribute is schema-defined
+            but has no default value in the schema, this will return None.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
         """
         subschema = _get_schema_for_property(self._schema, attr)
         if not subschema:
@@ -494,6 +501,13 @@ class ObjectNode(Node):
         -------
         `numpy.dtype`
             The numpy dtype for the attribute.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
+        ValueError
+            If the given attribute is defined in the schema but has no datatype.
         """
         schema = _get_schema_for_property(self._schema, attr)
         if not schema:
