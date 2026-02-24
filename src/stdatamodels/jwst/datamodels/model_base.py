@@ -146,8 +146,6 @@ class _DefaultErrMixin(_DataModel):
         if getattr(self, self.get_primary_array_name(), None) is None:
             return
 
-        # do the same handling for err array
-        # this is only here to minimize number of downstream failures and
-        # should be removed in the future once we can fix downstream patterns
+        # Otherwise, ensure err array exists
         if getattr(self, "err", None) is None:
             self.err = self.get_default("err")
