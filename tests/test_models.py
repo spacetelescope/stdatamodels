@@ -161,7 +161,7 @@ def test_array_type():
 def test_primary_not_created_when_blank():
     """Primary array should not be created if not initialized with shape nor data."""
     with DefaultsModel(strict_validation=True) as im:
-        assert "primary" not in im._instance
+        assert "primary" not in im.instance
         im.validate()
 
 
@@ -171,7 +171,7 @@ def test_set_arr_to_none(tmp_path):
         im.primary = None
         im.validate()
         assert im.primary is None
-        assert im._instance["primary"] is None
+        assert im.instance["primary"] is None
 
         # ensure save-load works properly here too
         im.save(tmp_path / "test.asdf")
@@ -179,7 +179,7 @@ def test_set_arr_to_none(tmp_path):
     with DefaultsModel(tmp_path / "test.asdf", strict_validation=True) as im2:
         # At the moment None values do not round-trip through save and load
         # This test should be updated when this is fixed.
-        assert "primary" not in im2._instance
+        assert "primary" not in im2.instance
 
 
 def test_primary_created_when_shape():
@@ -194,7 +194,7 @@ def test_non_primary_not_created_when_shape():
     """Non-primary arrays shouldn't be created on init from shape."""
     with DefaultsModel((10, 10)) as im:
         assert im.data is None
-        assert "data" not in im._instance
+        assert "data" not in im.instance
 
 
 def test_get_default_arr():
@@ -248,15 +248,15 @@ def test_implicit_meta_none():
     with DefaultsModel() as im:
         assert im.meta.default_meta is None
         assert im.meta.no_default_meta is None
-        assert "default_meta" not in im.meta._instance
-        assert "no_default_meta" not in im.meta._instance
+        assert "default_meta" not in im.meta.instance
+        assert "no_default_meta" not in im.meta.instance
 
 
 def test_get_dtype_basic():
     with BasicModel() as dm:
         dtype = dm.get_dtype("data")
         assert dtype == np.dtype(np.float32)
-        assert "data" not in dm._instance
+        assert "data" not in dm.instance
 
 
 def test_get_dtype_table():
@@ -276,7 +276,7 @@ def test_get_dtype_table():
             ]
         )
         assert dtype == expected_dtype
-        assert "table" not in dm._instance
+        assert "table" not in dm.instance
 
 
 def test_get_dtype_attribute_error():
@@ -431,7 +431,7 @@ def test_getarray_noinit_noinit():
         model.getarray_noinit("area")
     except AttributeError:
         pass
-    assert "area" not in model._instance
+    assert "area" not in model.instance
 
 
 @pytest.mark.parametrize("filename", ["null.fits", "null.asdf"])
@@ -444,7 +444,7 @@ def test_skip_serializing_null(tmp_path, filename):
 
     with BasicModel(file_path) as model:
         # Make sure that 'telescope' is not in the tree
-        assert "telescope" not in model.meta._instance
+        assert "telescope" not in model.meta.instance
 
 
 def test_delete_failed_model():
