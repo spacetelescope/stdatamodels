@@ -161,8 +161,7 @@ def test_array_type():
 def test_primary_not_created_when_blank():
     """Primary array should not be created if not initialized with shape nor data."""
     with DefaultsModel(strict_validation=True) as im:
-        assert hasattr(im, "primary")
-        assert im.primary is None
+        assert "primary" not in im._instance
         im.validate()
 
 
@@ -178,23 +177,24 @@ def test_set_arr_to_none(tmp_path):
         im.save(tmp_path / "test.asdf")
 
     with DefaultsModel(tmp_path / "test.asdf", strict_validation=True) as im2:
-        assert im2.primary is None
-        assert not "primary" in im2
+        # At the moment None values do not round-trip through save and load
+        # This test should be updated when this is fixed.
+        assert "primary" not in im2._instance
 
 
 def test_primary_created_when_shape():
     """Primary array should be created on init if initialized with shape."""
     with DefaultsModel((10, 10)) as im:
         assert im.primary.shape == (10, 10)
+        # Default value for primary is set to 2.0 in the schema
         np.testing.assert_allclose(im.primary, 2.0)
 
 
 def test_non_primary_not_created_when_shape():
     """Non-primary arrays shouldn't be created on init from shape."""
     with DefaultsModel((10, 10)) as im:
-        assert hasattr(im, "data")
         assert im.data is None
-        assert "data" not in im
+        assert "data" not in im._instance
 
 
 def test_get_default_arr():
@@ -202,7 +202,24 @@ def test_get_default_arr():
     with DefaultsModel((10, 10)) as im:
         default_data = im.get_default("data")
         assert default_data.shape == (10, 10)
+        # Default value for data is set to 3.0 in the schema
         np.testing.assert_allclose(default_data, 3.0)
+
+
+def test_hasattr_in_inconsistency():
+    """
+    Test that hasattr returns True for schema-defined attributes even if they are not set in the instance.
+
+    This inconsistency could be seen as a bug, but we encode it here to
+    1. ensure the behavior is not changed inadvertently, and
+    2. give a specific example of the current behavior.
+    """
+    with DefaultsModel() as im:
+        assert hasattr(im, "primary")
+        assert hasattr(im, "data")
+        assert not hasattr(im, "not_in_schema")
+        assert "primary" not in im
+        assert "data" not in im
 
 
 def test_get_default_meta():
@@ -229,19 +246,17 @@ def test_implicit_meta_none():
     Ensure returns None, even if there is a schema-defined default.
     Ensure the attribute is not set during getattr."""
     with DefaultsModel() as im:
-        assert hasattr(im.meta, "no_default_meta")
-        assert hasattr(im.meta, "default_meta")
         assert im.meta.default_meta is None
         assert im.meta.no_default_meta is None
-        assert "default_meta" not in im.meta
-        assert "no_default_meta" not in im.meta
+        assert "default_meta" not in im.meta._instance
+        assert "no_default_meta" not in im.meta._instance
 
 
 def test_get_dtype_basic():
     with BasicModel() as dm:
         dtype = dm.get_dtype("data")
         assert dtype == np.dtype(np.float32)
-        assert "data" not in dm
+        assert "data" not in dm._instance
 
 
 def test_get_dtype_table():
@@ -261,7 +276,7 @@ def test_get_dtype_table():
             ]
         )
         assert dtype == expected_dtype
-        assert "table" not in dm
+        assert "table" not in dm._instance
 
 
 def test_get_dtype_attribute_error():
@@ -416,7 +431,7 @@ def test_getarray_noinit_noinit():
         model.getarray_noinit("area")
     except AttributeError:
         pass
-    assert "area" not in model.instance
+    assert "area" not in model._instance
 
 
 @pytest.mark.parametrize("filename", ["null.fits", "null.asdf"])
@@ -429,7 +444,7 @@ def test_skip_serializing_null(tmp_path, filename):
 
     with BasicModel(file_path) as model:
         # Make sure that 'telescope' is not in the tree
-        assert "telescope" not in model.meta
+        assert "telescope" not in model.meta._instance
 
 
 def test_delete_failed_model():
