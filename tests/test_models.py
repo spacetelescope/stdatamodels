@@ -385,6 +385,15 @@ def test_update_from_dict(tmp_path):
         assert af["baz"] == 42
 
 
+def test_update_with_node_set_none():
+    """Test that update still runs and sets attributes even when dict-like node is set to None"""
+    with FitsModel() as m, FitsModel() as m2:
+        m.meta.telescope = "JWST"
+        m.meta.exposure = None
+        m2.update(m)
+        assert m2.meta.telescope == "JWST"
+
+
 def test_object_node_iterator():
     m = BasicModel({"meta": {"foo": "bar"}})
     items = []
