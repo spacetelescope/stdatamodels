@@ -15,17 +15,35 @@ provide a shape as the first argument::
     with ImageModel((1024, 1024)) as im:
         ...
 
-In this form, the memory for the arrays will not be allocated until
-the arrays are accessed.  This is useful if, for example, you don't
+In this form, the memory for the primary array (typically "data") is 
+allocated on init, but additional schema-defined arrays are not.
+This is useful if, for example, you don't
 need a data quality array -- the memory for such an array will not be
 consumed::
 
-  # Print out the data array.  It is allocated here on first access
-  # and defaults to being filled with zeros.
-  print(im.data)
+  # Print out the data array.  It defaults to being filled with zeros.
+  print(im.data) # shape (1024,1024)
+  "dq" in im.instance # False
 
-If you already have data in a numpy array, you can also create a model
-using that array by passing it in as a data keyword argument::
+To set additional arrays to their default values, use the
+``get_default`` method::
+
+    im.dq = im.get_default("dq")
+    print(im.dq) # shape (1024, 1024), zero-filled
+
+.. note::
+
+  In previous versions of ``stdatamodels``, allocating memory for an
+  attribute and setting it to its default value could be achieved using e.g.
+  ``im.dq = im.dq``. This syntax took advantage of a bug wherein data
+  arrays were created on access, leading to unexpected behaviors. This construction
+  no longer works; now, if an attribute is schema-defined but unset,
+  accessing it returns ``None``, so ``im.dq = im.dq`` will set ``dq`` to ``None``.
+  Instead use ``get_default`` as shown above
+  to set the attribute to its default value.
+
+If you already have data in numpy arrays, you can also create a model
+using those arrays by passing it in as a data keyword argument::
 
     data = np.empty((50, 50))
     dq = np.empty((50, 50))
