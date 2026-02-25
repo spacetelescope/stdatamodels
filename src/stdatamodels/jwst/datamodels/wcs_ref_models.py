@@ -369,7 +369,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
             assert isinstance(self.meta.input_units, (str, u.NamedUnit))
             assert isinstance(self.meta.output_units, (str, u.NamedUnit))
             assert self.meta.instrument.name == "NIRCAM"
-            assert self.meta.exposure.type == "NRC_WFSS"
+            assert self.meta.exposure.type in ["NRC_WFSS", "NRC_TSGRISM"]
             assert self.meta.reftype == self.reftype
         except AssertionError:
             if self._strict_validation:
