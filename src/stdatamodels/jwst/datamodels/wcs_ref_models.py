@@ -1,8 +1,6 @@
 import traceback
 import warnings
 
-import numpy as np
-from asdf.tags.core import NDArrayType
 from astropy import units as u
 from astropy.modeling.core import Model
 
@@ -309,6 +307,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
         invdispx=None,
         invdispy=None,
         orders=None,
+        stripes=None,
         **kwargs,
     ):
         """
@@ -354,6 +353,8 @@ class NIRCAMGrismModel(ReferenceFileModel):
             self.invdispy = invdispy
         if orders is not None:
             self.orders = orders
+        if stripes is not None:
+            self.stripes = stripes
 
     def populate_meta(self):
         self.meta.instrument.name = "NIRCAM"
@@ -366,7 +367,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
             assert isinstance(self.meta.input_units, (str, u.NamedUnit))
             assert isinstance(self.meta.output_units, (str, u.NamedUnit))
             assert self.meta.instrument.name == "NIRCAM"
-            assert self.meta.exposure.type == "NRC_WFSS"
+            assert self.meta.exposure.type in ["NRC_WFSS", "NRC_TSGRISM"]
             assert self.meta.reftype == self.reftype
         except AssertionError:
             if self._strict_validation:
@@ -679,43 +680,15 @@ class RegionsModel(ReferenceFileModel):
         super().__init__(init=init, **kwargs)
         if regions is not None:
             self.regions = regions
-        if init is None:
-            self.populate_meta()
 
     def on_save(self, path=None):
         self.meta.reftype = self.reftype
 
-    def populate_meta(self):
-        self.meta.instrument.name = "MIRI"
-        self.meta.exposure.type = "MIR_MRS"
-
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
 
-    def validate(self):
-        super().validate()
-        try:
-            assert isinstance(self.regions, (np.ndarray, NDArrayType))
-            assert self.meta.instrument.name == "MIRI"
-            assert self.meta.exposure.type == "MIR_MRS"
-            assert self.meta.instrument.channel in ("12", "34", "1", "2", "3", "4")
-            assert self.meta.instrument.band in (
-                "SHORT",
-                "MEDIUM",
-                "LONG",
-                "SHORT-LONG",
-                "SHORT-MEDIUM",
-                "MEDIUM-SHORT",
-                "MEDIUM-LONG",
-                "LONG-SHORT",
-                "LONG-MEDIUM",
-            )
-            assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
-        except AssertionError:
-            if self._strict_validation:
-                raise
-            else:
-                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
+    def get_primary_array_name(self):
+        return "regions"
 
 
 class WavelengthrangeModel(ReferenceFileModel):
