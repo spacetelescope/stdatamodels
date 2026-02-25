@@ -1,8 +1,6 @@
 import traceback
 import warnings
 
-import numpy as np
-from asdf.tags.core import NDArrayType
 from astropy import units as u
 from astropy.modeling.core import Model
 
@@ -691,7 +689,6 @@ class RegionsModel(ReferenceFileModel):
 
     def get_primary_array_name(self):
         return "regions"
-
 
 
 class WavelengthrangeModel(ReferenceFileModel):
