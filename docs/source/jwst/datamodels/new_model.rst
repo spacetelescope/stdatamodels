@@ -206,7 +206,7 @@ defined above:
           An array that is assumed to exist for all BadpixModel instances,
           and is set to default on init.
       """
-      schema_url = "bad_pixel_mask.schema.yaml"
+      schema_url = "badpix.schema.yaml"
 
 This is already a fully-defined model class and we could use it as-is.
 For example, we could do::
