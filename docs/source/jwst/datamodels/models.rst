@@ -7,8 +7,8 @@ Creating a data model from scratch
 ----------------------------------
 
 To create a new :class:`~stdatamodels.jwst.datamodels.ImageModel`,
-just call its constructor.  To create a
-new model where all of the arrays will have default values, simply
+just call its constructor.  For example, to create a
+new model with the primary array set to its default, simply
 provide a shape as the first argument::
 
     from stdatamodels.jwst.datamodels import ImageModel
@@ -23,7 +23,8 @@ consumed::
 
   # Print out the data array.  It defaults to being filled with zeros.
   print(im.data) # shape (1024,1024)
-  "dq" in im.instance # False
+  # The dq array is not allocated by default
+  print(im.dq) # None
 
 To set additional arrays to their default values, use the
 ``get_default`` method::
@@ -37,10 +38,8 @@ To set additional arrays to their default values, use the
   attribute and setting it to its default value could be achieved using e.g.
   ``im.dq = im.dq``. This syntax took advantage of a bug wherein data
   arrays were created on access, leading to unexpected behaviors. This construction
-  no longer works; now, if an attribute is schema-defined but unset,
-  accessing it returns ``None``, so ``im.dq = im.dq`` will set ``dq`` to ``None``.
-  Instead use ``get_default`` as shown above
-  to set the attribute to its default value.
+  no longer sets ``dq`` to a default array.
+  Use ``get_default`` as shown above instead.
 
 If you already have data in numpy arrays, you can also create a model
 using those arrays by passing it in as a data keyword argument::

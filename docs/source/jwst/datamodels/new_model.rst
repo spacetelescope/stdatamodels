@@ -22,16 +22,16 @@ custom model is as below::
   .
   |-- lib
   |   |--- __init__.py
-  |   |--- badpix_model.py
+  |   |--- badpix.py
   |   |--- schemas
-  |       |--- badpix_model.schema.yaml
+  |       |--- badpix.schema.yaml
   |   |--- tests
   |       |--- __init__.py
-  |       |--- test_badpix_model.py
+  |       |--- test_badpix.py
   |--- setup.py
 
-The main pieces are the new schema in ``badpix_model.schema.yaml``,
-the custom model class in ``badpix_model.py``, a
+The main pieces are the new schema in ``badpix.schema.yaml``,
+the custom model class in ``badpix.py``, a
 ``setup.py`` file to install the package, and some unit tests and
 associated data.  Normally, you would also have some code that *uses*
 the custom model included in the package, but that isn't included in
@@ -40,17 +40,15 @@ this minimal example.
 The schema file
 ----------------
 
-Let's start with the schema file, ``badpix_model.schema.yaml``.
+Let's start with the schema file, ``badpix.schema.yaml``.
 There are a few things it needs to do:
 
    1) It should contain all of the core metadata from the core schema
       that ships with ``stdatamodels``.  In JSON Schema parlance, this
-      schema "extends" the core schema.  In object-oriented
-      programming terminology, this could be said that our schema
-      "inherits from" the core schema.  It's all the same thing.
+      schema "extends" the core schema.
 
    2) Define the data arrays it needs. In this case, we will define
-      a DQ array containing information about bad pixels.  This will be
+      a data quality (DQ) array containing information about bad pixels.  This will be
       an integer for each pixel where each bit is ascribed a particular meaning.
       We will also define the ``reference_data`` array of 32-bit floats representing
       some custom type of information that every ``BadpixModel`` instance is assumed
@@ -271,7 +269,7 @@ value to be passed:
 
     def __init__(self, init=None, reference_data=None, **kwargs):
         """
-        A data model to represent MIRI bad pixel masks.
+        A data model to represent bad pixel masks.
 
         Parameters
         ----------
@@ -281,7 +279,7 @@ value to be passed:
             An array to use for the `reference_data` attribute.
             Set to default of 2.0 if not provided.
         """
-        super(MiriBadPixelMaskModel, self).__init__(init=init, **kwargs)
+        super().__init__(init=init, **kwargs)
 
         if reference_data is None:
             self.reference_data = self.get_default("reference_data")
@@ -361,7 +359,7 @@ table, the function should use it in order to do this work:
 
         # Create an array that is `True` only for the requested
         # bit field
-        return self.dq & field_value
+        return (self.dq & field_value) > 0
 
 One thing to note here: this array is semantically a "copy" of the
 underlying data.  Most Numpy arrays in the model framework are
@@ -382,7 +380,7 @@ should happen just before saving:
 .. code-block:: python
 
     def on_save(self, path):
-        super(MiriBadPixelMaskModel, self).on_save(path)
+        super().on_save(path)
 
         self.meta.bad_pixel_count = np.sum(self.dq != 0)
 
@@ -406,12 +404,11 @@ minimal, ``setup.py`` is presented below:
   from setuptools import setup
 
   setup(
-      name='badpix_model',
+      name='badpix',
       description='Custom model example for jwst.datamodels',
-      packages=['badpix_model', 'badpix_model.tests'],
-      package_dir={'badpix_model': 'lib'},
-      package_data={'badpix_model': ['schemas/*.schema.yaml'],
-                    'badpix_model.tests' : ['data/*.fits']}
+      packages=['badpix', 'badpix.tests'],
+      package_dir={'badpix': 'lib'},
+      package_data={'badpix': ['schemas/*.schema.yaml'],}
       )
 
 Using the new model
@@ -420,7 +417,7 @@ Using the new model
 The new model can now be used.  For example, to get the locations of
 all of the "hot" pixels::
 
-   from lib.badpix_model import BadpixModel
+   from lib.badpix import BadpixModel
 
    with BadpixModel("bad_pixel_mask.fits") as dm:
        hot_pixels = dm.get_mask_for_field('HOT')
