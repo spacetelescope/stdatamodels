@@ -19,7 +19,8 @@ In this form, the memory for the primary array (typically "data") is
 allocated on init, but additional schema-defined arrays are not.
 This is useful if, for example, you don't
 need a data quality array -- the memory for such an array will not be
-consumed::
+consumed. We can use the :meth:`~stdatamodels.DataModel.info` method to
+see everything that's currently in the model::
 
   im.info()
   
@@ -33,11 +34,30 @@ consumed::
     ├─model_type (str): ImageModel
     └─date (str): 2026-02-26T14:56:12.278
 
+Notice that only the primary array ("data") is allocated, has the shape we put in,
+and has a data type of float32 as defined by the `ImageModel` schema.
 To set additional arrays to their default values, use the
 ``get_default`` method::
 
-    im.dq = im.get_default("dq")
-    print(im.dq) # shape (1024, 1024), zero-filled
+  im.dq = im.get_default("dq")
+  im.info()
+
+  root (AsdfObject)
+  ├─data (ndarray)
+  │ ├─shape (tuple)
+  │ │ ├─[0] (int): 1024
+  │ │ └─[1] (int): 1024
+  │ └─dtype (Float32DType): float32
+  ├─meta (dict)
+  │ ├─model_type (str): ImageModel
+  │ └─date (str): 2026-02-26T14:56:12.278
+  └─dq (ndarray)
+    ├─shape (tuple)
+    │ ├─[0] (int): 1024
+    │ └─[1] (int): 1024
+    └─dtype (UInt32DType): uint32
+
+As you can see, the ``dq`` array is now allocated with the same shape as the primary array.
 
 .. note::
 
