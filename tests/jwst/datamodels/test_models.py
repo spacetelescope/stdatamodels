@@ -883,7 +883,7 @@ def test_mixins_from_array(ModelClass):
 
 def test_mixins_from_empty():
     """Classes inheriting from DefaultDQMixin and DefaultErrMixin should NOT have arrays created when init empty."""
-    with ImageModel() as im:
+    with FlatModel() as im:
         assert hasattr(im, "dq")
         assert im.dq is None
         assert im.get_default("dq").size == 0
@@ -898,7 +898,7 @@ def test_mixins_from_array_set():
     """Setting data array on an existing model should not update dq and err arrays."""
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
-    with ImageModel() as im:
+    with FlatModel() as im:
         assert im.dq is None
         assert im.err is None
 
@@ -909,7 +909,7 @@ def test_mixins_from_array_set():
 
 def test_mixins_set_to_none():
     """Setting data array to None should not set dq and err arrays."""
-    with ImageModel() as im:
+    with FlatModel() as im:
         im.data = None
         assert im.data is None
         # getattr returns None for array-like attributes not found, instead of AttributeError
@@ -918,6 +918,22 @@ def test_mixins_set_to_none():
         # but in reality these have not been set at all
         assert "dq" not in im
         assert "err" not in im
+
+
+def test_mixin_err_not_in_schema():
+    """Using err mixin should raise if err is not in the schema."""
+    schema_with_no_err = FlatModel()._schema
+    del schema_with_no_err["properties"]["err"]
+    with pytest.raises(AttributeError):
+        FlatModel(schema=schema_with_no_err)
+
+
+def test_mixin_dq_not_in_schema():
+    """Using dq mixin should raise if dq is not in the schema."""
+    schema_with_no_dq = FlatModel()._schema
+    del schema_with_no_dq["properties"]["dq"]
+    with pytest.raises(AttributeError):
+        FlatModel(schema=schema_with_no_dq)
 
 
 def test_nested_get_dtype():
