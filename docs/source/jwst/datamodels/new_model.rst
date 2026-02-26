@@ -299,7 +299,8 @@ reference value either to the provided array or to its default.
 We also want to handle ``dq`` and ``dq_def``. These are common enough that
 ``stdatamodels`` provides a convenient way to map the ``dq`` array to the standard
 values using its ``dq_def`` table on initialization. This is accomplished by letting
-the model inherit from the `~stdatamodels.jwst.datamodels.model_base.DefaultDQMixin` class::
+the model inherit from the
+:class:`~stdatamodels.jwst.datamodels.model_base.DefaultDQMixin` class::
 
   from stdatamodels.jwst.datamodels import JwstDataModel, DefaultDQMixin
 
