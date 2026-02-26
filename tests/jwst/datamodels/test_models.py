@@ -841,12 +841,12 @@ def test_moving_target_table_migration(tmp_path):
 @pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
 def test_mixins_from_shape(ModelClass):
     """
-    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from shape.
+    Classes inheriting from DefaultDQMixin and DefaultErrMixin should have dq and err arrays created when init from shape.
 
     Three test cases chosen as follows:
-    - WfssBkgModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
-    - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
-    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
+    - WfssBkgModel: basic case, directly inherits from DefaultDQMixin and DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, DefaultDQMixin, and DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from DefaultErrMixin
     """
     shape = (10, 10)
     with ModelClass(shape) as im:
@@ -862,12 +862,12 @@ def test_mixins_from_shape(ModelClass):
 @pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
 def test_mixins_from_array(ModelClass):
     """
-    Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should have dq and err arrays created when init from array.
+    Classes inheriting from DefaultDQMixin and DefaultErrMixin should have dq and err arrays created when init from array.
 
     Three test cases chosen as follows:
-    - WfssBkgModel: basic case, directly inherits from _DefaultDQMixin and _DefaultErrMixin
-    - FlatModel: inherits from ReferenceModel, _DefaultDQMixin, and _DefaultErrMixin
-    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from _DefaultErrMixin
+    - WfssBkgModel: basic case, directly inherits from DefaultDQMixin and DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, DefaultDQMixin, and DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from DefaultErrMixin
     """
     shape = (10, 10)
     data = np.zeros(shape, dtype=np.float32)
@@ -882,7 +882,7 @@ def test_mixins_from_array(ModelClass):
 
 
 def test_mixins_from_empty():
-    """Classes inheriting from _DefaultDQMixin and _DefaultErrMixin should NOT have arrays created when init empty."""
+    """Classes inheriting from DefaultDQMixin and DefaultErrMixin should NOT have arrays created when init empty."""
     with ImageModel() as im:
         assert hasattr(im, "dq")
         assert im.dq is None
