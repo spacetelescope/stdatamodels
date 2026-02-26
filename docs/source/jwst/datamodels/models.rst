@@ -21,10 +21,17 @@ This is useful if, for example, you don't
 need a data quality array -- the memory for such an array will not be
 consumed::
 
-  # Print out the data array.  It defaults to being filled with zeros.
-  print(im.data) # shape (1024,1024)
-  # The dq array is not allocated by default
-  print(im.dq) # None
+  im.info()
+  
+  root (AsdfObject)
+  ├─data (ndarray)
+  │ ├─shape (tuple)
+  │ │ ├─[0] (int): 1024
+  │ │ └─[1] (int): 1024
+  │ └─dtype (Float32DType): float32
+  └─meta (dict)
+    ├─model_type (str): ImageModel
+    └─date (str): 2026-02-26T14:56:12.278
 
 To set additional arrays to their default values, use the
 ``get_default`` method::
