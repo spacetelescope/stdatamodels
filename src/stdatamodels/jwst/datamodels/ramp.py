@@ -1,4 +1,4 @@
-from .model_base import JwstDataModel
+from stdatamodels import JwstDataModel
 
 __all__ = ["RampModel"]
 

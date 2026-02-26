@@ -39,8 +39,9 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         - list[str]: Initialize from a list of files. The list will be returned as a
           ModelContainer with the models loaded from the specified files.
 
-        - :class:`JwstDataModel`: Initialize from an existing model. The output model will
-          be a shallow copy of the input model. This is supported for pipeline code convenience,
+        - :class:`~stdatamodels.JwstDataModel`: Initialize from an existing model.
+          The output model will be a shallow copy of the input model.
+          This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
         - None: Deprecated; use the DataModel constructor directly instead.
@@ -80,7 +81,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     Init types of None, shape tuple, and numpy array
     are deprecated and will raise a TypeError in the future.
     Use the DataModel constructors directly instead,
-    i.e. :class:`JwstDataModel` for a generic model
+    i.e. :class:`stdatamodels.JwstDataModel` for a generic model
     or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors. See the documentation for each model class for details on how to use them.
@@ -404,7 +405,7 @@ def _class_from_shape(hdulist, shape):
         The model class to use
     """
     if len(shape) == 0:
-        from . import model_base
+        from stdatamodels import model_base
 
         new_class = model_base.JwstDataModel
     elif len(shape) == 4:

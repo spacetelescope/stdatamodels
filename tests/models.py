@@ -1,21 +1,21 @@
 """Mock models for testing."""
 
-from stdatamodels import DataModel
+from stdatamodels import JwstDataModel
 
 
-class BasicModel(DataModel):
+class BasicModel(JwstDataModel):
     """Model with minimal metadata and a single 2D float32data array."""
 
     schema_url = "http://example.com/schemas/basic_model"
 
 
-class ValidationModel(DataModel):
+class ValidationModel(JwstDataModel):
     """Model with various kinds of validated attributes."""
 
     schema_url = "http://example.com/schemas/validation_model"
 
 
-class RequiredModel(DataModel):
+class RequiredModel(JwstDataModel):
     """
     Model that includes a required attribute.
 
@@ -26,13 +26,13 @@ class RequiredModel(DataModel):
     schema_url = "http://example.com/schemas/required_model"
 
 
-class AnyOfModel(DataModel):
+class AnyOfModel(JwstDataModel):
     """Model for which 'meta.foo' has conflicting default values due to use of an anyOf combiner."""
 
     schema_url = "http://example.com/schemas/anyof_model"
 
 
-class FitsModel(DataModel):
+class FitsModel(JwstDataModel):
     """Model whose schema includes support for writing to FITS files."""
 
     schema_url = "http://example.com/schemas/fits_model"
@@ -46,13 +46,13 @@ class PureFitsModel(FitsModel):
         self._no_asdf_extension = True
 
 
-class TransformModel(DataModel):
+class TransformModel(JwstDataModel):
     """Model with an astropy.modeling model in one of its attributes."""
 
     schema_url = "http://example.com/schemas/transform_model"
 
 
-class TableModel(DataModel):
+class TableModel(JwstDataModel):
     """Model that includes a recarray-style table."""
 
     schema_url = "http://example.com/schemas/table_model"
@@ -61,7 +61,7 @@ class TableModel(DataModel):
         return "table"
 
 
-class TableModelBad(DataModel):
+class TableModelBad(JwstDataModel):
     """Model that includes a recarray-style table with bad defaults."""
 
     schema_url = "http://example.com/schemas/table_model_bad_defaults"

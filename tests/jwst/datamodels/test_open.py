@@ -12,7 +12,6 @@ import numpy as np
 import pytest
 from astropy.io import fits
 
-from stdatamodels import DataModel
 from stdatamodels.exceptions import NoTypeWarning, ValidationWarning
 from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import (
@@ -272,20 +271,28 @@ def test_open_readonly(tmp_path, suffix):
         assert isinstance(model, ImageModel)
 
 
-@pytest.mark.parametrize("suffix", ["asdf", "fits"])
-def test_open_asdf_no_datamodel_class(tmp_path, suffix):
-    path = str(tmp_path / f"no_model.{suffix}")
-    model = DataModel()
-    model.save(path)
+def test_open_no_datamodel_class_asdf(tmp_path):
+    # Create a bare ASDF file outside the datamodels formalism so that
+    # meta.model_type is never written (JwstDataModel always writes it on save).
+    path = tmp_path / "no_model.asdf"
+    af = asdf.AsdfFile({"meta": {}})
+    af.write_to(path)
 
-    # previously, only the fits file issued a NoTypeWarning
-    # this was a quirk of the deprecated (and now removed) jwst.DataModel
-    # sharing the same class name as stdatamodels.DataModel (used here)
-    # now that jwst.DataModel is removed, both the fits and asdf
-    # files correctly report NoTypeWarning
     with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
-            assert isinstance(m, DataModel)
+            assert isinstance(m, JwstDataModel)
+
+
+def test_open_no_datamodel_class_fits(tmp_path):
+    # Create a bare FITS file outside the datamodels formalism so that
+    # the DATAMODL keyword is never written (JwstDataModel always writes it on save).
+    path = tmp_path / "no_model.fits"
+    hdul = fits.HDUList([fits.PrimaryHDU()])
+    hdul.writeto(path)
+
+    with pytest.warns(NoTypeWarning):
+        with datamodels.open(path) as m:
+            assert isinstance(m, JwstDataModel)
 
 
 def test_open_asdf(tmp_path):
@@ -296,7 +303,7 @@ def test_open_asdf(tmp_path):
 
     with pytest.warns(NoTypeWarning):
         with datamodels.open(path) as m:
-            assert isinstance(m, DataModel)
+            assert isinstance(m, JwstDataModel)
 
 
 def test_open_kwargs_asdf(tmp_path):

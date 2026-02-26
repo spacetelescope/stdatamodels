@@ -1,5 +1,7 @@
 """Datamodels for JWST pipeline."""
 
+from stdatamodels.model_base import JwstDataModel
+
 from .abvega_offset import ABVegaOffsetModel
 from .amilg import AmiLgModel
 from .amilgfitmodel import AmiLgFitModel
@@ -41,7 +43,6 @@ from .lastframe import LastFrameModel
 from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
-from .model_base import JwstDataModel
 from .mrsptcorr import MirMrsPtCorrModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecModel

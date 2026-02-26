@@ -6,7 +6,7 @@ from asdf.tags.core import NDArrayType
 from astropy.modeling import models
 from numpy.testing import assert_array_equal
 
-from stdatamodels import DataModel
+from stdatamodels import JwstDataModel
 from stdatamodels.schema import merge_property_trees
 
 from .models import BasicModel, FitsModel, TableModel, TransformModel, ValidationModel
@@ -19,12 +19,12 @@ def test_ad_hoc_attributes(filename, tmp_path):
     can still be assigned and written.
     """
     file_path = tmp_path / filename
-    with DataModel() as dm:
+    with JwstDataModel() as dm:
         dm.meta.foo = {"a": 42, "b": ["a", "b", "c"]}
 
         dm.save(file_path)
 
-    with DataModel(file_path) as dm2:
+    with JwstDataModel(file_path) as dm2:
         assert dm2.meta.foo == {"a": 42, "b": ["a", "b", "c"]}
 
 
@@ -55,7 +55,7 @@ def test_dictionary_like():
 def test_to_flat_dict():
     array = np.arange(1024)
 
-    with DataModel() as x:
+    with JwstDataModel() as x:
         x.meta.origin = "FOO"
         x.data = array
         assert x["meta.origin"] == "FOO"
@@ -77,7 +77,7 @@ def test_to_flat_dict_ndarraytype(tmp_path):
         af["data"] = array
         af.write_to(file_path)
 
-    with DataModel(file_path) as dm:
+    with JwstDataModel(file_path) as dm:
         d = dm.to_flat_dict()
         assert_array_equal(d["data"], array)
         assert isinstance(d["data"], NDArrayType)
@@ -154,7 +154,7 @@ def test_implicit_creation_lower_dimensionality():
 
 
 def test_add_schema_entry():
-    with DataModel(strict_validation=True) as dm:
+    with JwstDataModel(strict_validation=True) as dm:
         dm.add_schema_entry("meta.foo.bar", {"enum": ["foo", "bar", "baz"]})
         dm.meta.foo.bar  # noqa: B018
         dm.meta.foo.bar = "bar"
