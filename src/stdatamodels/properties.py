@@ -456,7 +456,7 @@ class ObjectNode(Node):
 
 
 class ListNode(Node):
-    """A list-like Node."""
+    """A list-like object that supports validation against a schema."""
 
     def __cast(self, other):
         if isinstance(other, ListNode):

@@ -9,6 +9,7 @@ Model base classes
    :nosignatures:
 
    stdatamodels.properties.ObjectNode
+   stdatamodels.properties.ListNode
    stdatamodels.DataModel
    stdatamodels.jwst.datamodels.JwstDataModel
 
