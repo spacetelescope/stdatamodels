@@ -128,6 +128,11 @@ class DefaultDQMixin(_DataModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if "dq" not in self._schema["properties"]:
+            raise AttributeError(
+                "dq is not in the schema for this model, cannot use DefaultDQMixin"
+            )
+
         # If data array hasn't been initialized, do not initialize DQ
         if getattr(self, self.get_primary_array_name(), None) is None:
             return
@@ -146,6 +151,11 @@ class DefaultErrMixin(_DataModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if "err" not in self._schema["properties"]:
+            raise AttributeError(
+                "err is not in the schema for this model, cannot use DefaultErrMixin"
+            )
 
         # If data array hasn't been initialized, do not initialize err
         if getattr(self, self.get_primary_array_name(), None) is None:
