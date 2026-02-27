@@ -4,7 +4,7 @@ import asdf
 import numpy as np
 import pytest
 
-from stdatamodels import JwstDataModel
+from stdatamodels import DataModel, JwstDataModel
 from stdatamodels.exceptions import ValidationWarning
 
 from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
@@ -412,3 +412,9 @@ def test_open_from_file_with_kwargs_deprecation(tmp_path):
 
     with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
         JwstDataModel(fn, data=np.ones((10, 10)))
+
+
+def test_datamodel_base_deprecated():
+    """Test that the base DataModel class is deprecated."""
+    with pytest.warns(DeprecationWarning, match="DataModel is deprecated"):
+        DataModel()

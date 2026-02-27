@@ -1300,3 +1300,40 @@ class _FileReference:
         if self._count <= 0:
             self._file.close()
             self._file = None
+
+
+class DataModel(JwstDataModel):
+    """
+    Deprecated base class for data models.
+
+    This class is retained only for backward compatibility.
+    It is deprecated and will be removed in a future release.
+    Use `~stdatamodels.jwst.datamodels.JwstDataModel` instead.
+    """
+
+    def __init__(
+        self,
+        init=None,
+        schema=None,
+        pass_invalid_values=None,
+        strict_validation=None,
+        validate_on_assignment=None,
+        validate_arrays=False,
+        ignore_missing_extensions=True,
+        ignore_unrecognized_tag=False,
+        **kwargs,
+    ):
+        warnings.warn(
+            "DataModel is deprecated, use JwstDataModel instead", DeprecationWarning, stacklevel=2
+        )
+        super().__init__(
+            init=init,
+            schema=schema,
+            pass_invalid_values=pass_invalid_values,
+            strict_validation=strict_validation,
+            validate_on_assignment=validate_on_assignment,
+            validate_arrays=validate_arrays,
+            ignore_missing_extensions=ignore_missing_extensions,
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+            **kwargs,
+        )
