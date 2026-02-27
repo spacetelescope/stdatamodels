@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin
+from .model_base import DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["SaturationModel"]
 
 
-class SaturationModel(ReferenceFileModel, _DefaultDQMixin):
+class SaturationModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model for saturation checking information.
 

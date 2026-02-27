@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin
+from .model_base import DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["TrapDensityModel"]
 
 
-class TrapDensityModel(ReferenceFileModel, _DefaultDQMixin):
+class TrapDensityModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model for the trap density of a detector, for persistence.
 

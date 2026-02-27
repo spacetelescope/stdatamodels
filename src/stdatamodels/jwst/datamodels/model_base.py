@@ -7,7 +7,7 @@ from stdatamodels.dynamicdq import dynamic_mask
 
 from .dqflags import pixel
 
-__all__ = ["JwstDataModel"]
+__all__ = ["DefaultDQMixin", "DefaultErrMixin", "JwstDataModel"]
 
 
 class JwstDataModel(_DataModel):
@@ -117,8 +117,13 @@ class JwstDataModel(_DataModel):
         super().update(d, only=only, extra_fits=extra_fits)
 
 
-class _DefaultDQMixin(_DataModel):
-    """Mixin for models that should have dq array initialized on init."""
+class DefaultDQMixin(_DataModel):
+    """
+    Mixin for models that should have dq array initialized on init.
+
+    If the model has a dq_def table, the dq array will be mapped to the standard
+    values on initialization.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,7 +141,7 @@ class _DefaultDQMixin(_DataModel):
             self.dq = dynamic_mask(self, pixel)
 
 
-class _DefaultErrMixin(_DataModel):
+class DefaultErrMixin(_DataModel):
     """Mixin for models that should have err array initialized on init."""
 
     def __init__(self, *args, **kwargs):

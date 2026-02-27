@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["LastFrameModel"]
 
 
-class LastFrameModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
+class LastFrameModel(ReferenceFileModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for Last frame correction reference files.
 
