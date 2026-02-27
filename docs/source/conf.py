@@ -29,10 +29,7 @@ extensions = [
     "numpydoc",
     "sphinx_asdf",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.autosummary",
 ]
-
-templates_path = ["_templates"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
@@ -61,6 +58,7 @@ nitpick_ignore = [
     ("py:class", "jwst.datamodels.wcs_ref_models._SimpleModel"),
     ("py:class", "stdatamodels.jwst.datamodels.photom._PhotomModel"),
     ("py:class", "jwst.datamodels.photom._PhotomModel"),
+    ("py:class", "stdatamodels.properties.ObjectNode"),
     ("py:class", "stdatamodels.properties.Node"),
 ]
 for transform_base in [
