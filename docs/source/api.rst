@@ -9,7 +9,11 @@ stdatamodels API
 Model base class
 ----------------
 
-:class:`~stdatamodels.jwst.datamodels.JwstDataModel`
+.. list-table::
+   :widths: auto
+
+   * - :class:`~stdatamodels.jwst.datamodels.JwstDataModel`
+     - Base class for all JWST data models.
 
 .. automodapi:: stdatamodels
    :no-inheritance-diagram:
