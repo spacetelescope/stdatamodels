@@ -1,18 +1,18 @@
 stdatamodels API
 ================
 
-Model base classes
-------------------
+.. toctree::
+   :hidden:
 
-.. autosummary::
-   :toctree: generated/
-   :nosignatures:
+   jwstdatamodel
 
-   stdatamodels.properties.ObjectNode
-   stdatamodels.properties.ListNode
-   stdatamodels.DataModel
-   stdatamodels.jwst.datamodels.JwstDataModel
+Model base class
+----------------
 
+:class:`~stdatamodels.jwst.datamodels.JwstDataModel`
+
+.. automodapi:: stdatamodels
+   :no-inheritance-diagram:
 .. automodapi:: stdatamodels.exceptions
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.dqflags
@@ -22,5 +22,7 @@ Model base classes
 .. automodapi:: stdatamodels.jwst.datamodels
    :no-inheritance-diagram:
    :skip: JwstDataModel
+.. automodapi:: stdatamodels.properties
+   :no-inheritance-diagram:
 .. automodapi:: stdatamodels.jwst.transforms
    :no-inheritance-diagram:
