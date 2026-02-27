@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["WfssBkgModel"]
 
 
-class SossBkgModel(ReferenceFileModel, _DefaultDQMixin):
+class SossBkgModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model of 2D background reference templates for NIRISS SOSS data.
 
@@ -21,7 +21,7 @@ class SossBkgModel(ReferenceFileModel, _DefaultDQMixin):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/sossbkg.schema"
 
 
-class WfssBkgModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
+class WfssBkgModel(ReferenceFileModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for 2D WFSS master background reference files.
 

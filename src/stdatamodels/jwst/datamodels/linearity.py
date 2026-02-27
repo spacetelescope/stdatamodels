@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin
+from .model_base import DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["LinearityModel"]
 
 
-class LinearityModel(ReferenceFileModel, _DefaultDQMixin):
+class LinearityModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model for linearity correction information.
 

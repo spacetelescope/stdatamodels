@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["FlatModel"]
 
 
-class FlatModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
+class FlatModel(ReferenceFileModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for 2D flat-field images.
 

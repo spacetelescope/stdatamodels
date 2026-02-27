@@ -274,7 +274,7 @@ value to be passed:
         Parameters
         ----------
         init : any
-            Any of the initializers supported by `~jwst.datamodels.JwstDataModel`.
+            Any of the initializers supported by `~stdatamodels.jwst.datamodels.JwstDataModel`.
         reference_data : np.ndarray, optional
             An array to use for the `reference_data` attribute.
             Set to default of 2.0 if not provided.
@@ -286,7 +286,7 @@ value to be passed:
         else:
             self.reference_data = reference_data
 
-Now if we do e.g.::
+Now we can do e.g.::
 
   model = BadpixModel((10,10))
   "reference_data" in model.instance # True
@@ -299,11 +299,11 @@ reference value either to the provided array or to its default.
 We also want to handle ``dq`` and ``dq_def``. These are common enough that
 ``stdatamodels`` provides a convenient way to map the ``dq`` array to the standard
 values using its ``dq_def`` table on initialization. This is accomplished by letting
-the model inherit from the ``_DefaultDQMixin`` class::
+the model inherit from the `~stdatamodels.jwst.datamodels.model_base.DefaultDQMixin` class::
 
-  from stdatamodels.jwst.datamodels import JwstDataModel, _DefaultDQMixin
+  from stdatamodels.jwst.datamodels import JwstDataModel, DefaultDQMixin
 
-  class BadpixModel(JwstDataModel, _DefaultDQMixin):
+  class BadpixModel(JwstDataModel, DefaultDQMixin):
       ...
 
 No additional code changes are needed.
@@ -311,7 +311,7 @@ Note that this also causes the ``dq`` array to be initialized into
 memory when the class is constructed.
 
 Our model has one additional nonstandard feature, which is that its "primary"
-array is not called "data", which is the assumed default. Instead, we want
+array is not called "data" (the assumed default). Instead, we want
 the primary array to be called "dq".  To accomplish this, we must simply define
 the special ``get_primary_array_name`` method to return the name of the primary array::
   

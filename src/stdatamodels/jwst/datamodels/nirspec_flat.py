@@ -5,7 +5,7 @@ from numpy.lib.recfunctions import merge_arrays
 from stdatamodels.dynamicdq import dynamic_mask
 
 from .dqflags import pixel
-from .model_base import _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["NirspecFlatModel", "NirspecQuadFlatModel"]
@@ -36,7 +36,7 @@ def _migrate_fast_variation_table(hdulist):
     return hdulist
 
 
-class NirspecFlatModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
+class NirspecFlatModel(ReferenceFileModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for NIRSpec flat-field reference files.
 

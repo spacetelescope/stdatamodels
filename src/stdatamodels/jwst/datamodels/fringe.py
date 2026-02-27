@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["FringeModel"]
 
 
-class FringeModel(ReferenceFileModel, _DefaultDQMixin, _DefaultErrMixin):
+class FringeModel(ReferenceFileModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for 2D fringe correction images.
 

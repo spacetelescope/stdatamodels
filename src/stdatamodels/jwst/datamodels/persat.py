@@ -1,10 +1,10 @@
-from .model_base import _DefaultDQMixin
+from .model_base import DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = ["PersistenceSatModel"]
 
 
-class PersistenceSatModel(ReferenceFileModel, _DefaultDQMixin):
+class PersistenceSatModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model for the persistence saturation value (full well).
 

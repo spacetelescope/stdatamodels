@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel, _DefaultDQMixin, _DefaultErrMixin
+from .model_base import DefaultDQMixin, DefaultErrMixin, JwstDataModel
 
 __all__ = ["IFUCubeModel"]
 
 
-class IFUCubeModel(JwstDataModel, _DefaultDQMixin, _DefaultErrMixin):
+class IFUCubeModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for 3D IFU  cubes.
 
