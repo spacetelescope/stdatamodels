@@ -13,6 +13,7 @@ Model base class
 
 .. automodapi:: stdatamodels
    :no-inheritance-diagram:
+   :inherited-members:
 .. automodapi:: stdatamodels.exceptions
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.dqflags
