@@ -641,8 +641,8 @@ def _load_from_schema(
         The schema defining the mapping between datamodel and FITS.
     tree : dict
         The ASDF tree to update.
-    context : DataModel
-        The `DataModel` from which to read context information.
+    context : `JwstDataModel`
+        The `JwstDataModel` from which to read context information.
     skip_fits_update : bool, optional
         If True, skip updating the tree based on the FITS HDUList.
     ignore_arrays : bool, optional
@@ -782,8 +782,8 @@ def from_fits(
         The FITS HDUList
     schema : dict
         The schema defining the ASDF > FITS_KEYWORD, FITS_HDU mapping.
-    context : DataModel
-        The `DataModel` to update
+    context : `~stdatamodels.JwstDataModel`
+        The model to update
     ignore_unrecognized_tag : bool, optional
         If `True`, ignore unrecognized tags in the ASDF file.
         If `False`, raise an error when an unrecognized tag is found.
@@ -939,8 +939,8 @@ def _can_skip_fits_update(hdulist, asdf_struct, context):
         The input FITS information
     asdf_struct : asdf.ASDFFile
         The associated ASDF structure
-    context : DataModel
-        The DataModel being built.
+    context : JwstDataModel
+        The JwstDataModel being built.
 
     Returns
     -------

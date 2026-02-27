@@ -6,7 +6,7 @@ import pytest
 from astropy.io import fits
 from numpy.testing import assert_allclose, assert_array_almost_equal, assert_array_equal
 
-from stdatamodels import DataModel, fits_support
+from stdatamodels import JwstDataModel, fits_support
 
 from .models import FitsModel, PureFitsModel
 
@@ -92,7 +92,7 @@ def test_extra_fits(tmp_path):
         hdul[0].header["FOO"] = "BAR"
         hdul.writeto(file_path2, overwrite=True)
 
-    with DataModel(file_path2) as dm:
+    with JwstDataModel(file_path2) as dm:
         assert any(h for h in dm.extra_fits.PRIMARY.header if h == ["FOO", "BAR", ""])
 
 
@@ -232,7 +232,7 @@ def test_table_with_metadata(tmp_path):
         ]
     }
 
-    class FluxModel(DataModel):
+    class FluxModel(JwstDataModel):
         def __init__(self, init=None, flux_table=None, **kwargs):
             super().__init__(init=init, schema=schema, **kwargs)
 
@@ -320,7 +320,7 @@ def test_replace_table(tmp_path):
         ],
     )
 
-    m = DataModel(schema=schema_narrow)
+    m = JwstDataModel(schema=schema_narrow)
     m.data = x
     m.to_fits(file_path, overwrite=True)
 
@@ -329,7 +329,7 @@ def test_replace_table(tmp_path):
         assert hdulist[1].data.dtype[1].str == ">f4"
         assert hdulist[1].header["TFORM2"] == "E"
 
-    with DataModel(file_path, schema=schema_wide) as m:
+    with JwstDataModel(file_path, schema=schema_wide) as m:
         m.to_fits(file_path2, overwrite=True)
 
     with fits.open(file_path2, memmap=False) as hdulist:
@@ -358,7 +358,7 @@ def test_table_with_unsigned_int(tmp_path):
         },
     }
 
-    with DataModel(schema=schema) as dm:
+    with JwstDataModel(schema=schema) as dm:
         float64_info = np.finfo(np.float64)
         rng = np.random.default_rng(42)
         float64_arr = rng.uniform(size=(10,))
@@ -396,7 +396,7 @@ def test_table_with_unsigned_int(tmp_path):
 
     # Confirm that the data loads from the file intact (converting the signed ints back to
     # the appropriate uint32 values).
-    with DataModel(file_path, schema=schema) as dm2:
+    with JwstDataModel(file_path, schema=schema) as dm2:
         assert_table_correct(dm2)
 
 
@@ -499,7 +499,7 @@ def test_data_array(tmp_path):
     array2 = rng.random((5, 5))
     array3 = rng.random((5, 5))
 
-    with DataModel(schema=data_array_schema) as x:
+    with JwstDataModel(schema=data_array_schema) as x:
         x.arr.append(x.arr.item())
         x.arr[0].data = array1
         assert len(x.arr) == 1
@@ -512,7 +512,7 @@ def test_data_array(tmp_path):
         assert len(x.arr) == 2
         x.to_fits(file_path)
 
-    with DataModel(file_path, schema=data_array_schema) as x:
+    with JwstDataModel(file_path, schema=data_array_schema) as x:
         assert len(x.arr) == 2
         assert_array_almost_equal(x.arr[0].data, array1)
         assert_array_almost_equal(x.arr[1].data, array3)
@@ -659,7 +659,7 @@ def test_table_linking(tmp_path):
         },
     }
 
-    with DataModel(schema=schema) as dm:
+    with JwstDataModel(schema=schema) as dm:
         test_array = np.array([(1, 2), (3, 4)], dtype=[("A_COL", "i1"), ("B_COL", "i1")])
 
         # assigning to the model will convert the array to a FITS_rec
@@ -687,7 +687,7 @@ def test_fitsrec_for_non_schema_data(tmp_path):
     # the asdf extension and another hdu. This simulates an old
     # file where this condition might occur (perhaps after a schema
     # update).
-    m = DataModel()
+    m = JwstDataModel()
     m._instance["sneaky_table"] = fits.FITS_rec(
         np.array(
             [

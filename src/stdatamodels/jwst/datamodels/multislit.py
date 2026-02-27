@@ -1,5 +1,6 @@
+from stdatamodels import JwstDataModel
+
 from .image import ImageModel
-from .model_base import JwstDataModel
 from .slit import SlitDataModel, SlitModel
 
 __all__ = ["MultiSlitModel"]

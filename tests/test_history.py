@@ -7,12 +7,12 @@ from asdf.tags.core import HistoryEntry
 from astropy.io import fits
 from astropy.time import Time
 
-from stdatamodels import DataModel
+from stdatamodels import JwstDataModel
 
 
 @pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_historylist_methods():
-    m = DataModel()
+    m = JwstDataModel()
     h1 = m.history
 
     info = "First entry"
@@ -49,7 +49,7 @@ def test_historylist_methods():
 @pytest.mark.filterwarnings("ignore:The history attribute will soon be deprecated:UserWarning")
 def test_history_from_model_to_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
-    m = DataModel()
+    m = JwstDataModel()
     m.history = [
         HistoryEntry(
             {"description": "First entry", "time": Time(datetime.datetime.now().isoformat())}
@@ -66,8 +66,8 @@ def test_history_from_model_to_fits(tmp_path):
         assert list(hdulist[0].header["HISTORY"]) == ["First entry", "Second entry"]
 
     tmpfits2 = str(tmp_path / "tmp2.fits")
-    with DataModel(tmpfits) as m2:
-        m2 = DataModel()
+    with JwstDataModel(tmpfits) as m2:
+        m2 = JwstDataModel()
         m2.update(m)
         m2.history = m.history
 
@@ -88,7 +88,7 @@ def test_history_from_fits(tmp_path):
     fits.writeto(tmpfits, np.array([]), header, overwrite=True)
 
     tmpfits2 = str(tmp_path / "tmp2.fits")
-    with DataModel(tmpfits) as m:
+    with JwstDataModel(tmpfits) as m:
         assert m.history == [{"description": "First entry"}, {"description": "Second entry"}]
 
         del m.history[0]
@@ -96,18 +96,18 @@ def test_history_from_fits(tmp_path):
         assert m.history == [{"description": "Second entry"}, {"description": "Third entry"}]
         m.save(tmpfits2)
 
-    with DataModel(tmpfits2) as m:
+    with JwstDataModel(tmpfits2) as m:
         assert m.history == [{"description": "Second entry"}, {"description": "Third entry"}]
 
 
 def test_history_get_deprecation():
-    m = DataModel()
+    m = JwstDataModel()
     with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
         m.history
 
 
 def test_history_set_deprecation():
-    m = DataModel()
+    m = JwstDataModel()
     with pytest.warns(UserWarning, match="The history attribute will soon be deprecated"):
         m.history = []
 
@@ -116,7 +116,7 @@ def test_history_set_deprecation():
 def test_add_history_entry(tmp_path, filename):
     msgs = ["foo", "bar"]
     path = tmp_path / filename
-    m = DataModel()
+    m = JwstDataModel()
     for msg in msgs:
         m.add_history_entry(msg)
     m.save(path)

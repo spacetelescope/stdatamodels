@@ -1,4 +1,5 @@
-from .model_base import JwstDataModel
+from stdatamodels import JwstDataModel
+
 from .spec import MRSSpecModel, SpecModel, TSOSpecModel, WFSSSpecModel
 
 __all__ = ["MRSMultiSpecModel", "MultiSpecModel", "TSOMultiSpecModel", "WFSSMultiSpecModel"]

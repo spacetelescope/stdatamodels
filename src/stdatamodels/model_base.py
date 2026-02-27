@@ -23,7 +23,7 @@ from .history import HistoryList
 from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
-# are accessed to be available by the core DataModel code.
+# are accessed to be available by the core JwstDataModel code.
 _DEFAULT_SCHEMA = {
     "properties": {
         "meta": {
@@ -41,10 +41,10 @@ _DEFAULT_SCHEMA = {
 }
 
 
-class DataModel(properties.ObjectNode):
-    """Base class of all of the data models."""
+class JwstDataModel(properties.ObjectNode):
+    """Base class of all JWST datamodels."""
 
-    schema_url = None
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/core.schema"
     """
     The schema URI to validate the model against.  If
     None, only basic validation of required metadata
@@ -87,7 +87,7 @@ class DataModel(properties.ObjectNode):
 
             - dict: The object model tree for the data model
 
-            - DataModel: Initialize from an existing DataModel instance.
+            - JwstDataModel: Initialize from an existing JwstDataModel instance.
               This will perform a shallow copy, and will convert between model subtypes
               as long as their schemas are compatible.
 
@@ -212,7 +212,7 @@ class DataModel(properties.ObjectNode):
             is_shape = True
             asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
 
-        elif isinstance(init, DataModel):
+        elif isinstance(init, JwstDataModel):
             asdffile = None
             self.clone(self, init)
             if not isinstance(init, self.__class__):
@@ -273,7 +273,7 @@ class DataModel(properties.ObjectNode):
 
         if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
             warnings.warn(
-                "Unrecognized keyword arguments passed to DataModel.__init__. "
+                "Unrecognized keyword arguments passed to JwstDataModel.__init__. "
                 "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
                 "but keyword arguments were also passed, which are assumed to be attempting to "
                 "initialize arrays. This behavior is deprecated and will raise an error "
@@ -287,7 +287,7 @@ class DataModel(properties.ObjectNode):
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
                 raise TypeError(
-                    "Array passed to DataModel.__init__, but model "
+                    "Array passed to JwstDataModel.__init__, but model "
                     "has no primary array in its schema"
                 )
             setattr(self, primary_array_name, init)
@@ -297,7 +297,7 @@ class DataModel(properties.ObjectNode):
             primary_array_name = self.get_primary_array_name()
             if not primary_array_name:
                 raise TypeError(
-                    "Shape passed to DataModel.__init__, but model "
+                    "Shape passed to JwstDataModel.__init__, but model "
                     "has no primary array in its schema"
                 )
 
@@ -324,8 +324,8 @@ class DataModel(properties.ObjectNode):
         missing column to the old file.
 
         This method is only called when a datamodel is constructed using a
-        HDUList or a string (not when the DataModel is cloned or created
-        from an existing DataModel).
+        HDUList or a string (not when the model is cloned or created
+        from an existing model).
 
         The migration occurs prior to loading the ASDF extension.
 
@@ -346,7 +346,7 @@ class DataModel(properties.ObjectNode):
     def _ctx(self):
         # self._ctx is a property to avoid reference cycle that would be
         # created if we set self._ctx = self
-        # a reference cycle would make DataModel difficult to garbage
+        # a reference cycle would make JwstDataModel difficult to garbage
         # collect and could reopen the memory leak issues fixed in
         # https://github.com/spacetelescope/stdatamodels/pull/109
         return self
@@ -354,29 +354,29 @@ class DataModel(properties.ObjectNode):
     @property
     def crds_observatory(self):
         """
-        Get the CRDS observatory code for this model.
+        Get CRDS observatory code for this model.
 
-        Raises
-        ------
-        NotImplementedError
-            Subclasses should override this method to return a str.
+        Returns
+        -------
+        str
+            The observatory code.
         """
-        raise NotImplementedError(
-            "The base DataModel class cannot be used to select best references"
-        )
+        return "jwst"
 
     def get_crds_parameters(self):
         """
-        Get the parameters used by CRDS to select references for this model.
+        Get parameters used by CRDS to select references for this model.
 
-        Raises
-        ------
-        NotImplementedError
-            Subclasses should override this method to return a dict.
+        Returns
+        -------
+        dict
+            Dictionary of CRDS parameters
         """
-        raise NotImplementedError(
-            "The base DataModel class cannot be used to select best references"
-        )
+        return {
+            key: val
+            for key, val in self.to_flat_dict(include_arrays=False).items()
+            if isinstance(val, (str, int, float, complex, bool))
+        }
 
     @property
     def _model_type(self):
@@ -441,9 +441,9 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        target : DataModel
+        target : JwstDataModel
             The model to clone into.
-        source : DataModel
+        source : JwstDataModel
             The model to clone from.
         deepcopy : bool, optional
             If `True`, perform a deep copy of the source model.
@@ -551,9 +551,12 @@ class DataModel(properties.ObjectNode):
 
         # store the data model type, if not already set
         klass = self.__class__.__name__
-        if klass != "DataModel":
-            if not self.meta.hasattr("model_type"):
-                self.meta.model_type = klass
+        if not self.meta.hasattr("model_type"):
+            self.meta.model_type = klass
+
+        # if the date is not already set, set it to the current date
+        if not self.meta.hasattr("date"):
+            self.meta.date = Time.now().isot
 
     def on_save(self, path=None):
         """
@@ -577,10 +580,12 @@ class DataModel(properties.ObjectNode):
         # Enforce model_type to be the actual type of model being saved.
         self.meta.model_type = self._model_type
 
-        # DataModel considers None to be equivalent to missing node, but
+        # JwstDataModel considers None to be equivalent to missing node, but
         # asdf 2.8+ writes None as null values, so we need to remove
         # Nones before proceeding with the save.
         self._instance = remove_none_from_tree(self._instance)
+
+        self.meta.date = Time.now().isot
 
     def save(self, path, dir_path=None, *args, **kwargs):
         """
@@ -643,11 +648,11 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        model : `~jwst.datamodels.DataModel` instance
+        model : `~stdatamodels.JwstDataModel` instance
             A data model.
         """
         warnings.warn(
-            "from_asdf is deprecated, use DataModel.__init__ instead.",
+            "from_asdf is deprecated, use JwstDataModel.__init__ instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -696,11 +701,11 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        model : `~jwst.datamodels.DataModel`
+        model : `~stdatamodels.JwstDataModel` instance
             A data model.
         """
         warnings.warn(
-            "from_fits is deprecated, use DataModel.__init__ instead.",
+            "from_fits is deprecated, use JwstDataModel.__init__ instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -760,7 +765,7 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        self : DataModel
+        self : JwstDataModel
             The datamodel with its schema updated.
         """
         schema = {"allOf": [self._schema, new_schema]}
@@ -783,7 +788,7 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        self : DataModel
+        self : JwstDataModel
             The datamodel with the schema entry added.
         """
         parts = position.split(".")
@@ -927,7 +932,7 @@ class DataModel(properties.ObjectNode):
         for _, val in self.items():
             yield val
 
-    def update(self, d, only=None, extra_fits=False):
+    def update(self, d, only=None, extra_fits=False, cal_logs=True):
         """
         Update this model with the metadata elements from another model.
 
@@ -935,14 +940,16 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        d : `~jwst.datamodels.DataModel` or dictionary-like object
+        d : `~stdatamodels.JwstDataModel` or dictionary-like object
             The model to copy the metadata elements from. Can also be a
             dictionary or dictionary of dictionaries or lists.
         only : str, None
             Update only the named hdu, e.g. ``only='PRIMARY'``. Can either be
             a string or list of hdu names. Default is to update all the hdus.
         extra_fits : bool
-            Update from ``extra_fits``.  Default is False.
+            Update from ``extra_fits`` as well as ``meta``.
+        cal_logs : bool
+            Update from ``cal_logs`` as well as ``meta``.
         """
 
         def hdu_keywords_from_data(d, path, hdu_keywords):
@@ -1014,6 +1021,31 @@ class DataModel(properties.ObjectNode):
                         return True
             return False
 
+        # Get the cal logs first
+        if isinstance(d, JwstDataModel):
+            # Get cal logs if present
+            if d.hasattr("cal_logs"):
+                logs = copy.deepcopy(d.cal_logs._instance)
+            else:
+                logs = {}
+        else:
+            # Dictionary-like input: get cal_logs from the updates
+            # and remove them before calling the parent method.
+            # NOTE: If cal_logs is not removed in the input dictionary,
+            # it will cause an inscrutable crash in the parent update.
+            # It has non-meta handling for extra_fits only.
+            d = copy.deepcopy(d)
+            logs = d.pop("cal_logs", {})
+
+        # Update logs if needed
+        if cal_logs and logs:
+            if not self.hasattr("cal_logs"):
+                # Set logs from other model if not present yet
+                self.cal_logs = logs
+            else:
+                # Update the logs dictionary from the other model
+                self.cal_logs._instance.update(logs)
+
         # Get the list of hdu names from the model so that updates
         # are limited to those hdus
 
@@ -1029,7 +1061,7 @@ class DataModel(properties.ObjectNode):
         # Get the paths to all the keywords that will be updated from
 
         hdu_keywords = []
-        if isinstance(d, DataModel):
+        if isinstance(d, JwstDataModel):
             schema = d._schema
             d = d._instance
             mschema.walk_schema(schema, hdu_keywords_from_schema, hdu_keywords)
@@ -1248,7 +1280,7 @@ class DataModel(properties.ObjectNode):
 
 class _FileReference:
     """
-    Reference counter for open file pointers managed by DataModel.
+    Reference counter for open file pointers managed by JwstDataModel.
 
     Once decremented to zero the file will be closed.
     """
@@ -1268,3 +1300,40 @@ class _FileReference:
         if self._count <= 0:
             self._file.close()
             self._file = None
+
+
+class DataModel(JwstDataModel):
+    """
+    Deprecated base class for data models.
+
+    This class is retained only for backward compatibility.
+    It is deprecated and will be removed in a future release.
+    Use `~stdatamodels.jwst.datamodels.JwstDataModel` instead.
+    """
+
+    def __init__(
+        self,
+        init=None,
+        schema=None,
+        pass_invalid_values=None,
+        strict_validation=None,
+        validate_on_assignment=None,
+        validate_arrays=False,
+        ignore_missing_extensions=True,
+        ignore_unrecognized_tag=False,
+        **kwargs,
+    ):
+        warnings.warn(
+            "DataModel is deprecated, use JwstDataModel instead", DeprecationWarning, stacklevel=2
+        )
+        super().__init__(
+            init=init,
+            schema=schema,
+            pass_invalid_values=pass_invalid_values,
+            strict_validation=strict_validation,
+            validate_on_assignment=validate_on_assignment,
+            validate_arrays=validate_arrays,
+            ignore_missing_extensions=ignore_missing_extensions,
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+            **kwargs,
+        )

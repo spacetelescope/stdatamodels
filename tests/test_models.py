@@ -4,7 +4,7 @@ import asdf
 import numpy as np
 import pytest
 
-from stdatamodels import DataModel
+from stdatamodels import DataModel, JwstDataModel
 from stdatamodels.exceptions import ValidationWarning
 
 from .models import AnyOfModel, BasicModel, FitsModel, TableModel, TableModelBad, TransformModel
@@ -73,8 +73,8 @@ def test_copy():
 
 
 def test_stringify(tmp_path):
-    dm = DataModel()
-    assert str(dm) == "<DataModel>"
+    dm = JwstDataModel()
+    assert str(dm) == "<JwstDataModel>"
 
     dm = BasicModel((10, 100))
     assert str(dm) == "<BasicModel(10, 100)>"
@@ -140,7 +140,7 @@ def test_set_array2():
 
 def test_base_model_has_no_arrays():
     with pytest.raises(AttributeError):
-        with DataModel() as dm:
+        with JwstDataModel() as dm:
             dm.data  # noqa: B018
 
 
@@ -150,8 +150,8 @@ def test_array_type():
 
 
 def test_copy_model():
-    with DataModel() as dm:
-        with DataModel(dm) as dm2:
+    with JwstDataModel() as dm:
+        with JwstDataModel(dm) as dm2:
             assert hasattr(dm2, "meta")
 
 
@@ -216,7 +216,7 @@ def test_initialize_arrays_with_arglist():
 
 def test_open_asdf_model(tmp_path):
     # Open an empty asdf file, pass extra arguments
-    with DataModel(ignore_unrecognized_tag=True) as model:
+    with JwstDataModel(ignore_unrecognized_tag=True) as model:
         assert model._asdf._ignore_unrecognized_tag
 
     file_path = tmp_path / "test.asdf"
@@ -224,7 +224,7 @@ def test_open_asdf_model(tmp_path):
     with asdf.AsdfFile() as af:
         af.write_to(file_path)
 
-    with DataModel(file_path, ignore_unrecognized_tag=True) as model:
+    with JwstDataModel(file_path, ignore_unrecognized_tag=True) as model:
         assert model._asdf._ignore_unrecognized_tag
 
 
@@ -250,7 +250,7 @@ def test_object_node_iterator():
 
 
 def test_hasattr():
-    model = DataModel({"meta": {"foo": "bar"}})
+    model = JwstDataModel({"meta": {"foo": "bar"}})
     assert model.meta.hasattr("foo")
     assert not model.meta.hasattr("baz")
 
@@ -259,7 +259,7 @@ def test_datamodel_raises_filenotfound(tmp_path):
     file_path = tmp_path / "missing.asdf"
 
     with pytest.raises(FileNotFoundError):
-        DataModel(file_path)
+        JwstDataModel(file_path)
 
 
 def test_getarray_noinit_valid():
@@ -308,7 +308,7 @@ def test_delete_failed_model():
     error when deleted.
     """
 
-    class FailedModel(DataModel):
+    class FailedModel(JwstDataModel):
         def __init__(self, *args, **kwargs):
             # Simulate a failed init by not invoking the
             # superclass __init__.
@@ -320,7 +320,7 @@ def test_delete_failed_model():
 
 
 def test_on_init_hook():
-    class OnInitModel(DataModel):
+    class OnInitModel(JwstDataModel):
         def on_init(self, init):
             super().on_init(init)
 
@@ -331,7 +331,7 @@ def test_on_init_hook():
 
 
 def test_on_save_hook(tmp_path):
-    class OnSaveModel(DataModel):
+    class OnSaveModel(JwstDataModel):
         def on_save(self, init):
             super().on_save(init)
 
@@ -343,7 +343,7 @@ def test_on_save_hook(tmp_path):
     assert model.meta.foo == "bar"
 
 
-@pytest.mark.parametrize("ModelType", [DataModel, BasicModel, TableModel, TransformModel])  # noqa: N803
+@pytest.mark.parametrize("ModelType", [JwstDataModel, BasicModel, TableModel, TransformModel])  # noqa: N803
 def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
     # This is a regression test to attempt to avoid future changes that might
     # reintroduce the 'difficult to garbage collect' bugs fixed in PR:
@@ -386,17 +386,17 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
 
 def test_from_fits_deprecation():
     with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
-        DataModel.from_fits({})
+        JwstDataModel.from_fits({})
 
 
 def test_from_asdf_deprecation():
     with pytest.warns(DeprecationWarning, match="from_asdf is deprecated"):
-        DataModel.from_asdf({})
+        JwstDataModel.from_asdf({})
 
 
 def test_memmap_deprecation():
     with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
-        DataModel(memmap=True)
+        JwstDataModel(memmap=True)
 
 
 def test_open_from_file_with_kwargs_deprecation(tmp_path):
@@ -407,8 +407,14 @@ def test_open_from_file_with_kwargs_deprecation(tmp_path):
     raises a deprecation warning if the input type is file-like.
     """
     fn = tmp_path / "test.asdf"
-    m = DataModel()
+    m = JwstDataModel()
     m.save(fn)
 
     with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
-        DataModel(fn, data=np.ones((10, 10)))
+        JwstDataModel(fn, data=np.ones((10, 10)))
+
+
+def test_datamodel_base_deprecated():
+    """Test that the base DataModel class is deprecated."""
+    with pytest.warns(DeprecationWarning, match="DataModel is deprecated"):
+        DataModel()

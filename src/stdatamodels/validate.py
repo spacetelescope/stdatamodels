@@ -31,7 +31,7 @@ def value_change(path, value, schema, ctx):
         The value to validate.
     schema : dict
         The schema to validate against.
-    ctx : DataModel
+    ctx : `~stdatamodels.JwstDataModel`
         The datamodel that the value is being added to
 
     Returns
@@ -183,10 +183,10 @@ def _check_value(value, schema, ctx):
         The value to validate.
     schema : dict
         The schema to validate against.
-    ctx : DataModel
+    ctx : JwstDataModel
         The datamodel to use as context.
     """
-    # Do not validate None values.  These are regarded as missing in DataModel,
+    # Do not validate None values.  These are regarded as missing in JwstDataModel,
     # and will eventually be stripped out when the model is saved to FITS or ASDF.
     if value is not None:
         # There may also be Nones hiding within the value.  Do this before

@@ -39,8 +39,9 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         - list[str]: Initialize from a list of files. The list will be returned as a
           ModelContainer with the models loaded from the specified files.
 
-        - :class:`JwstDataModel`: Initialize from an existing model. The output model will
-          be a shallow copy of the input model. This is supported for pipeline code convenience,
+        - :class:`JwstDataModel`: Initialize from an existing model.
+          The output model will be a shallow copy of the input model.
+          This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
         - None: Deprecated; use the DataModel constructor directly instead.
@@ -404,7 +405,7 @@ def _class_from_shape(hdulist, shape):
         The model class to use
     """
     if len(shape) == 0:
-        from . import model_base
+        from stdatamodels import model_base
 
         new_class = model_base.JwstDataModel
     elif len(shape) == 4:
