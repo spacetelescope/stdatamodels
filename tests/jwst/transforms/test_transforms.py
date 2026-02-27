@@ -461,6 +461,9 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
         t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
         t2_out[i] = t2
 
+    # old interp function had bug where if t<0 or t>1, it would clip to 0 or 1
+    # so this test is only valid with those limits applied
+    t_out = np.clip(t_out, 0.0, 1.0)
     assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
 
 
@@ -535,12 +538,14 @@ def test_nircam_grism_roundtrip(direction):
     wl = 2.0e-6
 
     # now create the appropriate model for the grism[R/C]
+    sampling = 40
     if direction == "row":
         forward = models.NIRCAMForwardRowGrismDispersion(
             orders,
             lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
+            sampling=sampling,
         )
     elif direction == "column":
         forward = models.NIRCAMForwardColumnGrismDispersion(
@@ -548,19 +553,23 @@ def test_nircam_grism_roundtrip(direction):
             lmodels=lmodels,
             xmodels=xmodels,
             ymodels=ymodels,
+            sampling=sampling,
         )
     backward = models.NIRCAMBackwardGrismDispersion(
         orders,
         lmodels=lmodels,
         xmodels=xmodels,
         ymodels=ymodels,
+        sampling=sampling,
     )
 
     combined = backward | forward
     xi, yi, wli, ordersi = combined.evaluate(x0, y0, wl, orders)
-    assert_allclose(xi, x0)
-    assert_allclose(yi, y0)
-    assert_allclose(wli, wl)
+
+    rtol = (1 / sampling) ** 2
+    assert_allclose(xi, x0, rtol=rtol)
+    assert_allclose(yi, y0, rtol=rtol)
+    assert_allclose(wli, wl, rtol=rtol)
     assert_allclose(ordersi, orders)
 
 
