@@ -1,0 +1,1 @@
+Fix Rotation3DToGWAConverter not accepting length-one rotation lists
