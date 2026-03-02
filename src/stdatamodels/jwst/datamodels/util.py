@@ -1,5 +1,6 @@
 """Various utility functions and data types."""
 
+import inspect
 import io
 import logging
 import warnings
@@ -62,11 +63,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         If not guess and the model type is not explicit, raise a TypeError.
     **kwargs
         Additional keyword arguments passed to the DataModel constructor.  Some arguments
-        are general, others are file format-specific.  Arguments of note are:
-
-        - validate_arrays : bool
-          If `True`, arrays will be validated against ndim, max_ndim, and datatype
-          validators in the schemas.
+        are general, others are file format-specific. See the docstring of
+        :func:`~stdatamodels.jwst.datamodels.JwstDataModel.__init__` for details.
 
     Returns
     -------
@@ -93,6 +91,20 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             stacklevel=2,
         )
         kwargs.pop("memmap")
+
+    allowed_kwargs = inspect.getfullargspec(dm.JwstDataModel.__init__).args
+    allowed_kwargs.remove("self")
+    allowed_kwargs.remove("init")
+    for kwarg in kwargs:
+        if kwarg not in allowed_kwargs:
+            warnings.warn(
+                f"Keyword argument {kwarg} not supported by open function. "
+                "Passing arbitrary kwargs through open into JwstDataModel is deprecated; "
+                "only the following named arguments of the JwstDataModel constructor are allowed: "
+                f"{allowed_kwargs}",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
     # Initialize variables used to select model class
 

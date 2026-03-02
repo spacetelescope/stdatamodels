@@ -374,3 +374,21 @@ def test_memmap_deprecation(tmp_path):
     with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
         with datamodels.open(path, memmap=True):
             pass
+
+
+def test_open_unrecognized_kwarg(tmp_path):
+    """
+    Test that passing an unrecognized kwarg to datamodels.open raises a DeprecationWarning.
+    """
+    # save an empty datamodel
+    path = str(tmp_path / "test.fits")
+    model = ImageModel()
+    model.save(path)
+
+    # pass array-like data as a kwarg
+    err = np.ones((2, 2))
+    with pytest.warns(
+        DeprecationWarning, match="Keyword argument err not supported by open function."
+    ):
+        model = datamodels.open(path, err=err)
+    np.testing.assert_allclose(model.err, 1)
