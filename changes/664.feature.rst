@@ -1,0 +1,1 @@
+Give new metadata attributes to PastasossModel
