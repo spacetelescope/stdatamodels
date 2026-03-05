@@ -63,6 +63,9 @@ class _PhotomModel(ReferenceFileModel):
         except AssertionError as errmsg:
             self.print_err(str(errmsg))
 
+    def get_primary_array_name(self):
+        return "phot_table"
+
 
 class FgsImgPhotomModel(_PhotomModel):
     """
