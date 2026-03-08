@@ -204,6 +204,7 @@ class MirWfssPhotomModel(_PhotomModel):
         factors associated with those modes.
 
         - filter: str[12]
+        - subarrary: str[15]
         - photmjsr: float32
         - uncertainty: float32
         - nelem: int16
