@@ -15,7 +15,7 @@ def test_miri_wfss_photom():
     wfss_photmjsr = 5.53750e-01 * u.MJy * (1 / u.steradian) * (1 / u.DN) * (u.second)
     nelem = 380
     wfss_photmjsr_error = 2.608179e-01
-
+    subarray = "FULL"
     wavelength = np.linspace(5.0, 14.0, nelem) * u.micron
     relresponse = np.linspace(0.001, 0.01, nelem)
     reluncertainty = np.linspace(0.001, 0.01, nelem)
@@ -23,6 +23,7 @@ def test_miri_wfss_photom():
     new_dtype = np.dtype(
         [
             ("filter", "S12"),
+            ("subarray", "S15"),
             ("photmjsr", "f4"),
             ("uncertainty", "f4"),
             ("nelem", "i2"),  # int16 per schema
@@ -36,6 +37,7 @@ def test_miri_wfss_photom():
         [
             (
                 "P750L",
+                "FULL",
                 float(wfss_photmjsr.value),
                 float(wfss_photmjsr_error),
                 len(wavelength),
@@ -50,6 +52,7 @@ def test_miri_wfss_photom():
     # These MUST match the schema keys in your error message exactly
     names = (
         "filter",
+        "subarray",
         "photmjsr",
         "uncertainty",
         "nelem",
