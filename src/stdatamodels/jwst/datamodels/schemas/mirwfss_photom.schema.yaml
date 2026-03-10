@@ -53,6 +53,8 @@ allOf:
       datatype:
       - name: filter
         datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]	
       - name: t0
         datatype: float32
         description: Reference day in MJD
@@ -67,6 +69,8 @@ allOf:
       datatype:
       - name: filter
         datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]	
       - name: t0
         datatype: float32
         description: Reference day in MJD
@@ -87,6 +91,8 @@ allOf:
       datatype:
       - name: filter
         datatype: [ascii, 12]
+      - name: subarray
+        datatype: [ascii, 15]	
       - name: t0
         datatype: float32
         description: Reference day in MJD
