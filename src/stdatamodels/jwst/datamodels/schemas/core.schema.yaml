@@ -1032,8 +1032,10 @@ properties:
                   [MASKA210R, MASKA430R, MASKBLWB, MASKBSWB, SUB320ALWB]
               # NIRISS
               - enum:
-                  [SUB64, SUB80, SUB128, SUB256, SUBAMPCAL, SUBSTRIP96,
-                   SUBSTRIP256, SUBTAAMI, SUBTASOSS, WFSS64C, WFSS64R,
+                  [SUB64, SUB80, SUB128, SUB256, SUBAMPCAL,
+                   SUBSTRIP96, SUBSTRIP256,
+                   SUB17STRIPE_SOSS, SUB60STRIPE_SOSS, SUB204STRIPE_SOSS, SUB680STRIPE_SOSS,
+                   SUBTAAMI, SUBTASOSS, WFSS64C, WFSS64R,
                    WFSS128C, WFSS128R]
               # Obsolete NIRISS
               - enum:
