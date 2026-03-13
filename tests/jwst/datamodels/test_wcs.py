@@ -1,9 +1,11 @@
 import warnings
 
+import gwcs
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal
 
+from stdatamodels.jwst import datamodels
 from stdatamodels.jwst.datamodels import FilteroffsetModel, ImageModel
 
 
@@ -111,3 +113,12 @@ def test_wcs_ref_models():
         fo.meta.instrument.channel = "SHORT"
         fo.meta.instrument.module = "A"
         fo.validate()
+
+
+def test_wcs_ifu_bad_frame(test_data_path):
+    path = test_data_path / "ifu_split_wcs.fits"
+
+    dm = datamodels.open(path)
+
+    assert isinstance(dm.meta.wcs.pipeline[0].frame, gwcs.Frame2D)
+    assert dm.meta.wcs.pipeline[0].frame.name == "coordinates"
