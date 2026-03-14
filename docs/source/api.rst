@@ -15,9 +15,6 @@ Model base class
    * - :class:`~stdatamodels.jwst.datamodels.JwstDataModel`
      - Base class for all JWST data models.
 
-.. automodapi:: stdatamodels
-   :no-inheritance-diagram:
-   :inherited-members:
 .. automodapi:: stdatamodels.exceptions
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.dqflags

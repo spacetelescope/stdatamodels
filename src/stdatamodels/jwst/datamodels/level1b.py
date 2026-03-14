@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.lib.recfunctions import merge_arrays
 
-from .model_base import JwstDataModel
+from stdatamodels import JwstDataModel
 
 __all__ = ["Level1bModel"]
 

@@ -1,7 +1,7 @@
 import warnings
 from pathlib import Path
 
-from .model_base import JwstDataModel
+from stdatamodels import JwstDataModel
 
 __all__ = ["AsnModel"]
 

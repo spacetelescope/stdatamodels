@@ -70,7 +70,7 @@ shape.
 Saving a data model to a file
 -----------------------------
 
-Simply call the :meth:`~stdatamodels.DataModel.save` method on the model instance.  The format to
+Simply call the :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.save` method on the model instance.  The format to
 save into will either be deduced from the filename (if provided) or
 the ``format`` keyword argument::
 
@@ -78,7 +78,7 @@ the ``format`` keyword argument::
 
 .. note::
 
-   Unlike :mod:`astropy.io.fits`, :meth:`~stdatamodels.DataModel.save` always clobbers the output file.
+   Unlike :mod:`astropy.io.fits`, :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.save` always clobbers the output file.
 
 Reading Metadata Only
 ---------------------
@@ -108,7 +108,7 @@ will be returned instead if the ``flatten`` keyword argument is set to False.
 Looking at the contents of a model
 ----------------------------------
 
-Use :meth:`~stdatamodels.DataModel.info` to look at the contents of a data model. It renders
+Use :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.info` to look at the contents of a data model. It renders
 the underlying ASDF tree starting at the root or a specified ``node``.
 The number of displayed rows is controlled by the ``max_row`` argument::
 
@@ -143,7 +143,7 @@ The number of displayed rows is controlled by the ``max_row`` argument::
 Searching a model
 -----------------
 
-:meth:`~stdatamodels.DataModel.search` can be used to search the ASDF tree by ``key`` or
+:meth:`~stdatamodels.jwst.datamodels.JwstDataModel.search` can be used to search the ASDF tree by ``key`` or
 ``value``::
 
   im.search(key='filter')
@@ -251,14 +251,14 @@ equivalent::
 Copying a model
 ---------------
 
-To create a new model based on another model, simply use its :meth:`~stdatamodels.DataModel.copy`
+To create a new model based on another model, simply use its :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.copy`
 method.  This will perform a deep-copy: that is, no changes to the
 original model will propagate to the new model::
 
     new_model = old_model.copy()
 
 It is also possible to copy all of the known metadata from one
-model into a new one using the :meth:`~stdatamodels.DataModel.update` method::
+model into a new one using the :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.update` method::
 
     new_model.update(old_model)
 

@@ -65,7 +65,7 @@ Accessing keywords
 The data model hides direct access to FITS header keywords.  Instead,
 use the :ref:`metadata` tree.
 
-There is a convenience method, :meth:`~stdatamodels.DataModel.find_fits_keyword` to find where a
+There is a convenience method, :meth:`~stdatamodels.jwst.datamodels.JwstDataModel.find_fits_keyword` to find where a
 FITS keyword is used in the metadata tree::
 
     >>> from stdatamodels.jwst.datamodels import JwstDataModel

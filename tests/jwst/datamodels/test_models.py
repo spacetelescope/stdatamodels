@@ -354,9 +354,14 @@ def test_defined_models_up_to_date():
             get_classes(subclass, classes)
         return classes
 
-    # get all datamodel classes including JwstDataModel
-    # and all subclasses (ignoring any that start with "_")
-    all_classes = {klass for klass in get_classes(JwstDataModel) if klass.__name__[0] != "_"}
+    # get all datamodel classes including JwstDataModel and all subclasses.
+    # Ignore any that start with "_" or are defined outside stdatamodels,
+    # e.g. models defined in the test suite.
+    all_classes = {
+        klass
+        for klass in get_classes(JwstDataModel)
+        if klass.__name__[0] != "_" and klass.__module__.startswith("stdatamodels")
+    }
     assert set(defined_models.values()) == all_classes
 
 

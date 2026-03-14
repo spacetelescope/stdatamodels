@@ -1,5 +1,7 @@
 """Datamodels for JWST pipeline."""
 
+from stdatamodels.model_base import DataModel, JwstDataModel
+
 from .abvega_offset import ABVegaOffsetModel
 from .amilg import AmiLgModel
 from .amilgfitmodel import AmiLgFitModel
@@ -41,7 +43,6 @@ from .lastframe import LastFrameModel
 from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
-from .model_base import JwstDataModel
 from .mrsptcorr import MirMrsPtCorrModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecModel
@@ -148,6 +149,7 @@ __all__ = [
     "DarkMIRIModel",
     "DarkModel",
     "DarkNirspecModel",
+    "DataModel",
     "DisperserModel",
     "DistortionMRSModel",
     "DistortionModel",
@@ -281,7 +283,7 @@ __all__ = [
 
 
 _all_models = __all__[:-2]
-_deprecated_models = ["AmiLgModel", "AsnModel"]
+_deprecated_models = ["AmiLgModel", "AsnModel", "DataModel"]
 _local_dict = locals()
 _defined_models = {k: _local_dict[k] for k in _all_models}
 

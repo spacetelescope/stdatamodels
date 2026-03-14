@@ -1,10 +1,10 @@
 import warnings
 
+from stdatamodels import JwstDataModel
 from stdatamodels.dynamicdq import dynamic_mask
 from stdatamodels.exceptions import ValidationWarning
 
 from .dqflags import pixel
-from .model_base import JwstDataModel
 
 __all__ = ["ReferenceCubeModel", "ReferenceFileModel", "ReferenceImageModel", "ReferenceQuadModel"]
 
