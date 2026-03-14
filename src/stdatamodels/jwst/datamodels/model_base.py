@@ -3,8 +3,11 @@ import copy
 from astropy.time import Time
 
 from stdatamodels import DataModel as _DataModel
+from stdatamodels.dynamicdq import dynamic_mask
 
-__all__ = ["JwstDataModel"]
+from .dqflags import pixel
+
+__all__ = ["DefaultDQMixin", "DefaultErrMixin", "JwstDataModel"]
 
 
 class JwstDataModel(_DataModel):
@@ -112,3 +115,52 @@ class JwstDataModel(_DataModel):
 
         # Call the parent update
         super().update(d, only=only, extra_fits=extra_fits)
+
+
+class DefaultDQMixin(_DataModel):
+    """
+    Mixin for models that should have dq array initialized on init.
+
+    If the model has a dq_def table, the dq array will be mapped to the standard
+    values on initialization.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "dq" not in self._schema["properties"]:
+            raise AttributeError(
+                "dq is not in the schema for this model, cannot use DefaultDQMixin"
+            )
+
+        # If data array hasn't been initialized, do not initialize DQ
+        if getattr(self, self.get_primary_array_name(), None) is None:
+            return
+
+        # Otherwise, ensure DQ array exists
+        if getattr(self, "dq", None) is None:
+            self.dq = self.get_default("dq")
+
+        # if dq_def is in the schema, attempt to apply dq flag mapping
+        if getattr(self, "dq_def", None) is not None:
+            self.dq = dynamic_mask(self, pixel)
+
+
+class DefaultErrMixin(_DataModel):
+    """Mixin for models that should have err array initialized on init."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if "err" not in self._schema["properties"]:
+            raise AttributeError(
+                "err is not in the schema for this model, cannot use DefaultErrMixin"
+            )
+
+        # If data array hasn't been initialized, do not initialize err
+        if getattr(self, self.get_primary_array_name(), None) is None:
+            return
+
+        # Otherwise, ensure err array exists
+        if getattr(self, "err", None) is None:
+            self.err = self.get_default("err")
