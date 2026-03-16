@@ -361,7 +361,7 @@ class Node:
 
 
 class ObjectNode(Node):
-    """A dictionary-like Node."""
+    """A dictionary-like object that supports validation against a schema."""
 
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
@@ -430,7 +430,20 @@ class ObjectNode(Node):
     def __iter__(self):
         return NodeIterator(self)
 
-    def hasattr(self, attr):  # noqa: D102
+    def hasattr(self, attr):
+        """
+        Check if the node has an attribute in its instance.
+
+        Parameters
+        ----------
+        attr : str
+            The name of the attribute to check for.
+
+        Returns
+        -------
+        bool
+            True if the attribute is in the instance, False otherwise.
+        """
         return attr in self._instance
 
     def items(self):  # noqa: D102
@@ -443,7 +456,7 @@ class ObjectNode(Node):
 
 
 class ListNode(Node):
-    """A list-like Node."""
+    """A list-like object that supports validation against a schema."""
 
     def __cast(self, other):
         if isinstance(other, ListNode):
