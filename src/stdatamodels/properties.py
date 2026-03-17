@@ -394,8 +394,8 @@ class ObjectNode(Node):
             # If so it's assumed to be a node, and must be created to allow nested attribute access.
             # Otherwise, return None and don't set anything
             val = _make_default(attr, schema, self._ctx)
-            # if not isinstance(val, (dict, list)):
-            #     return None
+            if not isinstance(val, (dict, list)):
+                return None
             if val is not None:
                 self._instance[attr] = val
 
