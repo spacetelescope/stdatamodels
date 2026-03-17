@@ -27,6 +27,9 @@ Model base class
 .. automodapi:: stdatamodels.jwst.datamodels
    :no-inheritance-diagram:
    :skip: JwstDataModel
+.. automodapi:: stdatamodels.jwst.datamodels.model_base
+   :no-inheritance-diagram:
+   :skip: JwstDataModel
 .. automodapi:: stdatamodels.properties
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.jwst.transforms

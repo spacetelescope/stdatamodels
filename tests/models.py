@@ -9,6 +9,15 @@ class BasicModel(DataModel):
     schema_url = "http://example.com/schemas/basic_model"
 
 
+class DefaultsModel(DataModel):
+    """Model with attributes that have default values."""
+
+    schema_url = "http://example.com/schemas/defaults_model"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "primary"
+
+
 class ValidationModel(DataModel):
     """Model with various kinds of validated attributes."""
 

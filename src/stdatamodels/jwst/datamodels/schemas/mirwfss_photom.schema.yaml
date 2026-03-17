@@ -8,6 +8,7 @@ allOf:
 - $ref: keyword_exptype.schema
 - $ref: keyword_pexptype.schema
 - $ref: keyword_pixelarea.schema
+- $ref: keyword_band.schema
 - type: object
   properties:
     phot_unit:
