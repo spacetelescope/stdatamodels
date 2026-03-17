@@ -150,6 +150,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
 
 def test_implicit_creation_lower_dimensionality():
     with BasicModel(np.zeros((10, 20))) as m:
+        m.dq = m.get_default("dq")
         assert m.dq.shape == (20,)
 
 
