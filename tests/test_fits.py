@@ -43,6 +43,7 @@ def test_from_new_hdulist2():
     science = fits.ImageHDU(data=data, name="SCI")
     hdulist.append(science)
     with FitsModel(hdulist) as dm:
+        dm.dq = dm.get_default("dq")
         dq = dm.dq
         assert dq is not None
 
@@ -74,6 +75,7 @@ def test_from_scratch(tmp_path):
         dm.to_fits(file_path)
 
         with FitsModel(file_path) as dm2:
+            dm2.dq = dm2.get_default("dq")
             assert dm2.shape == (50, 50)
             assert dm2.meta.telescope == "EYEGLASSES"
             assert dm2.dq.dtype.name == "uint32"
@@ -371,7 +373,7 @@ def test_table_with_unsigned_int(tmp_path):
         uint32_arr[-1] = uint32_info.max
 
         test_table = np.array(
-            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.test_table.dtype
+            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.get_dtype("test_table")
         )
 
         def assert_table_correct(model):
@@ -450,7 +452,7 @@ def test_get_short_doc():
 def test_from_hdulist(tmp_path):
     file_path = tmp_path / "test.fits"
 
-    with FitsModel() as dm:
+    with FitsModel((10, 10)) as dm:
         dm.save(file_path)
 
     with fits.open(file_path, memmap=False) as hdulist:
