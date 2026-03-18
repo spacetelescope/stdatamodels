@@ -36,15 +36,39 @@ class RampModel(JwstDataModel):
         if self.data is None:
             return
         if self.pixeldq is None:
-            # This is a band-aid solution to allow multistripe modes to
-            # have 3D pixeldq, but set the default appropriately for
-            # all other RampModels.
-
-            # If we can move multi-stripe RampModels to their own model
-            # type, we can resume using the schema to make a default pixeldq:
-            # self.pixeldq = self.get_default("pixeldq")
-
-            self.pixeldq = np.zeros(self.data.shape[-2:], dtype=np.uint32)
-
+            self.pixeldq = self.get_default("pixeldq")
         if self.groupdq is None:
             self.groupdq = self.get_default("groupdq")
+
+    def get_default(self, attr):
+        """
+        Retrieve the schema-defined default value of an attribute.
+
+        Overrides the parent method to set pixeldq to a 2D array if
+        data is defined.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value.
+
+        Returns
+        -------
+        object or None
+            The default value for the given attribute. If the attribute is schema-defined
+            but has no default value in the schema, this will return None.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
+        """
+        # This is a band-aid solution to allow multistripe modes to
+        # have 3D pixeldq, but set the default appropriately for
+        # all other RampModels.
+        # If we can move multi-stripe RampModels to their own model
+        # type, we can resume using the schema to make a default pixeldq.
+        if attr == "pixeldq" and self.data is not None:
+            return np.zeros(self.data.shape[-2:], dtype=np.uint32)
+
+        return super().get_default(attr)
