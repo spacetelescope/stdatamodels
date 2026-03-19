@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 from astropy.io import fits
 
+import stdatamodels.jwst.datamodels as dm
 from stdatamodels.exceptions import ValidationWarning
-from stdatamodels.jwst.datamodels import MirImgPhotomModel
 
 
 def mir_img_phot_table():
@@ -92,7 +92,7 @@ def test_valid_timecoeff():
         assert np.all(phot_hdul["PHOTOM"].data["subarray"] == phot_hdul["PHOTOM"].data["subarray"])
 
         # No errors thrown with strict validation
-        model = MirImgPhotomModel(phot_hdul, strict_validation=True)
+        model = dm.MirImgPhotomModel(phot_hdul, strict_validation=True)
         model.validate()
 
         # Empty extensions are not added
@@ -108,7 +108,7 @@ def test_invalid_timecoeff_mismatched_length(strict):
         phot_hdul["TIMECOEFF_EXPONENTIAL"].data = phot_hdul["TIMECOEFF_EXPONENTIAL"].data[1:]
         assert len(phot_hdul["PHOTOM"].data) != len(phot_hdul["TIMECOEFF_EXPONENTIAL"].data)
 
-        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        model = dm.MirImgPhotomModel(phot_hdul, strict_validation=strict)
         expected_message = "Model.phot_table and Model.timecoeff_exponential do not match"
         if strict:
             with pytest.raises(ValueError, match=expected_message):
@@ -130,7 +130,7 @@ def test_invalid_timecoeff_mismatched_values(strict):
         phot_hdul["TIMECOEFF_EXPONENTIAL"].data = phot_hdul["TIMECOEFF_EXPONENTIAL"].data[::-1]
         assert len(phot_hdul["PHOTOM"].data) == len(phot_hdul["TIMECOEFF_EXPONENTIAL"].data)
 
-        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        model = dm.MirImgPhotomModel(phot_hdul, strict_validation=strict)
         expected_message = "Model.phot_table and Model.timecoeff_exponential do not match"
         if strict:
             with pytest.raises(ValueError, match=expected_message):
@@ -149,7 +149,7 @@ def test_invalid_phot_table(strict):
     """Test validation for missing phot_table."""
     with mir_img_phot_hdulist() as phot_hdul:
         del phot_hdul["PHOTOM"]
-        model = MirImgPhotomModel(phot_hdul, strict_validation=strict)
+        model = dm.MirImgPhotomModel(phot_hdul, strict_validation=strict)
         expected_message = "Model.phot_table is not present"
         if strict:
             with pytest.raises(ValueError, match=expected_message):
@@ -163,3 +163,54 @@ def test_invalid_phot_table(strict):
         assert not model.hasattr("phot_table")
         assert not model.hasattr("timecoeff_linear")
         assert not model.hasattr("timecoeff_powerlaw")
+
+
+@pytest.fixture
+def mir_lrs_phot_model():
+    nrows = 2
+    nelem = 5
+    dtype = np.dtype(
+        [
+            ("filter", "S12"),
+            ("subarray", "S15"),
+            ("photmjsr", "<f4"),
+            ("uncertainty", "<f4"),
+            ("nelem", "<i2"),
+            ("wavelength", "<f4", (nelem,)),
+            ("relresponse", "<f4", (nelem,)),
+            ("reluncertainty", "<f4", (nelem,)),
+        ]
+    )
+    phot_table = np.zeros(nrows, dtype=dtype)
+    phot_table["filter"] = ["P750L", "P750L"]
+    phot_table["subarray"] = ["FULL", "SUB64"]
+    phot_table["photmjsr"] = [3.1, 3.2]
+    phot_table["uncertainty"] = [0.01, 0.02]
+    phot_table["nelem"] = nelem
+    phot_table["wavelength"] = np.linspace(5.0, 14.0, nelem)
+    phot_table["relresponse"] = 1.0
+    phot_table["reluncertainty"] = 0.05
+
+    model = dm.MirLrsPhotomModel()
+    model.phot_table = phot_table
+    return model
+
+
+def test_tdim_not_duplicated_on_save(tmp_path, mir_lrs_phot_model):
+    """
+    Cover a round-tripping bug for MIRI photom models.
+
+    TDIM keywords from the phot_table, which are created for the
+    wavelength, relresponse, and reluncertainty array-like columns,
+    were being handled as extra_fits instead of fits builtins.
+    This caused them to get duplicated in the FITS file every time the model was saved.
+    """
+    path = tmp_path / "test_photom.fits"
+    mir_lrs_phot_model.save(path)
+
+    with fits.open(path) as fitsmodel:
+        # verify at least one TDIM header keyword is present in the fits file
+        assert any(k.startswith("TDIM") for k in fitsmodel["PHOTOM"].header.keys())
+
+    with dm.open(path) as model:
+        assert "extra_fits" not in model.instance

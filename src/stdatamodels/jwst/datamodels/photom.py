@@ -1,8 +1,6 @@
 import numpy as np
 
-from stdatamodels.dynamicdq import dynamic_mask
-
-from .dqflags import pixel
+from .model_base import DefaultDQMixin
 from .reference import ReferenceFileModel
 
 __all__ = [
@@ -10,6 +8,7 @@ __all__ = [
     "MirImgPhotomModel",
     "MirLrsPhotomModel",
     "MirMrsPhotomModel",
+    "MirWfssPhotomModel",
     "NisImgPhotomModel",
     "NisSossPhotomModel",
     "NisWfssPhotomModel",
@@ -62,6 +61,9 @@ class _PhotomModel(ReferenceFileModel):
 
         except AssertionError as errmsg:
             self.print_err(str(errmsg))
+
+    def get_primary_array_name(self):
+        return "phot_table"
 
 
 class FgsImgPhotomModel(_PhotomModel):
@@ -139,7 +141,7 @@ class MirLrsPhotomModel(_PhotomModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirlrs_photom.schema"
 
 
-class MirMrsPhotomModel(ReferenceFileModel):
+class MirMrsPhotomModel(ReferenceFileModel, DefaultDQMixin):
     """
     A data model for MIRI MRS photom reference files.
 
@@ -181,10 +183,30 @@ class MirMrsPhotomModel(ReferenceFileModel):
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirmrs_photom.schema"
 
-    def __init__(self, init=None, **kwargs):
-        super(MirMrsPhotomModel, self).__init__(init=init, **kwargs)
 
-        self.dq = dynamic_mask(self, pixel)
+class MirWfssPhotomModel(_PhotomModel):
+    """
+    A data model for MIRI WFSS photom reference files.
+
+    Attributes
+    ----------
+    phot_table : numpy table
+        Photometric flux conversion factors table
+        A table-like object containing row selection criteria made up
+        of instrument mode parameters and photometric conversion
+        factors associated with those modes.
+
+        - filter: str[12]
+        - subarrary: str[15]
+        - photmjsr: float32
+        - uncertainty: float32
+        - nelem: int16
+        - wavelength: float32[*]
+        - relresponse: float32[*]
+        - reluncertainty: float32[*]
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/mirwfss_photom.schema"
 
 
 class NrcImgPhotomModel(_PhotomModel):

@@ -17,16 +17,20 @@ from stdatamodels.jwst.datamodels import (
     ABVegaOffsetModel,
     AsnModel,
     CubeModel,
+    FlatModel,
     IFUImageModel,
     ImageModel,
     JwstDataModel,
     Level1bModel,
     MaskModel,
     MultiSlitModel,
+    MultiSpecModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
     SlitDataModel,
     SlitModel,
+    SpecModel,
+    WfssBkgModel,
 )
 from stdatamodels.jwst.datamodels import _defined_models as defined_models
 from stdatamodels.jwst.datamodels import _deprecated_models as deprecated_models
@@ -85,6 +89,7 @@ def test_skip_fits_update(make_models, which_file):
 def test_asnmodel_table_size_zero():
     with pytest.warns(DeprecationWarning, match="AsnModel is deprecated"):
         with AsnModel() as dm:
+            dm.asn_table = dm.get_default("asn_table")
             assert len(dm.asn_table) == 0
 
 
@@ -92,6 +97,8 @@ def test_imagemodel():
     shape = (10, 10)
     with ImageModel(shape) as dm:
         assert dm.data.shape == shape
+        for attr in ["err", "dq", "zeroframe", "area", "pathloss_point", "pathloss_uniform"]:
+            setattr(dm, attr, dm.get_default(attr))
         assert dm.err.shape == shape
         assert dm.dq.shape == shape
         assert dm.data.mean() == 0.0
@@ -463,6 +470,7 @@ def test_ramp_model_zero_frame_by_dimensions():
     zdims = (nints, nrows, ncols)
 
     with datamodels.RampModel(dims) as ramp:
+        ramp.zeroframe = ramp.get_default("zeroframe")
         assert ramp.zeroframe.shape == zdims
 
 
@@ -767,9 +775,9 @@ def test_nirspec_flat_table_migration(tmp_path, model, shape):
     m = model()
     if model == NirspecQuadFlatModel:
         m.quadrants.append(m.quadrants.item())
-        m.quadrants[0].flat_table = make_data(m.quadrants[0].flat_table.dtype)
+        m.quadrants[0].flat_table = make_data(m.quadrants[0].get_dtype("flat_table"))
     else:
-        m.flat_table = make_data(m.flat_table.dtype)
+        m.flat_table = make_data(m.get_dtype("flat_table"))
     m.save(fn)
     fn2 = tmp_path / "test2.fits"
     with fits.open(fn) as ff:
@@ -805,7 +813,7 @@ def test_moving_target_table_migration(tmp_path):
         return np.array(fake_data, dtype=dtype)
 
     m = Level1bModel()
-    m.moving_target = make_data(m.moving_target.dtype)
+    m.moving_target = make_data(m.get_dtype("moving_target"))
     m.save(fn)
     fn2 = tmp_path / "test_mt2.fits"
     with fits.open(fn) as ff:
@@ -827,3 +835,108 @@ def test_moving_target_table_migration(tmp_path):
     # and with DataModel(fn)
     with Level1bModel(fn2) as dm:
         check_error_column(dm)
+
+
+@pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
+def test_mixins_from_shape(ModelClass):
+    """
+    Classes inheriting from DefaultDQMixin and DefaultErrMixin should have dq and err arrays created when init from shape.
+
+    Three test cases chosen as follows:
+    - WfssBkgModel: basic case, directly inherits from DefaultDQMixin and DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, DefaultDQMixin, and DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from DefaultErrMixin
+    """
+    shape = (10, 10)
+    with ModelClass(shape) as im:
+        assert im.hasattr("dq")
+        assert im.dq.shape == shape
+        if isinstance(im, MaskModel):
+            assert not hasattr(im, "err")
+        else:
+            assert im.hasattr("err")
+            assert im.err.shape == shape
+
+
+@pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
+def test_mixins_from_array(ModelClass):
+    """
+    Classes inheriting from DefaultDQMixin and DefaultErrMixin should have dq and err arrays created when init from array.
+
+    Three test cases chosen as follows:
+    - WfssBkgModel: basic case, directly inherits from DefaultDQMixin and DefaultErrMixin
+    - FlatModel: inherits from ReferenceModel, DefaultDQMixin, and DefaultErrMixin
+    - MaskModel: no 'data' array at all, 'dq' is primary array, does not inherit from DefaultErrMixin
+    """
+    shape = (10, 10)
+    data = np.zeros(shape, dtype=np.float32)
+    with ModelClass(data) as im2:
+        assert im2.hasattr("dq")
+        assert im2.dq.shape == shape
+        if isinstance(im2, MaskModel):
+            assert not hasattr(im2, "err")
+        else:
+            assert im2.hasattr("err")
+            assert im2.err.shape == shape
+
+
+def test_mixins_from_empty():
+    """Classes inheriting from DefaultDQMixin and DefaultErrMixin should NOT have arrays created when init empty."""
+    with FlatModel() as im:
+        assert hasattr(im, "dq")
+        assert im.dq is None
+        assert im.get_default("dq").size == 0
+
+        shape = (5, 5)
+        im.data = np.zeros(shape, dtype=np.float32)
+        assert im.get_default("dq").shape == shape
+        assert im.get_default("err").shape == shape
+
+
+def test_mixins_from_array_set():
+    """Setting data array on an existing model should not update dq and err arrays."""
+    shape = (10, 10)
+    data = np.zeros(shape, dtype=np.float32)
+    with FlatModel() as im:
+        assert im.dq is None
+        assert im.err is None
+
+        im.data = data
+        assert "dq" not in im
+        assert "err" not in im
+
+
+def test_mixins_set_to_none():
+    """Setting data array to None should not set dq and err arrays."""
+    with FlatModel() as im:
+        im.data = None
+        assert im.data is None
+        # getattr returns None for array-like attributes not found, instead of AttributeError
+        assert im.dq is None
+        assert im.err is None
+        # but in reality these have not been set at all
+        assert "dq" not in im
+        assert "err" not in im
+
+
+def test_mixin_err_not_in_schema():
+    """Using err mixin should raise if err is not in the schema."""
+    schema_with_no_err = FlatModel()._schema
+    del schema_with_no_err["properties"]["err"]
+    with pytest.raises(AttributeError):
+        FlatModel(schema=schema_with_no_err)
+
+
+def test_mixin_dq_not_in_schema():
+    """Using dq mixin should raise if dq is not in the schema."""
+    schema_with_no_dq = FlatModel()._schema
+    del schema_with_no_dq["properties"]["dq"]
+    with pytest.raises(AttributeError):
+        FlatModel(schema=schema_with_no_dq)
+
+
+def test_nested_get_dtype():
+    with MultiSpecModel() as dm:
+        dm.spec.append(SpecModel())
+        dtype = dm.spec[0].get_dtype("spec_table")
+        assert isinstance(dtype, np.dtype)

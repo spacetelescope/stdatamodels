@@ -15,6 +15,8 @@ class RampModel(JwstDataModel):
          2-D data quality array for all planes
     groupdq : numpy uint8 array
          4-D data quality array for each plane
+    average_dark_current: numpy float32 array
+         Average dark current for each pixel
     zeroframe : numpy float32 array
          Zeroframe array
     group : numpy table
@@ -28,6 +30,10 @@ class RampModel(JwstDataModel):
     def __init__(self, init=None, **kwargs):
         super(RampModel, self).__init__(init=init, **kwargs)
 
-        # Implicitly create arrays
-        self.pixeldq = self.pixeldq
-        self.groupdq = self.groupdq
+        # Ensure that if data exists, pixeldq and groupdq arrays exist
+        if self.data is None:
+            return
+        if self.pixeldq is None:
+            self.pixeldq = self.get_default("pixeldq")
+        if self.groupdq is None:
+            self.groupdq = self.get_default("groupdq")
