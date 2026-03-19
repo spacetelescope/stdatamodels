@@ -238,7 +238,6 @@ def test_get_default_attribute_error():
             im.get_default("non_existent_attribute")
 
 
-@pytest.mark.xfail(reason="fails when reverting default meta behavior")
 def test_implicit_meta_none():
     """
     Test access to undefined metadata attributes.
