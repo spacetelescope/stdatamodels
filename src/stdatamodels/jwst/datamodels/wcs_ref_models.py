@@ -1,10 +1,10 @@
 import traceback
 import warnings
-import numpy as np
 
+import numpy as np
+from asdf.tags.core import NDArrayType
 from astropy import units as u
 from astropy.modeling.core import Model
-from asdf.tags.core import NDArrayType
 
 from stdatamodels.exceptions import ValidationWarning
 
