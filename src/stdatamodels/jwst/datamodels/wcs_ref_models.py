@@ -1,8 +1,10 @@
 import traceback
 import warnings
+import numpy as np
 
 from astropy import units as u
 from astropy.modeling.core import Model
+from asdf.tags.core import NDArrayType
 
 from stdatamodels.exceptions import ValidationWarning
 
@@ -686,6 +688,40 @@ class RegionsModel(ReferenceFileModel):
 
     def to_fits(self):
         raise NotImplementedError("FITS format is not supported for this file.")
+
+    def validate(self):
+        super().validate()
+        try:
+            assert isinstance(self.regions, (np.ndarray, NDArrayType))
+
+            assert self.meta.instrument.name in ["MIRI", "NIRCAM"]
+            if self.meta.instrument.name == "MIRI":
+                assert self.meta.exposure.type == "MIR_MRS"
+                assert self.meta.instrument.channel in ("12", "34", "1", "2", "3", "4")
+                assert self.meta.instrument.band in (
+                    "SHORT",
+                    "MEDIUM",
+                    "LONG",
+                    "SHORT-LONG",
+                    "SHORT-MEDIUM",
+                    "MEDIUM-SHORT",
+                    "MEDIUM-LONG",
+                    "LONG-SHORT",
+                    "LONG-MEDIUM",
+                )
+                assert self.meta.instrument.detector in ("MIRIFUSHORT", "MIRIFULONG")
+            else:
+                assert self.meta.subarray.name in (
+                    "SUB41STRIPE1_DHS",
+                    "SUB82STRIPE2_DHS",
+                    "SUB164STRIPE4_DHS",
+                    "SUB260STRIPE4_DHS",
+                )
+        except AssertionError:
+            if self._strict_validation:
+                raise
+            else:
+                warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
     def get_primary_array_name(self):
         return "regions"
