@@ -107,6 +107,12 @@ allOf:
         type: array
         items:
           type: number
+    fieldpoints:
+        description: |
+          NIRCAM Grism DHS field points, matched to the array locations of the dispersion models
+        type: array
+        items:
+          type: number
     meta:
       type: object
       properties:
