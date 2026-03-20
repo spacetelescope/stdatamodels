@@ -7,6 +7,7 @@ allOf:
 - $ref: keyword_exptype.schema
 - $ref: keyword_filter.schema
 - $ref: subarray.schema
+- $ref: keyword_psubarray.schema
 - type: object
   properties:
     profile:
