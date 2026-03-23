@@ -64,6 +64,8 @@ def test_multislit():
         slit.data = rng.random((5, 5))
         slit.dm = rng.random((5, 5))
         slit.err = rng.random((5, 5))
+        for attr in ["wavelength", "pathloss_point", "pathloss_uniform", "barshadow"]:
+            setattr(dm.slits[-1], attr, dm.slits[-1].get_default(attr))
         assert slit.wavelength.shape == (0, 0)
         assert slit.pathloss_point.shape == (0, 0)
         assert slit.pathloss_uniform.shape == (0, 0)
@@ -162,7 +164,7 @@ def test_copy_multislit():
 def test_slit_from_multislit():
     model = MultiSlitModel()
     slit = SlitModel()
-    # access int_times so it's created
-    slit.int_times = slit.int_times
+    # set int_times to its default
+    slit.int_times = slit.get_default("int_times")
     model.slits.append(slit)
     slit = SlitModel(model.slits[0].instance)

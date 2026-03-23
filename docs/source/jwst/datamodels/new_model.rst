@@ -4,30 +4,14 @@
 Defining a new model type
 =========================
 
-This tutorial describes the steps necessary to define a new model type
-using `stdatamodels`.
-
-For further reading and details, see the reference materials in
-:ref:`metadata`.
-
 In this tutorial, we'll go through the process of creating a new type
-of model for a file format used for storing the bad pixel mask for
-JWST's MIRI instrument.  This file format has a 2D array containing a
-bit field for each of the pixels, and a table describing what each of
-the bits in the array means.
-
-.. note::
-
-  While an attempt is made to present a real-world example here, it
-  may not reflect the actual final format of this file type, which is
-  still subject to change at the time of this writing.
-
-This example will be built as a third-party Python package, i.e. not
-part of `jwst.datamodels` itself.  Doing so adds a few extra wrinkles
+of model. This example will be built as a third-party Python package, i.e. not
+part of ``stdatamodels`` itself.  Doing so adds a few extra wrinkles
 to the process, and it's most helpful to show what those wrinkles are.
-To skip ahead and just see the example in its entirety, see the
-``examples/custom_model`` directory within the `jwst.datamodels` source
-tree.
+
+We will name our new model ``BadpixModel``, and it will be designed to hold
+data quality information about bad pixels in an image, some metadata about
+those pixels, and a required custom ``reference_data`` array.
 
 Directory layout
 ----------------
@@ -38,18 +22,16 @@ custom model is as below::
   .
   |-- lib
   |   |--- __init__.py
-  |   |--- bad_pixel_mask.py
+  |   |--- badpix.py
   |   |--- schemas
-  |   |--- bad_pixel_mask.schema.yaml
+  |       |--- badpix.schema.yaml
   |   |--- tests
   |       |--- __init__.py
-  |       |--- test_bad_pixel_mask.py
-  |       |--- data
-  |       |--- bad_pixel_mask.fits
+  |       |--- test_badpix.py
   |--- setup.py
 
-The main pieces are the new schema in ``bad_pixel_mask.schema.yaml``,
-the custom model class in ``bad_pixel_mask.py``, a
+The main pieces are the new schema in ``badpix.schema.yaml``,
+the custom model class in ``badpix.py``, a
 ``setup.py`` file to install the package, and some unit tests and
 associated data.  Normally, you would also have some code that *uses*
 the custom model included in the package, but that isn't included in
@@ -58,21 +40,22 @@ this minimal example.
 The schema file
 ----------------
 
-Let's start with the schema file, ``bad_pixel_mask.schema.yaml``.
+Let's start with the schema file, ``badpix.schema.yaml``.
 There are a few things it needs to do:
 
    1) It should contain all of the core metadata from the core schema
-      that ships with `jwst.datamodels`.  In JSON Schema parlance, this
-      schema "extends" the core schema.  In object-oriented
-      programming terminology, this could be said that our schema
-      "inherits from" the core schema.  It's all the same thing.
+      that ships with ``stdatamodels``.  In JSON Schema parlance, this
+      schema "extends" the core schema.
 
-   2) Define the pixel array containing the information about each of
-      the bad pixels.  This will be an integer for each pixel where
-      each bit is ascribed a particular meaning.
+   2) Define the data arrays it needs. In this case, we will define
+      a data quality (DQ) array containing information about bad pixels.  This will be
+      an integer for each pixel where each bit is ascribed a particular meaning.
+      We will also define the ``reference_data`` array of 32-bit floats representing
+      some custom type of information that every ``BadpixModel`` instance is assumed
+      to have.
 
    3) Define a table describing what each of the bit fields in the
-      pixel array means.  This will have three columns: one for the
+      DQ array means.  This will have three columns: one for the
       bit field's number (a power of 2), one for a name token to
       identify it, and one with a human-readable description.
 
@@ -105,7 +88,7 @@ Python code.  For example, to refer to a (hypothetical)
   http://jwst.stsci.edu/schemas/astroboy/my_instrument.schema.yaml
 
 The "package" portion may be omitted to refer to schemas in the
-`jwst.datamodels` core, which is how we arrive at the URL we're using
+``stdatamodels`` core, which is how we arrive at the URL we're using
 here::
 
   http://jwst.stsci.edu/schemas/core.schema.yaml
@@ -120,12 +103,15 @@ here::
    models.  Keep an eye out if you use this feature, though -- the
    precise URL used may change.
 
-The next part of the file describes the array data, that is, things
+The next part of the file describes the array data; that is, things
 that are Numpy arrays on the Python side and images or tables on the
 FITS side.
 
-First, we describe the main ``"dq"`` array.  It's declared to be
-2-dimensional, and each element is an unsigned 32-bit integer:
+First, we describe the main arrays, ``"dq"`` and ``"reference_data"``.
+They are both declared to be 2-dimensional. Each element of the DQ array
+is an unsigned 16-bit integer, defaults to being zero-filled, and maps onto
+the FITS extension "DQ". The ``reference_data`` array has 32-bit float type,
+defaults to being filled with 2s, and maps to the FITS extension "REFERENCE".
 
 .. code-block:: yaml
 
@@ -136,6 +122,11 @@ First, we describe the main ``"dq"`` array.  It's declared to be
         default: 0
         ndim: 2
         datatype: uint16
+      reference_data:
+        title: Array needed by all model instances
+        fits_hdu: REFERENCE
+        default: 2.0
+        datatype: float32
 
 The next entry describes a table that will store the mapping between
 bit fields and their meanings.  This table has four columns:
@@ -189,20 +180,50 @@ The model class
 Now, let's see how this schema is tied in with a new Python class for
 the model.
 
-First, we need to import the `JwstDataModel` class, which is the base
-class for all models::
+First, we need to import the :class:`~stdatamodels.jwst.datamodels.JwstDataModel`
+class, which is the base class for all models::
 
   from stdatamodels.jwst.datamodels import JwstDataModel
 
-Then we create a new Python class that inherits from `JwstDataModel`, and
-set its `schema_url` class member to point to the schema that we just
-defined above::
+Then we create a new Python class that inherits from
+:class:`~stdatamodels.jwst.datamodels.JwstDataModel`, and
+set its ``schema_url`` class member to point to the schema that we just
+defined above:
 
-  class MiriBadPixelMaskModel(JwstDataModel):
-      schema_url = "bad_pixel_mask.schema.yaml"
+.. code-block:: python
 
-Here, the `schema_url` has all of the "magical" URL abilities
-described above when we used the ``$ref`` feature.  However, here we
+  class BadpixModel(JwstDataModel):
+      """
+      Custom handling of bad pixels.
+
+      Attributes
+      ----------
+      dq : numpy array
+          The data quality array.
+      dq_def : numpy array
+          The data quality definitions table.
+      reference_data : np.ndarray
+          An array that is assumed to exist for all BadpixModel instances,
+          and is set to default on init.
+      """
+      schema_url = "badpix.schema.yaml"
+
+This is already a fully-defined model class and we could use it as-is.
+For example, we could do::
+
+  dq = np.zeros((10,10), dtype=np.uint16)
+  model = BadpixModel(dq=dq)
+
+This might seem a bit odd: how does BadpixModel know what to do with
+the ``dq`` keyword argument?  The answer is that the base class constructor
+assumes that any keyword arguments passed to it are meant to be array attributes of the model.
+Many models therefore don't need to define a custom constructor at all - the default ``__init__``
+behavior from the base class is sufficient.
+See the docstring of :class:`~stdatamodels.jwst.datamodels.JwstDataModel` for more information
+about what the base constructor does.
+
+In the example above, the ``schema_url`` has all of the "magical" URL abilities
+described earlier when we used the ``$ref`` feature.  However, here we
 are using a relative URL.  In this case, it is relative to the file in
 which this class is defined, with a small twist to avoid intermingling
 Python code and schema files: It looks for the given file in a
@@ -211,7 +232,7 @@ Python module in which the class is defined.
 
 As an alternative, we could just as easily have said that we want to
 use the ``image`` schema from the core without defining any extra
-elements, by setting `schema_url` to::
+elements, by setting ``schema_url`` to::
 
   schema_url = "http://jwst.stsci.edu/schemas/image.schema.yaml"
 
@@ -223,65 +244,90 @@ elements, by setting `schema_url` to::
   automatically create the inheritance on the schema side (or vice
   versa).  The reason we can't is that the schema files are designed
   to be language-agnostic: it is possible to use them from an entirely
-  different implementation of the `jwst.datamodels` framework possibly
+  different implementation of the ``stdatamodels`` framework possibly
   even written in a language other than Python.  So the schemas need
   to "stand alone" from the Python classes.  It's certainly possible
   to have the schema inherit from one thing and the Python class
-  inherit from another, and the `jwst.datamodels` framework won't and
+  inherit from another, and the ``stdatamodels`` framework won't and
   can't really complain, but doing that is only going to lead to
   confusion, so just don't do it.
 
-Within this class, we'll define a constructor.  All model constructors
-must take the highly polymorphic ``init`` value as the first argument.
-This can be a file, another model, or all kinds of other things.  See
-the docstring of `jwst.datamodels.JwstDataModel.__init__` for more
-information.  But we're going to let the base class handle that
-anyway.
 
-The rest of the arguments are up to you, but generally it's handy to
-add a couple of keyword arguments so the user can data arrays when
-creating a model from scratch.  If you don't need to do that, then
-technically writing a new constructor for the model is optional:
+Let's now add a custom constructor to the class.
+Custom constructors are useful when you want to do something special on init, such as
+handle a custom type of ``init`` value, or set some default arrays.
+All model constructors must take the highly polymorphic ``init`` value
+as the first argument. This can be a file, another model, or
+all kinds of other things. See the docstring of
+:class:`~stdatamodels.jwst.datamodels.JwstDataModel` for more information.
+Here, we are going to ensure that the ``reference_data`` array is always set on init,
+initializing it to the default if not provided. This pattern can be helpful
+if calling code assumes an attribute is always set and it's ok for the default
+value to be passed:
 
 .. code-block:: python
 
-    def __init__(self, init=None, dq=None, dq_def=None, **kwargs):
+    def __init__(self, init=None, reference_data=None, **kwargs):
         """
-        A data model to represent MIRI bad pixel masks.
+        A data model to represent bad pixel masks.
 
         Parameters
         ----------
         init : any
-            Any of the initializers supported by `~jwst.datamodels.JwstDataModel`.
-
-        dq : numpy array
-            The data quality array.
-
-        dq_def : numpy array
-            The data quality definitions table.
+            Any of the initializers supported by `~stdatamodels.jwst.datamodels.JwstDataModel`.
+        reference_data : np.ndarray, optional
+            An array to use for the `reference_data` attribute.
+            Set to default of 2.0 if not provided.
         """
-        super(MiriBadPixelMaskModel, self).__init__(init=init, **kwargs)
+        super().__init__(init=init, **kwargs)
 
-        if dq is not None:
-            self.dq = dq
+        if reference_data is None:
+            self.reference_data = self.get_default("reference_data")
+        else:
+            self.reference_data = reference_data
 
-        if dq_def is not None:
-            self.dq_def = dq_def
+Now we can do e.g.::
 
+  model = BadpixModel((10,10))
+  "reference_data" in model.instance # True
+  print(model.reference_data) # shape (10,10), filled with value 2.0
 
-The ``super..`` line is just the standard Python way of calling the
+The ``super...`` line is just the standard Python way of calling the
 constructor of the base class.  The rest of the constructor sets the
-arrays on the object if any were provided.
+reference value either to the provided array or to its default.
 
-The other methods of your class may provide additional conveniences on
+We also want to handle ``dq`` and ``dq_def``. These are common enough that
+``stdatamodels`` provides a convenient way to map the ``dq`` array to the standard
+values using its ``dq_def`` table on initialization. This is accomplished by letting
+the model inherit from the
+:class:`~stdatamodels.jwst.datamodels.model_base.DefaultDQMixin` class::
+
+  from stdatamodels.jwst.datamodels import JwstDataModel, DefaultDQMixin
+
+  class BadpixModel(JwstDataModel, DefaultDQMixin):
+      ...
+
+No additional code changes are needed.
+Note that this also causes the ``dq`` array to be initialized into
+memory when the class is constructed.
+
+Our model has one additional nonstandard feature, which is that its "primary"
+array is not called "data" (the assumed default). Instead, we want
+the primary array to be called "dq".  To accomplish this, we must simply define
+the special ``get_primary_array_name`` method to return the name of the primary array::
+  
+      def get_primary_array_name(self):
+          return "dq"
+
+Other methods of your class may provide additional conveniences on
 top of the underlying file format.  This is completely optional and if
 your file format is supported well enough by the underlying schema
 alone, it may not be necessary to define any extra methods.
 
 In the case of our example, it would be nice to have a function that,
-given the name of a bit field, would return a new array that is `True`
+given the name of a bit field, would return a new array that is ``True``
 wherever that bit field is true in the main mask array.  Since the
-order and content of the bit fields are defined in the `dq_def`
+order and content of the bit fields are defined in the ``dq_def``
 table, the function should use it in order to do this work:
 
 .. code-block:: python
@@ -314,38 +360,30 @@ table, the function should use it in order to do this work:
 
         # Create an array that is `True` only for the requested
         # bit field
-        return self.dq & field_value
+        return (self.dq & field_value) > 0
 
 One thing to note here: this array is semantically a "copy" of the
 underlying data.  Most Numpy arrays in the model framework are
 mutable, and we expect that changing their values will update the
 model itself, and be saved out by subsequent saves to disk.  Since the
 array we are returning here has no connection back to the model's main
-data array (``mask``), it's helpful to remind the user of that in the
+data array (``dq``), it's helpful to remind the user of that in the
 docstring, and not present it as a member or property, but as a getter
 function.
-
-.. note::
-
-   Since handling bit fields like this is such a commonly useful
-   thing, it's possible that this functionality will become a part of
-   `jwst.datamodels` itself in the future.  However, this still stands
-   as a good example of something someone may want to do in a custom
-   model class.
 
 Lastly, remember the ``meta.bad_pixel_count`` element we defined
 above?  We need some way to make sure that whenever the file is
 written out that it has the correct value.  The model may have been
-loaded and modified.  For this, `JwstDataModel` has the `on_save` method
+loaded and modified.  For this, ``JwstDataModel`` has the ``on_save`` method
 hook, which may be overridden by the subclass to add anything that
 should happen just before saving:
 
 .. code-block:: python
 
     def on_save(self, path):
-        super(MiriBadPixelMaskModel, self).on_save(path)
+        super().on_save(path)
 
-        self.meta.bad_pixel_count = np.sum(self.mask != 0)
+        self.meta.bad_pixel_count = np.sum(self.dq != 0)
 
 Note that here, like in the constructor, it is important to "chain up"
 to the base class so that any things that the base class wants to do
@@ -367,12 +405,11 @@ minimal, ``setup.py`` is presented below:
   from setuptools import setup
 
   setup(
-      name='custom_model',
+      name='badpix',
       description='Custom model example for jwst.datamodels',
-      packages=['custom_model', 'custom_model.tests'],
-      package_dir={'custom_model': 'lib'},
-      package_data={'custom_model': ['schemas/*.schema.yaml'],
-                    'custom_model.tests' : ['data/*.fits']}
+      packages=['badpix', 'badpix.tests'],
+      package_dir={'badpix': 'lib'},
+      package_data={'badpix': ['schemas/*.schema.yaml'],}
       )
 
 Using the new model
@@ -381,9 +418,9 @@ Using the new model
 The new model can now be used.  For example, to get the locations of
 all of the "hot" pixels::
 
-   from custom_model.bad_pixel_mask import MiriBadPixelMaskModel
+   from lib.badpix import BadpixModel
 
-   with MiriBadPixelMaskModel("bad_pixel_mask.fits") as dm:
+   with BadpixModel("bad_pixel_mask.fits") as dm:
        hot_pixels = dm.get_mask_for_field('HOT')
 
 A table-based model
@@ -445,3 +482,6 @@ simple:
         A data model for NIRISS SOSS photom reference files.
         """
         schema_url = "nissoss_photom.schema"
+    
+    def get_primary_array_name(self):
+        return "phot_table"

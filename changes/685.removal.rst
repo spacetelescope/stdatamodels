@@ -1,0 +1,1 @@
+Remove unused attribute 'padding' from PastasossModel schema

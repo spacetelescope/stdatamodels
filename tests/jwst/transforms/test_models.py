@@ -28,6 +28,12 @@ test_models = [
     DirCos2Unitless(),
     Unitless2DirCos(),
     Rotation3DToGWA(angles=[12.1, 1.3, 0.5, 3.4], axes_order="xyzx"),
+    Rotation3DToGWA(
+        angles=[
+            45,
+        ],
+        axes_order="y",
+    ),
     AngleFromGratingEquation(20000, -1),
     WavelengthFromGratingEquation(25000, 2),
     Logical("GT", 5, 10),
