@@ -474,6 +474,34 @@ def test_ramp_model_zero_frame_by_dimensions():
         assert ramp.zeroframe.shape == zdims
 
 
+def test_ramp_model_pixel_dq_default():
+    """Ensure RampModel pixeldq default has two dimensions."""
+    nints, ngroups, nrows, ncols = 2, 10, 5, 5
+    dims = (nints, ngroups, nrows, ncols)
+    pdims = (nrows, ncols)
+
+    with datamodels.RampModel(dims) as ramp:
+        # pixeldq is created by default
+        assert ramp.pixeldq.shape == pdims
+        np.testing.assert_equal(ramp.pixeldq, 0)
+
+        # Explicitly creating a pixeldq default does the same
+        default = ramp.get_default("pixeldq")
+        assert default.shape == pdims
+        np.testing.assert_equal(default, 0)
+
+
+def test_ramp_model_pixel_dq_3d():
+    """Ensure RampModel pixeldq can be assigned a 3D array."""
+    nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
+    dims = (nstripes * nints, ngroups, nrows, ncols)
+    pdims = (nstripes, nrows, ncols)
+
+    with datamodels.RampModel(dims, validate_arrays=True, strict_validation=True) as ramp:
+        ramp.pixeldq = np.zeros(pdims)
+        assert ramp.pixeldq.shape == pdims
+
+
 @pytest.fixture
 def oifits_ami_model():
     m = datamodels.AmiOIModel()

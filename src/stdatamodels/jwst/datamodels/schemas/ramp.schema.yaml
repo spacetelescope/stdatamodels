@@ -19,8 +19,11 @@ allOf:
       title: 2-D data quality array for all planes
       fits_hdu: PIXELDQ
       default: 0
-      ndim: 2
       datatype: uint32
+      # TODO: removing ndim is necessary for multi-stripe modes, but
+      # breaks default array setting from the schema for all other
+      # modes. This will need resolution in a future build.
+      # ndim: 2
     groupdq:
       title: 4-D data quality array for each plane
       fits_hdu: GROUPDQ

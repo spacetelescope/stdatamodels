@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/superbias.schema"
 allOf:
 - $ref: referencefile.schema
 - $ref: subarray.schema
+- $ref: keyword_psubarray.schema
 - $ref: keyword_readpatt.schema
 - $ref: keyword_preadpatt.schema
 - $ref: keyword_gainfact.schema
