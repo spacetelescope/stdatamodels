@@ -474,7 +474,6 @@ def test_ramp_model_zero_frame_by_dimensions():
         assert ramp.zeroframe.shape == zdims
 
 
-
 def test_ramp_model_pixel_dq_default():
     """Ensure RampModel pixeldq default has two dimensions."""
     nints, ngroups, nrows, ncols = 2, 10, 5, 5
@@ -501,7 +500,6 @@ def test_ramp_model_pixel_dq_3d():
     with datamodels.RampModel(dims, validate_arrays=True, strict_validation=True) as ramp:
         ramp.pixeldq = np.zeros(pdims)
         assert ramp.pixeldq.shape == pdims
-
 
 
 @pytest.fixture
