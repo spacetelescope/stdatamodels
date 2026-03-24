@@ -1,0 +1,1 @@
+Add support for NIRISS SOSS superstripe subarrays. Also, for superstripe support, allow the RampModel ``pixeldq`` array to have 3 dimensions.
