@@ -11,6 +11,14 @@ definitions:
       - type: string
       - type: number
       - type: number
+  dhs-wavelengthrange:
+    type: array
+    items:
+      - type: number
+      - type: string
+      - type: string
+      - type: number
+      - type: number
   slit-wavelengthrange:
     type: array
     items:
@@ -39,6 +47,9 @@ allOf:
         - type: array
           items:
           - $ref: "#/definitions/wfss-wavelengthrange"
+        - type: array
+          items:
+          - $ref: "#/definitions/dhs-wavelengthrange"
         - type: array
           items:
           - $ref: "#/definitions/slit-wavelengthrange"
