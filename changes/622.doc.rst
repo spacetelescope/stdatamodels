@@ -1,1 +1,0 @@
-Major restructure of docs pages

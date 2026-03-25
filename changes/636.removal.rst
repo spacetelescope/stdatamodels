@@ -1,1 +1,0 @@
-Deprecate AmiLgModel; AmiLgFitModel should be used instead

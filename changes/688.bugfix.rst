@@ -1,1 +1,0 @@
-Fix a bug where accessing metadata attributes that did not exist would set them to default values

@@ -1,3 +1,130 @@
+5.0.0 (2026-03-25)
+==================
+
+Bug Fixes
+---------
+
+- Add filter keyword to mask schema. (`#594
+  <https://github.com/spacetelescope/stdatamodels/issues/594>`_)
+- Fixed a bug where MIRI WFSS incorrectly set the along-dispersion axis to be
+  row instead of column (`#600
+  <https://github.com/spacetelescope/stdatamodels/issues/600>`_)
+- Change datatype of SossWaveGridModel wave_grid to float64 as expected by
+  ATOCA code (`#642
+  <https://github.com/spacetelescope/stdatamodels/issues/642>`_)
+- Replace array shape assignments with reshape to avoid upcoming deprecation
+  warnings from numpy. (`#648
+  <https://github.com/spacetelescope/stdatamodels/issues/648>`_)
+- Fix a bug where ndim and max_ndim within table-like datatypes were ignored
+  during default array creation (`#659
+  <https://github.com/spacetelescope/stdatamodels/issues/659>`_)
+- Fix a bug where accessing array-like attributes that did not exist would set
+  them to default values (`#670
+  <https://github.com/spacetelescope/stdatamodels/issues/670>`_)
+- Fix duplication of TDIM header keywords on datamodel save to FITS (`#677
+  <https://github.com/spacetelescope/stdatamodels/issues/677>`_)
+- Fix Rotation3DToGWAConverter not accepting length-one rotation lists (`#678
+  <https://github.com/spacetelescope/stdatamodels/issues/678>`_)
+- Fix a bug where accessing metadata attributes that did not exist would set
+  them to default values (`#688
+  <https://github.com/spacetelescope/stdatamodels/issues/688>`_)
+
+
+Documentation
+-------------
+
+- Major restructure of docs pages (`#622
+  <https://github.com/spacetelescope/stdatamodels/issues/622>`_)
+- Document "legacy" schemas that will no longer receive updates. (`#641
+  <https://github.com/spacetelescope/stdatamodels/issues/641>`_)
+
+
+New Features
+------------
+
+- Add PA_APER keyword to EXTRACT1D extension headers. (`#601
+  <https://github.com/spacetelescope/stdatamodels/issues/601>`_)
+- Add S_REGION keyword to spec meta schema (`#602
+  <https://github.com/spacetelescope/stdatamodels/issues/602>`_)
+- Add the following keywords to core schema for level 1b files: PWPOSOFF,
+  PWPOSTOL, FWPOSOFF and FWPOSTOL. (`#603
+  <https://github.com/spacetelescope/stdatamodels/issues/603>`_)
+- Add new MIRI subarray keywords to core and subarray schemas (`#605
+  <https://github.com/spacetelescope/stdatamodels/issues/605>`_)
+- Added PictureFrame reference model (`#607
+  <https://github.com/spacetelescope/stdatamodels/issues/607>`_)
+- Add SUB_SHRT and SUB_LONG keywords for MIRI IFU; remove unneeded names from
+  base subarray enum list (`#615
+  <https://github.com/spacetelescope/stdatamodels/issues/615>`_)
+- Add ta_xpos and ta_ypos attributes to SlitModel schemas, and
+  meta.cal_step.targ_centroid attribute to core schema, in support of new
+  targ_centroid step (`#620
+  <https://github.com/spacetelescope/stdatamodels/issues/620>`_)
+- Add a ``cal_step`` status keyword for the ``adaptive_trace_model`` step.
+  Add a ``trace_model`` image to the IFUImageModel schema. (`#632
+  <https://github.com/spacetelescope/stdatamodels/issues/632>`_)
+- Give new metadata attributes to PastasossModel (`#664
+  <https://github.com/spacetelescope/stdatamodels/issues/664>`_)
+- Add PHOTUNIT and WAVEUNIT attributes to WFSS photom ref file schemas (`#665
+  <https://github.com/spacetelescope/stdatamodels/issues/665>`_)
+- Update NIRCamGrismModel to allow for nested transforms keyed off DHS stripe
+  ID; update wavelengthrange schema to allow for DHS fieldpoint column; update
+  RegionsModel schema to support use with NIRCam DHS subarrays. (`#666
+  <https://github.com/spacetelescope/stdatamodels/issues/666>`_)
+- Add MIRI WFSS Photom datamodel (`#668
+  <https://github.com/spacetelescope/stdatamodels/issues/668>`_)
+- Add ``get_default`` and ``get_dtype`` methods to datamodel, which return the
+  schema-defined default and datatype,respectively, of the requested attribute
+  (`#670 <https://github.com/spacetelescope/stdatamodels/issues/670>`_)
+- Add FILTER keyword to MIRI filteroffset reference file schema. (`#671
+  <https://github.com/spacetelescope/stdatamodels/issues/671>`_)
+- Add support for NIRISS SOSS superstripe subarrays. Also, for superstripe
+  support, allow the RampModel ``pixeldq`` array to have 3 dimensions. (`#683
+  <https://github.com/spacetelescope/stdatamodels/issues/683>`_)
+
+
+Misc
+----
+
+- Add UnsupportedConverter class and UnsupportedConverterError as part of
+  procedure for removing legacy transforms and their converters (`#589
+  <https://github.com/spacetelescope/stdatamodels/issues/589>`_)
+- Add dependency on gwcs, and update Snell and MIRI_AB2Slice to avoid repeated
+  code by calling gwcs methods. (`#612
+  <https://github.com/spacetelescope/stdatamodels/issues/612>`_)
+- Updated RSCD datamodel and added RSCD processing values to core schema (`#638
+  <https://github.com/spacetelescope/stdatamodels/issues/638>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- Warn when ``DataModel.history`` is used and add replacement
+  ``DataModel.add_history_entry``. (`#562
+  <https://github.com/spacetelescope/stdatamodels/issues/562>`_)
+- Remove deprecated V23ToSky and Rotation3D transforms and associated asdf
+  converter (`#589
+  <https://github.com/spacetelescope/stdatamodels/issues/589>`_)
+- Remove DataModel.read and DataModel.write (deprecated since 3.0.0) (`#595
+  <https://github.com/spacetelescope/stdatamodels/issues/595>`_)
+- Remove DataModel.open_asdf (deprecated since 3.0.1) (`#596
+  <https://github.com/spacetelescope/stdatamodels/issues/596>`_)
+- Remove private ``_kwtool`` module which has been migrated to a private
+  repository. (`#598
+  <https://github.com/spacetelescope/stdatamodels/issues/598>`_)
+- Removed nsclean from cal_step status. (`#608
+  <https://github.com/spacetelescope/stdatamodels/issues/608>`_)
+- Remove handling of unsupported "clobber" keyword argument in
+  ``DataModel.save``. (`#617
+  <https://github.com/spacetelescope/stdatamodels/issues/617>`_)
+- Deprecate AmiLgModel; AmiLgFitModel should be used instead (`#636
+  <https://github.com/spacetelescope/stdatamodels/issues/636>`_)
+- Deprecate AsnModel (`#654
+  <https://github.com/spacetelescope/stdatamodels/issues/654>`_)
+- Remove unused attribute 'padding' from PastasossModel schema (`#685
+  <https://github.com/spacetelescope/stdatamodels/issues/685>`_)
+
+
 4.1.0 (2025-09-23)
 ==================
 
