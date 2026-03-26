@@ -565,3 +565,61 @@ def test_open_from_file_with_kwargs_deprecation(tmp_path):
 
     with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
         DataModel(fn, data=np.ones((10, 10)))
+
+
+def test_model_equality_with_arrays():
+    with BasicModel((50, 50)) as dm1:
+        dm1.meta.telescope == "telescope1"
+
+        # models with copied arrays are not equal
+        dm2 = dm1.copy()
+        assert dm2 != dm1
+
+        # models with the same underlying array are equal
+        dm2.data = dm1.data
+        assert dm2 == dm1
+
+        # models with the same array but mismatched metadata are not equal
+        dm2.meta.telescope = "telescope2"
+        assert dm2 != dm1
+
+        dm2.close()
+
+
+def test_model_equality_no_arrays():
+    with BasicModel() as dm1:
+        dm1.meta.telescope == "telescope1"
+
+        # copied models with no arrays are equal
+        dm2 = dm1.copy()
+        assert dm2 == dm1
+
+        # models with mismatched metadata are not equal
+        dm2.meta.telescope = "telescope2"
+        assert dm2 != dm1
+
+        dm2.close()
+
+
+def test_model_compare_to_dict():
+    with BasicModel() as dm1:
+        # comparing a simple node to a dictionary works
+        compare = {"meta": {"model_type": "BasicModel"}}
+        assert dm1 == compare
+        compare = {"meta": {"model_type": "BasicModel", "telescope": "test"}}
+        assert dm1 != compare
+
+        # add a data array
+        data = np.zeros((10, 10))
+        dm1.data = data
+
+        # comparing a node to a dictionary with an array, whether copied or not,
+        # raises a value error
+        msg = "The truth value of an array with more than one element is ambiguous"
+        compare = {"meta": {"model_type": "BasicModel"}, "data": data}
+        with pytest.raises(ValueError, match=msg):
+            assert dm1 == compare
+
+        compare["data"] = data.copy()
+        with pytest.raises(ValueError, match=msg):
+            assert dm1 == compare
