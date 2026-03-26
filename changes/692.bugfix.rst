@@ -1,0 +1,1 @@
+Catch array comparison errors in datamodel equality checks and return False in that case.
