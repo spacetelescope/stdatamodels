@@ -369,8 +369,17 @@ class ObjectNode(Node):
 
     def __eq__(self, other):
         if isinstance(other, ObjectNode):
-            return self._instance == other._instance
+            try:
+                # Try a simple equality check first.  This will pass if
+                # the internal numpy arrays reference the same object.
+                return self._instance == other._instance
+            except ValueError:
+                # If it fails (e.g. internal numpy arrays are copies), then
+                # return False.  Copies are not considered equal.
+                return False
         else:
+            # For non-node comparisons to arrays, allow equality checks to fail
+            # in complex cases
             return self._instance == other
 
     def __getattr__(self, attr):
