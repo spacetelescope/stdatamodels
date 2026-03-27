@@ -1,0 +1,1 @@
+Disable passing keyword arguments through asdf_in_fits.open and fits_support.from_fits_asdf into asdf.open (deprecated since 4.1.0
