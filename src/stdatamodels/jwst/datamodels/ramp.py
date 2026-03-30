@@ -71,4 +71,8 @@ class RampModel(JwstDataModel):
         if attr == "pixeldq" and self.data is not None:
             return np.zeros(self.data.shape[-2:], dtype=np.uint32)
 
+        if attr == "zeroframe" and self.data is not None:
+            shp = (self.data.shape[0],) + self.data.shape[-2:]
+            return np.zeros(shp, dtype=np.float32)
+
         return super().get_default(attr)
