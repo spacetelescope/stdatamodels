@@ -46,6 +46,8 @@ class RampModel(JwstDataModel):
 
         Overrides the parent method to set pixeldq to a 2D array if
         data is defined.
+        Override the parent method to give zeroframe the correct shape
+        if data is defined.
 
         Parameters
         ----------
