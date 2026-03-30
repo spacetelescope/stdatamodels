@@ -1,1 +1,1 @@
-Catch array comparison errors in datamodel equality checks and return False in that case.
+Fix a bug where comparing the equality of two datamodels would cause a crash if their arrays were not the same, instead of returning False.
