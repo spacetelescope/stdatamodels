@@ -225,15 +225,7 @@ def _make_default_array(attr, schema, ctx):
                 if ndim is None:
                     shape = primary_array.shape
                 else:
-                    if attr == "zeroframe":
-                        dims = primary_array.shape
-                        if len(dims) != 4:
-                            error_msg = "To allocate ZEROFRAME, the primary array must "
-                            error_msg += f"have 4 dimensions, but has {len(dims)}."
-                            raise IndexError(error_msg)
-                        shape = (dims[0], dims[2], dims[3])
-                    else:
-                        shape = primary_array.shape[-ndim:]
+                    shape = primary_array.shape[-ndim:]
             elif ndim is None:
                 shape = (0,)
             else:
