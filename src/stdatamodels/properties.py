@@ -521,19 +521,23 @@ class ObjectNode(Node):
 class ListNode(Node):
     """A list-like object that supports validation against a schema."""
 
-    def __cast(self, other):
-        if isinstance(other, ListNode):
-            return other._instance
-        return other
-
     def __repr__(self):
         return repr(self._instance)
 
     def __eq__(self, other):
-        return self._instance == self.__cast(other)
-
-    def __ne__(self, other):
-        return self._instance != self.__cast(other)
+        if isinstance(other, ListNode):
+            try:
+                # Try a simple equality check first.  This will pass if
+                # the internal numpy arrays reference the same object.
+                return self._instance == other._instance
+            except ValueError:
+                # If it fails (e.g. internal numpy arrays are copies), then
+                # return False.  Copies are not considered equal.
+                return False
+        else:
+            # For non-node comparisons to arrays, allow equality checks to fail
+            # in complex cases
+            return self._instance == other
 
     def __contains__(self, item):
         return item in self._instance

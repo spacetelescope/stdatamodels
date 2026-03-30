@@ -15,6 +15,7 @@ from .models import (
     TableModel,
     TableModelBad,
     TransformModel,
+    ValidationModel,
 )
 
 
@@ -623,3 +624,53 @@ def test_model_compare_to_dict():
         compare["data"] = data.copy()
         with pytest.raises(ValueError, match=msg):
             assert dm1 == compare
+
+
+def test_list_node_eq_with_arrays():
+    with ValidationModel() as dm1:
+        data1 = np.zeros((10, 10))
+        data2 = np.ones((10, 10))
+        data_list = [data1, data2]
+        dm1.meta.list_of_data_attribute = data_list
+
+        # nodes with copied arrays are not equal
+        dm2 = dm1.copy()
+        assert dm2.meta.list_of_data_attribute != dm1.meta.list_of_data_attribute
+
+        # models with the same underlying array are equal
+        dm2.meta.list_of_data_attribute = [data1, data2]
+        assert dm2.meta.list_of_data_attribute == dm1.meta.list_of_data_attribute
+
+        dm2.close()
+
+
+def test_list_node_eq_no_arrays():
+    with ValidationModel() as dm1:
+        dm1.meta.list_of_string_attribute = ["a", "b"]
+
+        # nodes with copies of simple lists are equal
+        dm2 = dm1.copy()
+        assert dm2.meta.list_of_string_attribute == dm1.meta.list_of_string_attribute
+
+        dm2.close()
+
+
+def test_list_node_compare_to_list():
+    with ValidationModel() as dm1:
+        dm1.meta.list_of_string_attribute = ["a", "b"]
+        data1 = np.zeros((10, 10))
+        data2 = np.ones((10, 10))
+        dm1.meta.list_of_data_attribute = [data1, data2]
+
+        # comparing a simple node to a list works
+        assert dm1.meta.list_of_string_attribute == ["a", "b"]
+        assert dm1.meta.list_of_string_attribute != ["a", "c"]
+
+        # comparing to a list of data that contains the same arrays will pass
+        assert dm1.meta.list_of_data_attribute == [data1, data2]
+        assert dm1.meta.list_of_data_attribute != [data1]
+
+        # comparing to a copy will fail
+        msg = "The truth value of an array with more than one element is ambiguous"
+        with pytest.raises(ValueError, match=msg):
+            assert dm1.meta.list_of_data_attribute == [data1.copy(), data2.copy()]
