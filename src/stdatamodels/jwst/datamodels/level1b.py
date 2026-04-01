@@ -62,3 +62,31 @@ class Level1bModel(JwstDataModel):
 
     def _migrate_hdulist(self, hdulist):
         return _migrate_moving_target_table(hdulist)
+
+    def get_default(self, attr):
+        """
+        Retrieve the schema-defined default value of an attribute.
+
+        Override the parent method to give zeroframe the correct shape.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value.
+
+        Returns
+        -------
+        object or None
+            The default value for the given attribute. If the attribute is schema-defined
+            but has no default value in the schema, this will return None.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
+        """
+        if attr == "zeroframe" and self.data is not None:
+            shp = (self.data.shape[0],) + self.data.shape[-2:]
+            return np.zeros(shp, dtype=np.float32)
+
+        return super().get_default(attr)

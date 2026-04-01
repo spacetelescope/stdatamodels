@@ -460,7 +460,8 @@ def test_ramp_model_zero_frame_open_file(tmp_path):
         np.testing.assert_allclose(zframe0, zframe1, 1.0e-5)
 
 
-def test_ramp_model_zero_frame_by_dimensions():
+@pytest.mark.parametrize("ModelType", [datamodels.Level1bModel, datamodels.RampModel])
+def test_ramp_model_zero_frame_by_dimensions(ModelType):
     """
     Ensures creating a RampModel by dimensions results in the correct
     dimensions for ZEROFRAME.
@@ -469,7 +470,7 @@ def test_ramp_model_zero_frame_by_dimensions():
     dims = (nints, ngroups, nrows, ncols)
     zdims = (nints, nrows, ncols)
 
-    with datamodels.RampModel(dims) as ramp:
+    with ModelType(dims) as ramp:
         ramp.zeroframe = ramp.get_default("zeroframe")
         assert ramp.zeroframe.shape == zdims
 

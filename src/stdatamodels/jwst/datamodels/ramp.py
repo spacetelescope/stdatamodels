@@ -46,6 +46,8 @@ class RampModel(JwstDataModel):
 
         Overrides the parent method to set pixeldq to a 2D array if
         data is defined.
+        Override the parent method to give zeroframe the correct shape
+        if data is defined.
 
         Parameters
         ----------
@@ -70,5 +72,9 @@ class RampModel(JwstDataModel):
         # type, we can resume using the schema to make a default pixeldq.
         if attr == "pixeldq" and self.data is not None:
             return np.zeros(self.data.shape[-2:], dtype=np.uint32)
+
+        if attr == "zeroframe" and self.data is not None:
+            shp = (self.data.shape[0],) + self.data.shape[-2:]
+            return np.zeros(shp, dtype=np.float32)
 
         return super().get_default(attr)
