@@ -603,6 +603,14 @@ def test_model_equality_no_arrays():
 
 
 def test_model_compare_to_dict():
+    """
+    Compare a DataModel to a dictionary.
+
+    This test exercises a currently supported behavior: DataModel
+    equality is implemented in ObjectNode, which allows direct
+    comparison between dictionaries and nodes. Support for DataModel
+    equality to dictionaries may be removed in the future.
+    """
     with BasicModel() as dm1:
         # comparing a simple node to a dictionary works
         compare = {"meta": {"model_type": "BasicModel"}}

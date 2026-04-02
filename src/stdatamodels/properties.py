@@ -344,6 +344,21 @@ class Node:
         self._ctx = ctx
         self._parent = parent
 
+    def __eq__(self, other):
+        if isinstance(other, Node):
+            try:
+                # Try a simple equality check first.  This will pass if
+                # any internal numpy arrays reference the same object.
+                return self._instance == other._instance
+            except ValueError:
+                # If it fails (e.g. internal numpy arrays are copies), then
+                # return False.  Copies are not considered equal.
+                return False
+        else:
+            # For non-node comparisons, allow equality checks to fail
+            # in complex cases
+            return self._instance == other
+
     def _validate(self):
         return validate.value_change(self._name, self._instance, self._schema, self._ctx)
 
@@ -358,21 +373,6 @@ class ObjectNode(Node):
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
         return sorted(set(super().__dir__()) | added)
-
-    def __eq__(self, other):
-        if isinstance(other, ObjectNode):
-            try:
-                # Try a simple equality check first.  This will pass if
-                # the internal numpy arrays reference the same object.
-                return self._instance == other._instance
-            except ValueError:
-                # If it fails (e.g. internal numpy arrays are copies), then
-                # return False.  Copies are not considered equal.
-                return False
-        else:
-            # For non-node comparisons to arrays, allow equality checks to fail
-            # in complex cases
-            return self._instance == other
 
     def __getattr__(self, attr):
         if attr.startswith("_"):
@@ -523,21 +523,6 @@ class ListNode(Node):
 
     def __repr__(self):
         return repr(self._instance)
-
-    def __eq__(self, other):
-        if isinstance(other, ListNode):
-            try:
-                # Try a simple equality check first.  This will pass if
-                # the internal numpy arrays reference the same object.
-                return self._instance == other._instance
-            except ValueError:
-                # If it fails (e.g. internal numpy arrays are copies), then
-                # return False.  Copies are not considered equal.
-                return False
-        else:
-            # For non-node comparisons to arrays, allow equality checks to fail
-            # in complex cases
-            return self._instance == other
 
     def __contains__(self, item):
         return item in self._instance
