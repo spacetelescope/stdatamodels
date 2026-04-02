@@ -25,4 +25,14 @@ allOf:
               properties:
                 string_attribute:
                   type: string
+          list_of_data_attribute:
+            type: array
+            items:
+              ndim: 2
+              datatype: float32
+              default: 0.0
+          list_of_string_attribute:
+            type: array
+            items:
+              type: string
 ...

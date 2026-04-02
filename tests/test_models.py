@@ -15,6 +15,7 @@ from .models import (
     TableModel,
     TableModelBad,
     TransformModel,
+    ValidationModel,
 )
 
 
@@ -565,3 +566,119 @@ def test_open_from_file_with_kwargs_deprecation(tmp_path):
 
     with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
         DataModel(fn, data=np.ones((10, 10)))
+
+
+def test_model_equality_with_arrays():
+    with BasicModel((50, 50)) as dm1:
+        dm1.meta.telescope == "telescope1"
+
+        # models with copied arrays are not equal
+        dm2 = dm1.copy()
+        assert dm2 != dm1
+
+        # models with the same underlying array are equal
+        dm2.data = dm1.data
+        assert dm2 == dm1
+
+        # models with the same array but mismatched metadata are not equal
+        dm2.meta.telescope = "telescope2"
+        assert dm2 != dm1
+
+        dm2.close()
+
+
+def test_model_equality_no_arrays():
+    with BasicModel() as dm1:
+        dm1.meta.telescope == "telescope1"
+
+        # copied models with no arrays are equal
+        dm2 = dm1.copy()
+        assert dm2 == dm1
+
+        # models with mismatched metadata are not equal
+        dm2.meta.telescope = "telescope2"
+        assert dm2 != dm1
+
+        dm2.close()
+
+
+def test_model_compare_to_dict():
+    """
+    Compare a DataModel to a dictionary.
+
+    This test exercises a currently supported behavior: DataModel
+    equality is implemented in ObjectNode, which allows direct
+    comparison between dictionaries and nodes. Support for DataModel
+    equality to dictionaries may be removed in the future.
+    """
+    with BasicModel() as dm1:
+        # comparing a simple node to a dictionary works
+        compare = {"meta": {"model_type": "BasicModel"}}
+        assert dm1 == compare
+        compare = {"meta": {"model_type": "BasicModel", "telescope": "test"}}
+        assert dm1 != compare
+
+        # add a data array
+        data = np.zeros((10, 10))
+        dm1.data = data
+
+        # comparing a node to a dictionary with an array, whether copied or not,
+        # raises a value error
+        msg = "The truth value of an array with more than one element is ambiguous"
+        compare = {"meta": {"model_type": "BasicModel"}, "data": data}
+        with pytest.raises(ValueError, match=msg):
+            assert dm1 == compare
+
+        compare["data"] = data.copy()
+        with pytest.raises(ValueError, match=msg):
+            assert dm1 == compare
+
+
+def test_list_node_eq_with_arrays():
+    with ValidationModel() as dm1:
+        data1 = np.zeros((10, 10))
+        data2 = np.ones((10, 10))
+        data_list = [data1, data2]
+        dm1.meta.list_of_data_attribute = data_list
+
+        # nodes with copied arrays are not equal
+        dm2 = dm1.copy()
+        assert dm2.meta.list_of_data_attribute != dm1.meta.list_of_data_attribute
+
+        # models with the same underlying array are equal
+        dm2.meta.list_of_data_attribute = [data1, data2]
+        assert dm2.meta.list_of_data_attribute == dm1.meta.list_of_data_attribute
+
+        dm2.close()
+
+
+def test_list_node_eq_no_arrays():
+    with ValidationModel() as dm1:
+        dm1.meta.list_of_string_attribute = ["a", "b"]
+
+        # nodes with copies of simple lists are equal
+        dm2 = dm1.copy()
+        assert dm2.meta.list_of_string_attribute == dm1.meta.list_of_string_attribute
+
+        dm2.close()
+
+
+def test_list_node_compare_to_list():
+    with ValidationModel() as dm1:
+        dm1.meta.list_of_string_attribute = ["a", "b"]
+        data1 = np.zeros((10, 10))
+        data2 = np.ones((10, 10))
+        dm1.meta.list_of_data_attribute = [data1, data2]
+
+        # comparing a simple node to a list works
+        assert dm1.meta.list_of_string_attribute == ["a", "b"]
+        assert dm1.meta.list_of_string_attribute != ["a", "c"]
+
+        # comparing to a list of data that contains the same arrays will pass
+        assert dm1.meta.list_of_data_attribute == [data1, data2]
+        assert dm1.meta.list_of_data_attribute != [data1]
+
+        # comparing to a copy will fail
+        msg = "The truth value of an array with more than one element is ambiguous"
+        with pytest.raises(ValueError, match=msg):
+            assert dm1.meta.list_of_data_attribute == [data1.copy(), data2.copy()]
