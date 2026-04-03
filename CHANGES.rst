@@ -1,3 +1,16 @@
+5.0.1 (2026-04-03)
+==================
+
+Bug Fixes
+---------
+
+- Fix a bug where comparing the equality of two datamodels would cause a crash
+  if their arrays were not the same, instead of returning False. (`#692
+  <https://github.com/spacetelescope/stdatamodels/issues/692>`_)
+- Fix incorrect datatype for FWPOSTOL and PWPOSTOL (`#701
+  <https://github.com/spacetelescope/stdatamodels/issues/701>`_)
+
+
 5.0.0 (2026-03-25)
 ==================
 
