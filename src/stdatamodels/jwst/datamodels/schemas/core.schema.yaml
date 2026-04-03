@@ -466,10 +466,9 @@ properties:
             blend_rule: max
           filter_wheel_tolerance:
             title: Filter wheel position tolerance
-            type: number
+            type: string
             fits_keyword: FWPOSTOL
             blend_table: True
-            blend_rule: max
           pupil:
             title: Name of the pupil element used
             type: string
@@ -492,10 +491,9 @@ properties:
             blend_rule: max
           pupil_wheel_tolerance:
             title: Pupil wheel position tolerance
-            type: number
+            type: string
             fits_keyword: PWPOSTOL
             blend_table: True
-            blend_rule: max
           grating:
             title: Name of the grating element used
             type: string
