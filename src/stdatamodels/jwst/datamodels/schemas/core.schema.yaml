@@ -467,6 +467,7 @@ properties:
           filter_wheel_tolerance:
             title: Filter wheel position tolerance
             type: string
+            enum: [within commanded tolerance, outside calibration tolerance]
             fits_keyword: FWPOSTOL
             blend_table: True
             blend_rule: wheeltol
@@ -493,6 +494,7 @@ properties:
           pupil_wheel_tolerance:
             title: Pupil wheel position tolerance
             type: string
+            enum: [within commanded tolerance, outside calibration tolerance]
             fits_keyword: PWPOSTOL
             blend_table: True
             blend_rule: wheeltol
