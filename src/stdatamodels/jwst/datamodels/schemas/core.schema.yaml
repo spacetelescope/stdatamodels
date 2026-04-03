@@ -469,6 +469,7 @@ properties:
             type: string
             fits_keyword: FWPOSTOL
             blend_table: True
+            blend_rule: wheeltol
           pupil:
             title: Name of the pupil element used
             type: string
@@ -494,6 +495,7 @@ properties:
             type: string
             fits_keyword: PWPOSTOL
             blend_table: True
+            blend_rule: wheeltol
           grating:
             title: Name of the grating element used
             type: string
