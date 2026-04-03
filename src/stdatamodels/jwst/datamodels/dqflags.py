@@ -66,6 +66,7 @@ group = {
     "SATURATED": pixel["SATURATED"],
     "JUMP_DET": pixel["JUMP_DET"],
     "DROPOUT": pixel["DROPOUT"],
+    "PERSISTENCE": pixel["PERSISTENCE"],
     "AD_FLOOR": pixel["AD_FLOOR"],
     "CHARGELOSS": pixel["CHARGELOSS"],
 }
