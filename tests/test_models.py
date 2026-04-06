@@ -134,6 +134,26 @@ def test_init_incompatible_datamodel():
         BasicModel(input_model, schema=schema)
 
 
+def test_init_from_another_model():
+    """Init model from a compatible model type should update model_type attribute."""
+    input_model = FitsModel((50, 50))
+    with BasicModel(input_model) as dm:
+        assert dm.data.shape == (50, 50)
+        assert dm.meta.model_type == "BasicModel"
+
+
+def test_init_from_another_model_on_file(tmp_path):
+    """Init model from a file containing a different but compatible model type should update model_type attribute."""
+    input_model = FitsModel((50, 50))
+    file_path = tmp_path / "test.fits"
+    input_model.save(file_path)
+    input_model.close()
+
+    with BasicModel(file_path) as dm:
+        assert dm.data.shape == (50, 50)
+        assert dm.meta.model_type == "BasicModel"
+
+
 def test_set_array():
     with pytest.raises(ValueError):
         with BasicModel() as dm:

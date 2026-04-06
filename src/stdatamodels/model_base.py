@@ -220,6 +220,7 @@ class DataModel(properties.ObjectNode):
                 self._validate_arrays = True
                 self.validate()
                 self._validate_arrays = current_validate_arrays
+            self.meta.model_type = self._model_type
             return
 
         elif isinstance(init, AsdfFile):
@@ -551,8 +552,7 @@ class DataModel(properties.ObjectNode):
         # store the data model type, if not already set
         klass = self.__class__.__name__
         if klass != "DataModel":
-            if not self.meta.hasattr("model_type"):
-                self.meta.model_type = klass
+            self.meta.model_type = klass
 
     def on_save(self, path=None):
         """
