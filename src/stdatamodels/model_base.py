@@ -648,35 +648,6 @@ class DataModel(properties.ObjectNode):
         asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
 
-    @classmethod
-    def from_fits(cls, init, schema=None, **kwargs):
-        """
-        Load a model from a FITS file.
-
-        Parameters
-        ----------
-        init : file path, file object, astropy.io.fits.HDUList
-            - file path: Initialize from the given file
-            - readable file object: Initialize from the given file object
-            - astropy.io.fits.HDUList: Initialize from the given
-              `~astropy.io.fits.HDUList`.
-        schema : dict, str
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions.
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel`
-            A data model.
-        """
-        warnings.warn(
-            "from_fits is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
-
     def to_fits(self, init, *args, **kwargs):
         """
         Write a data model to a FITS file.

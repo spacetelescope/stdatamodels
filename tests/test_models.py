@@ -538,11 +538,6 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             assert len(mids) < 2
 
 
-def test_from_fits_deprecation():
-    with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
-        DataModel.from_fits({})
-
-
 def test_memmap_deprecation():
     with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
         DataModel(memmap=True)
