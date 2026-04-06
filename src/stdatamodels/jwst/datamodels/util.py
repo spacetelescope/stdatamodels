@@ -43,20 +43,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
           be a shallow copy of the input model. This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
-        - None: Deprecated; use the DataModel constructor directly instead.
-          A default data model with no shape.
-
-        - tuple: Deprecated; use the DataModel constructor directly instead.
-          Initialize with empty data of the given shape.
-
-        - np.ndarray: Deprecated; use the DataModel constructor directly instead.
-          Initialize a model with primary array attribute (typically 'data') set to the input array.
-          For 2-D input an ImageModel is created, for 3-D a CubeModel, and for 4-D a QuadModel.
-
-        - :class:`~astropy.io.fits.HDUList`: Deprecated; save the HDUList to file and then call open
-          on the file instead.
-          Initialize from the given HDUList.
-
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
@@ -95,13 +81,12 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     # Get special cases for opening a model out of the way
     # all special cases return a model if they match
 
-    if init is None:
-        warnings.warn(
-            "Passing None to open is deprecated; use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
+    if init is None or isinstance(init, (tuple, np.ndarray, fits.HDUList)):
+        raise TypeError(
+            f"Init type of {type(init).__name__} is not supported. "
+            "To initialize a model from scratch, from array, or from a `~astropy.io.fits.HDUList`, "
+            "use the DataModel constructors directly instead."
         )
-        return dm.JwstDataModel(None, **kwargs)
 
     elif isinstance(init, dm.JwstDataModel):
         # Copy the object so it knows not to close here
@@ -143,35 +128,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             model._file_references.append(_FileReference(asdffile))
 
             return model
-
-    elif isinstance(init, tuple):
-        warnings.warn(
-            "Passing tuple to open is deprecated; use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        for item in init:
-            if not isinstance(item, int):
-                raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
-        shape = init
-
-    elif isinstance(init, np.ndarray):
-        warnings.warn(
-            "Passing np.ndarray to open is deprecated; "
-            "use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        shape = init.shape
-
-    elif isinstance(init, fits.HDUList):
-        warnings.warn(
-            "Passing fits.HDUList to open is deprecated; "
-            "use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        hdulist = init
 
     elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
         try:
