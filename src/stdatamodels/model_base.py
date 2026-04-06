@@ -624,34 +624,6 @@ class DataModel(properties.ObjectNode):
 
         return output_path
 
-    @classmethod
-    def from_asdf(cls, init, schema=None, **kwargs):
-        """
-        Load a data model from an ASDF file.
-
-        Parameters
-        ----------
-        init : str, file object, `~asdf.AsdfFile`
-            - str : file path: initialize from the given file
-            - readable file object: Initialize from the given file object
-            - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-        schema : dict
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel` instance
-            A data model.
-        """
-        warnings.warn(
-            "from_asdf is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
-
     def to_asdf(self, init, *args, **kwargs):
         """
         Write a data model to an ASDF file.
