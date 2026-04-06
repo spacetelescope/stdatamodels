@@ -85,15 +85,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors. See the documentation for each model class for details on how to use them.
     """
-    if "memmap" in kwargs:
-        warnings.warn(
-            "Memory mapping is no longer supported; memmap is hard-coded to False "
-            "and the keyword argument no longer has any effect.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        kwargs.pop("memmap")
-
     # Initialize variables used to select model class
 
     hdulist = {}
