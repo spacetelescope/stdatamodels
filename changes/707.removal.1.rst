@@ -1,0 +1,1 @@
+Removed ``DataModel.from_asdf`` and ``DataModel.from_fits``. Use ``DataModel.__init__`` directly instead.
