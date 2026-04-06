@@ -15,7 +15,6 @@ from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from astropy.io import fits
 from astropy.time import Time
-from astropy.wcs import WCS
 
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
@@ -1068,90 +1067,6 @@ class DataModel(properties.ObjectNode):
         entries = self.history
         entries.clear()
         entries.extend(values)
-
-    def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
-        """
-        Get a `astropy.wcs.WCS` object created from the FITS WCS information in the model.
-
-        Note that modifying the returned WCS object will not modify
-        the data in this model.  To update the model, use `set_fits_wcs`.
-
-        This method is deprecated and will be removed in a future version.
-        To get the SIP approximation, call ``to_fits_sip()`` on the
-        model.meta.wcs attribute.
-
-        Parameters
-        ----------
-        hdu_name : str, optional
-            The name of the HDU to get the WCS from.  This must use
-            named HDU's, not numerical order HDUs. To get the primary
-            HDU, pass ``'PRIMARY'``.
-        hdu_ver : int, optional
-            The extension version. Used when there is more than one
-            extension with the same name. The default value, 1,
-            is the first.
-        key : str, optional
-            The name of a particular WCS transform to use.  This may
-            be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
-            the ``"a"`` part of the ``CTYPEia`` cards.  *key* may only
-            be provided if *header* is also provided.
-
-        Returns
-        -------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The type will depend on what libraries are installed on
-            this system.
-        """
-        warnings.warn(
-            "get_fits_wcs is deprecated. To get the SIP approximation, "
-            "call ``to_fits_sip()`` on the model.meta.wcs attribute.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        hdulist = fits_support.to_fits(self._instance, self._schema)
-        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver - 1)
-        header = hdu.header
-        return WCS(header, key=key, relax=True, fix=True)
-
-    def set_fits_wcs(self, wcs, hdu_name="SCI"):
-        """
-        Set the FITS WCS information on the model using the given `astropy.wcs.WCS` object.
-
-        Note that the "key" of the WCS is stored in the WCS object
-        itself, so it can not be set as a parameter to this method.
-
-        This method is deprecated and will be removed in a future version.
-        The WCS should only be modified by setting model.meta.wcs
-
-        Parameters
-        ----------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The object containing FITS WCS information
-        hdu_name : str, optional
-            The name of the HDU to set the WCS from.  This must use
-            named HDU's, not numerical order HDUs.  To set the primary
-            HDU, pass ``'PRIMARY'``.
-        """
-        warnings.warn(
-            "set_fits_wcs is deprecated and will be removed in a future release.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        header = wcs.to_header()
-        if hdu_name == "PRIMARY":
-            hdu = fits.PrimaryHDU(header=header)
-        else:
-            hdu = fits.ImageHDU(name=hdu_name, header=header)
-        hdulist = fits.HDUList([hdu])
-
-        ff = fits_support.from_fits(
-            hdulist,
-            self._schema,
-            self._ctx,
-            ignore_missing_extensions=self._ignore_missing_extensions,
-        )
-
-        self._instance = properties.merge_tree(self._instance, ff.tree)
 
     def getarray_noinit(self, attribute):
         """
