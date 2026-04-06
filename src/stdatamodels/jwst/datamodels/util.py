@@ -61,10 +61,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     Warnings
     --------
-    The ``open`` function is primarily intended for opening files and creating models from them,
-    and is not intended for creating models from scratch.
-    Init types of None, shape tuple, and numpy array
-    are deprecated and will raise a TypeError in the future.
+    The ``open`` function is not intended for creating models from scratch.
     Use the DataModel constructors directly instead,
     i.e. :class:`JwstDataModel` for a generic model
     or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
