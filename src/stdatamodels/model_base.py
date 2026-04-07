@@ -1045,18 +1045,25 @@ class DataModel(properties.ObjectNode):
             path = []
             hdu_keywords_from_data(d, path, hdu_keywords)
 
-        # Perform the updates to the keywords mentioned in the schema
+        # Perform the updates to the keywords mentioned in the schema.
+        # Assign via self[key] so that ObjectNode.__setattr__ is invoked,
+        # which respects the validate_on_assignment flag.
         for path in hdu_keywords:
             if not protected_keyword(path):
-                set_hdu_keyword(self._instance, d, path)
+                cursor = d
+                for part in path:
+                    if not included(cursor, part):
+                        break
+                    cursor = cursor[part]
+                else:
+                    self[".".join(str(p) for p in path)] = copy.deepcopy(cursor)
 
-        # Update from extra_fits as well, if indicated
+        # Update from extra_fits as well, if indicated.
+        # extra_fits lives outside the schema, so keep direct dict assignment here.
         if extra_fits:
             for hdu_name in hdu_names:
                 path = ["extra_fits", hdu_name, "header"]
                 set_hdu_keyword(self._instance, d, path)
-
-        self.validate()
 
     def to_flat_dict(self, include_arrays=True):
         """
