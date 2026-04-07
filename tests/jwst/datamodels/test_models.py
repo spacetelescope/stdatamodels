@@ -27,6 +27,7 @@ from stdatamodels.jwst.datamodels import (
     MultiSpecModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
+    RegionsModel,
     SlitDataModel,
     SlitModel,
     SpecModel,
@@ -268,6 +269,32 @@ def test_update_from_dict(tmp_path, cal_logs):
             "pipeline1": ["test", "message", "1"],
             "pipeline2": ["test", "message", "2"],
         }
+
+
+def test_update_no_warning_before_array_set():
+    """
+    Test that update() does not warn about unset arrays.
+
+    Covers a bug where update() called a full model validation, which led to confusing
+    behavior such that::
+
+        model = dm.RegionsModel()
+        model.update(source_model)  # raises ValidationWarning
+        model.data = my_array
+
+    would raise a ValidationWarning since RegionsModel validate() disallows None arrays,
+    whereas::
+
+        model = dm.RegionsModel()
+        model.data = my_array
+        model.update(source_model)  # no warning
+
+    worked fine.
+    """
+    with ImageModel() as source, RegionsModel() as target:
+        source.meta.telescope = "JWST"
+        target.update(source)
+        assert target.meta.telescope == "JWST"
 
 
 def test_mask_model():
