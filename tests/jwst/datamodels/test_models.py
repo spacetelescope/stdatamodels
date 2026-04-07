@@ -178,7 +178,7 @@ def datamodel_for_update(tmp_path):
 
 @pytest.mark.parametrize("cal_logs", [True, False])
 @pytest.mark.parametrize("extra_fits", [True, False])
-@pytest.mark.parametrize("only", [None, "PRIMARY", "SCI"])
+@pytest.mark.parametrize("only", [None, "PRIMARY", "SCI", ["PRIMARY", "SCI"]])
 def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits, cal_logs):
     """Test update method does not update from extra_fits unless asked"""
     path = tmp_path / "new.fits"
