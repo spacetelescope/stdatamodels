@@ -216,11 +216,18 @@ class DataModel(properties.ObjectNode):
             asdffile = None
             self.clone(self, init)
             if not isinstance(init, self.__class__):
+                # In this case we want the models to be different instances,
+                # have different metadata (e.g. meta.model_type should be different),
+                # but share the same data arrays.
+                self._instance = copy.copy(self._instance)
+                if "meta" in self._instance:
+                    self._instance["meta"] = copy.deepcopy(self._instance["meta"])
+
                 current_validate_arrays = self._validate_arrays
                 self._validate_arrays = True
                 self.validate()
                 self._validate_arrays = current_validate_arrays
-            self.meta.model_type = self._model_type
+            self.on_init(init)
             return
 
         elif isinstance(init, AsdfFile):

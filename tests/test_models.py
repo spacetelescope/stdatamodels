@@ -140,6 +140,10 @@ def test_init_from_another_model():
     with BasicModel(input_model) as dm:
         assert dm.data.shape == (50, 50)
         assert dm.meta.model_type == "BasicModel"
+        assert input_model._instance is not dm._instance
+        assert input_model.data is dm.data
+    assert input_model.meta.model_type == "FitsModel"
+    input_model.close()
 
 
 def test_init_from_another_model_on_file(tmp_path):
