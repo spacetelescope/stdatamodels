@@ -1499,6 +1499,17 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
                 f[i] = np.interp(w, xr, t0)
             return f
 
+        # Paired 1-D case: each wavelength[i] corresponds to its own (x0[i], y0[i]).
+        # Build wave_grid for all N positions at once (n_t × N), then compute
+        # residuals comparing each column i only against wavelength[i].
+        if x0.ndim == 1 and len(wavelength) == len(x0) and len(x0) > 1:
+            trace_function = partial(_poly_with_spatial_dependence, model=model)
+            tt, yy = np.meshgrid(t0, y0, indexing="ij")
+            xx = np.meshgrid(t0, x0, indexing="ij")[1]
+            wave_grid = trace_function(tt, xx, yy)  # (n_t, N)
+            resid = (wave_grid - wavelength[np.newaxis, :]) ** 2  # (n_t, N)
+            return _find_min_with_linear_interpolation(resid, t0)  # (N,)
+
         if x0.ndim == 2:
             # Assume we're calling this on a grid where all wavelengths are the same
             # in one dimension, and all the x,y coordinates are the same in the other dimension.
