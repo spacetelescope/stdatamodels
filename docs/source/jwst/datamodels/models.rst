@@ -314,17 +314,18 @@ a constructor of the same type::
     old_model = ImageModel()
     new_model = ImageModel(old_model)
 
-This simply creates a new reference to the model object, i.e. ``new_model is old_model`` will be ``True``.
-Changes to one model will affect the other.
+This will perform a shallow copy: in this case ``old_model.instance == new_model.instance``,
+and changes to one model will affect the other.
 
 It's also possible to convert between compatible model types this way, e.g.::
 
     old_model = ImageModel()
     new_model = IFUImageModel(old_model)
 
-and in this case, ``new_model is old_model`` will be ``False``. Simple metadata will be copied and
-the ``meta.model_type`` attribute will be updated, but data arrays and other complex types (e.g.,
-the WCS object) will be shared between the two models.
+This will also perform a shallow copy, except
+that some metadata elements (such as ``meta.model_type``) will be updated and therefore
+``old_model.instance != new_model.instance``. Almost all attributes will still be shared
+between models, so changes to one will affect the other.
 
 
 History information
