@@ -118,8 +118,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     elif (
         is_association(init)
         or isinstance(init, Sequence)
-        and not isinstance(init, bytes)
-        and not isinstance(init, fits.HDUList)
+        and not isinstance(init, (bytes, tuple, fits.HDUList))
     ):
         try:
             from jwst.datamodels import ModelContainer
