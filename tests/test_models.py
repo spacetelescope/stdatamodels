@@ -470,6 +470,21 @@ def test_update_with_node_set_none():
         assert m2.meta.telescope == "JWST"
 
 
+def test_update_ignores_paths_not_in_target_schema():
+    """
+    Test that update skips paths that are in source schema but not in target schema.
+
+    FitsModel has meta.exposure.type but BasicModel does not have meta.exposure.
+    Attempting to assign that path to a BasicModel target should just skip.
+    """
+    with FitsModel() as source, BasicModel() as target:
+        source.meta.telescope = "JWST"
+        source.meta.exposure.type = "SOME_TYPE"
+        target.update(source)
+        assert target.meta.telescope == "JWST"
+        assert not hasattr(target.meta, "exposure")
+
+
 def test_object_node_iterator():
     m = BasicModel({"meta": {"foo": "bar"}})
     items = []

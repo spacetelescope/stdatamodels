@@ -986,7 +986,7 @@ class DataModel(properties.ObjectNode):
             source = d
 
         # Single-pass recursive walk: assign leaf values directly to self,
-        # which invokes ObjectNode.__setattr__
+        # calling ObjectNode.__setattr__
         # This triggers validation if validate_on_assignment is True.
         def assign_leaves(node, path=()):
             if isinstance(node, dict):
@@ -1001,7 +1001,10 @@ class DataModel(properties.ObjectNode):
             elif not isinstance(node, np.ndarray):
                 if path not in _PROTECTED_PATHS:
                     if hdu_keywords is None or path in hdu_keywords:
-                        self[".".join(str(p) for p in path)] = copy.deepcopy(node)
+                        try:
+                            self[".".join(str(p) for p in path)] = copy.deepcopy(node)
+                        except (KeyError, AttributeError):
+                            pass
 
         assign_leaves(source)
 
