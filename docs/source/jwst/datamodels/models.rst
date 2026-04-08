@@ -306,6 +306,25 @@ model into a new one using the :meth:`~stdatamodels.DataModel.update` method::
 
     new_model.update(old_model)
 
+While it's typically not recommended for general use due to the possibility of
+unexpected behavior, copying a model can be achieved by passing it into
+a constructor of the same type::
+
+    old_model = ImageModel()
+    new_model = ImageModel(old_model)
+
+This simply creates a new reference to the model object, i.e. ``new_model is old_model`` will be ``True``.
+Changes to one model will affect the other.
+
+It's also possible to convert between compatible model types this way, e.g.::
+
+    old_model = ImageModel()
+    new_model = IFUImageModel(old_model)
+
+and in this case, a deep copy of the metadata will be performed but the data
+arrays will be shallow-copied for memory efficiency.
+
+
 History information
 -------------------
 
