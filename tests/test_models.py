@@ -137,11 +137,21 @@ def test_init_incompatible_datamodel():
 def test_init_from_another_model():
     """Init model from a compatible model type should update model_type attribute."""
     input_model = FitsModel((50, 50))
+
+    class MockWcs:
+        """For these purposes this just needs to be a complex type."""
+
+        def __init__(self):
+            self.foo = "bar"
+
+    input_model.meta.wcs = MockWcs()
     with BasicModel(input_model) as dm:
         assert dm.data.shape == (50, 50)
         assert dm.meta.model_type == "BasicModel"
+        assert input_model != dm
         assert input_model._instance is not dm._instance
         assert input_model.data is dm.data
+        assert input_model.meta.wcs is dm.meta.wcs
     assert input_model.meta.model_type == "FitsModel"
     input_model.close()
 

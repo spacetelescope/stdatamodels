@@ -221,7 +221,7 @@ class DataModel(properties.ObjectNode):
                 # but share the same data arrays.
                 self._instance = copy.copy(self._instance)
                 if "meta" in self._instance:
-                    self._instance["meta"] = copy.deepcopy(self._instance["meta"])
+                    self._instance["meta"] = copy.copy(self._instance["meta"])
 
                 current_validate_arrays = self._validate_arrays
                 self._validate_arrays = True
