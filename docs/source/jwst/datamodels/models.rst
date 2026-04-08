@@ -322,8 +322,9 @@ It's also possible to convert between compatible model types this way, e.g.::
     old_model = ImageModel()
     new_model = IFUImageModel(old_model)
 
-and in this case, a deep copy of the metadata will be performed but the data
-arrays will be shallow-copied for memory efficiency.
+and in this case, ``new_model is old_model`` will be ``False``. Simple metadata will be copied and
+the ``meta.model_type`` attribute will be updated, but data arrays and other complex types (e.g.,
+the WCS object) will be shared between the two models.
 
 
 History information

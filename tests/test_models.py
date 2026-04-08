@@ -135,7 +135,12 @@ def test_init_incompatible_datamodel():
 
 
 def test_init_from_another_model():
-    """Init model from a compatible model type should update model_type attribute."""
+    """
+    Init model from a compatible model type should update model_type attribute.
+
+    Expected behavior is a shallow copy where data arrays and other complex types (e.g. WCS)
+    are shared, but simple metadata are copied such that meta.model_type can be different.
+    """
     input_model = FitsModel((50, 50))
 
     class MockWcs:
@@ -151,6 +156,7 @@ def test_init_from_another_model():
         assert input_model != dm
         assert input_model._instance is not dm._instance
         assert input_model.data is dm.data
+        assert isinstance(input_model.meta.wcs, MockWcs)
         assert input_model.meta.wcs is dm.meta.wcs
     assert input_model.meta.model_type == "FitsModel"
     input_model.close()
