@@ -1,1 +1,1 @@
-Fix a bug where initializing a model from a different (but compatible) model type did not update model.meta.model_type
+Fix a bug where initializing a model from a different (but compatible) model type did not update ``model.meta.model_type``

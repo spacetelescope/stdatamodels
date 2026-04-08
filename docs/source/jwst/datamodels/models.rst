@@ -35,7 +35,8 @@ see everything that's currently in the model::
     └─date (str): 2026-02-26T14:56:12.278
 
 Notice that only the primary array ("data") is allocated, has the shape we put in,
-and has a data type of float32 as defined by the `ImageModel` schema.
+and has a data type of float32 as defined by the
+:class:`~stdatamodels.jwst.datamodels.ImageModel` schema.
 To set additional arrays to their default values, use the
 ``get_default`` method::
 
