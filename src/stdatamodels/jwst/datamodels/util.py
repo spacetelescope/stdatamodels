@@ -7,7 +7,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import asdf
-import numpy as np
 from asdf.tagged import TaggedString
 from astropy.io import fits
 
@@ -75,17 +74,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     file_name = None
     file_to_close = None
 
-    # Get special cases for opening a model out of the way
-    # all special cases return a model if they match
-
-    if init is None or isinstance(init, (tuple, np.ndarray, fits.HDUList)):
-        raise TypeError(
-            f"Init type of {type(init).__name__} is not supported. "
-            "To initialize a model from scratch, from array, or from a `~astropy.io.fits.HDUList`, "
-            "use the DataModel constructors directly instead."
-        )
-
-    elif isinstance(init, dm.JwstDataModel):
+    if isinstance(init, dm.JwstDataModel):
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
@@ -126,7 +115,12 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
             return model
 
-    elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
+    elif (
+        is_association(init)
+        or isinstance(init, Sequence)
+        and not isinstance(init, bytes)
+        and not isinstance(init, fits.HDUList)
+    ):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
