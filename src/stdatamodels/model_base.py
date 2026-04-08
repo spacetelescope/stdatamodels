@@ -39,6 +39,8 @@ _DEFAULT_SCHEMA = {
         },
     },
 }
+
+# These paths are skipped when running model.update()
 _PROTECTED_PATHS = {("meta", "date"), ("meta", "model_type")}
 
 
@@ -970,7 +972,7 @@ class DataModel(properties.ObjectNode):
 
         # Resolve the source dict and, for DataModel input, the set of
         # schema-approved leaf paths (those with a fits_keyword in the
-        # appropriate HDU).  None means "copy all non-array leaves".
+        # appropriate HDU).
         if isinstance(d, DataModel):
             hdu_keywords = set()
 
