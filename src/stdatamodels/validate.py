@@ -172,6 +172,8 @@ _VALIDATORS["datatype"] = _validate_datatype
 _VALIDATORS["ndim"] = ndarray.validate_ndim
 _VALIDATORS["max_ndim"] = ndarray.validate_max_ndim
 
+_PLAIN_SCALAR_TYPES = (str, int, float, bool, np.generic)
+
 
 def _check_value(value, schema, ctx):
     """
@@ -188,23 +190,28 @@ def _check_value(value, schema, ctx):
     """
     # Do not validate None values.  These are regarded as missing in DataModel,
     # and will eventually be stripped out when the model is saved to FITS or ASDF.
-    if value is not None:
+    if value is None:
+        return
+
+    if not isinstance(value, _PLAIN_SCALAR_TYPES):
+        # Plain scalar types cannot contain None subtrees, FITS records, or ASDF-tagged
+        # objects, so they can skip a bunch of steps.
         # There may also be Nones hiding within the value.  Do this before
-        # converting to tagged tree, so that we don't have to descend unnecessarily
-        # into nodes for custom types.
+        # converting to tagged tree, so that we don't have to descend
+        # unnecessarily into nodes for custom types.
         value = remove_none_from_tree(value)
         value = convert_fitsrec_to_array_in_tree(value)
-        # without this "write_context" asdf will queue up blocks for writing which
-        # will hold onto arrays after they have be overwritten
+        # without this "write_context" asdf will queue up blocks for writing
+        # which will hold onto arrays after they have been overwritten
         with ctx._asdf._blocks.write_context(None):
             value = yamlutil.custom_tree_to_tagged_tree(value, ctx._asdf)
 
-        if ctx._validate_arrays:
-            validators = _VALIDATORS
-        else:
-            validators = YAML_VALIDATORS
+    if ctx._validate_arrays:
+        validators = _VALIDATORS
+    else:
+        validators = YAML_VALIDATORS
 
-        asdf_schema.validate(value, ctx=ctx._asdf, schema=schema, validators=validators)
+    asdf_schema.validate(value, ctx=ctx._asdf, schema=schema, validators=validators)
 
 
 def _error_message(path, error):
