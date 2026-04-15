@@ -193,9 +193,9 @@ def _check_value(value, schema, ctx):
     if value is None:
         return
 
+    # Plain scalar types cannot contain None subtrees, FITS records, or ASDF-tagged
+    # objects, so they can skip a bunch of steps.
     if not isinstance(value, _PLAIN_SCALAR_TYPES):
-        # Plain scalar types cannot contain None subtrees, FITS records, or ASDF-tagged
-        # objects, so they can skip a bunch of steps.
         # There may also be Nones hiding within the value.  Do this before
         # converting to tagged tree, so that we don't have to descend
         # unnecessarily into nodes for custom types.
