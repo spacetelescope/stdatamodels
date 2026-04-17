@@ -44,8 +44,10 @@ class RampModel(JwstDataModel):
         """
         Retrieve the schema-defined default value of an attribute.
 
-        Overrides the parent method to set pixeldq to a 2D array if
-        data is defined.
+        Override the parent method to set pixeldq to a 2D array if
+        data is defined; 3D array if ``meta.subarray.num_superstripe``
+        is also defined.
+
         Override the parent method to give zeroframe the correct shape
         if data is defined.
 
@@ -65,16 +67,19 @@ class RampModel(JwstDataModel):
         AttributeError
             If the given attribute is not defined in the schema.
         """
-        # This is a band-aid solution to allow multistripe modes to
-        # have 3D pixeldq, but set the default appropriately for
-        # all other RampModels.
-        # If we can move multi-stripe RampModels to their own model
-        # type, we can resume using the schema to make a default pixeldq.
-        if attr == "pixeldq" and self.data is not None:
-            return np.zeros(self.data.shape[-2:], dtype=np.uint32)
+        if self.data is not None:
+            image_shape = self.data.shape[-2:]
+            nstripe = self.meta.subarray.num_superstripe
 
-        if attr == "zeroframe" and self.data is not None:
-            shp = (self.data.shape[0],) + self.data.shape[-2:]
-            return np.zeros(shp, dtype=np.float32)
+            if attr == "pixeldq":
+                # Make a 3D array for superstripe data
+                if nstripe is not None and nstripe > 0:
+                    return np.zeros((nstripe, *image_shape), dtype=np.uint32)
+
+                # Otherwise, make a 2D array
+                return np.zeros(image_shape, dtype=np.uint32)
+
+            if attr == "zeroframe":
+                return np.zeros((self.data.shape[0], *image_shape), dtype=np.float32)
 
         return super().get_default(attr)

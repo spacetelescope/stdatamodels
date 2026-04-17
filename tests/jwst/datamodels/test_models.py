@@ -492,14 +492,32 @@ def test_ramp_model_pixel_dq_default():
         np.testing.assert_equal(default, 0)
 
 
-def test_ramp_model_pixel_dq_3d():
-    """Ensure RampModel pixeldq can be assigned a 3D array."""
+def test_superstripe_ramp_model_pixel_dq_default():
+    """Ensure superstripe RampModel pixeldq has a 3D default."""
     nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
     dims = (nstripes * nints, ngroups, nrows, ncols)
+    idims = (nrows, ncols)
     pdims = (nstripes, nrows, ncols)
 
     with datamodels.RampModel(dims, validate_arrays=True, strict_validation=True) as ramp:
-        ramp.pixeldq = np.zeros(pdims)
+        # without num_superstripe, default is 2D
+        assert ramp.get_default("pixeldq").shape == idims
+
+        # the 2D default was assigned on init
+        assert ramp.pixeldq.shape == idims
+
+        # with zero superstripe, default is the same
+        ramp.meta.subarray.num_superstripe = 0
+        assert ramp.get_default("pixeldq").shape == idims
+
+        # with non-zero superstripe, default is nstripe x nrows x ncols
+        ramp.meta.subarray.num_superstripe = nstripes
+        default = ramp.get_default("pixeldq")
+        assert default.shape == pdims
+        np.testing.assert_equal(default, 0)
+
+        # The 3D default can overwrite the previously assigned 2D one
+        ramp.pixeldq = default
         assert ramp.pixeldq.shape == pdims
 
 
