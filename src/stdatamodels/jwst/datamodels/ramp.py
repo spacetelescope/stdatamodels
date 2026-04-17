@@ -1,4 +1,8 @@
+import warnings
+
 import numpy as np
+
+from stdatamodels.exceptions import ValidationWarning
 
 from .model_base import JwstDataModel
 
@@ -83,3 +87,37 @@ class RampModel(JwstDataModel):
                 return np.zeros((self.data.shape[0], *image_shape), dtype=np.float32)
 
         return super().get_default(attr)
+
+    def validate(self):
+        """
+        Validate the model instance against its schema.
+
+        Override the parent method to check the pixeldq dimensionality.
+        If ``meta.subarray.num_superstripe`` is greater than zero,
+        the pixeldq should be 3D, with the first dimension matching
+        the number of stripes.
+        """
+        super().validate()
+
+        if self.data is None or self.pixeldq is None:
+            return
+
+        try:
+            nstripe = getattr(self.meta.subarray, "num_superstripe", None)
+            image_shape = self.data.shape[-2:]
+            if nstripe is None or nstripe == 0:
+                message = f"Pixeldq array must have shape {image_shape}"
+                assert self.pixeldq.shape == image_shape, message
+            else:
+                pdims = (nstripe, *image_shape)
+                message = (
+                    f"Pixeldq array must have shape {pdims} for "
+                    f"num_superstripe={nstripe}, image shape {image_shape}"
+                )
+                assert self.pixeldq.shape == pdims, message
+
+        except AssertionError as error_message:
+            if self._strict_validation:
+                raise
+            else:
+                warnings.warn(str(error_message), ValidationWarning, stacklevel=2)

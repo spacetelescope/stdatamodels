@@ -492,6 +492,32 @@ def test_ramp_model_pixel_dq_default():
         np.testing.assert_equal(default, 0)
 
 
+def test_ramp_model_validate():
+    """Test custom RampModel validation."""
+    nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
+    dims = (nstripes * nints, ngroups, nrows, ncols)
+    idims = (nrows, ncols)
+    pdims = (nstripes, nrows, ncols)
+
+    with datamodels.RampModel(dims) as ramp:
+        # without num_superstripe, a 3D pixeldq raises a validation warning
+        ramp.pixeldq = np.zeros(pdims)
+        msg = r"Pixeldq array must have shape \(5, 5\)"
+        with pytest.warns(ValidationWarning, match=msg):
+            ramp.validate()
+
+        # with num_superstripe, 3D pixeldq is okay
+        ramp.meta.subarray.num_superstripe = nstripes
+        ramp.pixeldq = np.zeros(pdims)
+        ramp.validate()
+
+        # with num_superstripe, 2D pixeldq is not okay
+        ramp.pixeldq = np.zeros(idims)
+        msg = r"Pixeldq array must have shape \(3, 5, 5\) for num_superstripe=3"
+        with pytest.warns(ValidationWarning, match=msg):
+            ramp.validate()
+
+
 def test_superstripe_ramp_model_pixel_dq_default():
     """Ensure superstripe RampModel pixeldq has a 3D default."""
     nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
