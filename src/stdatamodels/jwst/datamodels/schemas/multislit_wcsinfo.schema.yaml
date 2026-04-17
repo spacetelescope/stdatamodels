@@ -1,0 +1,180 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/wcsinfo.schema"
+type: object
+properties:
+  meta:
+    type: object
+    properties:
+      coordinates:
+        title: Information about the coordinates in the file
+        type: object
+        properties:
+          reference_frame:
+            title: Name of the coordinate reference frame
+            type: string
+            default: ICRS
+            fits_keyword: RADESYS
+            enum: [ICRS]
+            fits_hdu: SCI
+            blend_table: True
+      aperture:
+        title: Aperture information
+        type: object
+        properties:
+          position_angle:
+            title: "[deg] Position angle of aperture used"
+            type: number
+            fits_keyword: PA_APER
+            fits_hdu: SCI
+            blend_table: True
+      pointing:
+        title: Spacecraft pointing information
+        type: object
+        properties:
+          ra_v1:
+            title: "[deg] RA of telescope V1 axis"
+            type: number
+            fits_keyword: RA_V1
+            fits_hdu: SCI
+            blend_table: True
+          dec_v1:
+            title: "[deg] Dec of telescope V1 axis"
+            type: number
+            fits_keyword: DEC_V1
+            fits_hdu: SCI
+            blend_table: True
+          pa_v3:
+            title: "[deg] Position angle of telescope V3 axis"
+            type: number
+            fits_keyword: PA_V3
+            fits_hdu: SCI
+            blend_table: True
+      velocity_aberration:
+        title: Velocity aberration correction information
+        type: object
+        properties:
+          scale_factor:
+            title: Velocity aberration scale factor
+            type: number
+            fits_keyword: VA_SCALE
+            fits_hdu: SCI
+            blend_table: True
+      wcsinfo:
+        title: WCS parameters
+        type: object
+        properties:
+          s_region:
+            title: "spatial extent of the observation, footprint"
+            type: string
+            default: " "
+            fits_keyword: S_REGION
+            fits_hdu: SCI
+            blend_table: True
+          waverange_start:
+            title: Lower bound of the default wavelength range
+            type: number
+            fits_keyword: WAVSTART
+            fits_hdu: SCI
+            blend_table: True
+          waverange_end:
+            title: Upper bound of the default wavelength range
+            type: number
+            fits_keyword: WAVEND
+            fits_hdu: SCI
+            blend_table: True
+          dispersion_direction:
+            title: Dispersion direction
+            type: integer
+            fits_keyword: DISPAXIS
+            fits_hdu: SCI
+            blend_table: True
+          spectral_order:
+            title: Spectral order number
+            type: integer
+            fits_keyword: SPORDER
+            fits_hdu: SCI
+            blend_table: True
+          v2_ref:
+            title: "[arcsec] Telescope V2 coord of reference point"
+            type: number
+            fits_keyword: V2_REF
+            fits_hdu: SCI
+            blend_table: True
+          v3_ref:
+            title: "[arcsec] Telescope V3 coord of reference point"
+            type: number
+            fits_keyword: V3_REF
+            fits_hdu: SCI
+            blend_table: True
+          vparity:
+            title: Relative sense of rotation between Ideal xy and V2V3
+            type: integer
+            fits_keyword: VPARITY
+            fits_hdu: SCI
+            blend_table: True
+          v3yangle:
+            title: "[deg] Angle from V3 axis to Ideal y axis"
+            type: number
+            fits_keyword: V3I_YANG
+            fits_hdu: SCI
+            blend_table: True
+          ra_ref:
+            title: "[deg] Right Ascension of the reference point"
+            type: number
+            fits_keyword: RA_REF
+            fits_hdu: SCI
+            blend_table: True
+          dec_ref:
+            title: "[deg] Declination of the reference point"
+            type: number
+            fits_keyword: DEC_REF
+            fits_hdu: SCI
+            blend_table: True
+          roll_ref:
+            title: "[deg] V3 roll angle at the ref point (N over E)"
+            type: number
+            fits_keyword: ROLL_REF
+            fits_hdu: SCI
+            blend_table: True
+          velosys:
+            title: "[m/s] Barycentric correction to radial velocity"
+            type: number
+            fits_keyword: VELOSYS
+            fits_hdu: SCI
+          specsys:
+            title: Spectral reference frame
+            type: string
+            fits_keyword: SPECSYS
+            fits_hdu: SCI
+          siaf_xref_sci:
+            title: Aperture X reference point in SCI frame
+            type: number
+            fits_keyword: XREF_SCI
+            fits_hdu: SCI
+          siaf_yref_sci:
+            title: Aperture Y reference point in SCI frame
+            type: number
+            fits_keyword: YREF_SCI
+            fits_hdu: SCI
+          mt_ra:
+            title: "[deg] Moving target RA at exposure mid-point"
+            type: number
+            fits_keyword: MT_RA
+            fits_hdu: SCI
+          mt_dec:
+            title: "[deg] Moving target Dec at exposure mid-point"
+            type: number
+            fits_keyword: MT_DEC
+            fits_hdu: SCI
+          mt_avra:
+            title: "[deg] Moving target average RA over exposures"
+            type: number
+            fits_keyword: MT_AVRA
+            fits_hdu: SCI
+          mt_avdec:
+            title: "[deg] Moving target average Dec over exposures"
+            type: number
+            fits_keyword: MT_AVDEC
+            fits_hdu: SCI
