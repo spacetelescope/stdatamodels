@@ -940,7 +940,11 @@ class DataModel(properties.ObjectNode):
         """
         Update this model with the metadata elements from another model.
 
-        Note: The ``update`` method skips a WCS object, if present.
+        ``update`` only assigns values to metadata elements that are defined in both this
+        model's schema and the schema of the source model ``d`` (if ``d`` is a datamodel).
+        (If ``extra_fits`` is True it will also update from the extra_fits subtree.)
+        The ``update`` method skips a WCS object, if present.
+        The ``update`` method skips arrays.
 
         Parameters
         ----------
