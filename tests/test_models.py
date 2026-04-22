@@ -578,33 +578,20 @@ def test_garbage_collectable(ModelType, tmp_path):  # noqa: N803
             assert len(mids) < 2
 
 
-def test_from_fits_deprecation():
-    with pytest.warns(DeprecationWarning, match="from_fits is deprecated"):
-        DataModel.from_fits({})
-
-
-def test_from_asdf_deprecation():
-    with pytest.warns(DeprecationWarning, match="from_asdf is deprecated"):
-        DataModel.from_asdf({})
-
-
-def test_memmap_deprecation():
-    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
-        DataModel(memmap=True)
-
-
-def test_open_from_file_with_kwargs_deprecation(tmp_path):
+def test_open_from_file_with_kwargs_raise(tmp_path):
     """
     Test that combining init types is not allowed.
 
     Passing keyword arguments to the open method, which are assumed to initialize data arrays,
-    raises a deprecation warning if the input type is file-like.
+    raises a TypeError if the input type is file-like.
     """
     fn = tmp_path / "test.asdf"
     m = DataModel()
     m.save(fn)
 
-    with pytest.warns(DeprecationWarning, match="Unrecognized keyword arguments"):
+    with pytest.raises(
+        TypeError, match="Keyword arguments are not allowed when DataModel init is file-like"
+    ):
         DataModel(fn, data=np.ones((10, 10)))
 
 
