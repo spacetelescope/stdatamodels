@@ -39,6 +39,9 @@ _DEFAULT_SCHEMA = {
     },
 }
 
+# These paths are skipped when running model.update()
+_PROTECTED_PATHS = {("meta", "date"), ("meta", "model_type")}
+
 
 class DataModel(properties.ObjectNode):
     """Base class of all of the data models."""
@@ -866,7 +869,12 @@ class DataModel(properties.ObjectNode):
         """
         Update this model with the metadata elements from another model.
 
-        Note: The ``update`` method skips a WCS object, if present.
+        ``update`` only assigns values to metadata elements that are defined in both this
+        model's schema and the schema of the source model ``d`` (if ``d`` is a datamodel).
+        If ``extra_fits`` is True it will also update from the extra_fits subtree.
+        Attributes not meeting these criteria will be silently ignored.
+        The ``update`` method skips a WCS object, if present.
+        The ``update`` method skips arrays.
 
         Parameters
         ----------
@@ -879,81 +887,8 @@ class DataModel(properties.ObjectNode):
         extra_fits : bool
             Update from ``extra_fits``.  Default is False.
         """
-
-        def hdu_keywords_from_data(d, path, hdu_keywords):
-            # Walk tree and add paths to keywords to hdu keywords
-            if isinstance(d, dict):
-                for key, val in d.items():
-                    if len(path) > 0 or key != "extra_fits":
-                        hdu_keywords_from_data(val, path + [key], hdu_keywords)
-            elif isinstance(d, list):
-                for key, val in enumerate(d):
-                    hdu_keywords_from_data(val, path + [key], hdu_keywords)
-            elif isinstance(d, np.ndarray):
-                # skip data arrays
-                pass
-            else:
-                hdu_keywords.append(path)
-
-        def hdu_keywords_from_schema(subschema, path, combiner, ctx, recurse):
-            # Add path to keyword to hdu_keywords if in list of hdu names
-            if "fits_keyword" in subschema:
-                fits_hdu = subschema.get("fits_hdu", "PRIMARY")
-                if fits_hdu in hdu_names:
-                    ctx.append(path)
-
-        def hdu_names_from_schema(subschema, path, combiner, ctx, recurse):
-            # Build a set of hdu names from the schema
-            hdu_name = subschema.get("fits_hdu")
-            if hdu_name:
-                hdu_names.add(hdu_name)
-
-        def included(cursor, part):
-            # Test if part is in the cursor
-            if cursor is None:
-                return False
-            if isinstance(part, int):
-                return part >= 0 and part < len(cursor)
-            else:
-                return part in cursor
-
-        def set_hdu_keyword(this_cursor, that_cursor, path):
-            # Copy an element pointed to by path from that to this
-            part = path.pop(0)
-            if not included(that_cursor, part):
-                return
-            if len(path) == 0:
-                this_cursor[part] = copy.deepcopy(that_cursor[part])
-            else:
-                that_cursor = that_cursor[part]
-                if not included(this_cursor, part):
-                    if isinstance(path[0], int):
-                        if isinstance(part, int):
-                            this_cursor.append([])
-                        else:
-                            this_cursor[part] = []
-                    else:
-                        if isinstance(part, int):
-                            this_cursor.append({})
-                        elif isinstance(that_cursor, list):
-                            this_cursor[part] = []
-                        else:
-                            this_cursor[part] = {}
-                this_cursor = this_cursor[part]
-                set_hdu_keyword(this_cursor, that_cursor, path)
-
-        def protected_keyword(path):
-            # Some keywords are protected and
-            # should not be copied frpm the other image
-            if len(path) == 2:
-                if path[0] == "meta":
-                    if path[1] in ("date", "model_type"):
-                        return True
-            return False
-
         # Get the list of hdu names from the model so that updates
         # are limited to those hdus
-
         if only is not None:
             if isinstance(only, str):
                 hdu_names = {only}
@@ -961,31 +896,67 @@ class DataModel(properties.ObjectNode):
                 hdu_names = set(only)
         else:
             hdu_names = {"PRIMARY"}
+
+            def hdu_names_from_schema(subschema, path, combiner, ctx, recurse):
+                hdu_name = subschema.get("fits_hdu")
+                if hdu_name:
+                    hdu_names.add(hdu_name)
+
             mschema.walk_schema(self._schema, hdu_names_from_schema, hdu_names)
 
-        # Get the paths to all the keywords that will be updated from
-
-        hdu_keywords = []
+        # Resolve the source dict and, for DataModel input, the set of
+        # schema-approved leaf paths (those with a fits_keyword in the
+        # appropriate HDU).
         if isinstance(d, DataModel):
-            schema = d._schema
-            d = d._instance
-            mschema.walk_schema(schema, hdu_keywords_from_schema, hdu_keywords)
+            hdu_keywords = set()
+
+            def hdu_keywords_from_schema(subschema, path, combiner, ctx, recurse):
+                if "fits_keyword" in subschema:
+                    if subschema.get("fits_hdu", "PRIMARY") in hdu_names:
+                        hdu_keywords.add(tuple(path))
+
+            mschema.walk_schema(d._schema, hdu_keywords_from_schema, hdu_keywords)
+            source = d._instance
         else:
-            path = []
-            hdu_keywords_from_data(d, path, hdu_keywords)
+            hdu_keywords = None  # no schema filter; copy all non-array leaves
+            source = d
 
-        # Perform the updates to the keywords mentioned in the schema
-        for path in hdu_keywords:
-            if not protected_keyword(path):
-                set_hdu_keyword(self._instance, d, path)
+        # Single-pass recursive walk: assign leaf values directly to self,
+        # calling ObjectNode.__setattr__
+        # This triggers validation if validate_on_assignment is True.
+        def assign_leaves(node, path=()):
+            if isinstance(node, dict):
+                for key, val in node.items():
+                    # skip extra_fits - handled separately below
+                    if not path and key == "extra_fits":
+                        continue
+                    assign_leaves(val, path + (key,))
+            elif isinstance(node, list):
+                for i, val in enumerate(node):
+                    assign_leaves(val, path + (i,))
+            elif not isinstance(node, np.ndarray):
+                if path not in _PROTECTED_PATHS:
+                    if hdu_keywords is None or path in hdu_keywords:
+                        try:
+                            self[".".join(str(p) for p in path)] = copy.deepcopy(node)
+                        except (KeyError, AttributeError):
+                            pass
 
-        # Update from extra_fits as well, if indicated
+        assign_leaves(source)
+
+        # Update from extra_fits if requested.
+        # extra_fits lives outside the schema, so assign directly to instance dict
         if extra_fits:
             for hdu_name in hdu_names:
-                path = ["extra_fits", hdu_name, "header"]
-                set_hdu_keyword(self._instance, d, path)
-
-        self.validate()
+                try:
+                    header = source["extra_fits"][hdu_name]["header"]
+                except (KeyError, TypeError):
+                    continue
+                if "extra_fits" not in self._instance:
+                    self._instance["extra_fits"] = {}
+                if hdu_name not in self._instance["extra_fits"]:
+                    self._instance["extra_fits"][hdu_name] = {}
+                self._instance["extra_fits"][hdu_name]["header"] = copy.deepcopy(header)
 
     def to_flat_dict(self, include_arrays=True):
         """
