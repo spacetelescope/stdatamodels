@@ -15,7 +15,6 @@ from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from astropy.io import fits
 from astropy.time import Time
-from astropy.wcs import WCS
 
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
@@ -143,15 +142,6 @@ class DataModel(properties.ObjectNode):
 
                 model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))
         """
-        if "memmap" in kwargs:
-            warnings.warn(
-                "Memory mapping is no longer supported; memmap is hard-coded to False "
-                "and the keyword argument no longer has any effect.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            kwargs.pop("memmap")
-
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
@@ -283,14 +273,10 @@ class DataModel(properties.ObjectNode):
         self._no_asdf_extension = False
 
         if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
-            warnings.warn(
+            raise TypeError(
                 "Unrecognized keyword arguments passed to DataModel.__init__. "
-                "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
-                "but keyword arguments were also passed, which are assumed to be attempting to "
-                "initialize arrays. This behavior is deprecated and will raise an error "
-                "in the future.",
-                DeprecationWarning,
-                stacklevel=2,
+                "Keyword arguments are not allowed when DataModel init is file-like "
+                "(e.g. filename, dict, HDUList, AsdfFile, etc.) "
             )
 
         # Instantiate the primary array of the image
@@ -634,34 +620,6 @@ class DataModel(properties.ObjectNode):
 
         return output_path
 
-    @classmethod
-    def from_asdf(cls, init, schema=None, **kwargs):
-        """
-        Load a data model from an ASDF file.
-
-        Parameters
-        ----------
-        init : str, file object, `~asdf.AsdfFile`
-            - str : file path: initialize from the given file
-            - readable file object: Initialize from the given file object
-            - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-        schema : dict
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel` instance
-            A data model.
-        """
-        warnings.warn(
-            "from_asdf is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
-
     def to_asdf(self, init, *args, **kwargs):
         """
         Write a data model to an ASDF file.
@@ -685,35 +643,6 @@ class DataModel(properties.ObjectNode):
         asdffile = AsdfFile()
         asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
-
-    @classmethod
-    def from_fits(cls, init, schema=None, **kwargs):
-        """
-        Load a model from a FITS file.
-
-        Parameters
-        ----------
-        init : file path, file object, astropy.io.fits.HDUList
-            - file path: Initialize from the given file
-            - readable file object: Initialize from the given file object
-            - astropy.io.fits.HDUList: Initialize from the given
-              `~astropy.io.fits.HDUList`.
-        schema : dict, str
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions.
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel`
-            A data model.
-        """
-        warnings.warn(
-            "from_fits is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
 
     def to_fits(self, init, *args, **kwargs):
         """
@@ -1112,90 +1041,6 @@ class DataModel(properties.ObjectNode):
         entries = self.history
         entries.clear()
         entries.extend(values)
-
-    def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
-        """
-        Get a `astropy.wcs.WCS` object created from the FITS WCS information in the model.
-
-        Note that modifying the returned WCS object will not modify
-        the data in this model.  To update the model, use `set_fits_wcs`.
-
-        This method is deprecated and will be removed in a future version.
-        To get the SIP approximation, call ``to_fits_sip()`` on the
-        model.meta.wcs attribute.
-
-        Parameters
-        ----------
-        hdu_name : str, optional
-            The name of the HDU to get the WCS from.  This must use
-            named HDU's, not numerical order HDUs. To get the primary
-            HDU, pass ``'PRIMARY'``.
-        hdu_ver : int, optional
-            The extension version. Used when there is more than one
-            extension with the same name. The default value, 1,
-            is the first.
-        key : str, optional
-            The name of a particular WCS transform to use.  This may
-            be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
-            the ``"a"`` part of the ``CTYPEia`` cards.  *key* may only
-            be provided if *header* is also provided.
-
-        Returns
-        -------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The type will depend on what libraries are installed on
-            this system.
-        """
-        warnings.warn(
-            "get_fits_wcs is deprecated. To get the SIP approximation, "
-            "call ``to_fits_sip()`` on the model.meta.wcs attribute.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        hdulist = fits_support.to_fits(self._instance, self._schema)
-        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver - 1)
-        header = hdu.header
-        return WCS(header, key=key, relax=True, fix=True)
-
-    def set_fits_wcs(self, wcs, hdu_name="SCI"):
-        """
-        Set the FITS WCS information on the model using the given `astropy.wcs.WCS` object.
-
-        Note that the "key" of the WCS is stored in the WCS object
-        itself, so it can not be set as a parameter to this method.
-
-        This method is deprecated and will be removed in a future version.
-        The WCS should only be modified by setting model.meta.wcs
-
-        Parameters
-        ----------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The object containing FITS WCS information
-        hdu_name : str, optional
-            The name of the HDU to set the WCS from.  This must use
-            named HDU's, not numerical order HDUs.  To set the primary
-            HDU, pass ``'PRIMARY'``.
-        """
-        warnings.warn(
-            "set_fits_wcs is deprecated and will be removed in a future release.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        header = wcs.to_header()
-        if hdu_name == "PRIMARY":
-            hdu = fits.PrimaryHDU(header=header)
-        else:
-            hdu = fits.ImageHDU(name=hdu_name, header=header)
-        hdulist = fits.HDUList([hdu])
-
-        ff = fits_support.from_fits(
-            hdulist,
-            self._schema,
-            self._ctx,
-            ignore_missing_extensions=self._ignore_missing_extensions,
-        )
-
-        self._instance = properties.merge_tree(self._instance, ff.tree)
 
     def getarray_noinit(self, attribute):
         """
