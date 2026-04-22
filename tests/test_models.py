@@ -134,6 +134,46 @@ def test_init_incompatible_datamodel():
         BasicModel(input_model, schema=schema)
 
 
+def test_init_from_another_model():
+    """
+    Init model from a compatible model type should update model_type attribute.
+
+    Expected behavior is a shallow copy where data arrays and other complex types (e.g. WCS)
+    are shared, but simple metadata are copied such that meta.model_type can be different.
+    """
+    input_model = FitsModel((50, 50))
+
+    class MockWcs:
+        """For these purposes this just needs to be a complex type."""
+
+        def __init__(self):
+            self.foo = "bar"
+
+    input_model.meta.wcs = MockWcs()
+    with BasicModel(input_model) as dm:
+        assert dm.data.shape == (50, 50)
+        assert dm.meta.model_type == "BasicModel"
+        assert input_model != dm
+        assert input_model._instance is not dm._instance
+        assert input_model.data is dm.data
+        assert isinstance(input_model.meta.wcs, MockWcs)
+        assert input_model.meta.wcs is dm.meta.wcs
+    assert input_model.meta.model_type == "FitsModel"
+    input_model.close()
+
+
+def test_init_from_another_model_on_file(tmp_path):
+    """Init model from a file containing a different but compatible model type should update model_type attribute."""
+    input_model = FitsModel((50, 50))
+    file_path = tmp_path / "test.fits"
+    input_model.save(file_path)
+    input_model.close()
+
+    with BasicModel(file_path) as dm:
+        assert dm.data.shape == (50, 50)
+        assert dm.meta.model_type == "BasicModel"
+
+
 def test_set_array():
     with pytest.raises(ValueError):
         with BasicModel() as dm:
