@@ -1,3 +1,6 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/readthedocs/readthedocs.org/refs/heads/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+
 version: 2
 
 sphinx:
@@ -9,15 +12,14 @@ formats:
   - pdf
 
 build:
-  os: "ubuntu-22.04"
+  os: ubuntu-lts-latest
   tools:
-    python: mambaforge-4.10
+    python: latest
+  apt_packages:
+    - graphviz
   jobs:
     post_install:
       - towncrier build --keep
-
-conda:
-  environment: docs/rtd_environment.yaml
 
 python:
   install:
