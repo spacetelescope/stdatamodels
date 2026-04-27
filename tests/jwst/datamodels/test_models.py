@@ -487,7 +487,9 @@ def test_ramp_model_zero_frame_open_file(tmp_path):
         np.testing.assert_allclose(zframe0, zframe1, 1.0e-5)
 
 
-@pytest.mark.parametrize("ModelType", [datamodels.Level1bModel, datamodels.RampModel])
+@pytest.mark.parametrize(
+    "ModelType", [datamodels.Level1bModel, datamodels.RampModel, datamodels.SuperstripeRampModel]
+)
 def test_ramp_model_zero_frame_by_dimensions(ModelType):
     """
     Ensures creating a RampModel by dimensions results in the correct
@@ -519,15 +521,40 @@ def test_ramp_model_pixel_dq_default():
         np.testing.assert_equal(default, 0)
 
 
-def test_ramp_model_pixel_dq_3d():
-    """Ensure RampModel pixeldq can be assigned a 3D array."""
+def test_superstripe_ramp_model_pixel_dq_3d():
+    """Ensure SuperstripeRampModel pixeldq can be assigned a 3D array."""
     nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
     dims = (nstripes * nints, ngroups, nrows, ncols)
     pdims = (nstripes, nrows, ncols)
 
-    with datamodels.RampModel(dims, validate_arrays=True, strict_validation=True) as ramp:
+    with datamodels.SuperstripeRampModel(
+        dims, validate_arrays=True, strict_validation=True
+    ) as ramp:
         ramp.pixeldq = np.zeros(pdims)
         assert ramp.pixeldq.shape == pdims
+
+
+def test_superstripe_ramp_model_pixel_dq_default():
+    """Ensure SuperstripeRampModel pixeldq has a 3D default."""
+    nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
+    dims = (nstripes * nints, ngroups, nrows, ncols)
+    pdims = (nstripes, nrows, ncols)
+
+    with datamodels.SuperstripeRampModel(
+        dims, validate_arrays=True, strict_validation=True
+    ) as ramp:
+        # without num_superstripe, default is None
+        assert ramp.get_default("pixeldq") is None
+
+        # with zero superstripe, default is None
+        ramp.meta.subarray.num_superstripe = 0
+        assert ramp.get_default("pixeldq") is None
+
+        # with non-zero supserstripe, default is nstripe x nrows x ncols
+        ramp.meta.subarray.num_superstripe = nstripes
+        default = ramp.get_default("pixeldq")
+        assert default.shape == pdims
+        np.testing.assert_equal(default, 0)
 
 
 @pytest.fixture
