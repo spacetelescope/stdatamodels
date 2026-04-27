@@ -8,7 +8,10 @@ import numpy as np
 from asdf import treeutil
 from asdf.treeutil import RemoveNode
 from astropy.io import fits
+from astropy.utils import minversion
 from numpy.lib.recfunctions import merge_arrays
+
+NUMPY_LT_2_5 = not minversion(np, "2.5.0.dev0")
 
 
 def gentle_asarray(a, dtype, allow_extra_columns=False):
@@ -73,7 +76,10 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     # We can remove this once the issue is resolved in astropy:
     # https://github.com/astropy/astropy/issues/8862
     if isinstance(a, fits.fitsrec.FITS_rec):
-        a.dtype = _rebuild_fits_rec_dtype(a)
+        if NUMPY_LT_2_5:
+            a.dtype = _rebuild_fits_rec_dtype(a)
+        else:
+            np.ndarray._set_dtype(a, _rebuild_fits_rec_dtype(a))
         in_dtype = a.dtype
 
     if in_dtype == out_dtype:
