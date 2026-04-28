@@ -147,16 +147,27 @@ ignore = [".gitkeep"]
 wrap = true
 issue_format = "`#{issue} <https://github.com/spacetelescope/stdatamodels/issues/{issue}>`_"
 
-[tool.towncrier.fragment.feature]
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
 name = "New Features"
+showcontent = true
 
-[tool.towncrier.fragment.bugfix]
-name = "Bug Fixes"
+[[tool.towncrier.type]]
+directory = "fix"
+name = "Fixes"
+showcontent = true
 
-[tool.towncrier.fragment.doc]
-name = "Documentation"
+[[tool.towncrier.type]]
+directory = "docs"
+name = "Documentation Changes"
+showcontent = true
 
-[tool.towncrier.fragment.removal]
-name = "Deprecations and Removals"
-
-[tool.towncrier.fragment.misc]
+[[tool.towncrier.type]]
+directory = "other"
+name = "Other Changes"
+showcontent = true
