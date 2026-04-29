@@ -68,10 +68,9 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
 
     # When a FITS file includes a pseudo-unsigned-int column, astropy will return
     # a FITS_rec with an incorrect table dtype.
+    # It's also unsafe to directly cast any FITS_rec with a
+    # pseudo-unsigned column.
     # https://github.com/astropy/astropy/issues/8862
-    # Due to an issue in astropy, it's not safe to directly cast
-    # a FITS_rec with a pseudo-unsigned column.
-    # See https://github.com/astropy/astropy/issues/8862
     if isinstance(a, fits.fitsrec.FITS_rec):
         if any(c.bzero is not None for c in a.columns):
             return _safe_asanyarray(a, out_dtype)
