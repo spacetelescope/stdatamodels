@@ -175,11 +175,17 @@ def test_slit_update_from_multislit():
     """Cover a bug where JwstDataModel.update() would raise for ObjectNode input."""
     multislit = MultiSlitModel()
     slit = SlitModel()
-    slit.meta.telescope = "foo"
+    # name is in both SlitModel and MultiSlitModel slitdata schema
+    slit.name = "foo"
+    # telescope is not in MultiSlitModel slitdata schema
+    slit.meta.telescope = "bar"
     multislit.slits.append(slit)
     slit_objnode = multislit.slits[0]
     assert isinstance(slit_objnode, ObjectNode)
 
     slit2 = SlitModel()
     slit2.update(slit_objnode)
-    assert slit2.meta.telescope == "foo"
+    # schema-defined in both -> updated
+    assert slit2.name == "foo"
+    # schema-undefined in source -> not updated
+    assert slit2.meta.telescope is None
