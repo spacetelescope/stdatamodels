@@ -1,0 +1,1 @@
+Removed support for passing extra ``**kwargs`` through ``asdf_in_fits.open`` and ``fits_support.from_fits_asdf`` into ``asdf.open`` (previously deprecated).

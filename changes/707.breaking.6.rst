@@ -1,0 +1,1 @@
+Passing unrecognized keyword arguments to ``DataModel.__init__`` when ``init`` is file-like now raises ``TypeError`` instead of a deprecation warning.

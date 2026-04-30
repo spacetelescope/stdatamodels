@@ -1,0 +1,1 @@
+Reduce overhead in validation of scalar values on assignment, minorly improving runtime of ObjectNode.__setattr__

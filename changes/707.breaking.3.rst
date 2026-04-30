@@ -1,0 +1,1 @@
+Removed the deprecated ``memmap`` keyword argument from ``DataModel.__init__`` and ``datamodels.open``.

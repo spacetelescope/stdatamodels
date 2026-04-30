@@ -1,0 +1,1 @@
+Removed deprecated ``DataModel.get_fits_wcs`` and ``DataModel.set_fits_wcs``. To get the SIP approximation use ``model.meta.wcs.to_fits_sip()``; modify ``model.meta.wcs`` directly to set the WCS.

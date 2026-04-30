@@ -1,0 +1,1 @@
+Refactor DataModel.update() to perform validation on attribute assignment instead of a full model validation at the end, fixing confusing behavior where calling update would raise warnings for validation issues that the update call did not itself introduce.
