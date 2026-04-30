@@ -12,15 +12,16 @@ This PR addresses ...
 ## Tasks
 - [ ] update or add relevant tests
 - [ ] update relevant docstrings and / or `docs/` page
-- [ ] Does this PR change any API used downstream? (if not, label with `no-changelog-entry-needed`)
-  - [ ] write news fragment(s) in `changes/`: `echo "changed something" > changes/<PR#>.<changetype>.rst` (see below for change types)
-  - [ ] [run `jwst` regression tests](https://github.com/spacetelescope/RegressionTests/actions/workflows/jwst.yml) with this branch installed (`"git+https://github.com/<fork>/stdatamodels@<branch>"`)
+- [ ] If this change affects user-facing code or public API, add news fragment file(s) to `changes/` (see [the changelog instructions](https://github.com/spacetelescope/stdatamodels/blob/main/changes/README.md)).
+      Otherwise, add the `no-changelog-entry-needed` label.
+- [ ] [run `jwst` regression tests](https://github.com/spacetelescope/RegressionTests/actions/workflows/jwst.yml) with this branch installed (`"git+https://github.com/<fork>/stdatamodels@<branch>"`)
 
 <details><summary>news fragment change types...</summary>
 
-- ``changes/<PR#>.feature.rst``: new feature
-- ``changes/<PR#>.bugfix.rst``: fixes an issue
-- ``changes/<PR#>.doc.rst``: documentation change
-- ``changes/<PR#>.removal.rst``: deprecation or removal of public API
-- ``changes/<PR#>.misc.rst``: infrastructure or miscellaneous change
+- `<PR#>.breaking.rst`: Add this fragment if your change **breaks public API**, describing what the user needs to change
+- `<PR#>.schema.rst`: schema updates
+- `<PR#>.feature.rst`
+- `<PR#>.fix.rst`
+- `<PR#>.docs.rst`
+- `<PR#>.other.rst`
 </details>
