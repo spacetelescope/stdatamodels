@@ -440,6 +440,12 @@ class ObjectNode(Node):
     def __iter__(self):
         return NodeIterator(self)
 
+    def pop(self, a, b):  # noqa: D102
+        try:
+            return self._instance.pop(a)
+        except KeyError:
+            return b
+
     def hasattr(self, attr):
         """
         Check if the node has an attribute in its instance.

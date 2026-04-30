@@ -19,6 +19,7 @@ from astropy.time import Time
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
 from .history import HistoryList
+from .properties import ObjectNode
 from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
@@ -925,7 +926,7 @@ class DataModel(properties.ObjectNode):
         # calling ObjectNode.__setattr__
         # This triggers validation if validate_on_assignment is True.
         def assign_leaves(node, path=()):
-            if isinstance(node, dict):
+            if isinstance(node, (dict, ObjectNode)):
                 for key, val in node.items():
                     # skip extra_fits - handled separately below
                     if not path and key == "extra_fits":

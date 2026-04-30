@@ -6,6 +6,7 @@ from astropy.time import Time
 from numpy.testing import assert_array_equal
 
 from stdatamodels.jwst.datamodels import ImageModel, MultiSlitModel, SlitModel
+from stdatamodels.properties import ObjectNode
 
 
 def test_multislit_model():
@@ -168,3 +169,17 @@ def test_slit_from_multislit():
     slit.int_times = slit.get_default("int_times")
     model.slits.append(slit)
     slit = SlitModel(model.slits[0].instance)
+
+
+def test_slit_update_from_multislit():
+    """Cover a bug where JwstDataModel.update() would raise for ObjectNode input."""
+    multislit = MultiSlitModel()
+    slit = SlitModel()
+    slit.meta.telescope = "foo"
+    multislit.slits.append(slit)
+    slit_objnode = multislit.slits[0]
+    assert isinstance(slit_objnode, ObjectNode)
+
+    slit2 = SlitModel()
+    slit2.update(slit_objnode)
+    assert slit2.meta.telescope == "foo"
