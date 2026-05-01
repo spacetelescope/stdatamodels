@@ -1,1 +1,0 @@
-Add SUB_SHRT and SUB_LONG keywords for MIRI IFU; remove unneeded names from base subarray enum list

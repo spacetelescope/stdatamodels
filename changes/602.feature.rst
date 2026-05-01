@@ -1,1 +1,0 @@
-Add S_REGION keyword to spec meta schema

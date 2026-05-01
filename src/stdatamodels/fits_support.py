@@ -57,6 +57,7 @@ _builtin_regexes = [
     "SIMPLE",
     "TFIELDS",
     "TBCOL[0-9]{1,3}",
+    "TDIM[0-9]{1,3}",
     "TFORM[0-9]{1,3}",
     "TTYPE[0-9]{1,3}",
     "TUNIT[0-9]{1,3}",
@@ -833,7 +834,9 @@ def from_fits(
 
 
 def from_fits_asdf(
-    hdulist, ignore_unrecognized_tag=False, ignore_missing_extensions=False, **kwargs
+    hdulist,
+    ignore_unrecognized_tag=False,
+    ignore_missing_extensions=False,
 ):
     """
     Open the ASDF extension from a FITS HDUlist.
@@ -848,9 +851,6 @@ def from_fits_asdf(
     ignore_missing_extensions : bool
         When `True`, ignore missing extensions in the ASDF file.
         When `False`, raise an error when an extension is missing.
-    **kwargs : dict
-        Additional keyword arguments to pass to `asdf.open`.
-        Usage of kwargs is deprecated and will be removed in a future version.
 
     Returns
     -------
@@ -870,7 +870,6 @@ def from_fits_asdf(
         generic_file,
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
-        **kwargs,
     )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)

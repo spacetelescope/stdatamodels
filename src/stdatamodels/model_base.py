@@ -15,7 +15,6 @@ from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from astropy.io import fits
 from astropy.time import Time
-from astropy.wcs import WCS
 
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
@@ -39,6 +38,9 @@ _DEFAULT_SCHEMA = {
         },
     },
 }
+
+# These paths are skipped when running model.update()
+_PROTECTED_PATHS = {("meta", "date"), ("meta", "model_type")}
 
 
 class DataModel(properties.ObjectNode):
@@ -73,7 +75,7 @@ class DataModel(properties.ObjectNode):
             - None : Create a default data model with no shape.
 
             - tuple : Shape of the data array.
-              Initialize with empty data array with shape specified by the.
+              Initialize with default data array with shape specified by the tuple.
 
             - file path: Initialize from the given file (FITS or ASDF)
 
@@ -140,15 +142,6 @@ class DataModel(properties.ObjectNode):
 
                 model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))
         """
-        if "memmap" in kwargs:
-            warnings.warn(
-                "Memory mapping is no longer supported; memmap is hard-coded to False "
-                "and the keyword argument no longer has any effect.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            kwargs.pop("memmap")
-
         # Override value of validation parameters if not explicitly set.
         if pass_invalid_values is None:
             pass_invalid_values = get_envar_as_boolean("PASS_INVALID_VALUES", False)
@@ -216,10 +209,18 @@ class DataModel(properties.ObjectNode):
             asdffile = None
             self.clone(self, init)
             if not isinstance(init, self.__class__):
+                # In this case we want the models to be different instances,
+                # have different metadata (e.g. meta.model_type should be different),
+                # but share the same data arrays.
+                self._instance = copy.copy(self._instance)
+                if "meta" in self._instance:
+                    self._instance["meta"] = copy.copy(self._instance["meta"])
+
                 current_validate_arrays = self._validate_arrays
                 self._validate_arrays = True
                 self.validate()
                 self._validate_arrays = current_validate_arrays
+            self.on_init(init)
             return
 
         elif isinstance(init, AsdfFile):
@@ -272,14 +273,10 @@ class DataModel(properties.ObjectNode):
         self._no_asdf_extension = False
 
         if (init is not None) and (not is_array) and (not is_shape) and (len(kwargs)) > 0:
-            warnings.warn(
+            raise TypeError(
                 "Unrecognized keyword arguments passed to DataModel.__init__. "
-                "DataModel init is file-like (e.g. filename, dict, HDUList, AsdfFile, etc.) "
-                "but keyword arguments were also passed, which are assumed to be attempting to "
-                "initialize arrays. This behavior is deprecated and will raise an error "
-                "in the future.",
-                DeprecationWarning,
-                stacklevel=2,
+                "Keyword arguments are not allowed when DataModel init is file-like "
+                "(e.g. filename, dict, HDUList, AsdfFile, etc.) "
             )
 
         # Instantiate the primary array of the image
@@ -301,9 +298,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # Initialization occurs when the primary array is first
-            # referenced. Do so now.
-            getattr(self, primary_array_name)
+            # Initialize the primary array to the given shape with default value.
+            setattr(self, primary_array_name, self.get_default(primary_array_name))
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -386,7 +382,7 @@ class DataModel(properties.ObjectNode):
         buf = ["<"]
         buf.append(self._model_type)
 
-        if self.shape:
+        if getattr(self, "shape", None) is not None:
             buf.append(str(self.shape))
 
         try:
@@ -552,8 +548,7 @@ class DataModel(properties.ObjectNode):
         # store the data model type, if not already set
         klass = self.__class__.__name__
         if klass != "DataModel":
-            if not self.meta.hasattr("model_type"):
-                self.meta.model_type = klass
+            self.meta.model_type = klass
 
     def on_save(self, path=None):
         """
@@ -625,34 +620,6 @@ class DataModel(properties.ObjectNode):
 
         return output_path
 
-    @classmethod
-    def from_asdf(cls, init, schema=None, **kwargs):
-        """
-        Load a data model from an ASDF file.
-
-        Parameters
-        ----------
-        init : str, file object, `~asdf.AsdfFile`
-            - str : file path: initialize from the given file
-            - readable file object: Initialize from the given file object
-            - `~asdf.AsdfFile` : Initialize from the given`~asdf.AsdfFile`.
-        schema : dict
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel` instance
-            A data model.
-        """
-        warnings.warn(
-            "from_asdf is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
-
     def to_asdf(self, init, *args, **kwargs):
         """
         Write a data model to an ASDF file.
@@ -676,35 +643,6 @@ class DataModel(properties.ObjectNode):
         asdffile = AsdfFile()
         asdffile._tree = tree
         asdffile.write_to(init, *args, **kwargs)
-
-    @classmethod
-    def from_fits(cls, init, schema=None, **kwargs):
-        """
-        Load a model from a FITS file.
-
-        Parameters
-        ----------
-        init : file path, file object, astropy.io.fits.HDUList
-            - file path: Initialize from the given file
-            - readable file object: Initialize from the given file object
-            - astropy.io.fits.HDUList: Initialize from the given
-              `~astropy.io.fits.HDUList`.
-        schema : dict, str
-            Same as for `__init__`
-        **kwargs
-            Aadditional arguments passed to lower level functions.
-
-        Returns
-        -------
-        model : `~jwst.datamodels.DataModel`
-            A data model.
-        """
-        warnings.warn(
-            "from_fits is deprecated, use DataModel.__init__ instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return cls(init, schema=schema, **kwargs)
 
     def to_fits(self, init, *args, **kwargs):
         """
@@ -931,7 +869,12 @@ class DataModel(properties.ObjectNode):
         """
         Update this model with the metadata elements from another model.
 
-        Note: The ``update`` method skips a WCS object, if present.
+        ``update`` only assigns values to metadata elements that are defined in both this
+        model's schema and the schema of the source model ``d`` (if ``d`` is a datamodel).
+        If ``extra_fits`` is True it will also update from the extra_fits subtree.
+        Attributes not meeting these criteria will be silently ignored.
+        The ``update`` method skips a WCS object, if present.
+        The ``update`` method skips arrays.
 
         Parameters
         ----------
@@ -944,79 +887,8 @@ class DataModel(properties.ObjectNode):
         extra_fits : bool
             Update from ``extra_fits``.  Default is False.
         """
-
-        def hdu_keywords_from_data(d, path, hdu_keywords):
-            # Walk tree and add paths to keywords to hdu keywords
-            if isinstance(d, dict):
-                for key, val in d.items():
-                    if len(path) > 0 or key != "extra_fits":
-                        hdu_keywords_from_data(val, path + [key], hdu_keywords)
-            elif isinstance(d, list):
-                for key, val in enumerate(d):
-                    hdu_keywords_from_data(val, path + [key], hdu_keywords)
-            elif isinstance(d, np.ndarray):
-                # skip data arrays
-                pass
-            else:
-                hdu_keywords.append(path)
-
-        def hdu_keywords_from_schema(subschema, path, combiner, ctx, recurse):
-            # Add path to keyword to hdu_keywords if in list of hdu names
-            if "fits_keyword" in subschema:
-                fits_hdu = subschema.get("fits_hdu", "PRIMARY")
-                if fits_hdu in hdu_names:
-                    ctx.append(path)
-
-        def hdu_names_from_schema(subschema, path, combiner, ctx, recurse):
-            # Build a set of hdu names from the schema
-            hdu_name = subschema.get("fits_hdu")
-            if hdu_name:
-                hdu_names.add(hdu_name)
-
-        def included(cursor, part):
-            # Test if part is in the cursor
-            if isinstance(part, int):
-                return part >= 0 and part < len(cursor)
-            else:
-                return part in cursor
-
-        def set_hdu_keyword(this_cursor, that_cursor, path):
-            # Copy an element pointed to by path from that to this
-            part = path.pop(0)
-            if not included(that_cursor, part):
-                return
-            if len(path) == 0:
-                this_cursor[part] = copy.deepcopy(that_cursor[part])
-            else:
-                that_cursor = that_cursor[part]
-                if not included(this_cursor, part):
-                    if isinstance(path[0], int):
-                        if isinstance(part, int):
-                            this_cursor.append([])
-                        else:
-                            this_cursor[part] = []
-                    else:
-                        if isinstance(part, int):
-                            this_cursor.append({})
-                        elif isinstance(that_cursor, list):
-                            this_cursor[part] = []
-                        else:
-                            this_cursor[part] = {}
-                this_cursor = this_cursor[part]
-                set_hdu_keyword(this_cursor, that_cursor, path)
-
-        def protected_keyword(path):
-            # Some keywords are protected and
-            # should not be copied frpm the other image
-            if len(path) == 2:
-                if path[0] == "meta":
-                    if path[1] in ("date", "model_type"):
-                        return True
-            return False
-
         # Get the list of hdu names from the model so that updates
         # are limited to those hdus
-
         if only is not None:
             if isinstance(only, str):
                 hdu_names = {only}
@@ -1024,31 +896,67 @@ class DataModel(properties.ObjectNode):
                 hdu_names = set(only)
         else:
             hdu_names = {"PRIMARY"}
+
+            def hdu_names_from_schema(subschema, path, combiner, ctx, recurse):
+                hdu_name = subschema.get("fits_hdu")
+                if hdu_name:
+                    hdu_names.add(hdu_name)
+
             mschema.walk_schema(self._schema, hdu_names_from_schema, hdu_names)
 
-        # Get the paths to all the keywords that will be updated from
-
-        hdu_keywords = []
+        # Resolve the source dict and, for DataModel input, the set of
+        # schema-approved leaf paths (those with a fits_keyword in the
+        # appropriate HDU).
         if isinstance(d, DataModel):
-            schema = d._schema
-            d = d._instance
-            mschema.walk_schema(schema, hdu_keywords_from_schema, hdu_keywords)
+            hdu_keywords = set()
+
+            def hdu_keywords_from_schema(subschema, path, combiner, ctx, recurse):
+                if "fits_keyword" in subschema:
+                    if subschema.get("fits_hdu", "PRIMARY") in hdu_names:
+                        hdu_keywords.add(tuple(path))
+
+            mschema.walk_schema(d._schema, hdu_keywords_from_schema, hdu_keywords)
+            source = d._instance
         else:
-            path = []
-            hdu_keywords_from_data(d, path, hdu_keywords)
+            hdu_keywords = None  # no schema filter; copy all non-array leaves
+            source = d
 
-        # Perform the updates to the keywords mentioned in the schema
-        for path in hdu_keywords:
-            if not protected_keyword(path):
-                set_hdu_keyword(self._instance, d, path)
+        # Single-pass recursive walk: assign leaf values directly to self,
+        # calling ObjectNode.__setattr__
+        # This triggers validation if validate_on_assignment is True.
+        def assign_leaves(node, path=()):
+            if isinstance(node, dict):
+                for key, val in node.items():
+                    # skip extra_fits - handled separately below
+                    if not path and key == "extra_fits":
+                        continue
+                    assign_leaves(val, path + (key,))
+            elif isinstance(node, list):
+                for i, val in enumerate(node):
+                    assign_leaves(val, path + (i,))
+            elif not isinstance(node, np.ndarray):
+                if path not in _PROTECTED_PATHS:
+                    if hdu_keywords is None or path in hdu_keywords:
+                        try:
+                            self[".".join(str(p) for p in path)] = copy.deepcopy(node)
+                        except (KeyError, AttributeError):
+                            pass
 
-        # Update from extra_fits as well, if indicated
+        assign_leaves(source)
+
+        # Update from extra_fits if requested.
+        # extra_fits lives outside the schema, so assign directly to instance dict
         if extra_fits:
             for hdu_name in hdu_names:
-                path = ["extra_fits", hdu_name, "header"]
-                set_hdu_keyword(self._instance, d, path)
-
-        self.validate()
+                try:
+                    header = source["extra_fits"][hdu_name]["header"]
+                except (KeyError, TypeError):
+                    continue
+                if "extra_fits" not in self._instance:
+                    self._instance["extra_fits"] = {}
+                if hdu_name not in self._instance["extra_fits"]:
+                    self._instance["extra_fits"][hdu_name] = {}
+                self._instance["extra_fits"][hdu_name]["header"] = copy.deepcopy(header)
 
     def to_flat_dict(self, include_arrays=True):
         """
@@ -1133,90 +1041,6 @@ class DataModel(properties.ObjectNode):
         entries = self.history
         entries.clear()
         entries.extend(values)
-
-    def get_fits_wcs(self, hdu_name="SCI", hdu_ver=1, key=" "):
-        """
-        Get a `astropy.wcs.WCS` object created from the FITS WCS information in the model.
-
-        Note that modifying the returned WCS object will not modify
-        the data in this model.  To update the model, use `set_fits_wcs`.
-
-        This method is deprecated and will be removed in a future version.
-        To get the SIP approximation, call ``to_fits_sip()`` on the
-        model.meta.wcs attribute.
-
-        Parameters
-        ----------
-        hdu_name : str, optional
-            The name of the HDU to get the WCS from.  This must use
-            named HDU's, not numerical order HDUs. To get the primary
-            HDU, pass ``'PRIMARY'``.
-        hdu_ver : int, optional
-            The extension version. Used when there is more than one
-            extension with the same name. The default value, 1,
-            is the first.
-        key : str, optional
-            The name of a particular WCS transform to use.  This may
-            be either ``' '`` or ``'A'``-``'Z'`` and corresponds to
-            the ``"a"`` part of the ``CTYPEia`` cards.  *key* may only
-            be provided if *header* is also provided.
-
-        Returns
-        -------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The type will depend on what libraries are installed on
-            this system.
-        """
-        warnings.warn(
-            "get_fits_wcs is deprecated. To get the SIP approximation, "
-            "call ``to_fits_sip()`` on the model.meta.wcs attribute.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        hdulist = fits_support.to_fits(self._instance, self._schema)
-        hdu = fits_support.get_hdu(hdulist, hdu_name, index=hdu_ver - 1)
-        header = hdu.header
-        return WCS(header, key=key, relax=True, fix=True)
-
-    def set_fits_wcs(self, wcs, hdu_name="SCI"):
-        """
-        Set the FITS WCS information on the model using the given `astropy.wcs.WCS` object.
-
-        Note that the "key" of the WCS is stored in the WCS object
-        itself, so it can not be set as a parameter to this method.
-
-        This method is deprecated and will be removed in a future version.
-        The WCS should only be modified by setting model.meta.wcs
-
-        Parameters
-        ----------
-        wcs : `astropy.wcs.WCS` or `pywcs.WCS` object
-            The object containing FITS WCS information
-        hdu_name : str, optional
-            The name of the HDU to set the WCS from.  This must use
-            named HDU's, not numerical order HDUs.  To set the primary
-            HDU, pass ``'PRIMARY'``.
-        """
-        warnings.warn(
-            "set_fits_wcs is deprecated and will be removed in a future release.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        header = wcs.to_header()
-        if hdu_name == "PRIMARY":
-            hdu = fits.PrimaryHDU(header=header)
-        else:
-            hdu = fits.ImageHDU(name=hdu_name, header=header)
-        hdulist = fits.HDUList([hdu])
-
-        ff = fits_support.from_fits(
-            hdulist,
-            self._schema,
-            self._ctx,
-            ignore_missing_extensions=self._ignore_missing_extensions,
-        )
-
-        self._instance = properties.merge_tree(self._instance, ff.tree)
 
     def getarray_noinit(self, attribute):
         """

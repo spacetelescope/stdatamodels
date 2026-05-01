@@ -59,6 +59,7 @@ from .photom import (
     MirImgPhotomModel,
     MirLrsPhotomModel,
     MirMrsPhotomModel,
+    MirWfssPhotomModel,
     NisImgPhotomModel,
     NisSossPhotomModel,
     NisWfssPhotomModel,
@@ -76,7 +77,7 @@ from .pixelarea import (
 )
 from .psfmask import PsfMaskModel
 from .quad import QuadModel
-from .ramp import RampModel
+from .ramp import RampModel, SuperstripeRampModel
 from .rampfitoutput import RampFitOutputModel
 from .readnoise import ReadnoiseModel
 from .reference import (
@@ -188,6 +189,7 @@ __all__ = [
     "MirMrsPhotomModel",
     "MirMrsPtCorrModel",
     "MirMrsXArtCorrModel",
+    "MirWfssPhotomModel",
     "MiriIFUCubeParsModel",
     "MiriLRSSpecwcsModel",
     "MiriResolutionModel",
@@ -257,6 +259,7 @@ __all__ = [
     "SpecwcsModel",
     "StrayLightModel",
     "SuperBiasModel",
+    "SuperstripeRampModel",
     "TSOMultiSpecModel",
     "TSOSpecModel",
     "ThroughputModel",

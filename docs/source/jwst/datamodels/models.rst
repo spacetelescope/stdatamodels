@@ -7,25 +7,70 @@ Creating a data model from scratch
 ----------------------------------
 
 To create a new :class:`~stdatamodels.jwst.datamodels.ImageModel`,
-just call its constructor.  To create a
-new model where all of the arrays will have default values, simply
+just call its constructor.  For example, to create a
+new model with the primary array set to its default, simply
 provide a shape as the first argument::
 
     from stdatamodels.jwst.datamodels import ImageModel
     with ImageModel((1024, 1024)) as im:
         ...
 
-In this form, the memory for the arrays will not be allocated until
-the arrays are accessed.  This is useful if, for example, you don't
+In this form, the memory for the primary array (typically "data") is 
+allocated on init, but additional schema-defined arrays are not.
+This is useful if, for example, you don't
 need a data quality array -- the memory for such an array will not be
-consumed::
+consumed. We can use the :meth:`~stdatamodels.DataModel.info` method to
+see everything that's currently in the model::
 
-  # Print out the data array.  It is allocated here on first access
-  # and defaults to being filled with zeros.
-  print(im.data)
+  im.info()
+  
+  root (AsdfObject)
+  ├─data (ndarray)
+  │ ├─shape (tuple)
+  │ │ ├─[0] (int): 1024
+  │ │ └─[1] (int): 1024
+  │ └─dtype (Float32DType): float32
+  └─meta (dict)
+    ├─model_type (str): ImageModel
+    └─date (str): 2026-02-26T14:56:12.278
 
-If you already have data in a numpy array, you can also create a model
-using that array by passing it in as a data keyword argument::
+Notice that only the primary array ("data") is allocated, has the shape we put in,
+and has a data type of float32 as defined by the
+:class:`~stdatamodels.jwst.datamodels.ImageModel` schema.
+To set additional arrays to their default values, use the
+``get_default`` method::
+
+  im.dq = im.get_default("dq")
+  im.info()
+
+  root (AsdfObject)
+  ├─data (ndarray)
+  │ ├─shape (tuple)
+  │ │ ├─[0] (int): 1024
+  │ │ └─[1] (int): 1024
+  │ └─dtype (Float32DType): float32
+  ├─meta (dict)
+  │ ├─model_type (str): ImageModel
+  │ └─date (str): 2026-02-26T14:56:12.278
+  └─dq (ndarray)
+    ├─shape (tuple)
+    │ ├─[0] (int): 1024
+    │ └─[1] (int): 1024
+    └─dtype (UInt32DType): uint32
+
+As you can see, the ``dq`` array is now allocated with the same shape as the primary array.
+
+.. note::
+
+  In previous versions of ``stdatamodels``, allocating memory for an
+  attribute and setting it to its default value could be achieved using e.g.
+  ``im.dq = im.dq``. This syntax took advantage of a bug wherein data
+  arrays were created on access, leading to unexpected behaviors. This construction
+  no longer sets ``dq`` to a default array.
+  Use ``get_default`` as shown above instead.
+
+If you already have data in numpy arrays, you can also create a model
+using those arrays by passing it in as a data keyword argument::
 
     data = np.empty((50, 50))
     dq = np.empty((50, 50))
@@ -261,6 +306,27 @@ It is also possible to copy all of the known metadata from one
 model into a new one using the :meth:`~stdatamodels.DataModel.update` method::
 
     new_model.update(old_model)
+
+While it's typically not recommended for general use due to the possibility of
+unexpected behavior, copying a model can be achieved by passing it into
+a constructor of the same type::
+
+    old_model = ImageModel()
+    new_model = ImageModel(old_model)
+
+This will perform a shallow copy: in this case ``old_model.instance == new_model.instance``,
+and changes to one model will affect the other.
+
+It's also possible to convert between compatible model types this way, e.g.::
+
+    old_model = ImageModel()
+    new_model = IFUImageModel(old_model)
+
+This will also perform a shallow copy, except
+that some metadata elements (such as ``meta.model_type``) will be updated and therefore
+``old_model.instance != new_model.instance``. Almost all attributes will still be shared
+between models, so changes to one will affect the other.
+
 
 History information
 -------------------

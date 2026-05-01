@@ -1,9 +1,9 @@
-from .model_base import JwstDataModel
+from .model_base import DefaultDQMixin, DefaultErrMixin, JwstDataModel
 
 __all__ = ["IFUImageModel"]
 
 
-class IFUImageModel(JwstDataModel):
+class IFUImageModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
     """
     A data model for 2D IFU images.
 
@@ -29,13 +29,10 @@ class IFUImageModel(JwstDataModel):
          pathloss correction for uniform source
     area : numpy float32 array
          Pixel area map array
+    regions : numpy float32 array
+         Slice regions map array
+    trace_model : numpy float32 array
+         Trace model array
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifuimage.schema"
-
-    def __init__(self, init=None, **kwargs):
-        super(IFUImageModel, self).__init__(init=init, **kwargs)
-
-        # Implicitly create arrays
-        self.dq = self.dq
-        self.err = self.err

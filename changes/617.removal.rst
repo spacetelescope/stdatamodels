@@ -1,1 +1,0 @@
-Remove handling of unsupported "clobber" keyword argument in ``DataModel.save``.

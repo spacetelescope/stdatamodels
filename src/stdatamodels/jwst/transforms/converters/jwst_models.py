@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import asdf
+import numpy as np
 from asdf_astropy.converters.transform.core import TransformConverterBase
 from astropy.modeling import Model
 
@@ -18,7 +19,6 @@ __all__ = [
     "NIRISSGrismDispersionConverter",
     "NirissSOSSConverter",
     "RefractionIndexConverter",
-    "Rotation3DToGWAConverter",
     "Rotation3DToGWAConverter",
     "Slit2GwaConverter",
     "Slit2MsaConverter",
@@ -382,7 +382,7 @@ class Rotation3DToGWAConverter(TransformConverterBase):
         return Rotation3DToGWA(angles, axes_order)
 
     def to_yaml_tree_transform(self, model, tag, ctx):
-        node = {"angles": list(model.angles.value)}
+        node = {"angles": list(np.atleast_1d(model.angles.value))}
         node["axes_order"] = model.axes_order
         return node
 

@@ -225,15 +225,7 @@ def _make_default_array(attr, schema, ctx):
                 if ndim is None:
                     shape = primary_array.shape
                 else:
-                    if attr == "zeroframe":
-                        dims = primary_array.shape
-                        if len(dims) != 4:
-                            error_msg = "To allocate ZEROFRAME, the primary array must "
-                            error_msg += f"have 4 dimensions, but has {len(dims)}."
-                            raise IndexError(error_msg)
-                        shape = (dims[0], dims[2], dims[3])
-                    else:
-                        shape = primary_array.shape[-ndim:]
+                    shape = primary_array.shape[-ndim:]
             elif ndim is None:
                 shape = (0,)
             else:
@@ -352,6 +344,21 @@ class Node:
         self._ctx = ctx
         self._parent = parent
 
+    def __eq__(self, other):
+        if isinstance(other, Node):
+            try:
+                # Try a simple equality check first.  This will pass if
+                # any internal numpy arrays reference the same object.
+                return self._instance == other._instance
+            except ValueError:
+                # If it fails (e.g. internal numpy arrays are copies), then
+                # return False.  Copies are not considered equal.
+                return False
+        else:
+            # For non-node comparisons, allow equality checks to fail
+            # in complex cases
+            return self._instance == other
+
     def _validate(self):
         return validate.value_change(self._name, self._instance, self._schema, self._ctx)
 
@@ -361,17 +368,11 @@ class Node:
 
 
 class ObjectNode(Node):
-    """A dictionary-like Node."""
+    """A dictionary-like object that supports validation against a schema."""
 
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
         return sorted(set(super().__dir__()) | added)
-
-    def __eq__(self, other):
-        if isinstance(other, ObjectNode):
-            return self._instance == other._instance
-        else:
-            return self._instance == other
 
     def __getattr__(self, attr):
         if attr.startswith("_"):
@@ -384,7 +385,18 @@ class ObjectNode(Node):
             if schema == {}:
                 raise AttributeError(f"No attribute '{attr}'") from err
 
+            if "max_ndim" in schema or "ndim" in schema or "datatype" in schema:
+                # data-like attributes should return None if not set
+                # not AttributeError, because we want hasattr(model, 'data') to be True
+                # but also don't want to set the array in getattr
+                return None
+
+            # Use _make_default to see if requested attribute is dict or list.
+            # If so it's assumed to be a node, and must be created to allow nested attribute access.
+            # Otherwise, return None and don't set anything
             val = _make_default(attr, schema, self._ctx)
+            if not isinstance(val, (dict, list)):
+                return None
             if val is not None:
                 self._instance[attr] = val
 
@@ -402,8 +414,6 @@ class ObjectNode(Node):
             self.__dict__[attr] = val
         else:
             schema = _get_schema_for_property(self._schema, attr)
-            if val is None:
-                val = _make_default(attr, schema, self._ctx)
             val = _cast(val, schema)
 
             node = ObjectNode(attr, val, schema, self._ctx, self)
@@ -430,7 +440,20 @@ class ObjectNode(Node):
     def __iter__(self):
         return NodeIterator(self)
 
-    def hasattr(self, attr):  # noqa: D102
+    def hasattr(self, attr):
+        """
+        Check if the node has an attribute in its instance.
+
+        Parameters
+        ----------
+        attr : str
+            The name of the attribute to check for.
+
+        Returns
+        -------
+        bool
+            True if the attribute is in the instance, False otherwise.
+        """
         return attr in self._instance
 
     def items(self):  # noqa: D102
@@ -441,23 +464,65 @@ class ObjectNode(Node):
                 val = getattr(val, field)
             yield (key, val)
 
+    def get_default(self, attr):
+        """
+        Retrieve the schema-defined default value of an attribute.
+
+        Parameters
+        ----------
+        attr : str
+            Attribute to set to its default value.
+
+        Returns
+        -------
+        object or None
+            The default value for the given attribute. If the attribute is schema-defined
+            but has no default value in the schema, this will return None.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
+        """
+        subschema = _get_schema_for_property(self._schema, attr)
+        if not subschema:
+            raise AttributeError(f'{self} has no attribute "{attr}"')
+        return _make_default(attr, subschema, self._ctx)
+
+    def get_dtype(self, attr):
+        """
+        Retrieve the numpy dtype for an attribute, if defined.
+
+        Parameters
+        ----------
+        attr : str
+            The attribute to retrieve the dtype for.
+
+        Returns
+        -------
+        `numpy.dtype`
+            The numpy dtype for the attribute.
+
+        Raises
+        ------
+        AttributeError
+            If the given attribute is not defined in the schema.
+        ValueError
+            If the given attribute is defined in the schema but has no datatype.
+        """
+        schema = _get_schema_for_property(self._schema, attr)
+        if not schema:
+            raise AttributeError(f'{self} has no attribute "{attr}"')
+        if "datatype" not in schema:
+            raise ValueError(f'Attribute "{attr}" has no datatype defined in the schema.')
+        return ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
+
 
 class ListNode(Node):
-    """A list-like Node."""
-
-    def __cast(self, other):
-        if isinstance(other, ListNode):
-            return other._instance
-        return other
+    """A list-like object that supports validation against a schema."""
 
     def __repr__(self):
         return repr(self._instance)
-
-    def __eq__(self, other):
-        return self._instance == self.__cast(other)
-
-    def __ne__(self, other):
-        return self._instance != self.__cast(other)
 
     def __contains__(self, item):
         return item in self._instance
