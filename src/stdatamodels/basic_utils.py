@@ -1,4 +1,5 @@
 import re
+import warnings
 
 __all__ = ["multiple_replace"]
 
@@ -34,6 +35,11 @@ def multiple_replace(string, rep_dict):
     >>> multiple_replace("button mutton", {"but": "mut", "mutton": "lamb"})
     'mutton lamb'
     """  # numpydoc ignore=SS05
+    warnings.warn(
+        "The multiple_replace function is deprecated and will be removed in a future release. ",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     pattern = re.compile(
         "|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]), flags=re.DOTALL
     )
