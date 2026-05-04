@@ -32,6 +32,8 @@ def multiple_replace(string, rep_dict):
     If the replacements where chained, the result would have been
     'lamb lamb'
 
+    >>> import warnings
+    >>> warnings.filterwarnings("ignore", category=DeprecationWarning)
     >>> multiple_replace("button mutton", {"but": "mut", "mutton": "lamb"})
     'mutton lamb'
     """  # numpydoc ignore=SS05
