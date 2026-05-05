@@ -20,7 +20,6 @@ from stdatamodels.jwst.datamodels import (
     IFUImageModel,
     ImageModel,
     JwstDataModel,
-    QuadModel,
     RampModel,
     ReferenceCubeModel,
     ReferenceFileModel,
@@ -112,39 +111,15 @@ def test_open_fits(test_data_path):
             assert isinstance(model, JwstDataModel)
 
 
-def test_open_none():
-    with pytest.warns(DeprecationWarning, match="Passing None to open is deprecated"):
-        with datamodels.open() as model:
-            assert isinstance(model, JwstDataModel)
-
-
-def test_open_shape():
-    shape = (50, 20)
-    with pytest.warns(DeprecationWarning, match="Passing tuple to open is deprecated"):
-        with datamodels.open(shape) as model:
-            assert isinstance(model, ImageModel)
-            assert model.shape == shape
-
-
-def test_open_array():
-    """Test opening a model from a numpy array"""
-    data = np.ones((2, 2), dtype=np.float32) * 3
-    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
-        with datamodels.open(data) as model:
-            assert isinstance(model, ImageModel)
-            assert np.array_equal(model.data, data)
-
-    data = np.ones((2, 2, 2), dtype=np.float32) * 3
-    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
-        with datamodels.open(data) as model:
-            assert isinstance(model, CubeModel)
-            assert np.array_equal(model.data, data)
-
-    data = np.ones((2, 2, 2, 2), dtype=np.float32) * 3
-    with pytest.warns(DeprecationWarning, match="Passing np.ndarray to open is deprecated"):
-        with datamodels.open(data) as model:
-            assert isinstance(model, QuadModel)
-            assert np.array_equal(model.data, data)
+def test_open_unsupported_types():
+    with pytest.raises(TypeError):
+        datamodels.open(None)
+    with pytest.raises(TypeError):
+        datamodels.open((1, 2, 3))
+    with pytest.raises(TypeError):
+        datamodels.open(np.array([1, 2, 3]))
+    with pytest.raises(TypeError):
+        datamodels.open(fits.HDUList())
 
 
 def test_open_dict():
@@ -190,10 +165,6 @@ def test_open_hdulist(tmp_path):
     # datamodels.open() can't open pathlib objects
     path = str(tmp_path / "jwst_image.fits")
     hdulist.writeto(path)
-
-    with pytest.warns(DeprecationWarning, match="Passing fits.HDUList to open is deprecated"):
-        with datamodels.open(hdulist) as model:
-            assert isinstance(model, ImageModel)
 
     with pytest.warns(NoTypeWarning) as record:
         with datamodels.open(path) as model:
@@ -362,16 +333,3 @@ def test_open_does_not_clear_zeroframe(InitClass):
 
     m2 = datamodels.IFUImageModel(m0)
     np.testing.assert_equal(m2.zeroframe, 1)
-
-
-def test_memmap_deprecation(tmp_path):
-    """
-    Test that the deprecation warning for memmap=True is raised.
-    """
-    path = str(tmp_path / "test.fits")
-    model = ImageModel((10, 10))
-    model.save(path)
-
-    with pytest.warns(DeprecationWarning, match="Memory mapping is no longer supported"):
-        with datamodels.open(path, memmap=True):
-            pass

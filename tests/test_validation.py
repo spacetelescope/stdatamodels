@@ -93,6 +93,31 @@ def test_list_attribute_assignment():
     assert model.meta.list_attribute is None
 
 
+def test_list_of_data_attribute_assignment():
+    model = ValidationModel()
+    data1 = np.zeros((10, 10))
+
+    assert len(model.meta.list_of_data_attribute) == 0
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        model.meta.list_of_data_attribute.append(data1)
+    assert np.all(model.meta.list_of_data_attribute[0] == data1)
+
+    # Attempt to append an array with the wrong number of dimensions.
+    # This should probably raise a ValidationWarning but currently raises a ValueError.
+    # with pytest.warns(ValidationWarning):
+    with pytest.raises(ValueError, match="Array has wrong number of dimensions"):
+        model.meta.list_of_data_attribute.append(np.ones(10))
+    assert len(model.meta.list_of_data_attribute) == 1
+    assert np.all(model.meta.list_of_data_attribute[0] == data1)
+
+    # Assigning to None is allowed.
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        model.meta.list_of_data_attribute = None
+    assert model.meta.list_of_data_attribute is None
+
+
 def test_object_assignment_with_nested_null():
     model = ValidationModel()
 

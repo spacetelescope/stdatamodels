@@ -1,1 +1,0 @@
-Add PHOTUNIT and WAVEUNIT attributes to WFSS photom ref file schemas

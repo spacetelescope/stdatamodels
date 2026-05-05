@@ -77,7 +77,7 @@ from .pixelarea import (
 )
 from .psfmask import PsfMaskModel
 from .quad import QuadModel
-from .ramp import RampModel
+from .ramp import RampModel, SuperstripeRampModel
 from .rampfitoutput import RampFitOutputModel
 from .readnoise import ReadnoiseModel
 from .reference import (
@@ -259,6 +259,7 @@ __all__ = [
     "SpecwcsModel",
     "StrayLightModel",
     "SuperBiasModel",
+    "SuperstripeRampModel",
     "TSOMultiSpecModel",
     "TSOSpecModel",
     "ThroughputModel",

@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
-id: "http://stsci.edu/schemas/jwst_datamodel/ramp.schema"
+id: "http://stsci.edu/schemas/jwst_datamodel/superstripe_ramp.schema"
 allOf:
 - $ref: core.schema
 - $ref: bunit.schema
@@ -16,11 +16,11 @@ allOf:
       ndim: 4
       datatype: float32
     pixeldq:
-      title: 2-D data quality array for all planes
+      title: 3-D data quality array for all planes
       fits_hdu: PIXELDQ
       default: 0
       datatype: uint32
-      ndim: 2
+      ndim: 3
     groupdq:
       title: 4-D data quality array for each plane
       fits_hdu: GROUPDQ
@@ -38,12 +38,6 @@ allOf:
       fits_hdu: REFOUT
       default: 0.0
       ndim: 4
-      datatype: float32
-    average_dark_current:
-      title: Average dark current
-      fits_hdu: AVDRKCUR
-      default: 0.0
-      ndim: 2
       datatype: float32
 - $ref: group.schema
 - $ref: int_times.schema

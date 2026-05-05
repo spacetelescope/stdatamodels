@@ -398,6 +398,10 @@ allOf:
         datatype: float64
       - name: V3COORD
         datatype: float64
+      - name: U4COORD
+        datatype: float64
+      - name: V4COORD
+        datatype: float64
       - name: STA_INDEX
         datatype: int16
         shape: [4]
