@@ -1,1 +1,1 @@
-Adds the persistence flag to the group dictionary.
+Adds the persistence flag to the group DQ flags dictionary.
