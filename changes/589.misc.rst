@@ -1,1 +1,0 @@
-Add UnsupportedConverter class and UnsupportedConverterError as part of procedure for removing legacy transforms and their converters

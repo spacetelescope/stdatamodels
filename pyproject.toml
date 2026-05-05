@@ -42,9 +42,9 @@ test = [
   "pytest>=9.0",
   "pytest-asdf-plugin",
   "pytest-doctestplus",
-  "crds>=11.17.1",
+  "crds>=11.17.1,<13.1.15",
   "requests",
-  "scipy>=1.9.2",       # same as astropy
+  "scipy>=1.9.2",           # same as astropy
 ]
 docs = [
   "sphinx",

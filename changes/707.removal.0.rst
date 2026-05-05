@@ -1,0 +1,1 @@
+Removed deprecated ``dqflags.interpret_bit_flags``. Use ``astropy.nddata.bitmask.interpret_bit_flags`` instead (note the ``mnemonic_map`` parameter is called ``flag_name_map`` in the astropy version).

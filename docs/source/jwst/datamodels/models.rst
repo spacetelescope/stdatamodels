@@ -35,7 +35,8 @@ see everything that's currently in the model::
     └─date (str): 2026-02-26T14:56:12.278
 
 Notice that only the primary array ("data") is allocated, has the shape we put in,
-and has a data type of float32 as defined by the `ImageModel` schema.
+and has a data type of float32 as defined by the
+:class:`~stdatamodels.jwst.datamodels.ImageModel` schema.
 To set additional arrays to their default values, use the
 ``get_default`` method::
 
@@ -305,6 +306,27 @@ It is also possible to copy all of the known metadata from one
 model into a new one using the :meth:`~stdatamodels.DataModel.update` method::
 
     new_model.update(old_model)
+
+While it's typically not recommended for general use due to the possibility of
+unexpected behavior, copying a model can be achieved by passing it into
+a constructor of the same type::
+
+    old_model = ImageModel()
+    new_model = ImageModel(old_model)
+
+This will perform a shallow copy: in this case ``old_model.instance == new_model.instance``,
+and changes to one model will affect the other.
+
+It's also possible to convert between compatible model types this way, e.g.::
+
+    old_model = ImageModel()
+    new_model = IFUImageModel(old_model)
+
+This will also perform a shallow copy, except
+that some metadata elements (such as ``meta.model_type``) will be updated and therefore
+``old_model.instance != new_model.instance``. Almost all attributes will still be shared
+between models, so changes to one will affect the other.
+
 
 History information
 -------------------

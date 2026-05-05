@@ -1,1 +1,0 @@
-Add ``get_default`` and ``get_dtype`` methods to datamodel, which return the schema-defined default and datatype,respectively, of the requested attribute

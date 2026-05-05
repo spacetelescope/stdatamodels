@@ -27,6 +27,7 @@ from stdatamodels.jwst.datamodels import (
     MultiSpecModel,
     NirspecFlatModel,
     NirspecQuadFlatModel,
+    RegionsModel,
     SlitDataModel,
     SlitModel,
     SpecModel,
@@ -178,7 +179,7 @@ def datamodel_for_update(tmp_path):
 
 @pytest.mark.parametrize("cal_logs", [True, False])
 @pytest.mark.parametrize("extra_fits", [True, False])
-@pytest.mark.parametrize("only", [None, "PRIMARY", "SCI"])
+@pytest.mark.parametrize("only", [None, "PRIMARY", "SCI", ["PRIMARY", "SCI"]])
 def test_update_from_datamodel(tmp_path, datamodel_for_update, only, extra_fits, cal_logs):
     """Test update method does not update from extra_fits unless asked"""
     path = tmp_path / "new.fits"
@@ -268,6 +269,32 @@ def test_update_from_dict(tmp_path, cal_logs):
             "pipeline1": ["test", "message", "1"],
             "pipeline2": ["test", "message", "2"],
         }
+
+
+def test_update_no_warning_before_array_set():
+    """
+    Test that update() does not warn about unset arrays.
+
+    Covers a bug where update() called a full model validation, which led to confusing
+    behavior such that::
+
+        model = dm.RegionsModel()
+        model.update(source_model)  # raises ValidationWarning
+        model.data = my_array
+
+    would raise a ValidationWarning since RegionsModel validate() disallows None arrays,
+    whereas::
+
+        model = dm.RegionsModel()
+        model.data = my_array
+        model.update(source_model)  # no warning
+
+    worked fine.
+    """
+    with ImageModel() as source, RegionsModel() as target:
+        source.meta.telescope = "JWST"
+        target.update(source)
+        assert target.meta.telescope == "JWST"
 
 
 def test_mask_model():
@@ -460,7 +487,10 @@ def test_ramp_model_zero_frame_open_file(tmp_path):
         np.testing.assert_allclose(zframe0, zframe1, 1.0e-5)
 
 
-def test_ramp_model_zero_frame_by_dimensions():
+@pytest.mark.parametrize(
+    "ModelType", [datamodels.Level1bModel, datamodels.RampModel, datamodels.SuperstripeRampModel]
+)
+def test_ramp_model_zero_frame_by_dimensions(ModelType):
     """
     Ensures creating a RampModel by dimensions results in the correct
     dimensions for ZEROFRAME.
@@ -469,9 +499,62 @@ def test_ramp_model_zero_frame_by_dimensions():
     dims = (nints, ngroups, nrows, ncols)
     zdims = (nints, nrows, ncols)
 
-    with datamodels.RampModel(dims) as ramp:
+    with ModelType(dims) as ramp:
         ramp.zeroframe = ramp.get_default("zeroframe")
         assert ramp.zeroframe.shape == zdims
+
+
+def test_ramp_model_pixel_dq_default():
+    """Ensure RampModel pixeldq default has two dimensions."""
+    nints, ngroups, nrows, ncols = 2, 10, 5, 5
+    dims = (nints, ngroups, nrows, ncols)
+    pdims = (nrows, ncols)
+
+    with datamodels.RampModel(dims) as ramp:
+        # pixeldq is created by default
+        assert ramp.pixeldq.shape == pdims
+        np.testing.assert_equal(ramp.pixeldq, 0)
+
+        # Explicitly creating a pixeldq default does the same
+        default = ramp.get_default("pixeldq")
+        assert default.shape == pdims
+        np.testing.assert_equal(default, 0)
+
+
+def test_superstripe_ramp_model_pixel_dq_3d():
+    """Ensure SuperstripeRampModel pixeldq can be assigned a 3D array."""
+    nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
+    dims = (nstripes * nints, ngroups, nrows, ncols)
+    pdims = (nstripes, nrows, ncols)
+
+    with datamodels.SuperstripeRampModel(
+        dims, validate_arrays=True, strict_validation=True
+    ) as ramp:
+        ramp.pixeldq = np.zeros(pdims)
+        assert ramp.pixeldq.shape == pdims
+
+
+def test_superstripe_ramp_model_pixel_dq_default():
+    """Ensure SuperstripeRampModel pixeldq has a 3D default."""
+    nstripes, nints, ngroups, nrows, ncols = 3, 2, 10, 5, 5
+    dims = (nstripes * nints, ngroups, nrows, ncols)
+    pdims = (nstripes, nrows, ncols)
+
+    with datamodels.SuperstripeRampModel(
+        dims, validate_arrays=True, strict_validation=True
+    ) as ramp:
+        # without num_superstripe, default is None
+        assert ramp.get_default("pixeldq") is None
+
+        # with zero superstripe, default is None
+        ramp.meta.subarray.num_superstripe = 0
+        assert ramp.get_default("pixeldq") is None
+
+        # with non-zero supserstripe, default is nstripe x nrows x ncols
+        ramp.meta.subarray.num_superstripe = nstripes
+        default = ramp.get_default("pixeldq")
+        assert default.shape == pdims
+        np.testing.assert_equal(default, 0)
 
 
 @pytest.fixture
@@ -607,6 +690,8 @@ def oifits_ami_model():
             -1.91877002,
             4.17914534,
             3.22694886,
+            0.0,
+            0.0,
             [1, 2, 3, 4],
             False,
         ),
@@ -625,6 +710,8 @@ def oifits_ami_model():
             -1.91877002,
             2.95809179,
             3.72838967,
+            0.0,
+            0.0,
             [1, 2, 3, 5],
             False,
         ),
@@ -651,7 +738,6 @@ def test_amioi_model_oifits_compliance(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
-@pytest.mark.xfail(reason="fails when reverting default meta behavior")
 @pytest.mark.parametrize(
     "attr",
     [

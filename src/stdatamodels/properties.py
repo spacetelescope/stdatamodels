@@ -225,15 +225,7 @@ def _make_default_array(attr, schema, ctx):
                 if ndim is None:
                     shape = primary_array.shape
                 else:
-                    if attr == "zeroframe":
-                        dims = primary_array.shape
-                        if len(dims) != 4:
-                            error_msg = "To allocate ZEROFRAME, the primary array must "
-                            error_msg += f"have 4 dimensions, but has {len(dims)}."
-                            raise IndexError(error_msg)
-                        shape = (dims[0], dims[2], dims[3])
-                    else:
-                        shape = primary_array.shape[-ndim:]
+                    shape = primary_array.shape[-ndim:]
             elif ndim is None:
                 shape = (0,)
             else:
@@ -352,6 +344,21 @@ class Node:
         self._ctx = ctx
         self._parent = parent
 
+    def __eq__(self, other):
+        if isinstance(other, Node):
+            try:
+                # Try a simple equality check first.  This will pass if
+                # any internal numpy arrays reference the same object.
+                return self._instance == other._instance
+            except ValueError:
+                # If it fails (e.g. internal numpy arrays are copies), then
+                # return False.  Copies are not considered equal.
+                return False
+        else:
+            # For non-node comparisons, allow equality checks to fail
+            # in complex cases
+            return self._instance == other
+
     def _validate(self):
         return validate.value_change(self._name, self._instance, self._schema, self._ctx)
 
@@ -366,12 +373,6 @@ class ObjectNode(Node):
     def __dir__(self):
         added = set(self._schema.get("properties", {}).keys())
         return sorted(set(super().__dir__()) | added)
-
-    def __eq__(self, other):
-        if isinstance(other, ObjectNode):
-            return self._instance == other._instance
-        else:
-            return self._instance == other
 
     def __getattr__(self, attr):
         if attr.startswith("_"):
@@ -394,8 +395,8 @@ class ObjectNode(Node):
             # If so it's assumed to be a node, and must be created to allow nested attribute access.
             # Otherwise, return None and don't set anything
             val = _make_default(attr, schema, self._ctx)
-            # if not isinstance(val, (dict, list)):
-            #     return None
+            if not isinstance(val, (dict, list)):
+                return None
             if val is not None:
                 self._instance[attr] = val
 
@@ -520,19 +521,8 @@ class ObjectNode(Node):
 class ListNode(Node):
     """A list-like object that supports validation against a schema."""
 
-    def __cast(self, other):
-        if isinstance(other, ListNode):
-            return other._instance
-        return other
-
     def __repr__(self):
         return repr(self._instance)
-
-    def __eq__(self, other):
-        return self._instance == self.__cast(other)
-
-    def __ne__(self, other):
-        return self._instance != self.__cast(other)
 
     def __contains__(self, item):
         return item in self._instance

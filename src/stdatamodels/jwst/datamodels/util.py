@@ -7,7 +7,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import asdf
-import numpy as np
 from asdf.tagged import TaggedString
 from astropy.io import fits
 
@@ -43,20 +42,6 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
           be a shallow copy of the input model. This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
-        - None: Deprecated; use the DataModel constructor directly instead.
-          A default data model with no shape.
-
-        - tuple: Deprecated; use the DataModel constructor directly instead.
-          Initialize with empty data of the given shape.
-
-        - np.ndarray: Deprecated; use the DataModel constructor directly instead.
-          Initialize a model with primary array attribute (typically 'data') set to the input array.
-          For 2-D input an ImageModel is created, for 3-D a CubeModel, and for 4-D a QuadModel.
-
-        - :class:`~astropy.io.fits.HDUList`: Deprecated; save the HDUList to file and then call open
-          on the file instead.
-          Initialize from the given HDUList.
-
     guess : bool
         Guess as to the model type if the model type is not specifically known from the file.
         If not guess and the model type is not explicit, raise a TypeError.
@@ -75,25 +60,13 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     Warnings
     --------
-    The ``open`` function is primarily intended for opening files and creating models from them,
-    and is not intended for creating models from scratch.
-    Init types of None, shape tuple, and numpy array
-    are deprecated and will raise a TypeError in the future.
+    The ``open`` function is not intended for creating models from scratch.
     Use the DataModel constructors directly instead,
     i.e. :class:`JwstDataModel` for a generic model
     or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors. See the documentation for each model class for details on how to use them.
     """
-    if "memmap" in kwargs:
-        warnings.warn(
-            "Memory mapping is no longer supported; memmap is hard-coded to False "
-            "and the keyword argument no longer has any effect.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        kwargs.pop("memmap")
-
     # Initialize variables used to select model class
 
     hdulist = {}
@@ -101,18 +74,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     file_name = None
     file_to_close = None
 
-    # Get special cases for opening a model out of the way
-    # all special cases return a model if they match
-
-    if init is None:
-        warnings.warn(
-            "Passing None to open is deprecated; use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return dm.JwstDataModel(None, **kwargs)
-
-    elif isinstance(init, dm.JwstDataModel):
+    if isinstance(init, dm.JwstDataModel):
         # Copy the object so it knows not to close here
         return init.__class__(init, **kwargs)
 
@@ -153,36 +115,11 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
             return model
 
-    elif isinstance(init, tuple):
-        warnings.warn(
-            "Passing tuple to open is deprecated; use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        for item in init:
-            if not isinstance(item, int):
-                raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
-        shape = init
-
-    elif isinstance(init, np.ndarray):
-        warnings.warn(
-            "Passing np.ndarray to open is deprecated; "
-            "use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        shape = init.shape
-
-    elif isinstance(init, fits.HDUList):
-        warnings.warn(
-            "Passing fits.HDUList to open is deprecated; "
-            "use the DataModel constructor directly instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        hdulist = init
-
-    elif is_association(init) or isinstance(init, Sequence) and not isinstance(init, bytes):
+    elif (
+        is_association(init)
+        or isinstance(init, Sequence)
+        and not isinstance(init, (bytes, tuple, fits.HDUList))
+    ):
         try:
             from jwst.datamodels import ModelContainer
         except ImportError as err:
