@@ -5,46 +5,49 @@ id: "http://stsci.edu/schemas/jwst_datamodel/specpsf.schema"
 allOf:
 - $ref: referencefile.schema
 - $ref: keyword_band.schema
+- $ref: keyword_pband.schema
 - $ref: keyword_channel.schema
+- $ref: keyword_pchannel.schema
 - $ref: keyword_exptype.schema
-- $ref: keyword_readpatt.schema
-- $ref: keyword_psubarray.schema
+- $ref: keyword_pexptype.schema
 - $ref: keyword_filter.schema
-- $ref: subarray.schema
-
+- $ref: keyword_pfilter.schema
 - type: object
   properties:
-    meta:
-      type: object
-      properties:
-        psf:
-          title: PSF parameters
-          type: object
-          properties:
-            subpix:
-              title: oversampling factor
-              type: number
-              fits_keyword: SUBPIX
-            center_col:
-              title: column ePSF shifted to
-              type: number
-              fits_keyword: CENTCOL
-            center_row:
-              title: row ePSF shifted to
-              type: number
-              fits_keyword: CENTROW
-- type: object
-  properties:
-    data:
-      title: The PSF image
-      fits_hdu: PSF
-      default: 0.0
-      ndim: 2
-      datatype: float64
-    wave:
-      title: Wavelength image
-      fits_hdu: WAVE
-      default: 0
-      ndim: 1
-      datatype: float64
-
+    apertures:
+      type: array
+      title: Array of PSF models
+      items:
+        type: object
+        properties:
+          name:
+            title: Aperture name
+            fits_keyword: APERTURE
+            fits_hdu: PSF
+          subpix:
+            title: Oversampling factor
+            type: number
+            fits_keyword: SUBPIX
+            fits_hdu: PSF
+          center_col:
+            title: Center column (vertical dispersion)
+            type: number
+            fits_keyword: CENTCOL
+            fits_hdu: PSF
+          center_row:
+            title: Center row (horizontal dispersion)
+            type: number
+            fits_keyword: CENTROW
+            fits_hdu: PSF
+          data:
+            title: PSF image
+            fits_hdu: PSF
+            default: 0.0
+            ndim: 2
+            datatype: float64
+          wave:
+            title: Wavelength image
+            fits_hdu: WAVE
+            default: 0
+            ndim: 1
+            datatype: float64
