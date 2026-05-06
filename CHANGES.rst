@@ -1,3 +1,13 @@
+5.0.2 (2026-05-06)
+==================
+
+New Features
+------------
+
+- Add SUBPRISM_IP/S subarray names to schemas. (`#730
+  <https://github.com/spacetelescope/stdatamodels/issues/730>`_)
+
+
 5.0.1 (2026-04-03)
 ==================
 
