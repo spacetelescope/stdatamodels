@@ -55,22 +55,7 @@ class MultiExposureModel(JwstDataModel):
         if isinstance(init, (SlitModel, SlitDataModel, ImageModel)):
             super(MultiExposureModel, self).__init__(init=None, schema=schema, **kwargs)
             self.update(init)
-            self.exposures.append(self.exposures.item())
-            self.exposures[0].data = init.data
-            self.exposures[0].dq = init.dq
-            self.exposures[0].err = init.err
-            self.exposures[0].var_poisson = init.var_poisson
-            self.exposures[0].var_rnoise = init.var_rnoise
-            self.exposures[0].var_flat = init.var_flat
-            self.exposures[0].wavelength = init.wavelength
-            self.exposures[0].barshadow = init.barshadow
-            self.exposures[0].flatfield_point = init.flatfield_point
-            self.exposures[0].flatfield_uniform = init.flatfield_uniform
-            self.exposures[0].pathloss_point = init.pathloss_point
-            self.exposures[0].pathloss_uniform = init.pathloss_uniform
-            self.exposures[0].photom_point = init.photom_point
-            self.exposures[0].photom_uniform = init.photom_uniform
-            self.exposures[0].area = init.area
+            self.exposures.append(init)
             return
 
         super(MultiExposureModel, self).__init__(init=init, schema=schema, **kwargs)
