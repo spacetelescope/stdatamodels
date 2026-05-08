@@ -137,7 +137,18 @@ def _as_fitsrec(val):
     else:
         coldefs = fits.ColDefs(val)
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
-        fits_rec = fits.FITS_rec(val)
+        if any(c.format == "L" for c in coldefs):
+            # We need to copy this data as we need to modify the values to match what
+            # astropy expects.
+            fits_rec = fits.FITS_rec(val.copy())
+            for c in coldefs:
+                if c.format == "L":
+                    d = fits_rec[c.name]
+                    m = d.astype(bool)
+                    d[m] = ord("T")
+                    d[~m] = ord("F")
+        else:
+            fits_rec = fits.FITS_rec(val)
         fits_rec._coldefs = coldefs
         # FITS_rec needs to know if it should be operating in pseudo-unsigned-ints mode,
         # otherwise it won't properly convert integer columns with TZEROn before saving.
