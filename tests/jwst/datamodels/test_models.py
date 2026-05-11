@@ -807,17 +807,22 @@ def test_amioi_model_extra_meta(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("value", [True, False])
-def test_amioi_logical_flag(value):
+@pytest.mark.parametrize("value", [True, False, 0, 1, ord("T"), ord("F")])
+def test_amioi_logical_flag(tmp_path, value, oifits_ami_model):
     """
     Test that int8 stored "FLAG" columns accept bools.
 
     This is a targeted test to reproduce a bug found in:
     https://github.com/spacetelescope/stdatamodels/issues/735
     """
-    model = datamodels.AmiOIModel()
-    model.t3 = [(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, [0, 0, 0], value)]
-    assert model.t3[0][-1] == value
+    oifits_ami_model.t3[0][-1] = value
+    assert oifits_ami_model.t3[0][-1] == bool(value)
+
+    # make sure it round-trips
+    fn = tmp_path / "test.fits"
+    oifits_ami_model.save(fn)
+    with datamodels.open(fn) as model:
+        assert model.t3[0][-1] == bool(value)
 
 
 def test_dq_def_roundtrip(tmp_path, test_data_path):
