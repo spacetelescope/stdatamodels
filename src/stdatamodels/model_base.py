@@ -674,12 +674,16 @@ class DataModel(properties.ObjectNode):
     @property
     def shape(self):
         """Return the shape of the primary array."""
-        if self._shape is None:
-            primary_array_name = self.get_primary_array_name()
-            if primary_array_name and self.hasattr(primary_array_name):
-                primary_array = getattr(self, primary_array_name)
-                self._shape = primary_array.shape
-        return self._shape
+        primary_array_name = self.get_primary_array_name()
+        if primary_array_name and self.hasattr(primary_array_name):
+            primary_array = getattr(self, primary_array_name)
+            self._shape = primary_array.shape
+            return self._shape
+        return None
+
+    @shape.setter
+    def shape(self, value):
+        raise AttributeError("Model shape is read-only.")
 
     def __setattr__(self, attr, value):
         if attr in frozenset(("shape", "history", "_extra_fits", "schema")):
