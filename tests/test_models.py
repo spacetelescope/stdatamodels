@@ -305,6 +305,7 @@ def test_get_dtype_table():
         assert isinstance(dtype, np.dtype)
         expected_dtype = np.dtype(
             [
+                ("int8_column", "<i1"),
                 ("int16_column", "<i2"),
                 ("uint16_column", "<u2"),
                 ("float32_column", "<f4"),
@@ -374,6 +375,17 @@ def test_multivalued_default_table_schema():
         assert ndim_shape_col.shape == (10, 3, 2)
         max_ndim_col = dm.table["float32_column_with_max_ndim"]
         assert max_ndim_col.shape == (10, 0, 0)
+
+        # test logical type
+        assert np.all(dm.table["int8_column"] == False)
+
+
+def test_logical_column():
+    dm = TableModel((10,))
+    dm.table["int8_column"][:] = True
+    assert np.all(dm.table["int8_column"] == True)
+    dm.table["int8_column"][:] = False
+    assert np.all(dm.table["int8_column"] == False)
 
 
 def test_multivalued_default_table_schema_bad():

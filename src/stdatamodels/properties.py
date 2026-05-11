@@ -138,8 +138,7 @@ def _as_fitsrec(val):
         coldefs = fits.ColDefs(val)
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
         if any(c.format == "L" for c in coldefs):
-            # We need to copy this data as we need to modify the values to match what
-            # astropy expects.
+            # Copy so we can modify the values to match what astropy expects.
             fits_rec = fits.FITS_rec(val.copy())
             for c in coldefs:
                 if c.format == "L":
