@@ -678,8 +678,7 @@ class DataModel(properties.ObjectNode):
         if primary_array_name and self.hasattr(primary_array_name):
             primary_array = getattr(self, primary_array_name)
             self._shape = primary_array.shape
-            return self._shape
-        return None
+        return self._shape if self._shape is not None else None
 
     @shape.setter
     def shape(self, value):
