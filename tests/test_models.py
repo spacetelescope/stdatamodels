@@ -280,6 +280,17 @@ def test_get_default_arr():
         np.testing.assert_allclose(default_data, 3.0)
 
 
+def test_get_default_primary_modified():
+    """Test get_default stays in sync with shape attribute."""
+    with DefaultsModel((10, 10)) as im:
+        new_shp = (9, 9)
+        im.primary = np.zeros(new_shp)
+        default_primary = im.get_default("primary")
+        data = im.get_default("data")
+        assert data.shape == new_shp
+        assert default_primary.shape == new_shp
+
+
 def test_hasattr_in_inconsistency():
     """
     Test that hasattr returns True for schema-defined attributes even if they are not set in the instance.
