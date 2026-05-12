@@ -176,7 +176,7 @@ class DataModel(properties.ObjectNode):
         # Determine what kind of input we have (init) and execute the
         # proper code to initialize the model
         self._file_references = []
-        self._shape = None  # temporary seed used by _make_default_array via ctx.shape
+        self._shape = None
         is_array = False
         is_shape = False
         shape = None
@@ -266,8 +266,6 @@ class DataModel(properties.ObjectNode):
             raise TypeError(f"Can't initialize datamodel using {str(type(init))}")
 
         # Initialize object fields as determined from the code above
-        # _shape seeds ctx.shape for _make_default_array before the primary array exists.
-        # It is cleared to None once the primary array is stored in _instance.
         self._shape = shape
         self._instance = asdffile.tree
         self._asdf = asdffile
@@ -291,7 +289,6 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
             setattr(self, primary_array_name, init)
-            self._shape = None
 
         # If a shape has been given, initialize the primary array.
         if is_shape:
@@ -302,9 +299,8 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # _shape seeds ctx.shape so _make_default_array knows the requested size.
+            # _shape seeds ctx.shape so _make_default_array knows the requested size
             setattr(self, primary_array_name, self.get_default(primary_array_name))
-            self._shape = None
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
