@@ -462,6 +462,7 @@ class DataModel(properties.ObjectNode):
                 file_reference.increment()
                 target._file_references.append(file_reference)
 
+        target._shape = source._shape
         target._no_asdf_extension = source._no_asdf_extension
 
     def copy(self, memo=None):
