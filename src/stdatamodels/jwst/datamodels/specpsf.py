@@ -24,19 +24,20 @@ def _migrate_psf_keywords(hdulist):
     hdulist : HDUList
         The updated HDUList.
     """
+    if len(hdulist) < 2:
+        return hdulist
+
+    primary_header = hdulist[0].header
     keys_to_copy = ["APERTURE", "CENTCOL", "CENTROW", "SUBPIX"]
-    if len(hdulist) == 3:
-        primary_header = hdulist[0].header
-        psf_ext = hdulist[1]
-        if psf_ext.name != "PSF":
-            return hdulist
-        for key in keys_to_copy:
-            if key == "APERTURE":
-                value = primary_header.get(key, "ANY")
-            else:
-                value = primary_header.get(key, None)
-            if value is not None:
-                psf_ext.header[key] = value
+    values_to_copy = [primary_header.get(key, None) for key in keys_to_copy]
+    for ext in hdulist[1:]:
+        if ext.name == "PSF":
+            for key, value in zip(keys_to_copy, values_to_copy, strict=True):
+                if ext.header.get(key, None) is None:
+                    if value is not None:
+                        ext.header[key] = value
+                    elif key == "APERTURE":
+                        ext.header[key] = "ANY"
 
     return hdulist
 

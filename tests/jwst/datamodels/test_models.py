@@ -942,7 +942,7 @@ def test_moving_target_table_migration(tmp_path):
         check_error_column(dm)
 
 
-@pytest.mark.parametrize("input_type", ["expected", "wrong_name", "extra_extension"])
+@pytest.mark.parametrize("input_type", ["old", "new", "wrong_name", "extra_extension", "too_small"])
 def test_specpsf_keyword_migration(tmp_path, input_type):
     """
     Test FITS HDUList migration for SpecPsfModel.
@@ -959,36 +959,52 @@ def test_specpsf_keyword_migration(tmp_path, input_type):
     if input_type == "wrong_name":
         name = "BAD"
 
-    hdul = fits.HDUList(
-        [
-            fits.PrimaryHDU(header=fits.Header({"SUBPIX": 4, "CENTCOL": 5})),
-            fits.ImageHDU(psf, name=name),
-            fits.ImageHDU(wave, name="WAVE"),
-        ]
-    )
+    header = fits.Header({"SUBPIX": 4, "CENTCOL": 5})
+    if input_type == "new":
+        header["APERTURE"] = "ANY"
+        hdul = fits.HDUList(
+            [
+                fits.PrimaryHDU(),
+                fits.ImageHDU(psf, name=name, header=header),
+                fits.ImageHDU(wave, name="WAVE"),
+            ]
+        )
+    elif input_type == "too_small":
+        hdul = fits.HDUList([fits.PrimaryHDU(header=header)])
+    else:
+        hdul = fits.HDUList(
+            [
+                fits.PrimaryHDU(header=header),
+                fits.ImageHDU(psf, name=name),
+                fits.ImageHDU(wave, name="WAVE"),
+            ]
+        )
     if input_type == "extra_extension":
-        hdul.append(fits.ImageHDU(psf, name="EXTRA"))
+        hdul.append(fits.ImageHDU(psf.copy(), name="EXTRA"))
     hdul.writeto(input_fn, overwrite=True)
     hdul.close()
 
     with datamodels.SpecPsfModel(input_fn) as spec_psf:
+        if input_type == "too_small":
+            assert len(spec_psf.apertures) == 0
+            return
+
         assert len(spec_psf.apertures) == 1
-        if input_type == "expected":
+        if input_type == "wrong_name":
+            # Keywords not copied, since PSF extension didn't exist
+            assert spec_psf.apertures[0].name is None
+            assert spec_psf.apertures[0].subpix is None
+            assert spec_psf.apertures[0].center_col is None
+            assert spec_psf.apertures[0].data is None
+            # Only the wave array is read in
+            assert spec_psf.apertures[0].wave.shape == wave.shape
+        else:
+            # Keywords appropriately read in
             assert spec_psf.apertures[0].name == "ANY"
             assert spec_psf.apertures[0].subpix == 4
             assert spec_psf.apertures[0].center_col == 5
             assert spec_psf.apertures[0].data.shape == psf.shape
             assert spec_psf.apertures[0].wave.shape == wave.shape
-        else:
-            assert spec_psf.apertures[0].name is None
-            assert spec_psf.apertures[0].subpix is None
-            assert spec_psf.apertures[0].center_col is None
-            assert spec_psf.apertures[0].wave.shape == wave.shape
-            if input_type == "wrong_name":
-                # Only the wave array is read in
-                assert spec_psf.apertures[0].data is None
-            else:
-                assert spec_psf.apertures[0].data.shape == psf.shape
 
 
 @pytest.mark.parametrize("ModelClass", [WfssBkgModel, FlatModel, MaskModel])
