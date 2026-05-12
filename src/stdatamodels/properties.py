@@ -211,8 +211,8 @@ def _make_default_array(attr, schema, ctx):
     primary_array_name = ctx.get_primary_array_name()
 
     if attr == primary_array_name:
-        if ctx.shape is not None:
-            shape = ctx.shape
+        if ctx._shape is not None:
+            shape = ctx._shape
             _validate_primary_shape(schema, shape)
         elif ndim is not None:
             shape = tuple([0] * ndim)

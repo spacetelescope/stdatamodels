@@ -40,6 +40,39 @@ def test_set_shape():
             dm.shape = (42, 23)
 
 
+def test_shape_stays_in_sync():
+    """Ensure shape attribute always reflects primary array shape."""
+    with BasicModel() as dm:
+        # None when primary unset
+        assert dm.shape is None
+        dm.data = np.zeros((50, 50))
+        assert dm.shape == (50, 50)
+
+        dm.data = np.zeros((42, 23))
+        assert dm.shape == (42, 23)
+
+        # modifying non-primary does not change shape
+        dm.area = np.zeros((10, 10))
+        assert dm.shape == (42, 23)
+
+        # deleting primary should set shape to None
+        del dm.data
+        assert dm.shape is None
+
+
+def test_shape_custom_primary():
+    with DefaultsModel((50, 50)) as dm:
+        assert dm.shape == (50, 50)
+        assert dm.primary.shape == (50, 50)
+        assert not dm.hasattr("data")
+
+        dm.primary = np.zeros((42, 23))
+        assert dm.shape == (42, 23)
+
+        dm.data = np.zeros((10, 10))
+        assert dm.shape == (42, 23)
+
+
 def test_broadcast():
     with BasicModel((50, 50)) as dm:
         data = np.zeros((50,))
