@@ -299,7 +299,7 @@ class DataModel(properties.ObjectNode):
                     "has no primary array in its schema"
                 )
 
-            # _shape seeds ctx.shape so _make_default_array knows the requested size
+            # Initialize the primary array to the given shape with default value.
             setattr(self, primary_array_name, self.get_default(primary_array_name))
 
         # initialize arrays from keyword arguments when they are present
