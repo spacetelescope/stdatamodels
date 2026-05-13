@@ -676,7 +676,7 @@ class DataModel(properties.ObjectNode):
     def shape(self):
         """Return the shape of the primary array."""
         primary_array_name = self.get_primary_array_name()
-        if primary_array_name and self.hasattr(primary_array_name):
+        if primary_array_name and getattr(self, primary_array_name, None) is not None:
             primary_array = getattr(self, primary_array_name)
             return primary_array.shape
         return self._shape
