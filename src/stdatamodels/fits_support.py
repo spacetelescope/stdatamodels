@@ -9,8 +9,8 @@ from functools import partial
 
 import asdf
 import numpy as np
-from asdf import generic_io, tagged, treeutil
 from asdf import schema as asdf_schema
+from asdf import tagged, treeutil
 from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict
 from astropy import time
@@ -852,9 +852,9 @@ def from_fits_asdf(
             ignore_unrecognized_tag=ignore_unrecognized_tag,
         )
 
-    generic_file = generic_io.get_file(io.BytesIO(asdf_extension.data), mode="rw")
     af = asdf.open(
-        generic_file,
+        io.BytesIO(asdf_extension.data),
+        mode="rw",
         ignore_unrecognized_tag=ignore_unrecognized_tag,
         ignore_missing_extensions=ignore_missing_extensions,
     )

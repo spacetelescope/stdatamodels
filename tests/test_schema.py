@@ -92,6 +92,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
     with TableModel() as x:
         x.table = [
             (
+                False,
                 -42,
                 42000,
                 37.5,
@@ -103,6 +104,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
             )
         ]
         assert x.table.dtype == [
+            ("int8_column", "=i1"),
             ("int16_column", "=i2"),
             ("uint16_column", "=u2"),
             ("float32_column", "=f4"),
@@ -119,6 +121,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
         assert np.can_cast(
             x.table.dtype,
             [
+                ("int8_column", "=i1"),
                 ("int16_column", "=i2"),
                 ("uint16_column", "=u2"),
                 ("float32_column", "=f4"),
@@ -135,6 +138,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
         with pytest.raises(ValueError):
             x.table = [
                 (
+                    False,
                     -42,
                     42000,
                     37.5,
