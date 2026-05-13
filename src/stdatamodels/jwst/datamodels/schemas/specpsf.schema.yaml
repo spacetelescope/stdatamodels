@@ -12,6 +12,8 @@ allOf:
 - $ref: keyword_pexptype.schema
 - $ref: keyword_filter.schema
 - $ref: keyword_pfilter.schema
+- $ref: keyword_grating.schema
+- $ref: keyword_pgrating.schema
 - type: object
   properties:
     apertures:
