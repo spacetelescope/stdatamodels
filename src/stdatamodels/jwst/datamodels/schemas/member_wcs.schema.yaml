@@ -9,4 +9,4 @@ allOf:
       type: array
       title: List of mosaic member WCS objects
       items:
-        $ref: singlemember_wcs.schema
+        $ref: member_wcs_single.schema
