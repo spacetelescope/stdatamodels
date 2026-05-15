@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/member_wcs.schema"
+allOf:
+- type: object
+  properties:
+    member_wcs:
+      type: array
+      title: List of mosaic member WCS objects
+      items:
+        $ref: singlemember_wcs.schema
