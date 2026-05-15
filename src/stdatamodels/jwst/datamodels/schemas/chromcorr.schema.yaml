@@ -1,0 +1,32 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/chromcorr.schema"
+title: NIRSpec chromaticity correction reference file model
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_pexptype.schema
+- $ref: keyword_filter.schema
+- $ref: keyword_pfilter.schema
+- type: object
+  properties:
+    model:
+      description: |
+        NIRSpec fore-optics chromaticity correction model
+      type: object
+    meta:
+      type: object
+      properties:
+        output_units:
+          description: |
+            Output units of coordinates after the model is applied.
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0
+        input_units:
+          description: |
+            Units of the inputs to this model.
+          anyOf:
+            - type: string
+            - $ref: http://stsci.edu/schemas/asdf/unit/unit-1.0.0

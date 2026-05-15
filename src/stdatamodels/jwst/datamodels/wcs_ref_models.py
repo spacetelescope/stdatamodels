@@ -12,6 +12,7 @@ from .reference import ReferenceFileModel
 
 __all__ = [
     "CameraModel",
+    "ChromCorrModel",
     "CollimatorModel",
     "DisperserModel",
     "DistortionMRSModel",
@@ -1247,6 +1248,23 @@ class CameraModel(_SimpleModel):
         NRS_CONFIRM|NRS_FIXEDSLIT|NRS_IFU|NRS_MSASPEC|NRS_IMAGE|NRS_FOCUS|\
         NRS_MIMF|NRS_MSATA|NRS_WATA|NRS_LAMP|NRS_BRIGHTOBJ|"
         self.meta.exposure.type = "N/A"
+
+
+class ChromCorrModel(_SimpleModel):
+    """
+    A model for a reference file of type "chromcorr".
+
+    This reference file contains the fore-optics chromaticity correction model for NIRSpec.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/chromcorr.schema"
+    reftype = "chromcorr"
+
+    def populate_meta(self):
+        self.meta.instrument.name = "NIRSPEC"
+        self.meta.instrument.p_detector = "NRS1|NRS2|"
+        self.meta.exposure.p_exptype = "NRS_IFU|"
+        self.meta.exposure.type = "NRS_IFU"
 
 
 class CollimatorModel(_SimpleModel):
