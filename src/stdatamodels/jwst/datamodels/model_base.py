@@ -3,6 +3,7 @@ import copy
 from astropy.time import Time
 
 from stdatamodels import DataModel as _DataModel
+from stdatamodels import properties
 from stdatamodels.dynamicdq import dynamic_mask
 
 from .dqflags import pixel
@@ -79,7 +80,8 @@ class JwstDataModel(_DataModel):
         ----------
         d : `~stdatamodels.jwst.datamodels.JwstDataModel` or dictionary-like object
             The model to copy the metadata elements from. Can also be a
-            dictionary or dictionary of dictionaries or lists.
+            dictionary or dictionary of dictionaries or lists, or an
+            `~stdatamodels.properties.ObjectNode`.
         only : str, list of str, or None
             Update only the named hdu, e.g. ``only='PRIMARY'``. Can either be
             a string or list of hdu names. If None, all hdus will be updated.
@@ -89,7 +91,7 @@ class JwstDataModel(_DataModel):
             Update from ``cal_logs`` as well as ``meta``.
         """
         # Get the cal logs first
-        if isinstance(d, _DataModel):
+        if isinstance(d, properties.Node):
             # Get cal logs if present
             if d.hasattr("cal_logs"):
                 logs = copy.deepcopy(d.cal_logs._instance)

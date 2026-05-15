@@ -1,0 +1,1 @@
+Allow model.update to accept ObjectNode as input.

@@ -58,7 +58,7 @@ properties:
         fits_keyword: CAL_VER
         blend_table: True
       calibration_software_revision:
-        title: Calibration software version control sys number
+        title: Calibration Software Repository Version
         type: string
         fits_keyword: CAL_VCS
         blend_table: True
@@ -254,7 +254,7 @@ properties:
         type: object
         properties:
           engineering_quality:
-            title: Engineering data quality indicator from EngDB
+            title: Engineering DB quality indicator
             type: string
             enum: [OK, SUSPECT]
             fits_keyword: ENG_QUAL
@@ -481,7 +481,7 @@ properties:
             fits_keyword: PUPIL
             blend_table: True
           pupil_imaging_lens:
-            title: Pupil imaging lens in the optical path?
+            title: "Pupil imaging lens in the optical path: T/F"
             type: boolean
             fits_keyword: PILIN
             blend_table: True
@@ -847,7 +847,7 @@ properties:
             fits_keyword: GROUPGAP
             blend_table: True
           drop_frames1:
-            title: Number of frames dropped prior to first integration
+            title: Number of frames dropped prior to 1st integration
             type: integer
             fits_keyword: DRPFRMS1
             blend_table: True
@@ -1008,7 +1008,8 @@ properties:
               - enum:
                  [BRIGHTSKY, MASK1065, MASK1140, MASK1550, MASKLYOT,
                   SLITLESSPRISM, SUB128, SUB256, SUB64, SUBPRISM,
-                  SUB128_IP, SUB64_IP, SLITLESSPRISM_IP, SLITLESSPRISM_IPS, SUBSLIT]
+                  SUB128_IP, SUB64_IP, SLITLESSPRISM_IP, SLITLESSPRISM_IPS, SUBSLIT,
+                  SUBPRISM_IP, SUBPRISM_IPS]
               # NIRCam subarray
               - enum:
                   [FULLP, MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB,
@@ -1533,7 +1534,7 @@ properties:
         type: object
         properties:
           name:
-            title: PRD science aperture used
+            title: S&OC PRD science aperture used
             type: string
             fits_keyword: APERNAME
             blend_table: True
@@ -1764,11 +1765,11 @@ properties:
             fits_keyword: VISITEND
             blend_table: True
           gs_function_start_time:
-            title: Observatory UTC time at guider function start
+            title: UTC time when the guider function started
             type: string
             fits_keyword: GF_START
           gs_function_end_time:
-            title: Observatory UTC time at guider function end
+            title: UTC time when the guider function ended
             type: string
             fits_keyword: GF_END
           fgs_aperture:
@@ -1777,7 +1778,7 @@ properties:
             fits_keyword: FGS_APER
             blend_table: True
           gs_ideal_x:
-            title: Guide star ideal y coordinate
+            title: Guide star ideal x coordinate
             type: number
             fits_keyword: GSIDL_X
             blend_table: True
@@ -1928,7 +1929,7 @@ properties:
             type: object
             properties:
               name:
-                title: NIR Simple Improved Reference Subtraction
+                title: SIRS refpix reference file name
                 type: string
                 fits_keyword: R_SIRSKL
                 blend_table: True
@@ -2048,7 +2049,7 @@ properties:
             type: object
             properties:
               name:
-                title: Fringe Frequency reference file name
+                title: MRS Fringe Frequency reference file name
                 type: string
                 fits_keyword: R_FRIFRQ
                 blend_table: True
@@ -2379,37 +2380,37 @@ properties:
           adaptive_trace_model:
             title: Adaptive Trace Model
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_TRCMOD
             blend_table: True
           align_psfs:
             title: Coronagraphic PSF Alignment
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PSFALI
             blend_table: True
           ami_analyze:
             title: AMI Fringe Analysis
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_AMIANA
             blend_table: True
           ami_normalize:
             title: AMI Fringe Normalization
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_AMINOR
             blend_table: True
           assign_wcs:
             title: Assign World Coordinate System
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_WCS
             blend_table: True
           assign_mtwcs:
             title: Assign Moving Target World Coordinate System
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_MTWCS
             blend_table: True
           bkg_subtract:
@@ -2421,325 +2422,325 @@ properties:
           badpix_selfcal:
             title: Bad Pixel Self-Calibration
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_BPXSLF
             blend_table: True
           barshadow:
-            title: Bar shadow correction
+            title: NIRSpec bar shadow correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_BARSHA
             blend_table: True
           charge_migration:
             title: Charge Migration
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_CHGMIG
             blend_table: True
           clean_flicker_noise:
             title: Clean Flicker Noise
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_CLNFNS
             blend_table: True
           combine_1d:
             title: 1-D Spectral Combination
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_COMB1D
             blend_table: True
           cube_build:
             title: IFU Cube Creation
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_IFUCUB
             blend_table: True
           dark_sub:
             title: Dark Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_DARK
             blend_table: True
           dq_init:
             title: Data Quality Initialization
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_DQINIT
             blend_table: True
           emicorr:
             title: MIRI EMI Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_MIREMI
             blend_table: True
           emission:
             title: Telescope Emission Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_TELEMI
             blend_table: True
           err_init:
             title: Error Initialization
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_ERRINI
             blend_table: True
           extract_1d:
             title: 1-D Spectral Extraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_EXTR1D
             blend_table: True
           extract_2d:
             title: 2-D Spectral Extraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_EXTR2D
             blend_table: True
           firstframe:
             title: First Frame Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_FRSTFR
             blend_table: True
           flat_field:
             title: Flat Field Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_FLAT
             blend_table: True
           fringe:
             title: Fringe Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_FRINGE
             blend_table: True
           gain_scale:
             title: Gain Scale Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_GANSCL
             blend_table: True
           group_scale:
             title: Group Scale Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_GRPSCL
             blend_table: True
           guider_cds:
             title: Guide Mode CDS Computation
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_GUICDS
             blend_table: True
           imprint:
             title: NIRSpec MSA Imprint Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_IMPRNT
             blend_table: True
           ipc:
             title: Interpixel Capacitance Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_IPC
             blend_table: True
           jump:
             title: Jump Detection
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_JUMP
             blend_table: True
           klip:
             title: Coronagraphic PSF Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_KLIP
             blend_table: True
           lastframe:
             title: Last Frame Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_LASTFR
             blend_table: True
           linearity:
             title: Linearity Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_LINEAR
             blend_table: True
           master_background:
             title: Master Background Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_MSBSUB
             blend_table: True
           msa_flagging:
             title: NIRSpec MSA Stuck Shutter Flagging
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_MSAFLG
             blend_table: True
           outlier_detection:
             title: Outlier Detection
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_OUTLIR
             blend_table: True
           pathloss:
             title: Pathloss Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PTHLOS
             blend_table: True
           persistence:
             title: Persistence Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PERSIS
             blend_table: True
           photom:
             title: Photometric Calibration
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PHOTOM
             blend_table: True
           picture_frame:
             title: Picture Frame Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PCTFRM
             blend_table: True
           pixel_replace:
             title: Pixel Replacement
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PXREPL
             blend_table: True
           ramp_fit:
             title: Ramp Fitting
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_RAMP
             blend_table: True
           refpix:
             title: Reference Pixel Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_REFPIX
             blend_table: True
           resample:
             title: Image resampling
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_RESAMP
             blend_table: True
           residual_fringe:
             title: Residual Fringe Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_RESFRI
             blend_table: True
           reset:
             title: Reset Anomaly Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_RESET
             blend_table: True
           rscd:
             title: RSCD Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_RSCD
             blend_table: True
           saturation:
             title: Saturation Checking
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SATURA
             blend_table: True
           skymatch:
             title: Sky Background Equalization or Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SKYMAT
             blend_table: True
           source_catalog:
             title: Source Photometry and Morphology
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SRCCAT
             blend_table: True
           spectral_leak:
             title: MRS spectral leak
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SPLEAK
             blend_table: True
           srctype:
             title: Source Type Determination
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SRCTYP
             blend_table: True
           stack_psfs:
             title: Coronagraphic PSF Stacking
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PSFSTK
             blend_table: True
           straylight:
             title: Straylight Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_STRAY
             blend_table: True
           superbias:
             title: Superbias Subtraction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_SUPERB
             blend_table: True
           targ_centroid:
             title: Target Acquisition Centering
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_TACNTR
             blend_table: True
           tso_photometry:
             title: TSO Imaging Photometry
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_TSPHOT
             blend_table: True
           tweakreg:
             title: Image Alignment via Astronomical Sources
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_TWKREG
             blend_table: True
           wavecorr:
             title: NIRSpec wavelength correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_WAVCOR
             blend_table: True
           wfs_combine:
             title: Wavefront Sensing Combination
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_WFSCOM
             blend_table: True
           wfss_contam:
             title: WFSS Contamination Correction
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_CONTAM
             blend_table: True
           white_light:
             title: TSO White-Light Curve
             type: string
-            enum: [SKIPPED, COMPLETE]
+            enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_WHTLIT
             blend_table: True
       tweakreg_catalog:
@@ -2849,7 +2850,7 @@ properties:
             fits_keyword: BKGMETH
             blend_table: True
           level:
-            title: Computed/Matched constant background level
+            title: Computed constant background level
             type: number
             fits_keyword: BKGLEVEL
             blend_table: True
