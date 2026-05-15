@@ -1,6 +1,4 @@
-from astropy import wcs
-
-from .reference import ReferenceFileModel
+from .model_base import JwstDataModel
 
 __all__ = ["MemberWcsModel", "MemberWcsSingleModel"]
 
@@ -25,19 +23,17 @@ class MemberWcsModel():
 
     Attributes
     ----------
-    member_wcs.items.wcs : ~`gwcs.wcs.WCS` object
-         Imaging WCS object.
+    member_wcs : list
+         List of ~`stdatamodels.jwst.datamodels.MemberWcsSingleModel` objects.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/member_wcs.schema"
 
-    def __init__(self, init=None, **kwargs):
-        if isinstance(init, MemberWcsSingleModel):
-            self.member_wcs.append(self.profile.item())
-            self.member_wcs[0].filename = init.filename
-            self.member_wcs[0].wcs = init.wcs
 
-        super(SpecProfileModel, self).__init__(init=init, **kwargs)
+    def __init__(self, init=None):
+        self.member_wcs = []
+        if isinstance(init, MemberWcsSingleModel):
+            self.member_wcs.append(init)
 
 
 class MemberWcsSingleModel():
@@ -53,3 +49,8 @@ class MemberWcsSingleModel():
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/member_wcs_single.schema"
+
+
+    def __init__(self, filename=None, wcs=None):
+        self.filename = filename
+        self.wcs = wcs
