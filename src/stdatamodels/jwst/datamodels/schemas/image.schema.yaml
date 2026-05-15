@@ -7,7 +7,6 @@ allOf:
 - $ref: bunit.schema
 - $ref: photometry.schema
 - $ref: wcsinfo.schema
-- $ref: member_wcs.schema
 - type: object
   properties:
     data:
@@ -58,5 +57,17 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
+    member_wcs:
+      type: array
+      title: List of mosaic member WCS objects
+      items:
+        type: object
+        properties:
+          filename:
+            title: Member filename
+            type: string
+          wcs:
+            title: Member WCS
+            tag: tag:stsci.edu:gwcs/wcs-*
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
