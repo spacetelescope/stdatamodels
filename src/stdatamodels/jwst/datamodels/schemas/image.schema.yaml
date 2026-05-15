@@ -7,6 +7,7 @@ allOf:
 - $ref: bunit.schema
 - $ref: photometry.schema
 - $ref: wcsinfo.schema
+- $ref: member_wcs.schema
 - type: object
   properties:
     data:
