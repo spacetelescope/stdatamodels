@@ -1,0 +1,1 @@
+Fix handling of logical/int8 FITS_rec columns when provided boolean values.

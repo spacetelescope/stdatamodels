@@ -8,8 +8,10 @@ allOf:
     properties:
       table:
         fits_hdu: TABLE
-        default: [0, 42, NaN, "foo", 42.0, 0.0, 0.0, 0.0]
+        default: [False, 0, 42, NaN, "foo", 42.0, 0.0, 0.0, 0.0]
         datatype:
+          - name: int8_column
+            datatype: int8
           - name: int16_column
             datatype: int16
           - name: uint16_column
