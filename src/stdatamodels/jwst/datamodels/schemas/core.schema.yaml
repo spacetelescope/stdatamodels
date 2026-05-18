@@ -245,7 +245,7 @@ properties:
                    "MIRI Anneal", "MIRI Coronagraphic Imaging", "MIRI Coronagraphic Photometric Calibration",
                    "MIRI Dark", "MIRI Imaging", "MIRI Low Resolution Spectroscopy",
                    "MIRI Medium Resolution Spectroscopy", "MIRI Multi-Instrument Multi-Field Imaging",
-                   "Momentum Unload",
+                   "MIRI Wide Field Slitless Spectroscopy", "Momentum Unload",
                    "NIRCam Coronagraphic Imaging", "NIRCam Dark", "NIRCam Engineering Imaging",
                    "NIRCam External Flat", "NIRCam Focus", "NIRCam Grism Time Series",
                    "NIRCam IPR Imaging", "NIRCam Imaging", "NIRCam PIL Imaging",
