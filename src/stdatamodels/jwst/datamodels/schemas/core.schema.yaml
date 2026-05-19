@@ -985,6 +985,13 @@ properties:
             title: Snowballs/showers per million pixels per second
             type: number
             fits_keyword: EXTNCRS
+          read_times:
+            title: List of explicit read times for each group
+            type: array
+            items:
+              type: array
+              items:
+                type: number
       subarray:
         title: Subarray parameters
         type: object
