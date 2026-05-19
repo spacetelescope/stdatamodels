@@ -44,9 +44,10 @@ def test_simple_model_to_fits_not_implemented():
     not TypeError (which was the bug before the *args, **kwargs signature fix).
     See https://github.com/spacetelescope/stdatamodels/pull/744
     """
-    import tempfile
     import os
+    import tempfile
     import warnings
+
     from stdatamodels.jwst.datamodels import DistortionModel
 
     with warnings.catch_warnings():
