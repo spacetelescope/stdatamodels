@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from astropy.io import fits
 from astropy.time import Time
+from gwcs import examples
 
 import stdatamodels.jwst.datamodels as dm
 from stdatamodels.jwst.datamodels.util import _to_flat_dict, read_metadata
@@ -19,8 +20,6 @@ INPUT_TIME = "2021-01-01 00:00:00.000"
 @pytest.fixture
 def recursive_tree():
     """Create a recursive tree to substitute for a WCS object"""
-    from gwcs import examples
-
     return examples.gwcs_2d_shift_scale()
 
 
