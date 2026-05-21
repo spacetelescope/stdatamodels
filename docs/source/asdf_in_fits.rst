@@ -6,15 +6,15 @@ AsdfInFits
 
 :py:mod:`stdatamodels.asdf_in_fits` contains functions to help migrate code that
 uses the AsdfInFits format (ASDF data stored in a FITS file)
-from `ASDF <https://asdf.readthedocs.io>`_ (which is dropping
-support for AsdfInFits) to stdatamodels.
+from `ASDF <https://asdf.readthedocs.io>`_ (which dropped support for AsdfInFits
+in ASDF version 3.0) to stdatamodels.
 
 Opening AsdfInFits files
 ========================
 
 AsdfInFits files can be opened with :func:`stdatamodels.asdf_in_fits.open`.
 This function aims to replace previous calls to :func:`asdf.open` or
-the now-deprecated `asdf.AsdfInFits.open` and can similarly be used in a
+the no-longer-supported `asdf.AsdfInFits.open` and can similarly be used in a
 `with <https://docs.python.org/3/reference/compound_stmts.html#with>`_
 statement. ::
 
@@ -43,7 +43,8 @@ within a FITS file. ::
     tree = {'sci': [1, 2, 3]}   # data to be stored in ASDF format
     stdatamodels.asdf_in_fits.write('some_file.fits', tree)
 
-This functions is meant to replace calls to the deprecated `asdf.AsdfInFits.write_to`.
+This functions is meant to replace calls to `asdf.AsdfInFits.write_to`, 
+which was removed as of ASDF version 3.0.
 Please see the :func:`stdatamodels.asdf_in_fits.write` documentation for all
 available arguments.
 
