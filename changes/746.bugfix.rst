@@ -1,0 +1,1 @@
+Add ``meta.wcs`` to the core schema and add wcs tag validation, fixing a bug where ``hasattr(model.meta, "wcs")`` would return False if ``wcs`` was schema-defined but not present, which is inconsistent with other attributes. Also allows TAB-expansion to show the wcs attribute.
