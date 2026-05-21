@@ -772,3 +772,11 @@ def test_list_node_compare_to_list():
         msg = "The truth value of an array with more than one element is ambiguous"
         with pytest.raises(ValueError, match=msg):
             assert dm1.meta.list_of_data_attribute == [data1.copy(), data2.copy()]
+
+
+def test_instance_read_only():
+    with BasicModel() as dm:
+        with pytest.raises(AttributeError, match="Attribute instance is read-only."):
+            dm.instance = {"meta": {"model_type": "BasicModel"}}
+        # underscore instance is still settable
+        dm._instance = {"meta": {"model_type": "BasicModel"}}

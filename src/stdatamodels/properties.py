@@ -420,6 +420,8 @@ class ObjectNode(Node):
         return node
 
     def __setattr__(self, attr, val):
+        if attr == "instance":
+            raise AttributeError("Attribute instance is read-only.")
         if attr.startswith("_"):
             self.__dict__[attr] = val
         else:
