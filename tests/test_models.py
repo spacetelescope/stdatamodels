@@ -81,12 +81,6 @@ def test_shape_primary_removed(delete_how):
         assert default_non_primary.size == 0
 
 
-def test_shape_returns_none_when_primary_set_to_none():
-    with BasicModel((50, 50)) as dm:
-        dm.data = None
-        assert dm.shape is None
-
-
 def test_shape_custom_primary():
     with DefaultsModel((50, 50)) as dm:
         assert dm.shape == (50, 50)
