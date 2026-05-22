@@ -212,7 +212,13 @@ def _make_default_array(attr, schema, ctx):
 
     if attr == primary_array_name:
         if ctx.shape is not None:
+            # primary array already exists
             shape = ctx.shape
+            _validate_primary_shape(schema, shape)
+        elif ctx._shape is not None:
+            # hit when get_default is called during datamodel init to set primary array
+            # for the first time
+            shape = ctx._shape
             _validate_primary_shape(schema, shape)
         elif ndim is not None:
             shape = tuple([0] * ndim)

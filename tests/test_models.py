@@ -60,17 +60,16 @@ def test_shape_stays_in_sync():
         assert dm.shape is None
 
 
-def test_shape_reverts_to_original():
+def test_shape_returns_none_when_primary_deleted():
     with BasicModel((50, 50)) as dm:
-        # deleting primary should reset shape to init value
         del dm.data
-        assert dm.shape == (50, 50)
+        assert dm.shape is None
 
-        # making primary None should reset shape to init value
-        # this happens even if primary array is set in the meantime
-        dm.data = np.zeros((10, 10))
+
+def test_shape_returns_none_when_primary_set_to_none():
+    with BasicModel((50, 50)) as dm:
         dm.data = None
-        assert dm.shape == (50, 50)
+        assert dm.shape is None
 
 
 def test_shape_custom_primary():

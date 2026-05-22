@@ -679,7 +679,7 @@ class DataModel(properties.ObjectNode):
         if primary_array_name and getattr(self, primary_array_name, None) is not None:
             primary_array = getattr(self, primary_array_name)
             return primary_array.shape
-        return self._shape
+        return None
 
     def __setattr__(self, attr, value):
         if attr in frozenset(("shape", "history", "_extra_fits", "schema")):
