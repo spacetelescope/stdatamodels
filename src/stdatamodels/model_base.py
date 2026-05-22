@@ -176,10 +176,8 @@ class DataModel(properties.ObjectNode):
         # Determine what kind of input we have (init) and execute the
         # proper code to initialize the model
         self._file_references = []
-        self._shape = None
         is_array = False
         is_shape = False
-        shape = None
 
         if init is None:
             asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
@@ -193,8 +191,6 @@ class DataModel(properties.ObjectNode):
 
         elif isinstance(init, np.ndarray):
             asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
-
-            shape = init.shape
             is_array = True
 
         elif isinstance(init, tuple):
@@ -202,7 +198,6 @@ class DataModel(properties.ObjectNode):
                 if not isinstance(item, int):
                     raise ValueError("shape must be a tuple of ints")  # noqa: TRY004
 
-            shape = init
             is_shape = True
             asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
 
@@ -266,7 +261,6 @@ class DataModel(properties.ObjectNode):
             raise TypeError(f"Can't initialize datamodel using {str(type(init))}")
 
         # Initialize object fields as determined from the code above
-        self._shape = shape
         self._instance = asdffile.tree
         self._asdf = asdffile
 
@@ -300,7 +294,12 @@ class DataModel(properties.ObjectNode):
                 )
 
             # Initialize the primary array to the given shape with default value.
+            # Hack: store the shape in a hidden attribute so it becomes part of the ctx
+            # sent to properties.get_default(). This allows get_default to know that it's
+            # being called during datamodel init, when the primary array doesn't yet exist
+            self._init_shape = init
             setattr(self, primary_array_name, self.get_default(primary_array_name))
+            del self._init_shape
 
         # initialize arrays from keyword arguments when they are present
         for attr, value in kwargs.items():
@@ -462,7 +461,6 @@ class DataModel(properties.ObjectNode):
                 file_reference.increment()
                 target._file_references.append(file_reference)
 
-        target._shape = source._shape
         target._no_asdf_extension = source._no_asdf_extension
 
     def copy(self, memo=None):

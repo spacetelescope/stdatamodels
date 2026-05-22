@@ -60,10 +60,25 @@ def test_shape_stays_in_sync():
         assert dm.shape is None
 
 
-def test_shape_returns_none_when_primary_deleted():
+@pytest.mark.parametrize("delete_how", ["del", "set_none"])
+def test_shape_primary_removed(delete_how):
     with BasicModel((50, 50)) as dm:
-        del dm.data
+        if delete_how == "del":
+            del dm.data
+        elif delete_how == "set_none":
+            dm.data = None
+
+        # shape should be None now
         assert dm.shape is None
+
+        # get_default should return empty array
+        default_primary = dm.get_default("data")
+        assert isinstance(default_primary, np.ndarray)
+        assert default_primary.size == 0
+
+        default_non_primary = dm.get_default("area")
+        assert isinstance(default_non_primary, np.ndarray)
+        assert default_non_primary.size == 0
 
 
 def test_shape_returns_none_when_primary_set_to_none():
