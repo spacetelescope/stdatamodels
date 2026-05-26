@@ -55,7 +55,7 @@ def test_shape_stays_in_sync():
         dm.area = np.zeros((10, 10))
         assert dm.shape == (42, 23)
 
-        # since BasicModel was init from nothing, shape reverts to None
+        # primary array deleted, shape reverts to None
         del dm.data
         assert dm.shape is None
 
