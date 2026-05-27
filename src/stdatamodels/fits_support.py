@@ -339,7 +339,12 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
 
     if validator.is_type(items, "object"):
         for index, item in enumerate(instance):
-            fits_context.sequence_index = index
+            # Update the FITS sequence index if it is a list of objects,
+            # to support things like lists of slits or spectra. No need
+            # if it is just a simple list of items.
+            if validator.is_type(item, "object"):
+                fits_context.sequence_index = index
+
             for error in validator.descend(item, items, path=index):
                 yield error
     else:
