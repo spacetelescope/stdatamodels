@@ -47,6 +47,11 @@ allOf:
       fits_hdu: CON
       default: 0
       datatype: int32
+    trace_model:
+      title: Trace model
+      fits_hdu: TRACEMODEL
+      datatype: float32
+      ndim: 2
 - $ref: variance.schema
 - $ref: flatcorr.schema
 - $ref: pathlosscorr.schema
