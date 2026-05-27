@@ -1,0 +1,1 @@
+Update schema for SpecPsfModel to allow multiple apertures in the same file.
