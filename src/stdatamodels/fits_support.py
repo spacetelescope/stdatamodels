@@ -13,7 +13,7 @@ from asdf import schema as asdf_schema
 from asdf import tagged, treeutil
 from asdf.exceptions import ValidationError
 from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
-from asdf.util import HashableDict
+from asdf.util import HashableDict, uri_match
 from astropy import time
 from astropy.io import fits
 from astropy.utils.exceptions import AstropyWarning
@@ -376,17 +376,32 @@ def _get_validators(hdulist):
     fits_context = FitsContext(hdulist)
 
     validators = HashableDict(asdf_schema.YAML_VALIDATORS)
-    tag_validator = validators["tag"]
 
-    def validate_tag(validator, tag_pattern, instance, schema):
-        af = asdf.AsdfFile()
-        if af.extension_manager.handles_type(instance.__class__):
-            for tag in af.extension_manager.get_converter_for_type(instance.__class__).tags:
-                tag_validator(validator, tag_pattern, tag, schema)
+    # create an extension_manager for validate_tag
+    extension_manager = asdf.AsdfFile().extension_manager
+
+    def validate_tag(validator, tag_pattern, instance, schema, extension_manager=extension_manager):
+        if not extension_manager.handles_type(instance.__class__):
+            yield ValidationError(
+                f"Unsupported {instance} does not have a tag matching pattern {tag_pattern}"
+            )
             return
-        raise ValidationError(
-            f"Unsupported {instance} does not have a tag matching pattern {tag_pattern}"
-        )
+
+        # we don't know yet which of these tags will be used so check them all
+        tags = extension_manager.get_converter_for_type(instance.__class__).tags
+
+        # did we find tags?
+        if not tags:
+            yield ValidationError(
+                f"type '{instance.__class__}' has no valid tags to check against '{tag_pattern}'"
+            )
+            return
+
+        # select_tag requires a SerializationContext which we don't have so check all tags
+        match = all(uri_match(tag_pattern, tag) for tag in tags)
+        if not match:
+            yield ValidationError(f"tags '{tags}' do not match pattern '{tag_pattern}'")
+            return
 
     partial_fits_array_writer = partial(_fits_array_writer, fits_context)
 
