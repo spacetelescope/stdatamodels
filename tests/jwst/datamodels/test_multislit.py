@@ -65,12 +65,19 @@ def test_multislit():
         slit.data = rng.random((5, 5))
         slit.dm = rng.random((5, 5))
         slit.err = rng.random((5, 5))
-        for attr in ["wavelength", "pathloss_point", "pathloss_uniform", "barshadow"]:
+        for attr in [
+            "wavelength",
+            "pathloss_point",
+            "pathloss_uniform",
+            "barshadow",
+            "trace_model",
+        ]:
             setattr(dm.slits[-1], attr, dm.slits[-1].get_default(attr))
         assert slit.wavelength.shape == (0, 0)
         assert slit.pathloss_point.shape == (0, 0)
         assert slit.pathloss_uniform.shape == (0, 0)
         assert slit.barshadow.shape == (0, 0)
+        assert slit.trace_model.shape == (0, 0)
 
 
 def test_multislit_from_image():

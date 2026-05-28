@@ -338,10 +338,12 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
         return
 
     if validator.is_type(items, "object"):
+        initial_index = fits_context.sequence_index
         for index, item in enumerate(instance):
             fits_context.sequence_index = index
             for error in validator.descend(item, items, path=index):
                 yield error
+        fits_context.sequence_index = initial_index
     else:
         # We don't do the index trick on "tuple validated" sequences
         for (index, item), subschema in zip(enumerate(instance), items, strict=False):

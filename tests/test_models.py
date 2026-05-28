@@ -40,6 +40,60 @@ def test_set_shape():
             dm.shape = (42, 23)
 
 
+def test_shape_stays_in_sync():
+    """Ensure shape attribute always reflects primary array shape."""
+    with BasicModel() as dm:
+        # None when primary unset
+        assert dm.shape is None
+        dm.data = np.zeros((50, 50))
+        assert dm.shape == (50, 50)
+
+        dm.data = np.zeros((42, 23))
+        assert dm.shape == (42, 23)
+
+        # modifying non-primary does not change shape
+        dm.area = np.zeros((10, 10))
+        assert dm.shape == (42, 23)
+
+        # primary array deleted, shape reverts to None
+        del dm.data
+        assert dm.shape is None
+
+
+@pytest.mark.parametrize("delete_how", ["del", "set_none"])
+def test_shape_primary_removed(delete_how):
+    with BasicModel((50, 50)) as dm:
+        if delete_how == "del":
+            del dm.data
+        elif delete_how == "set_none":
+            dm.data = None
+
+        # shape should be None now
+        assert dm.shape is None
+
+        # get_default should return empty array
+        default_primary = dm.get_default("data")
+        assert isinstance(default_primary, np.ndarray)
+        assert default_primary.size == 0
+
+        default_non_primary = dm.get_default("area")
+        assert isinstance(default_non_primary, np.ndarray)
+        assert default_non_primary.size == 0
+
+
+def test_shape_custom_primary():
+    with DefaultsModel((50, 50)) as dm:
+        assert dm.shape == (50, 50)
+        assert dm.primary.shape == (50, 50)
+        assert not dm.hasattr("data")
+
+        dm.primary = np.zeros((42, 23))
+        assert dm.shape == (42, 23)
+
+        dm.data = np.zeros((10, 10))
+        assert dm.shape == (42, 23)
+
+
 def test_broadcast():
     with BasicModel((50, 50)) as dm:
         data = np.zeros((50,))
@@ -245,6 +299,17 @@ def test_get_default_arr():
         assert default_data.shape == (10, 10)
         # Default value for data is set to 3.0 in the schema
         np.testing.assert_allclose(default_data, 3.0)
+
+
+def test_get_default_primary_modified():
+    """Test get_default stays in sync with shape attribute."""
+    with DefaultsModel((10, 10)) as im:
+        new_shp = (9, 9)
+        im.primary = np.zeros(new_shp)
+        default_primary = im.get_default("primary")
+        data = im.get_default("data")
+        assert data.shape == new_shp
+        assert default_primary.shape == new_shp
 
 
 def test_hasattr_in_inconsistency():
