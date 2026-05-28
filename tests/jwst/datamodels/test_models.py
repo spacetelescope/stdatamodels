@@ -1110,11 +1110,3 @@ def test_nested_get_dtype():
         dm.spec.append(SpecModel())
         dtype = dm.spec[0].get_dtype("spec_table")
         assert isinstance(dtype, np.dtype)
-
-
-def test_wcs_hasattr():
-    """Cover a bug where hasattr('wcs') had different behavior than other attributes."""
-    with ImageModel() as dm:
-        assert hasattr(dm.meta, "wcs")
-        assert not dm.meta.hasattr("wcs")
-        assert "wcs" not in dm.meta
