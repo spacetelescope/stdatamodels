@@ -700,3 +700,84 @@ def test_fitsrec_for_non_schema_data(tmp_path):
     )
     fn = tmp_path / "test.fits"
     m.save(fn)
+
+
+def test_simple_array(tmp_path):
+    """Test that list-type metadata does not generate empty output HDUs."""
+    file_path = tmp_path / "test.fits"
+    data_array_schema = {
+        "allOf": [
+            asdf.schema.load_schema(
+                "http://example.com/schemas/core_metadata", resolve_references=True
+            ),
+            {
+                "type": "object",
+                "properties": {
+                    "meta": {
+                        "type": "object",
+                        "properties": {
+                            # store a simple array in metadata
+                            "simple_array": {
+                                "type": "array",
+                                "items": {"type": "array", "items": {"type": "number"}},
+                            },
+                            # add more metadata after the list
+                            "other_metadata": {"type": "string", "fits_keyword": "TEST"},
+                        },
+                    },
+                    "data_array": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "fits_hdu": "SCI",
+                                    "default": 0.0,
+                                    "ndim": 2,
+                                    "datatype": "float64",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        ]
+    }
+
+    # Make a model with 3 data arrays, a simple array of metadata values, and one
+    # other metadata item that comes after the simple array in the schema.
+    rng = np.random.default_rng(42)
+    array1 = rng.random((5, 5))
+    array2 = rng.random((5, 5))
+    array3 = rng.random((5, 5))
+    list_items = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12, 13]]
+    with DataModel(schema=data_array_schema) as x:
+        x.meta.other_metadata = "VALUE"
+        for array_item in [array1, array2, array3]:
+            x.data_array.append(x.data_array.item(data=array_item))
+        assert len(x.data_array) == 3
+
+        x.meta.simple_array = list_items
+        assert len(x.meta.simple_array) == len(list_items)
+
+        x.validate()
+        x.to_fits(file_path)
+
+    # FITS file has new extensions for the data arrays, but no extra extensions
+    # for the simple array
+    with fits.open(file_path) as hdulist:
+        # one primary, 3 SCI extensions, 1 ASDF
+        assert len(hdulist) == 5
+        assert hdulist[0].header["TEST"] == "VALUE"
+        for i, array_item in enumerate([array1, array2, array3]):
+            hdu = hdulist[i + 1]
+            assert hdu.name == "SCI"
+            assert hdu.header["EXTVER"] == i + 1
+            assert np.allclose(hdu.data, array_item)
+
+    # All data and metadata roundtrip from the FITS file
+    with DataModel(file_path, schema=data_array_schema) as x:
+        assert len(x.data_array) == 3
+        assert len(x.meta.simple_array) == len(list_items)
+        assert x.meta.simple_array == list_items
+        assert x.meta.other_metadata == "VALUE"

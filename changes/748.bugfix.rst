@@ -1,0 +1,1 @@
+Fix a bug in saving datamodels to FITS files that caused extra HDUs to be created for datamodels with list-type metadata.
