@@ -57,7 +57,6 @@ def test_wcs_validation_on_assignment(value, error, strict):
             dm.meta.wcs = value
         if error:
             assert dm.meta.wcs is None
-            dm.meta.instance["wcs"] = value
         else:
             assert dm.meta.wcs is value
 
