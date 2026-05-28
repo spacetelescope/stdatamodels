@@ -17,6 +17,11 @@ allOf:
       default: 0.0
       ndim: 3
       datatype: float32
+    inv_coeffs:
+      title: Inverse linearity coefficients
+      fits_hdu: INV_COEF
+      ndim: 3
+      datatype: float32
     dq:
       title: Data quality flags
       fits_hdu: DQ
