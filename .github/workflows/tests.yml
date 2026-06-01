@@ -1,79 +1,65 @@
 name: tests
 
 on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   push:
     branches:
       - main
-      - '*.x'
-    tags:
-      - '*'
-  pull_request:
-  schedule:
-    # Weekly Monday 9AM build
-    # * is a special character in YAML so you have to quote this string
-    - cron: '0 9 * * 1'
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  data:
-    name: retrieve current CRDS context
+  supported-pythons:
     runs-on: ubuntu-latest
-    env:
-      OBSERVATORY: jwst
-      CRDS_PATH: /tmp/crds_cache
-      CRDS_SERVER_URL: https://jwst-crds.stsci.edu
-      CRDS_LOCKING_MODE: filelock
     steps:
-      - id: crds_context
-        run: >
-          echo "pmap=$(
-          curl -s -X POST -d '{"jsonrpc": "1.0", "method": "get_default_context", "params": ["${{ env.OBSERVATORY }}", null], "id": 1}' ${{ env.CRDS_SERVER_URL }}/json/ |
-          python -c "import sys, json; print(json.load(sys.stdin)['result'])"
-          )" >> $GITHUB_OUTPUT
-        # Get default CRDS_CONTEXT without installing crds client
-        # See https://hst-crds.stsci.edu/static/users_guide/web_services.html#generic-request
-      - id: crds_path
-        run: echo "path=${{ env.CRDS_PATH }}" >> $GITHUB_OUTPUT
-      - id: crds_server
-        run: echo "url=${{ env.CRDS_SERVER_URL }}" >> $GITHUB_OUTPUT
+      - id: supported-pythons
+        uses: zacharyburnett/supported-pythons@9186be100e84431de457f333fe8f793f079f5b66 # 2.0.3
+        with:
+          package: ${{ github.repository }}
+          package-ref: ${{ github.ref || github.sha }}
     outputs:
-      crds_context: ${{ steps.crds_context.outputs.pmap }}
-      crds_path: ${{ steps.crds_path.outputs.path }}
-      crds_server: ${{ steps.crds_server.outputs.url }}
+      versions: ${{ steps.supported-pythons.outputs.versions }}
   test:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@2835f0cacddf3f8de198db9afdb5354a5cebe0ef  # v2.6.3
-    needs: [ data ]
-    with:
-      setenv: |
-        CRDS_PATH: ${{ needs.data.outputs.crds_path }}
-        CRDS_SERVER_URL: ${{ needs.data.outputs.crds_server }}
-        CRDS_CLIENT_RETRY_COUNT: 3
-        CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-      cache-path: ${{ needs.data.outputs.crds_path }}
-      cache-key: crds-${{ needs.data.outputs.crds_context }}
-      envs: |
-        - linux: py311-xdist
-        - linux: py312-xdist
-        - linux: py313-xdist
-        - linux: py314-cov-xdist
-          coverage: codecov
-        - macos: py314-xdist
-        - windows: py314-xdist-nocrds
-  test_downstream:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@2835f0cacddf3f8de198db9afdb5354a5cebe0ef  # v2.6.3
-    needs: [ data ]
-    with:
-      setenv: |
-        CRDS_PATH: ${{ needs.data.outputs.crds_path }}
-        CRDS_SERVER_URL: ${{ needs.data.outputs.crds_server }}
-        CRDS_CLIENT_RETRY_COUNT: 3
-        CRDS_CLIENT_RETRY_DELAY_SECONDS: 20
-      cache-path: ${{ needs.data.outputs.crds_path }}
-      cache-key: crds-${{ needs.data.outputs.crds_context }}
-      envs: |
-        - linux: py311-jwst-cov-xdist
-          coverage: codecov
+    needs:
+      - supported-pythons
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: ["ubuntu-latest"]
+        python-version: ${{ fromJSON(needs.supported-pythons.outputs.versions) }}
+        coverage: [false]
+        include:
+          - name: run tests with coverage (latest Python, ubuntu-latest)
+            runs-on: "ubuntu-latest"
+            python-version: "${{ needs.supported-pythons.outputs.latest }}"
+            coverage: true
+          - name: run tests (latest Python, macos-latest)
+            runs-on: "macos-latest"
+            python-version: "${{ needs.supported-pythons.outputs.latest }}"
+    name: ${{ matrix.name || format('run tests (Python {0}, {1})',matrix.python-version, matrix.runs-on) }})
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install ".[test]" ${{ matrix.coverage && 'coverage pytest-cov' || '' }}
+      - run: pytest ${{ matrix.coverage && '--cov' || '' }}
+      - if: matrix.coverage
+        name: report coverage to summary
+        run: |
+          coverage combine
+          echo '## Coverage Report' >> $GITHUB_STEP_SUMMARY
+          coverage report -i -m --format=markdown | tee -a $GITHUB_STEP_SUMMARY

@@ -1,0 +1,65 @@
+name: 🐞 Bug Report
+description: Create an issue describing unexpected or incorrect behavior.
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - None
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thankyou for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Describe what happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what happened!
+      value: "A bug happened!"
+    validations:
+      required: true
+  - type: text area
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running? Please include
+      any relevant environment information such as OS, language versions..
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log or screen output?
+      description: Please copy and paste any relevant output. This will be automatically formatted, so no need for backticks.
+      render: shell
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce the issue?
+      description: Please detail the steps to reproduce the issue
+    validations:
+      required: false
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/spacetelescope/stdatamodels/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+  - type: upload
+    id: screenshots
+    attributes:
+      label: Upload screenshots
+      description: If applicable, add screenshots to help explain your problem.
+    validations:
+      required: false
+ - type: textarea
+    id: anything
+    attributes:
+      label: Anything else that would help us?
+      description: Please detail anything else that would help us resolve the issue,
+      This might include links, references, or more specific details about the bug
+    validations:
+      required: false

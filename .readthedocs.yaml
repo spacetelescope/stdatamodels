@@ -1,23 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/readthedocs/readthedocs.org/refs/heads/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+
 version: 2
 
-sphinx:
-  configuration: docs/source/conf.py
-  fail_on_warning: true
-
-formats:
-  - htmlzip
-  - pdf
-
 build:
-  os: "ubuntu-22.04"
+  os: ubuntu-lts-latest
   tools:
-    python: mambaforge-4.10
+    python: latest
+  apt_packages:
+    - graphviz
   jobs:
+    post_checkout:
+      - git fetch --unshallow --tags
     post_install:
-      - towncrier build --keep
-
-conda:
-  environment: docs/rtd_environment.yaml
+      - pip install towncrier
+    pre_build:
+      - git describe --exact-match || towncrier build --keep
 
 python:
   install:
@@ -25,3 +23,12 @@ python:
       path: .
       extra_requirements:
         - docs
+
+sphinx:
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: true
+
+formats:
+  - htmlzip
+  - pdf

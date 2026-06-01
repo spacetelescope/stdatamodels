@@ -1,162 +1,93 @@
 [project]
 name = "stdatamodels"
-description = "Core support for DataModel classes used in calibration pipelines"
-requires-python = ">=3.11"
+description = "None"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license-files = ["LICENSE"]
 authors = [{ name = "STScI" }]
 classifiers = [
   "Intended Audience :: Science/Research",
-  "Topic :: Scientific/Engineering :: Astronomy",
+  "Programming Language :: Python",
   "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Astronomy",
 ]
-dependencies = [
-  "asdf>=3.3.0",
-  "asdf-transform-schemas>=0.6.0",
-  "asdf-astropy>=0.6.0",
-  "numpy>=1.25",
-  "astropy>=6.1",
-  "gwcs>=0.26.1",
-]
-license-files = ["LICENSE"]
+dependencies = ["cruft"]
 dynamic = ["version"]
 
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
 [project.urls]
-Homepage = "https://github.com/spacetelescope/stdatamodels"
-"Bug Tracker" = "https://github.com/spacetelescope/stdatamodels/issues"
-"Source Code" = "https://github.com/spacetelescope/stdatamodels"
-
-[project.entry-points."asdf.extensions"]
-jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_extensions"
-
-[project.entry-points."asdf.resource_mappings"]
-jwst_datamodel = "stdatamodels.jwst.datamodels.integration:get_resource_mappings"
-jwst_pipeline = "stdatamodels.jwst.transforms.integration:get_resource_mappings"
+documentation = "https://stdatamodels.readthedocs.io"
+repository = "https://github.com/spacetelescope/stdatamodels"
 
 [project.optional-dependencies]
-test = [
-  "psutil",
-  "pyyaml",
-  "pytest>=9.0",
-  "pytest-asdf-plugin",
-  "pytest-doctestplus",
-  "crds>=11.17.1,!=13.1.15",
-  "requests",
-  "scipy>=1.9.2",            # same as astropy
-]
-docs = [
-  "sphinx",
-  "sphinx-automodapi",
-  "numpydoc",
-  "sphinx-rtd-theme",
-  "sphinx-asdf>=0.1.1",
-]
+docs = ["numpydoc", "pytest_doctestplus", "sphinx", "sphinx-autoapi", "sphinx-rtd-theme"]
+test = ["pytest", "pytest_doctestplus", "coverage"]
+contrib = ["ruff", "ty"]
 
 [build-system]
-requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4", "wheel"]
+requires = [
+  "setuptools>=61.2",
+  "setuptools_scm[toml]",
+]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-zip-safe = true
-include-package-data = true
+[tool.cibuildwheel]
+build = "py3*"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
+[tool.cibuildwheel.macos]
+archs = ["arm64", "x86_64"]
 
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["src/", "tests/"]
 
-[tool.flake8]
-exclude = [".git", "__pycache__", "docs", "build", "dist", ".tox", ".eggs"]
-ignore = ["E203", "W503", "W504", "W605"]
-max-line-length = 130
-select = [
-  "F",
-  "W",
-  "E101",
-  "E111",
-  "E112",
-  "E113",
-  "E401",
-  "E402",
-  "E501",
-  "E711",
-  "E722",
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 50
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if typing.TYPE_CHECKING:",
+  "@overload",
+  "@typing.overload",
+  "class .*\\bProtocol\\):",
+  "@(abc\\.)?abstractmethod",
+  "raise NotImplementedError",
+  "\\.\\.\\.",
 ]
+
+[tool.cruft]
+skip = ["**/__init__.py", "tests/*"]
 
 [tool.numpydoc_validation]
 checks = [
-  "all",  # Adds all rules except the ones listed below
-  "EX01", # No examples section found
-  "SA01", # See Also section not found
-  "ES01", # No extended summary found
-  "GL08", # Object does not have a docstring. Ruff catches these, and allows more granular ignores.
-  "PR01", # Parameters not documented. Already caught by ruff.
-  "PR09", # Parameter description should finish with a period
-  "RT02", # First line of return should contain only the type
-  "RT05", # Return value description should finish with a period
-]
-exclude = [ # exclude the following methods
-  "shape$",
-  "validate$",
-  "copy$",
-  "__call__$",
-  "inverse$",
-  "__str__$",
+  "all",
+  "EX01",  # No examples section found
+  "SA01",  # See Also section not found
+  "ES01",  # No extended summary found
+  "GL08",  # Object does not have a docstring. Ruff catches these, and allows more granular ignores.
+  "PR01",  # Parameters not documented. Already caught by ruff.
+  "PR09",  # Parameter description should finish with a period
+  "RT02",  # First line of return should contain only the type
+  "RT05",  # Return value description should finish with a period
 ]
 
-[tool.codespell]
-skip = "*.fits, *.asdf, ./build, ./docs/_build, CHANGES.rst, *.schema.yaml"
-ignore-words-list = "indx, delt, Shepard, fo"
+[tool.pytest.ini_options]
+minversion = "9"
 
-[tool.pytest]
-minversion = "9.0"
-doctest_plus = "enabled"
-doctest_rst = "enabled"
-text_file_format = "rst"
-addopts = ["--color=yes"]
-testpaths = ["docs", "src", "tests"]
-filterwarnings = [
-  # turn all warnings into errors, this includes ResourceWarning which
-  # allows catching files left open by tests
-  "error",
-  # astropy table issues this warning on import so we ignore it here
-  "ignore:numpy.ndarray size changed:RuntimeWarning",
-  # dev numpy deprecated shape assignment which astropy still uses
-  "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning:astropy.*",
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "UP",  # pyupgrade
 ]
-asdf_schema_tests_enabled = true
-asdf_schema_xfail_tests = "v23tosky-0.7.0.yaml::test_example_0"
-asdf_schema_validate_default = false
-asdf_schema_root = "src/stdatamodels/jwst/datamodels/schemas\nsrc/stdatamodels/jwst/transforms/resources/schemas"
-norecursedirs = ["build", ".tox", ".eggs", "venv"]
 
 [tool.setuptools_scm]
-write_to = "src/stdatamodels/_version.py"
-version_scheme = "release-branch-semver"
-
-[tool.towncrier]
-filename = "CHANGES.rst"
-directory = "changes"
-package = "stdatamodels"
-title_format = "{version} ({project_date})"
-ignore = [".gitkeep"]
-wrap = true
-issue_format = "`#{issue} <https://github.com/spacetelescope/stdatamodels/issues/{issue}>`_"
-
-[tool.towncrier.fragment.feature]
-name = "New Features"
-
-[tool.towncrier.fragment.bugfix]
-name = "Bug Fixes"
-
-[tool.towncrier.fragment.doc]
-name = "Documentation"
-
-[tool.towncrier.fragment.removal]
-name = "Deprecations and Removals"
-
-[tool.towncrier.fragment.misc]
+write_to = "src/stdatamodels/_version.py"  # Automatically creates this file
+version_scheme = "post-release"

@@ -1,0 +1,20 @@
+name: label
+
+on:
+  pull_request_target:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v6
+        if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
