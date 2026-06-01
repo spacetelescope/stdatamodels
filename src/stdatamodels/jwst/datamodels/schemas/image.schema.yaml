@@ -66,6 +66,12 @@ allOf:
           filename:
             title: Member filename
             type: string
+          ra_ref:
+            title: Member reference RA
+            type: number
+          dec_ref:
+            title: Member reference Dec
+            type: number
           wcs:
             title: Member WCS
             tag: tag:stsci.edu:gwcs/wcs-*
