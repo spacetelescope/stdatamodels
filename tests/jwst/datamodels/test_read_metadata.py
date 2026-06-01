@@ -24,12 +24,12 @@ def example_wcs():
 
 
 @pytest.fixture
-def imagemodel(recursive_tree):
+def imagemodel(example_wcs):
     """Create an imagemodel with meta attributes and data array."""
     data = np.zeros((10, 10), dtype=np.float32)
     model = dm.ImageModel(data)
     model.meta.instrument.filter = FILT
-    model.meta.wcs = recursive_tree
+    model.meta.wcs = example_wcs
 
     model.cal_logs = {
         "assign_wcs": ["baz", "qux"],
