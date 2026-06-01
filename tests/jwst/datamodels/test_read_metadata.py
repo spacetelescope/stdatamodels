@@ -18,7 +18,7 @@ INPUT_TIME = "2021-01-01 00:00:00.000"
 
 
 @pytest.fixture
-def recursive_tree():
+def example_wcs():
     """Create a recursive tree to substitute for a WCS object"""
     return examples.gwcs_2d_shift_scale()
 
