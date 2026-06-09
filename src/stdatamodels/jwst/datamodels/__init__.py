@@ -111,6 +111,7 @@ from .util import open, read_metadata  # noqa: A004
 from .wavemap import WaveMapModel, WaveMapSingleModel
 from .wcs_ref_models import (
     CameraModel,
+    ChromCorrModel,
     CollimatorModel,
     DisperserModel,
     DistortionModel,
@@ -141,6 +142,7 @@ __all__ = [
     "AsnModel",
     "BarshadowModel",
     "CameraModel",
+    "ChromCorrModel",
     "CollimatorModel",
     "CombinedSpecModel",
     "ContrastModel",
