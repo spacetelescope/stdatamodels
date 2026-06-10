@@ -15,8 +15,8 @@ class WFSSMultiBandModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
          Data quality array
     err : numpy float32 array
          Error array
-    wavetable : numpy table
-         Wavelength value for slices
+    wavelength : numpy float32 array
+         Wavelength value for planes, same shape as 0th axis of data
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfssmultiband.schema"
