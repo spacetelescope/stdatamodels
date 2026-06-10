@@ -27,10 +27,8 @@ allOf:
       default: 0.0
       ndim: 3
       datatype: float32
-    wavetable:
-      title: Wavelength value for slices
-      fits_hdu: WCS-TABLE
-      datatype:
-      - name: wavelength
-        datatype: float32
-        ndim: 2
+    wavelength:
+      title: Wavelength value for planes
+      fits_hdu: WAVELENGTH
+      ndim: 1
+      datatype: float32
