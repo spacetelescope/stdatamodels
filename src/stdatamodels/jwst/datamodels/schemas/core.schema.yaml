@@ -2899,3 +2899,6 @@ properties:
             type: number
             fits_keyword: BKGD_SCL
             blend_table: True
+      wcs:
+        title: WCS object
+        tag: tag:stsci.edu:gwcs/wcs-*
