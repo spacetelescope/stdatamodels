@@ -1916,6 +1916,14 @@ properties:
                 type: string
                 fits_keyword: R_CAMERA
                 blend_table: True
+          chromcorr:
+            type: object
+            properties:
+              name:
+                title: Nirspec chromaticity correction reference file name
+                type: string
+                fits_keyword: R_CHRCOR
+                blend_table: True
           collimator:
             type: object
             properties:

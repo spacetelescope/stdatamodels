@@ -144,6 +144,7 @@ ref_to_datamodel_dict = {
     "abvegaoffset": dm.ABVegaOffsetModel,
     "barshadow": dm.BarshadowModel,
     "camera": dm.CameraModel,
+    "chromcorr": dm.ChromCorrModel,
     "collimator": dm.CollimatorModel,
     "dark": dm.DarkModel,
     "dflat": dm.NirspecFlatModel,
