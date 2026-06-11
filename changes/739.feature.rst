@@ -1,0 +1,2 @@
+For NIRCam multistripe support, add new subarray names to enum values.
+Also, add a ``meta.exposure.read_times`` attribute to hold explicit read times for each group in an integration.
