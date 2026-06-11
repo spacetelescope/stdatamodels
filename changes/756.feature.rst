@@ -1,0 +1,1 @@
+Add new WFSSMultiBandModel to support use of multi-wavelength direct image cubes as input to WFSS contamination modeling
