@@ -15,7 +15,7 @@ allOf:
       fits_hdu: APCORR
       datatype:
       - name: subarray
-        datatype: [ascii, 15]
+        datatype: [ascii, 20]
       - name: wavelength
         datatype: float32
         ndim: 1
