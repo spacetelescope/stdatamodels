@@ -12,9 +12,9 @@ allOf:
       fits_hdu: RSCD_GROUP_SKIP
       datatype:
       - name: subarray
-        datatype: [ascii, 20]
+        datatype: [ascii, 13]
       - name: readpatt
-        datatype: [ascii, 15]
+        datatype: [ascii, 8]
       - name: group_skip1
         datatype: int32
       - name: group_skip
