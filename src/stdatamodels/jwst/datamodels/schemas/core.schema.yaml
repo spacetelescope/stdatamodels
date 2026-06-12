@@ -985,6 +985,13 @@ properties:
             title: Snowballs/showers per million pixels per second
             type: number
             fits_keyword: EXTNCRS
+          read_times:
+            title: List of explicit read times for each group
+            type: array
+            items:
+              type: array
+              items:
+                type: number
       subarray:
         title: Subarray parameters
         type: object
@@ -1011,7 +1018,10 @@ properties:
                   SUBPRISM_IP, SUBPRISM_IPS]
               # NIRCam subarray
               - enum:
-                  [FULLP, MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB,
+                  [FULLP,
+                   FULL_SUPSTP008, FULL_SUPSTP024, FULL_SUPSTP120, FULL_SUPSTP510,
+                   FULL_SUPSTP008P, FULL_SUPSTP024P, FULL_SUPSTP120P, FULL_SUPSTP510P,
+                   MASK210R, MASK335R, MASK430R, MASKLWB, MASKSWB,
                    SUB41STRIPE1_DHS, SUB82STRIPE2_DHS, SUB164STRIPE4_DHS, SUB260STRIPE4_DHS,
                    SUB160STRIPE4_DHS, SUB256STRIPE4_DHS, SUB40STRIPE1_DHS, SUB80STRIPE2_DHS,
                    SUB160, SUB160P, SUB320,
@@ -1021,6 +1031,7 @@ properties:
                    SUB400P, SUB400X256ALWB, SUB640,
                    SUB640A210R, SUB640ASWB, SUB640B210R, SUB640BSWB,
                    SUB64FP1A, SUB64FP1B, SUB64P, SUB64FP6A,
+                   SUB64P_SUPSTP002, SUB64P_SUPSTP008, SUB64P_SUPSTP032,
                    SUB8FP1A, SUB8FP1B, SUB8FP6A,
                    SUB96DHSPILA, SUB96DHSPILB,
                    SUBFSA210R, SUBFSA335R, SUBFSA430R, SUBFSALWB, SUBFSASWB,
