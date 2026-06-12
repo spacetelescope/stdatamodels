@@ -69,7 +69,8 @@ properties:
               # NIRSpec
               - enum:
                   [ALLSLITS, SUBS200A1, SUBS200A2, SUBS200B1, SUBS400A1,
-                   SUB1024A, SUB1024B, SUB512, SUB32, SUB512S, SUB2048]
+                   SUB1024A, SUB1024B, SUB512, SUB32, SUB512S, SUB2048,
+                   SUB256M2_PRISM, SUB128M4_PRISM, SUB64M8_PRISM, SUB32M16_PRISM]
               # Obsolete NIRSpec
               - enum:
                   [FULL_IRS2, S200A1, S200A2, S200B1, S400A1]
