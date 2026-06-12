@@ -30,7 +30,7 @@ allOf:
       - name: filter
         datatype: [ascii, 12]
       - name: subarray
-        datatype: [ascii, 20]
+        datatype: [ascii, 17]
       - name: photmjsr
         datatype: float32
       - name: uncertainty
@@ -55,7 +55,7 @@ allOf:
       - name: filter
         datatype: [ascii, 12]
       - name: subarray
-        datatype: [ascii, 20]
+        datatype: [ascii, 17]
       - name: t0
         datatype: float32
         description: Reference day in MJD
@@ -71,7 +71,7 @@ allOf:
       - name: filter
         datatype: [ascii, 12]
       - name: subarray
-        datatype: [ascii, 20]
+        datatype: [ascii, 17]
       - name: t0
         datatype: float32
         description: Reference day in MJD
@@ -93,7 +93,7 @@ allOf:
       - name: filter
         datatype: [ascii, 12]
       - name: subarray
-        datatype: [ascii, 20]
+        datatype: [ascii, 17]
       - name: t0
         datatype: float32
         description: Reference day in MJD
