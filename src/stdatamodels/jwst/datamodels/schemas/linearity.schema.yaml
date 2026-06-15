@@ -19,7 +19,7 @@ allOf:
       datatype: float32
     inv_coeffs:
       title: Inverse linearity coefficients
-      fits_hdu: INV_COEF
+      fits_hdu: INV_COEFFS
       ndim: 3
       datatype: float32
     dq:
