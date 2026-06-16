@@ -11,11 +11,13 @@ class LinearityModel(ReferenceFileModel, DefaultDQMixin):
     Attributes
     ----------
     coeffs : numpy float32 array
-         Linearity coefficients
+        Linearity coefficients
+    inv_coeffs : numpy float32 array, optional
+        Inverse linearity coefficients
     dq : numpy uint32 array
-         Data quality flags
+        Data quality flags
     dq_def : numpy table
-         DQ flag definitions
+        DQ flag definitions
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/linearity.schema"

@@ -167,9 +167,10 @@ def test_read_metadata_multislit_nested(multislit_path):
     assert meta["slits"][1]["name"] == "slit1"
 
 
-@pytest.mark.parametrize("multislit_path", ["fits"], indirect=True)
-def test_multislit_fits_update(multislit_path):
+def test_multislit_fits_update(tmp_path, multislitmodel):
     """Ensure a fits_update is done for slit metadata, even though slits is list-like."""
+    multislit_path = tmp_path / (MULTISLITFILE_ROOT + ".fits")
+    multislitmodel.save(multislit_path)
     new_slitname = "foo"
     new_filename = "multislit_modified.fits"
     new_path = multislit_path.with_name(new_filename)
