@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from astropy.io import fits
 from astropy.time import Time
-from gwcs import examples
 
+# from gwcs import examples
 import stdatamodels.jwst.datamodels as dm
 from stdatamodels.jwst.datamodels.util import _to_flat_dict, read_metadata
 

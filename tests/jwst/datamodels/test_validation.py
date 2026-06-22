@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 from asdf.exceptions import ValidationError
 from astropy import time
-from gwcs.examples import gwcs_2d_shift_scale
 
+# from gwcs.examples import gwcs_2d_shift_scale
 from stdatamodels.exceptions import ValidationWarning
 from stdatamodels.jwst.datamodels import JwstDataModel
 
