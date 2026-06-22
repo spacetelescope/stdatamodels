@@ -654,8 +654,8 @@ def test_table_linking(tmp_path):
                 "title": "Test table",
                 "fits_hdu": "TESTTABL",
                 "datatype": [
-                    {"name": "A_COL", "datatype": "int8"},
-                    {"name": "B_COL", "datatype": "int8"},
+                    {"name": "A_COL", "datatype": "uint8"},
+                    {"name": "B_COL", "datatype": "uint8"},
                 ],
             },
         },
