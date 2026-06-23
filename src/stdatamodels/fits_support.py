@@ -704,6 +704,12 @@ def _load_from_schema(
             "BinTableHDU and its associated header keywords."
         )
 
+    # Build the set of BinTableHDU names so that when skip_fits_update is True
+    # we can still load fits_keyword properties associated with those HDUs
+    bintable_hdu_names = {
+        hdu.name for hdu in hdulist if isinstance(hdu, fits.BinTableHDU) and hdu.name != "ASDF"
+    }
+
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
     max_extver = max(hdu.ver for hdu in hdulist) if len(hdulist) else 0
@@ -716,7 +722,13 @@ def _load_from_schema(
 
     def callback(schema, path, combiner, ctx, recurse):
         result = None
-        if not skip_fits_update and "fits_keyword" in schema:
+        # Load fits_keyword properties when the
+        # keyword belongs to a BinTableHDU (e.g. TUNITn), since table-associated
+        # header keywords should always come from the FITS file.
+        # This may be possible to remove once we move away from fits_rec internal
+        # representation of tables.
+        is_bintable_keyword = schema.get("fits_hdu") in bintable_hdu_names
+        if (not skip_fits_update or is_bintable_keyword) and "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
