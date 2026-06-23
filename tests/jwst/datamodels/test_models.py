@@ -1148,9 +1148,8 @@ def test_table_units(tmp_path, set_via):
         assert m2.spec_table.columns["WAVELENGTH"].unit == unit
 
     # now, change the unit in the fits file directly
-    with fits.open(fn) as ff:
+    with fits.open(fn, mode="update") as ff:
         ff["EXTRACT1D"].data.columns["WAVELENGTH"].unit = new_unit
-        ff.writeto(fn, overwrite=True)
 
     # verify that the new unit is read by astropy
     with fits.open(fn) as ff:
