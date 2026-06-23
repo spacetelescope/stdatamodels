@@ -1,1 +1,0 @@
-Add ChromCorrModel type to support NIRSpec IFU chromaticity correction

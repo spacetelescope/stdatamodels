@@ -1,1 +1,0 @@
-Update multiple data models to accommodate additional characters in the MIRI SUBARRAY table entries.

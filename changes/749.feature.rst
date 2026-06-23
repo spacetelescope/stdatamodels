@@ -1,1 +1,0 @@
-Add inverse linearity coefficients as an optional array to LinearityModel.

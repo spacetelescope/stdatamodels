@@ -1,3 +1,121 @@
+6.0.0 (2026-06-23)
+==================
+
+Deprecations and Removals
+-------------------------
+
+- Removed deprecated ``DataModel.from_asdf`` and ``DataModel.from_fits``. Use
+  ``DataModel.__init__`` directly instead. (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Removed deprecated ``dqflags.interpret_bit_flags``. Use
+  ``astropy.nddata.bitmask.interpret_bit_flags`` instead (note the
+  ``mnemonic_map`` parameter is called ``flag_name_map`` in the astropy
+  version). (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Removed deprecated ``DataModel.get_fits_wcs`` and ``DataModel.set_fits_wcs``.
+  To get the SIP approximation use ``model.meta.wcs.to_fits_sip()``; modify
+  ``model.meta.wcs`` directly to set the WCS. (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Removed the deprecated ``memmap`` keyword argument from
+  ``DataModel.__init__`` and ``datamodels.open``. (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Passing unrecognized keyword arguments to ``DataModel.__init__`` when
+  ``init`` is file-like now raises ``TypeError`` instead of a deprecation
+  warning. (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Removed support for passing extra ``**kwargs`` through ``asdf_in_fits.open``
+  and ``fits_support.from_fits_asdf`` into ``asdf.open`` (previously
+  deprecated). (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Passing ``None``, a shape tuple, a ``numpy.ndarray``, or an
+  ``astropy.io.fits.HDUList`` to ``datamodels.open`` now raises ``TypeError``
+  instead of a deprecation warning. Use the ``DataModel`` constructors directly
+  instead. (`#707
+  <https://github.com/spacetelescope/stdatamodels/issues/707>`_)
+- Deprecate basic_utils.multiple_replace (`#728
+  <https://github.com/spacetelescope/stdatamodels/issues/728>`_)
+
+
+New Features
+------------
+
+- Added enum values to FGS_APER, MSASTATE, PATTSIZE, PRIDTYPE, SMGRDPAT,
+  SUBCAT, SUBPXPAT, TARGTYPE, TEMPLATE, VISITSTA, PTHLOSS to match keyword
+  dictionary. (`#631
+  <https://github.com/spacetelescope/stdatamodels/issues/631>`_)
+- Add a trace model image to slit datamodels. (`#697
+  <https://github.com/spacetelescope/stdatamodels/issues/697>`_)
+- Adds the persistence flag to the group dictionary. (`#702
+  <https://github.com/spacetelescope/stdatamodels/issues/702>`_)
+- Add U4COORD and V4COORD to oifits q4 table schema (`#709
+  <https://github.com/spacetelescope/stdatamodels/issues/709>`_)
+- Add the ``SuperstripeRampModel`` datamodel to allow superstripe mode ramps to
+  have 3D ``pixeldq`` arrays and require all other ramps to have 2D ``pixeldq``
+  arrays. (`#713 <https://github.com/spacetelescope/stdatamodels/issues/713>`_)
+- Add "FAILED" as an option for all ``cal_step`` status keywords. (`#722
+  <https://github.com/spacetelescope/stdatamodels/issues/722>`_)
+- Allow model.update to accept ObjectNode as input. (`#724
+  <https://github.com/spacetelescope/stdatamodels/issues/724>`_)
+- Update schema for SpecPsfModel to allow multiple apertures in the same file.
+  (`#734 <https://github.com/spacetelescope/stdatamodels/issues/734>`_)
+- For NIRCam multistripe support, add new subarray names to enum values.
+  Also, add a ``meta.exposure.read_times`` attribute to hold explicit read
+  times for each group in an integration. (`#739
+  <https://github.com/spacetelescope/stdatamodels/issues/739>`_)
+- Add ChromCorrModel type to support NIRSpec IFU chromaticity correction (`#743
+  <https://github.com/spacetelescope/stdatamodels/issues/743>`_)
+- Add inverse linearity coefficients as an optional array to LinearityModel.
+  (`#749 <https://github.com/spacetelescope/stdatamodels/issues/749>`_)
+- Update chebyshev table schema to accommodate new column name. (`#755
+  <https://github.com/spacetelescope/stdatamodels/issues/755>`_)
+- Add NIRSPEC prism multistripe subarrays (`#757
+  <https://github.com/spacetelescope/stdatamodels/issues/757>`_)
+- Update multiple data models to accommodate additional characters in the MIRI
+  SUBARRAY table entries. (`#759
+  <https://github.com/spacetelescope/stdatamodels/issues/759>`_)
+
+
+Bug Fixes
+---------
+
+- Fix a bug where initializing a model from a different (but compatible) model
+  type did not update ``model.meta.model_type`` (`#706
+  <https://github.com/spacetelescope/stdatamodels/issues/706>`_)
+- Refactor DataModel.update() to perform validation on attribute assignment
+  instead of a full model validation at the end, fixing confusing behavior
+  where calling update would raise warnings for validation issues that the
+  update call did not itself introduce. (`#710
+  <https://github.com/spacetelescope/stdatamodels/issues/710>`_)
+- Remove hard-coded array names from ``MultiExposureModel`` init that caused an
+  error when initializing from ``ImageModel``. (`#737
+  <https://github.com/spacetelescope/stdatamodels/issues/737>`_)
+- Fix handling of logical/int8 FITS_rec columns when provided boolean values.
+  (`#738 <https://github.com/spacetelescope/stdatamodels/issues/738>`_)
+- Ensure model.shape attribute remains in sync with shape of primary array
+  (`#740 <https://github.com/spacetelescope/stdatamodels/issues/740>`_)
+- Disallow directly setting instance attribute of models (`#741
+  <https://github.com/spacetelescope/stdatamodels/issues/741>`_)
+- Add ``meta.wcs`` to the core schema and add wcs tag validation, fixing a bug
+  where ``hasattr(model.meta, "wcs")`` would return False if ``wcs`` was
+  schema-defined but not present, which is inconsistent with other attributes.
+  Also allows TAB-expansion to show the wcs attribute. (`#746
+  <https://github.com/spacetelescope/stdatamodels/issues/746>`_)
+- Fix a bug in saving datamodels to FITS files that caused extra HDUs to be
+  created for datamodels with list-type metadata. (`#748
+  <https://github.com/spacetelescope/stdatamodels/issues/748>`_)
+- Remove some schema enum lists that were incomplete, fixing some model
+  validation failures. (`#751
+  <https://github.com/spacetelescope/stdatamodels/issues/751>`_)
+
+
+Misc
+----
+
+- Reduce overhead in validation of scalar values on assignment, minorly
+  improving runtime of ObjectNode.__setattr__ (`#714
+  <https://github.com/spacetelescope/stdatamodels/issues/714>`_)
+
+
 5.0.2 (2026-05-06)
 ==================
 

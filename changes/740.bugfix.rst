@@ -1,1 +1,0 @@
-Ensure model.shape attribute remains in sync with shape of primary array

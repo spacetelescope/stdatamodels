@@ -1,1 +1,0 @@
-Update chebyshev table schema to accommodate new column name.

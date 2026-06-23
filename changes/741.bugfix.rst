@@ -1,1 +1,0 @@
-Disallow directly setting instance attribute of models

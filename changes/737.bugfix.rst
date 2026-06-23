@@ -1,1 +1,0 @@
-Remove hard-coded array names from ``MultiExposureModel`` init that caused an error when initializing from ``ImageModel``.
