@@ -47,7 +47,10 @@ test = [
   "scipy>=1.9.2",            # same as astropy
 ]
 docs = [
-  "sphinx",
+  # astropy.modeling.Parameter produces an invalid repr which breaks
+  # autodoc for sphinx 9:
+  # https://github.com/astropy/astropy/issues/19963
+  "sphinx<9",
   "sphinx-automodapi",
   "numpydoc",
   "sphinx-rtd-theme>1.2.0",
