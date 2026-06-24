@@ -138,8 +138,22 @@ def _as_fitsrec(val):
         coldefs = fits.ColDefs(val)
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
         if any(c.format == "L" for c in coldefs):
-            # Copy so we can modify the values to match what astropy expects.
-            fits_rec = fits.FITS_rec(val.copy())
+            # Logical (format "L") columns are stored as int8 bytes
+            # in FITS files (ord('T')=84 for True, ord('F')=70 for False).
+            # When the input has bool dtype, writing ord('T')/ord('F')
+            # into a bool array would set both to True (both are non-zero),
+            # so convert bool columns to int8 before creating the FITS_rec.
+            if any(c.format == "L" and val.dtype[c.name] == bool for c in coldefs):
+                new_dtype = []
+                for c in coldefs:
+                    if c.format == "L" and val.dtype[c.name] == bool:
+                        new_dtype.append((c.name, np.int8))
+                    else:
+                        new_dtype.append((c.name, val.dtype[c.name]))
+                fits_rec = fits.FITS_rec(val.astype(new_dtype))
+            else:
+                # Copy so we can modify the values to match what astropy expects.
+                fits_rec = fits.FITS_rec(val.copy())
             for c in coldefs:
                 if c.format == "L":
                     d = fits_rec[c.name]

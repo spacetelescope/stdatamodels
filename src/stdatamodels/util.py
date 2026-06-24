@@ -165,6 +165,22 @@ def _safe_asanyarray(a, dtype):
             for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
                 result[new_col] = a[old_col]
             return result
+        # For logical (format "L") columns, astropy stores int8 bytes
+        # (ord('T')=84, ord('F')=70, 0=NULL) but reports them as bool.
+        # A direct int8->bool cast would map 70 (F) to True (non-zero).
+        # Convert column-by-column so logical columns map correctly.
+        if dtype.fields is not None and a.dtype.fields is not None:
+            logical_cols = {c.name for c in a.columns if c.format == "L"}
+            if logical_cols:
+                result = np.zeros(a.shape, dtype=dtype)
+                for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
+                    if old_col in logical_cols and result.dtype[new_col] == bool:
+                        # Map T (84) -> True, F (70) and NULL (0) -> False
+                        raw = np.asarray(a)[old_col]
+                        result[new_col] = raw == ord("T")
+                    else:
+                        result[new_col] = a[old_col]
+                return result
 
     result = np.asanyarray(a, dtype=dtype)
     if isinstance(result, fits.fitsrec.FITS_rec) and isinstance(a, fits.fitsrec.FITS_rec):
