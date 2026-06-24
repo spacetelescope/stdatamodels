@@ -93,7 +93,7 @@ class _SimpleModel(ReferenceFileModel):
         """
         raise NotImplementedError
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         """Override base class to specify that reference files are not writable to FITS."""
         raise NotImplementedError("FITS format is not supported for this file.")
 
@@ -219,7 +219,7 @@ class DistortionMRSModel(ReferenceFileModel):
         self.meta.input_units = u.pix
         self.meta.output_units = u.arcsec
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -378,7 +378,7 @@ class NIRCAMGrismModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
 
@@ -460,7 +460,7 @@ class NIRISSGrismModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
 
@@ -542,7 +542,7 @@ class MiriWFSSSpecwcsModel(ReferenceFileModel):
             else:
                 warnings.warn(traceback.format_exc(), ValidationWarning, stacklevel=2)
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
 
@@ -687,7 +687,7 @@ class RegionsModel(ReferenceFileModel):
     def on_save(self, path=None):
         self.meta.reftype = self.reftype
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -781,7 +781,7 @@ class WavelengthrangeModel(ReferenceFileModel):
     def on_save(self, path=None):
         self.meta.reftype = self.reftype
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file")
 
     def validate(self):
@@ -861,7 +861,7 @@ class FPAModel(ReferenceFileModel):
         NRS_MIMF|NRS_MSATA|NRS_WATA|NRS_LAMP|NRS_BRIGHTOBJ|"
         self.meta.exposure.type = "N/A"
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -924,7 +924,7 @@ class IFUPostModel(ReferenceFileModel):
         self.meta.exposure.type = "NRS_IFU"
         self.meta.exposure.p_exptype = "NRS_IFU"
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -970,7 +970,7 @@ class IFUSlicerModel(ReferenceFileModel):
         self.meta.exposure.type = "NRS_IFU"
         self.meta.exposure.p_exptype = "NRS_IFU"
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -1020,7 +1020,7 @@ class MSAModel(ReferenceFileModel):
         NRS_MIMF|NRS_MSATA|NRS_WATA|NRS_LAMP|NRS_BRIGHTOBJ|"
         self.meta.exposure.type = "N/A"
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):
@@ -1125,7 +1125,7 @@ class DisperserModel(ReferenceFileModel):
         NRS_MIMF|NRS_MSATA|NRS_WATA|NRS_LAMP|NRS_BRIGHTOBJ|"
         self.meta.exposure.type = "N/A"
 
-    def to_fits(self):
+    def to_fits(self, *args, **kwargs):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):

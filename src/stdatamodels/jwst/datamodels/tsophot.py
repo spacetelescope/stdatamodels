@@ -37,7 +37,7 @@ class TsoPhotModel(ReferenceFileModel):
     def on_save(self, path=None):  # noqa: D102
         self.meta.reftype = self.reftype
 
-    def to_fits(self):  # noqa: D102
+    def to_fits(self, *args, **kwargs):  # noqa: D102
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):  # noqa: D102
