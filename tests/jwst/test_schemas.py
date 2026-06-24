@@ -101,7 +101,7 @@ def test_unit_is_fits(schema_id):
 def test_no_int8_in_schemas(schema_id):
     """
     int8 is not supported by astropy when writing to FITS (it forces values
-    to T/F/\x00). Schemas should use bool instead of int8 for FLAG columns
+    to T/F/\x00). Schemas should use bool8 instead of int8 for FLAG columns
     and uint8 for DQ flag arrays.
     """
     schema = asdf.schema.load_schema(schema_id, resolve_references=True)
@@ -121,12 +121,12 @@ def test_no_int8_in_schemas(schema_id):
                 elif item == "int8":
                     raise AssertionError(
                         f"int8 datatype found at {path} in {schema_id}. "
-                        "Use bool for FLAG columns or uint8 for DQ arrays."
+                        "Use bool8 for FLAG columns or uint8 for DQ arrays."
                     )
         elif datatype == "int8":
             raise AssertionError(
                 f"int8 datatype found at {path} in {schema_id}. "
-                "Use bool for FLAG columns or uint8 for DQ arrays."
+                "Use bool8 for FLAG columns or uint8 for DQ arrays."
             )
 
     walk_schema(schema, callback)

@@ -1,1 +1,1 @@
-Switch oifits FLAG columns from int8 to bool in schemas and disallow int8 datatype in schemas.
+Switch oifits FLAG columns from int8 to bool8 in schemas and disallow int8 datatype in schemas.
