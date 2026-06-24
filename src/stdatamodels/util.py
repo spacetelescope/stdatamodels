@@ -174,7 +174,7 @@ def _safe_asanyarray(a, dtype):
             if logical_cols:
                 result = np.zeros(a.shape, dtype=dtype)
                 for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
-                    if old_col in logical_cols and result.dtype[new_col] == bool:
+                    if old_col in logical_cols and np.issubdtype(result.dtype[new_col], np.bool_):
                         # Map T (84) -> True, F (70) and NULL (0) -> False
                         raw = np.asarray(a)[old_col]
                         result[new_col] = raw == ord("T")

@@ -143,10 +143,10 @@ def _as_fitsrec(val):
             # When the input has bool dtype, writing ord('T')/ord('F')
             # into a bool array would set both to True (both are non-zero),
             # so convert bool columns to int8 before creating the FITS_rec.
-            if any(c.format == "L" and val.dtype[c.name] == bool for c in coldefs):
+            if any(c.format == "L" and np.issubdtype(val.dtype[c.name], np.bool_) for c in coldefs):
                 new_dtype = []
                 for c in coldefs:
-                    if c.format == "L" and val.dtype[c.name] == bool:
+                    if c.format == "L" and np.issubdtype(val.dtype[c.name], np.bool_):
                         new_dtype.append((c.name, np.int8))
                     else:
                         new_dtype.append((c.name, val.dtype[c.name]))
