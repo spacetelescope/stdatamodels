@@ -949,7 +949,11 @@ def from_fits_hdu(hdu, schema):
     data : numpy.ndarray
         The data from the FITS HDU
     """
-    data = hdu.data
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        data = hdu.data
 
     # Save the column listeners for possible restoration
     if hasattr(data, "_coldefs"):
