@@ -2,6 +2,7 @@
 
 import copy
 import os
+import warnings
 
 import asdf
 import numpy as np
@@ -166,7 +167,11 @@ def _safe_asanyarray(a, dtype):
                 result[new_col] = a[old_col]
             return result
 
-    result = np.asanyarray(a, dtype=dtype)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        result = np.asanyarray(a, dtype=dtype)
     if isinstance(result, fits.fitsrec.FITS_rec) and isinstance(a, fits.fitsrec.FITS_rec):
         for column in result.columns:
             name = column.name
@@ -174,7 +179,11 @@ def _safe_asanyarray(a, dtype):
                 matching_column = a.columns[name]
             except KeyError:
                 continue
-            result.columns[name].unit = matching_column.unit
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+                )
+                result.columns[name].unit = matching_column.unit
     return result
 
 
