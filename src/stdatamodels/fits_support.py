@@ -607,8 +607,12 @@ def _create_asdf_hdu(tree):
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
     fmt = f"{len(data[0])}B"
-    column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
-    return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
+        return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
 
 
 ##############################################################################
@@ -704,6 +708,12 @@ def _load_from_schema(
             "BinTableHDU and its associated header keywords."
         )
 
+    # Build the set of BinTableHDU names so that when skip_fits_update is True
+    # we can still load fits_keyword properties associated with those HDUs
+    bintable_hdu_names = {
+        hdu.name for hdu in hdulist if isinstance(hdu, fits.BinTableHDU) and hdu.name != "ASDF"
+    }
+
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
     max_extver = max(hdu.ver for hdu in hdulist) if len(hdulist) else 0
@@ -716,7 +726,13 @@ def _load_from_schema(
 
     def callback(schema, path, combiner, ctx, recurse):
         result = None
-        if not skip_fits_update and "fits_keyword" in schema:
+        # Load fits_keyword properties when the
+        # keyword belongs to a BinTableHDU (e.g. TUNITn), since table-associated
+        # header keywords should always come from the FITS file.
+        # This may be possible to remove once we move away from fits_rec internal
+        # representation of tables.
+        is_bintable_keyword = schema.get("fits_hdu") in bintable_hdu_names
+        if (not skip_fits_update or is_bintable_keyword) and "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
@@ -937,7 +953,11 @@ def from_fits_hdu(hdu, schema):
     data : numpy.ndarray
         The data from the FITS HDU
     """
-    data = hdu.data
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        data = hdu.data
 
     # Save the column listeners for possible restoration
     if hasattr(data, "_coldefs"):

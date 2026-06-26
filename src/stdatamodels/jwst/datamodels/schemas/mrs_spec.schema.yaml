@@ -10,3 +10,5 @@ allOf:
   properties:
     spec_table:
       $ref: mrs_spectable.schema
+    spec_table_units:
+      $ref: mrs_specunits.schema
