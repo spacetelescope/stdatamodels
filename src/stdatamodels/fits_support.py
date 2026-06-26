@@ -607,8 +607,12 @@ def _create_asdf_hdu(tree):
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
     fmt = f"{len(data[0])}B"
-    column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
-    return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
+        return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
 
 
 ##############################################################################
@@ -894,15 +898,19 @@ def from_fits_asdf(
             ignore_unrecognized_tag=ignore_unrecognized_tag,
         )
 
-    af = asdf.open(
-        io.BytesIO(asdf_extension.data),
-        mode="rw",
-        ignore_unrecognized_tag=ignore_unrecognized_tag,
-        ignore_missing_extensions=ignore_missing_extensions,
-    )
-    # map hdulist to blocks here
-    _map_hdulist_to_arrays(hdulist, af)
-    return af
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
+        )
+        af = asdf.open(
+            io.BytesIO(asdf_extension.data),
+            mode="rw",
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+            ignore_missing_extensions=ignore_missing_extensions,
+        )
+        # map hdulist to blocks here
+        _map_hdulist_to_arrays(hdulist, af)
+        return af
 
 
 def _map_hdulist_to_arrays(hdulist, af):
