@@ -1159,3 +1159,44 @@ def test_table_units(tmp_path, set_via):
     with datamodels.open(fn) as m2:
         assert m2.spec_table_units.WAVELENGTH == new_unit
         assert m2.spec_table.columns["WAVELENGTH"].unit == new_unit
+
+
+@pytest.mark.parametrize("model", list(defined_models.values()))
+def test_spec_table_units_sync(model):
+    """For all datamodels test that spec_table and spec_table_units are in sync."""
+    if model.__name__ in deprecated_models:
+        with pytest.warns(DeprecationWarning):
+            model = model()
+    else:
+        model = model()
+    is_spec_like = hasattr(model, "spec_table") or hasattr(model, "spec")
+    if not is_spec_like:
+        return
+
+    if hasattr(model, "spec"):
+        # MultiSpecModel-like models
+        model.spec.append(SpecModel())
+        assert hasattr(model.spec[0], "spec_table")
+        model.spec[0].spec_table = model.spec[0].get_default("spec_table")
+        spec_table = model.spec[0].spec_table
+        spec_table_units = model.spec[0].spec_table_units
+        units_schema = model.schema["properties"]["spec"]["items"]["properties"][
+            "spec_table_units"
+        ]["properties"]
+    else:
+        # SpecModel-like models
+        assert hasattr(model, "spec_table")
+        model.spec_table = model.get_default("spec_table")
+        spec_table = model.spec_table
+        spec_table_units = model.spec_table_units
+        units_schema = model.schema["properties"]["spec_table_units"]["properties"]
+
+    # test that spec_table_units is present and has the same columns as spec_table
+    for col in spec_table.columns:
+        assert hasattr(spec_table_units, col.name)
+
+    # test that spec_table_units tunit keywords are ascending from TUNIT1 up to n_cols
+    for i, col in enumerate(spec_table.columns, start=1):
+        tunit_key = f"TUNIT{i}"
+        assert col.name in units_schema
+        assert tunit_key == units_schema[col.name]["fits_keyword"]
