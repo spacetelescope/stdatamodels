@@ -898,19 +898,15 @@ def from_fits_asdf(
             ignore_unrecognized_tag=ignore_unrecognized_tag,
         )
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
-        )
-        af = asdf.open(
-            io.BytesIO(asdf_extension.data),
-            mode="rw",
-            ignore_unrecognized_tag=ignore_unrecognized_tag,
-            ignore_missing_extensions=ignore_missing_extensions,
-        )
-        # map hdulist to blocks here
-        _map_hdulist_to_arrays(hdulist, af)
-        return af
+    af = asdf.open(
+        io.BytesIO(asdf_extension.data),
+        mode="rw",
+        ignore_unrecognized_tag=ignore_unrecognized_tag,
+        ignore_missing_extensions=ignore_missing_extensions,
+    )
+    # map hdulist to blocks here
+    _map_hdulist_to_arrays(hdulist, af)
+    return af
 
 
 def _map_hdulist_to_arrays(hdulist, af):
