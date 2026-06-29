@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import copy
-import warnings
 from collections.abc import Mapping
 
 import numpy as np
@@ -136,11 +135,7 @@ def _as_fitsrec(val):
     if isinstance(val, fits.FITS_rec):
         return val
     else:
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
-            )
-            coldefs = fits.ColDefs(val)
+        coldefs = fits.ColDefs(val)
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
         if any(c.format == "L" for c in coldefs):
             # Copy so we can modify the values to match what astropy expects.
