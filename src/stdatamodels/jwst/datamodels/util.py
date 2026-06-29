@@ -508,12 +508,8 @@ def read_metadata(fname, model_type=None, flatten=True):
     ext = filetype.check(str(fname))
     if ext == "fits":
         with fits.open(fname) as hdulist:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
-                )
-                bs = io.BytesIO(hdulist["ASDF"].data.tobytes())
-                tree = asdf.util.load_yaml(bs)
+            bs = io.BytesIO(hdulist["ASDF"].data.tobytes())
+            tree = asdf.util.load_yaml(bs)
             if model_type is None:
                 model_type = hdulist[0].header["DATAMODL"]
             schema = _retrieve_schema(model_type)

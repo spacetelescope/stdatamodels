@@ -607,12 +607,8 @@ def _create_asdf_hdu(tree):
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
     fmt = f"{len(data[0])}B"
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
-        )
-        column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
-        return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
+    column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
+    return fits.BinTableHDU.from_columns([column], name=_ASDF_EXTENSION_NAME)
 
 
 ##############################################################################
@@ -953,11 +949,7 @@ def from_fits_hdu(hdu, schema):
     data : numpy.ndarray
         The data from the FITS HDU
     """
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", category=DeprecationWarning, message="Setting '.unit' on Column"
-        )
-        data = hdu.data
+    data = hdu.data
 
     # Save the column listeners for possible restoration
     if hasattr(data, "_coldefs"):
