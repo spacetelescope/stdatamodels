@@ -62,8 +62,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     Warnings
     --------
     The ``open`` function is not intended for creating models from scratch.
-    Use the DataModel constructors directly instead,
-    i.e. :class:`~stdatamodels.jwst.datamodels.JwstDataModel` for a generic model
+    Use the `~stdatamodels.DataModel` constructors directly instead,
+    i.e., :class:`~stdatamodels.jwst.datamodels.JwstDataModel` for a generic model
     or one of the many model subclasses (e.g., :class:`~stdatamodels.jwst.datamodels.ImageModel`,
     :class:`~stdatamodels.jwst.datamodels.MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those

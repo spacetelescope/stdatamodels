@@ -39,3 +39,4 @@ Utilities
 ---------
 
 .. automodapi:: stdatamodels.history
+   :no-inheritance-diagram:
