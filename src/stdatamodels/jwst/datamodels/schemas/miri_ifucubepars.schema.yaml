@@ -25,6 +25,7 @@ allOf:
       - name: wavemax
         datatype: float32
     ifucubepars_table_units:
+      type: object
       properties:
         channel:
           type: string
@@ -71,6 +72,7 @@ allOf:
       - name: softrad
         datatype: float32
     ifucubepars_msm_table_units:
+      type: object
       properties:
         channel:
           type: string
@@ -114,6 +116,7 @@ allOf:
       - name: softrad
         datatype: float32
     ifucubepars_multichannel_msm_wavetable_units:
+      type: object
       properties:
         wavelength:
           type: string
@@ -154,6 +157,7 @@ allOf:
       - name: scalerad
         datatype: float32
     ifucubepars_emsm_table_units:
+      type: object
       properties:
         channel:
           type: string
@@ -191,6 +195,7 @@ allOf:
       - name: scalerad
         datatype: float32
     ifucubepars_multichannel_emsm_wavetable_units:
+      type: object
       properties:
         wavelength:
           type: string
@@ -219,6 +224,7 @@ allOf:
       - name: wavelength
         datatype: float32
     ifucubepars_multichannel_driz_wavetable_units:
+      type: object
       properties:
         wavelength:
           type: string
