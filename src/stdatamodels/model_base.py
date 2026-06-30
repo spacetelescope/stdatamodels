@@ -70,7 +70,7 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        init : str, tuple, astropy.io.fits.HDUList, ndarray, dict, None
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None
 
             - None : Create a default data model with no shape.
 
@@ -82,8 +82,8 @@ class DataModel(properties.ObjectNode):
             - readable file object: Initialize from the given file
               object
 
-            - astropy.io.fits.HDUList : Initialize from the given
-              astropy.io.fits.HDUList.
+            - `~astropy.io.fits.HDUList` : Initialize from the given
+              `~astropy.io.fits.HDUList`.
 
             - A numpy array: Used to initialize the data array
 
@@ -137,7 +137,7 @@ class DataModel(properties.ObjectNode):
             Additional keyword arguments are expected to be array-like attributes of
             the data model. These will be initialized with the given values only if they
             are defined in the schema and the schema expects an array-like value.
-            Kwargs are only allowed when `init` is `None`, a tuple, or a numpy array.
+            Kwargs are only allowed when ``init`` is `None`, a tuple, or a numpy array.
             Example usage::
 
                 model = ImageModel(data=np.ones((10, 10)), dq=np.zeros((10, 10)))
@@ -206,7 +206,7 @@ class DataModel(properties.ObjectNode):
             self.clone(self, init)
             if not isinstance(init, self.__class__):
                 # In this case we want the models to be different instances,
-                # have different metadata (e.g. meta.model_type should be different),
+                # have different metadata (e.g., meta.model_type should be different),
                 # but share the same data arrays.
                 self._instance = copy.copy(self._instance)
                 if "meta" in self._instance:
@@ -271,7 +271,7 @@ class DataModel(properties.ObjectNode):
             raise TypeError(
                 "Unrecognized keyword arguments passed to DataModel.__init__. "
                 "Keyword arguments are not allowed when DataModel init is file-like "
-                "(e.g. filename, dict, HDUList, AsdfFile, etc.) "
+                "(e.g., filename, dict, HDUList, AsdfFile, etc.) "
             )
 
         # Instantiate the primary array of the image
@@ -588,7 +588,7 @@ class DataModel(properties.ObjectNode):
             model.meta.filename and returns the full path string.
         dir_path : str
             Directory to save to. If not None, this will override
-            any directory information in the `path`
+            any directory information in the ``path``.
 
         Returns
         -------
@@ -713,7 +713,7 @@ class DataModel(properties.ObjectNode):
         Parameters
         ----------
         position : str
-            Dot separated string indicating the position, e.g. ``meta.instrument.name``.
+            Dot separated string indicating the position, e.g., ``meta.instrument.name``.
         new_schema : dict
             Schema tree.
 
@@ -740,10 +740,13 @@ class DataModel(properties.ObjectNode):
         keyword : str
             A FITS keyword name.
 
+        return_result : bool
+            Decide what to return.
+
         Returns
         -------
         locations : list of str
-            If `return_result` is `True`, a list of the locations in
+            If ``return_result`` is `True`, a list of the locations in
             the schema where this FITS keyword is used.  Each element
             is a dot-separated path.
         """
@@ -813,9 +816,9 @@ class DataModel(properties.ObjectNode):
         """
         Iterate over all of the datamodel contents in a flat way.
 
-        Each element is a pair (`key`, `value`).  Each `key` is a
+        Each element is a pair ``(key, value)``.  Each ``key`` is a
         dot-separated name.  For example, the schema element
-        `meta.observation.date` will end up in the result as::
+        ``meta.observation.date`` will end up in the result as::
 
             ("meta.observation.date": "2012-04-22T03:22:05.432")
         """
@@ -843,10 +846,10 @@ class DataModel(properties.ObjectNode):
         Yields
         ------
         key : str
-            The key of the schema element. Each `key` is a
+            The key of the schema element. Each ``key`` is a
             dot-separated name.  For example, the schema element
-            `meta.observation.date` will end up in the result as the
-            string `"meta.observation.date"`.
+            ``meta.observation.date`` will end up in the result as the
+            string ``"meta.observation.date"``.
         """
         for key, _ in self.items():
             yield key
@@ -876,15 +879,15 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        d : `~jwst.datamodels.DataModel` or dictionary-like object
+        d : `~stdatamodels.DataModel` or dictionary-like object
             The model to copy the metadata elements from. Can also be a
             dictionary or dictionary of dictionaries or lists, or an
             `~stdatamodels.properties.ObjectNode`.
         only : str, None
-            Update only the named hdu, e.g. ``only='PRIMARY'``. Can either be
+            Update only the named hdu, e.g., ``only='PRIMARY'``. Can either be
             a string or list of hdu names. Default is to update all the hdus.
         extra_fits : bool
-            Update from ``extra_fits``.  Default is False.
+            Update from ``extra_fits``.  Default is `False`.
         """
         # Get the list of hdu names from the model so that updates
         # are limited to those hdus
@@ -962,7 +965,7 @@ class DataModel(properties.ObjectNode):
         Return a dictionary of all of the datamodel contents as a flat dictionary.
 
         Each dictionary key is a dot-separated name.  For example, the
-        schema element `meta.observation.date` will end up in the
+        schema element ``meta.observation.date`` will end up in the
         dictionary as::
 
             {"meta.observation.date": "2012-04-22T03:22:05.432"}
@@ -1014,7 +1017,7 @@ class DataModel(properties.ObjectNode):
 
         Returns
         -------
-        history : `HistoryList`
+        history : `~stdatamodels.history.HistoryList`
             A list of history entries.
         """
         warnings.warn(
@@ -1035,7 +1038,7 @@ class DataModel(properties.ObjectNode):
         values : list
             For FITS files this should be a list of strings.
             For ASDF files use a list of ``HistoryEntry`` object. It can be created
-            with `~jwst.datamodels.util.create_history_entry`.
+            with :func:`~stdatamodels.util.create_history_entry`.
         """
         entries = self.history
         entries.clear()

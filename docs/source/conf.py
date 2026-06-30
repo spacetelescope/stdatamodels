@@ -41,6 +41,7 @@ intersphinx_mapping = {
 autosummary_generate = True
 numpydoc_show_class_members = False
 autoclass_content = "both"
+default_role = "py:obj"
 
 html_logo = 'static/stsci_pri_combo_mark_white.png'
 html_theme = "sphinx_rtd_theme"
