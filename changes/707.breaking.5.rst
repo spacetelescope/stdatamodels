@@ -1,1 +1,0 @@
-Passing ``None``, a shape tuple, a ``numpy.ndarray``, or an ``astropy.io.fits.HDUList`` to ``datamodels.open`` now raises ``TypeError`` instead of a deprecation warning. Use the ``DataModel`` constructors directly instead.
