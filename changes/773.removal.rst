@@ -1,1 +1,1 @@
-Remove ifucubepars.schema, which is unused in favor of nirspec_ifucubepars.schema and miri_ifucubepars.schema
+Remove ``ifucubepars.schema``, which is unused, in favor of ``nirspec_ifucubepars.schema`` and ``miri_ifucubepars.schema``.
