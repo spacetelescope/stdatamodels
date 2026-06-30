@@ -4,7 +4,8 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/nirspec_ifucubepars.schema"
 title: Default NIRSPEC IFU cube parameters data model
 allOf:
-- $ref: ifucubepars.schema
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
 - $ref: keyword_lampmode.schema
 - type: object
   properties:
