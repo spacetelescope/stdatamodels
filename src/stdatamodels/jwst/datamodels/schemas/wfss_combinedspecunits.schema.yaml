@@ -7,54 +7,54 @@ properties:
   SOURCE_ID:
     type: string
     fits_keyword: TUNIT1
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   WAVELENGTH:
     type: string
     fits_keyword: TUNIT2
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   FLUX:
     type: string
     fits_keyword: TUNIT3
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   ERROR:
     type: string
     fits_keyword: TUNIT4
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   SURF_BRIGHT:
     type: string
     fits_keyword: TUNIT5
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   SB_ERROR:
     type: string
     fits_keyword: TUNIT6
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   DQ:
     type: string
     fits_keyword: TUNIT7
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   WEIGHT:
     type: string
     fits_keyword: TUNIT8
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   N_INPUT:
     type: string
     fits_keyword: TUNIT9
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   N_ALONGDISP:
     type: string
     fits_keyword: TUNIT10
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   SOURCE_TYPE:
     type: string
     fits_keyword: TUNIT11
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
   SOURCE_RA:
     type: string
     fits_keyword: TUNIT12
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
     default: "deg"
   SOURCE_DEC:
     type: string
     fits_keyword: TUNIT13
-    fits_hdu: EXTRACT1D
+    fits_hdu: COMBINE1D
     default: "deg"
