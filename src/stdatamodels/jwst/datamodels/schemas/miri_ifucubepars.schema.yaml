@@ -24,6 +24,36 @@ allOf:
         datatype: float32
       - name: wavemax
         datatype: float32
+    ifucubepars_table_units:
+      properties:
+        channel:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR
+        band:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR
+        spaxelsize:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR
+          default: "arcsec"
+        spectralstep:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR
+          default: "micron"
+        wavemin:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR
+          default: "micron"
+        wavemax:
+          type: string
+          fits_keyword: TUNIT6
+          fits_hdu: CUBEPAR
+          default: "micron"
     ifucubepars_msm_table:
       title: default IFU cube msm parameters table
       fits_hdu: CUBEPAR_MSM
@@ -40,6 +70,35 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_msm_table_units:
+      properties:
+        channel:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR_MSM
+        band:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR_MSM
+        roispatial:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT6
+          fits_hdu: CUBEPAR_MSM
+          default: "arcsec"
     ifucubepars_multichannel_msm_wavetable:
       title: default IFU cube multi channel msm  wavetable
       fits_hdu: MULTICHANNEL_MSM
@@ -54,6 +113,32 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_multichannel_msm_wavetable_units:
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHANNEL_MSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHANNEL_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHANNEL_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHANNEL_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: MULTICHANNEL_MSM
+          default: "arcsec"
     ifucubepars_emsm_table:
       title: default IFU cube emsm parameters table
       fits_hdu: CUBEPAR_EMSM
@@ -68,6 +153,31 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_emsm_table_units:
+      properties:
+        channel:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR_EMSM
+        band:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR_EMSM
+        roispatial:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR_EMSM
+          default: "arcsec"
     ifucubepars_multichannel_emsm_wavetable:
       title: default IFU cube multi channel emsm wavetable
       fits_hdu: MULTICHANNEL_EMSM
@@ -80,9 +190,38 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_multichannel_emsm_wavetable_units:
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHANNEL_EMSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHANNEL_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHANNEL_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHANNEL_EMSM
+          default: "arcsec"
     ifucubepars_multichannel_driz_wavetable:
       title: default IFU cube multi channel driz wavetable
       fits_hdu: MULTICHANNEL_DRIZ
       datatype:
       - name: wavelength
         datatype: float32
+    ifucubepars_multichannel_driz_wavetable_units:
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHANNEL_DRIZ
+          default: "micron"
