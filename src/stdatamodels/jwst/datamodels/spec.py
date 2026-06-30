@@ -66,7 +66,7 @@ class WFSSSpecModel(JwstDataModel):
 
     This model differs from the SpecModel base class in that
     it is designed to hold all the spectra from a single WFSS exposure.
-    Its `spec_table` attribute contains the spectral data and metadata
+    Its ``spec_table`` attribute contains the spectral data and metadata
     for all sources in the exposure.
 
     Attributes

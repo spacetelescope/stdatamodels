@@ -8,7 +8,7 @@ class MultiSpecModel(JwstDataModel):
     """
     A data model for multi-spec tables.
 
-    This model has a special member `spec` that can be used to
+    This model has a special member ``spec`` that can be used to
     deal with an entire spectrum at a time.  It behaves like a list::
 
        >>> from stdatamodels.jwst.datamodels import SpecModel
@@ -17,11 +17,11 @@ class MultiSpecModel(JwstDataModel):
        >>> multispec_model.spec[0] # doctest: +SKIP
        <SpecModel>
 
-    If `init` is a `SpecModel` instance, an empty `SpecModel` will be
-    created and assigned to attribute `spec[0]`, and the `spec_table`
-    attribute from the input `SpecModel` instance will be copied to
-    the first element of `spec`.  `SpecModel` objects can be appended
-    to the `spec` attribute by using its `append` method.
+    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecModel` instance, an empty `~stdatamodels.jwst.datamodels.SpecModel` will be
+    created and assigned to attribute ``spec[0]``, and the ``spec_table``
+    attribute from the input `~stdatamodels.jwst.datamodels.SpecModel` instance will be copied to
+    the first element of ``spec``.  `~stdatamodels.jwst.datamodels.SpecModel` objects can be appended
+    to the ``spec`` attribute by using its ``append`` method.
 
     Attributes
     ----------
@@ -60,9 +60,9 @@ class MRSMultiSpecModel(JwstDataModel):
     """
     A data model for MIRI MRS multi-spec tables.
 
-    This model has a special member `spec` that can be used to
+    This model has a special member ``spec`` that can be used to
     deal with an entire spectrum at a time.  It behaves identically
-    to `MultiSpecModel`, except that the spectra have additional columns
+    to `~stdatamodels.jwst.datamodels.MultiSpecModel`, except that the spectra have additional columns
     for the MIRI MRS mode, containing residual fringe corrected values.
     """
 
@@ -82,9 +82,9 @@ class TSOMultiSpecModel(JwstDataModel):
     """
     A data model for TSO multi-integration, multi-spectra tables.
 
-    This model has a special member `spec` that is used to contain spectra
+    This model has a special member ``spec`` that is used to contain spectra
     from multiple integrations at a time.  It behaves identically
-    to `MultiSpecModel`, except that each row in the spectral
+    to `~stdatamodels.jwst.datamodels.MultiSpecModel`, except that each row in the spectral
     table corresponds to the full spectrum for a single integration,
     so that all integrations are stored in the same EXTRACT1D
     extension.  For the standard MultiSpecModel, column data is
@@ -114,7 +114,7 @@ class WFSSMultiSpecModel(JwstDataModel):
 
     Attributes
     ----------
-    spec : list of `~jwst.datamodels.WFSSSpecModel`
+    spec : list of `~stdatamodels.jwst.datamodels.WFSSSpecModel`
         A list of WFSSSpecModel objects, each containing the
         spectra from a single exposure.
     """

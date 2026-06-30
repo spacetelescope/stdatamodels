@@ -27,7 +27,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
 
     Parameters
     ----------
-    init : shape tuple, file path, astropy.io.fits.HDUList, numpy array, dict, None
+    init : shape tuple, file path, `~astropy.io.fits.HDUList`, numpy array, dict, None
 
         - file path: Initialize from the given file (FITS, JSON or ASDF)
 
@@ -38,7 +38,7 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         - list[str]: Initialize from a list of files. The list will be returned as a
           ModelContainer with the models loaded from the specified files.
 
-        - :class:`JwstDataModel`: Initialize from an existing model. The output model will
+        - :class:`~stdatamodels.jwst.datamodels.JwstDataModel`: Initialize from an existing model. The output model will
           be a shallow copy of the input model. This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
@@ -62,8 +62,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     --------
     The ``open`` function is not intended for creating models from scratch.
     Use the DataModel constructors directly instead,
-    i.e. :class:`JwstDataModel` for a generic model
-    or one of the many model subclasses (e.g. :class:`ImageModel`, :class:`MultiSlitModel`)
+    i.e. :class:`~stdatamodels.jwst.datamodels.JwstDataModel` for a generic model
+    or one of the many model subclasses (e.g., :class:`~stdatamodels.jwst.datamodels.ImageModel`, :class:`~stdatamodels.jwst.datamodels.MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors. See the documentation for each model class for details on how to use them.
     """
@@ -383,7 +383,7 @@ def is_association(asn_data):
     Returns
     -------
     bool
-        True if `asn_data` is an association
+        True if ``asn_data`` is an association
     """
     if isinstance(asn_data, dict):
         if "asn_id" in asn_data and "asn_pool" in asn_data:
@@ -412,7 +412,7 @@ def _to_flat_dict(tree):
     Convert a tree to a flat dictionary.
 
     Lists are converted to dictionaries with keys equal to their indices as strings.
-    For example, a MultiSlitModel with two slits slits will have the attributes::
+    For example, a `~stdatamodels.jwst.datamodels.MultiSlitModel` with two slits slits will have the attributes::
 
         "slits.0.name", "slits.1.name", etc.
 
@@ -462,11 +462,11 @@ def read_metadata(fname, model_type=None, flatten=True):
 
     The metadata dictionary will be returned in a flat format by default,
     such that each key is a dot-separated name. For example, the schema element
-    `meta.observation.date` will end up in the result as::
+    ``meta.observation.date`` will end up in the result as::
 
         ("meta.observation.date": "2012-04-22T03:22:05.432")
 
-    If `flatten` is set to False, the metadata will be returned as a nested
+    If ``flatten`` is set to False, the metadata will be returned as a nested
     dictionary, with the keys being the schema elements.
 
     For FITS files, the output dictionary contains all metadata attributes
@@ -482,20 +482,20 @@ def read_metadata(fname, model_type=None, flatten=True):
 
         This function entirely bypasses schema validation. Although validation
         is done when saving a datamodel to file, if a model is modified and then
-        saved with something other than datamodels.save (e.g. astropy.fits.writeto),
+        saved with something other than datamodels.save (e.g., :func:`astropy.io.fits.writeto`),
         the schema will not be validated and invalid data could be loaded here.
 
     Parameters
     ----------
     fname : str or Path
-        Path to a JWSTDataModel file.
+        Path to a `~stdatamodels.jwst.datamodels.JwstDataModel` file.
     model_type : str, optional
         The model type used to figure out which schema to load. If not provided,
         the model type will be determined from the file's header information
         ("DATAMODL" keyword for FITS files). Has no effect for ASDF input.
     flatten : bool, optional
-        If True, the metadata will be returned as a flat dictionary. If False,
-        the metadata will be returned as a nested dictionary. Default is True.
+        If `True`, the metadata will be returned as a flat dictionary. If `False`,
+        the metadata will be returned as a nested dictionary. Default is `True`.
 
     Returns
     -------
@@ -551,7 +551,7 @@ def _convert_cal_logs_to_string(tree):
     Convert cal_logs dictionary into a single string.
 
     Output format looks similar to what was originally printed to the logs,
-    e.g. a newline-separated log
+    e.g., a newline-separated log
 
     Parameters
     ----------

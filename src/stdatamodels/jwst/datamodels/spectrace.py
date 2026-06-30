@@ -7,7 +7,7 @@ class SpecTraceModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS spectral trace reference files.
 
-    This model has a special member `trace` that can be used to
+    This model has a special member ``trace`` that can be used to
     deal with an entire spectral trace at a time.  It behaves like a list::
 
        >>> from stdatamodels.jwst.datamodels import SpecTraceSingleModel
@@ -16,11 +16,11 @@ class SpecTraceModel(ReferenceFileModel):
        >>> spectrace_model.trace[0] # doctest: +SKIP
        <SpecTraceSingleModel>
 
-    If `init` is a `SpecTraceSingleModel` instance, an empty `SpecTraceSingleModel`
-    will be created and assigned to attribute `trace[0]`, and the `data`
-    attribute from the input `SpecTraceSingleModel` instance will be copied to
-    the first element of `trace`.  `SpecTraceSingleModel` objects can be appended
-    to the `trace` attribute by using its `append` method.
+    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` instance, an empty `~stdatamodels.jwst.datamodels.SpecTraceSingleModel`
+    will be created and assigned to attribute ``trace[0]``, and the ``data``
+    attribute from the input `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` instance will be copied to
+    the first element of ``trace``.  `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` objects can be appended
+    to the ``trace`` attribute by using its ``append`` method.
 
     Attributes
     ----------

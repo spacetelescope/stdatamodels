@@ -349,10 +349,10 @@ Deprecations and Removals
 - Deprecate passing kwargs into asdf.open from asdf_in_fits.open (`#533
   <https://github.com/spacetelescope/stdatamodels/issues/533>`_)
 - Deprecate V23ToSky transform. Use the function
-  `jwst.assign_wcs.pointing.v23tosky` to construct an equivalent
-  `CompoundModel` that relies only on models from `astropy.modeling`.
+  ``jwst.assign_wcs.pointing.v23tosky`` to construct an equivalent
+  ``CompoundModel`` that relies only on models from `astropy.modeling`.
   Deprecate Rotation3D transform. Use
-  `astropy.modeling.models.RotationSequence3D` instead.
+  ``astropy.modeling.models.RotationSequence3D`` instead.
   Deprecate the converters that allow datamodels relying on V23ToSky to be
   loaded from file (note that V23ToSky has been unused by the pipeline since
   pre-launch). (`#539
@@ -432,7 +432,7 @@ New Features
 - Add new informational processing status keywords to slit and spectral
   datamodels for NIRSpec multi-slit data. (`#431
   <https://github.com/spacetelescope/stdatamodels/issues/431>`_)
-- Add `read_metadata` for reading partial metadata from saved files. (`#445
+- Add ``read_metadata`` for reading partial metadata from saved files. (`#445
   <https://github.com/spacetelescope/stdatamodels/issues/445>`_)
 - Update NIRSpec transforms to support slit name propagation.
   Add inverse transforms for Slit2Msa and Gwa2Slit; add Slit2MsaLegacy to
@@ -792,7 +792,7 @@ Deprecations and Removals
 - Provide existing ``AsdfFile`` instance to ``validate`` to
   speed up assignment validation ``check_value``. [#276]
 
-- Deprecate ``deprecate_class`` unused by downstream. [#274] 
+- Deprecate ``deprecate_class`` unused by downstream. [#274]
 
 - Add cache to hdu accesses during ``_load_from_schema``
   to speed up file opening. [#278]
@@ -892,7 +892,7 @@ Other
 Bug Fixes
 ---------
 
-- Fix search in documentation [#241] 
+- Fix search in documentation [#241]
 
 Changes to API
 --------------
@@ -937,14 +937,14 @@ Other
 
 - Add mrsptcorr ref_file to core.schema [#228]
 
-- Avoid unnecessary validation during ``DataModel.clone`` [#230] 
+- Avoid unnecessary validation during ``DataModel.clone`` [#230]
 
-- Replace uses of ``utcnow`` (deprecated in python 3.12) [#231] 
+- Replace uses of ``utcnow`` (deprecated in python 3.12) [#231]
 
 - Updated JWST MIRI imager photom model to include time-dependent correction
   coeffs. [#235]
 
-  
+
 1.8.3 (2023-10-02)
 ==================
 
@@ -1064,7 +1064,7 @@ Other
   EXTNCRS, which are used to record the rate of primary cosmic rays and extended cosmic
   rays (Snowballs and Showers). [#173]
 
-- Add OIFITS compatible schema and ``AmiOIModel`` [#174] 
+- Add OIFITS compatible schema and ``AmiOIModel`` [#174]
 
 
 1.6.0 (2023-06-15)

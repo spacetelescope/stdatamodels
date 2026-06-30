@@ -5,10 +5,10 @@ __all__ = ["OutlierIFUOutputModel"]
 
 class OutlierIFUOutputModel(JwstDataModel):
     """
-    A data model for the optional output from outlier_detection_ifu  step.
+    A data model for the optional output from outlier_detection_ifu step.
 
-    In the parameter definitions below, `n` is the number of
-    exposures,  `ny` and `nx` are the height and width of the image.
+    In the parameter definitions below, ``n`` is the number of
+    exposures, ``ny`` and ``nx`` are the height and width of the image.
 
     Attributes
     ----------

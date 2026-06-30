@@ -152,7 +152,7 @@ class MirMrsPhotomModel(ReferenceFileModel, DefaultDQMixin):
     Attributes
     ----------
     init : any
-        Any of the initializers supported by `~jwst.datamodels.DataModel`.
+        Any of the initializers supported by `~stdatamodels.DataModel`.
     data : numpy array
         An array-like object containing the pixel-by-pixel conversion values
         in units of (MJy / pixel) / (DN / sec).

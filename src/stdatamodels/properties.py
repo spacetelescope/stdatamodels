@@ -519,8 +519,8 @@ class ObjectNode(Node):
 
         Returns
         -------
-        `numpy.dtype`
-            The numpy dtype for the attribute.
+        numpy.dtype
+            The :ref:`numpy dtype <numpy:arrays.dtypes>` for the attribute.
 
         Raises
         ------

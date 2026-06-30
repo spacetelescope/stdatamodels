@@ -7,10 +7,10 @@ class RampFitOutputModel(JwstDataModel):
     """
     A data model for the optional output of the ramp fitting step.
 
-    In the parameter definitions below, `n_int` is the number of
-    integrations, `max_seg` is the maximum number of segments that
-    were fit, `nreads` is the number of reads in an integration, and
-    `ny` and `nx` are the height and width of the image.
+    In the parameter definitions below, ``n_int`` is the number of
+    integrations, ``max_seg`` is the maximum number of segments that
+    were fit, ``nreads`` is the number of reads in an integration, and
+    ``ny`` and ``nx`` are the height and width of the image.
 
     Attributes
     ----------

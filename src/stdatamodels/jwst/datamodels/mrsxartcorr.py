@@ -10,7 +10,7 @@ class MirMrsXArtCorrModel(ReferenceFileModel):
     Attributes
     ----------
     init : any
-        Any of the initializers supported by `~jwst.datamodels.DataModel`.
+        Any of the initializers supported by `~stdatamodels.DataModel`.
     ch1a_table : numpy table
          Cross artifact correction parameters for Channel 1A
     ch1b_table : numpy table
