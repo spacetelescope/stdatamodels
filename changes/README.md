@@ -14,7 +14,7 @@ Make a news fragment for every relevant category affected by your change.
 - `<PR#>.breaking.rst`: Add this fragment if your change **breaks public API**, describing what the user needs to change
 - `<PR#>.schema.rst`: schema updates
 - `<PR#>.feature.rst`
-- `<PR#>.fix.rst`
+- `<PR#>.bugfix.rst`
 - `<PR#>.docs.rst`
 - `<PR#>.other.rst`
 
