@@ -17,10 +17,12 @@ class MultiCombinedSpecModel(JwstDataModel):
        >>> multispec_model.spec[0] # doctest: +SKIP
        <CombinedSpecModel>
 
-    If ``init`` is a `~stdatamodels.jwst.datamodels.CombinedSpecModel` instance, an empty `~stdatamodels.jwst.datamodels.CombinedSpecModel`
+    If ``init`` is a `~stdatamodels.jwst.datamodels.CombinedSpecModel`
+    instance, an empty `~stdatamodels.jwst.datamodels.CombinedSpecModel`
     will be created and assigned to attribute ``spec[0]``, and the ``spec_table``
-    attribute from the input `~stdatamodels.jwst.datamodels.CombinedSpecModel` instance will be copied to
-    the first element of ``spec``.  `~stdatamodels.jwst.datamodels.CombinedSpecModel` objects can be appended
+    attribute from the input `~stdatamodels.jwst.datamodels.CombinedSpecModel`
+    instance will be copied to the first element of ``spec``.
+    `~stdatamodels.jwst.datamodels.CombinedSpecModel` objects can be appended
     to the ``spec`` attribute by using its ``append`` method.
 
     Attributes
@@ -47,7 +49,8 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
     """
     A data model for NIRCam and NIRISS WFSS exposure-averaged 1D spectra.
 
-    This model differs from the other `~stdatamodels.jwst.datamodels.MultiCombinedSpecModel` classes in that
+    This model differs from the other
+    `~stdatamodels.jwst.datamodels.MultiCombinedSpecModel` classes in that
     it is designed to hold all the spectra in a WFSS observation in a single
     "flat" table format. Therefore, it contains one spec per spectral order,
     each of which has a ``spec_table`` attribute that contains the spectral data

@@ -16,10 +16,12 @@ class WaveMapModel(ReferenceFileModel):
        >>> wavemap_model.map[0] # doctest: +SKIP
        <WaveMapSingleModel>
 
-    If ``init`` is a `~stdatamodels.jwst.datamodels.WaveMapSingleModel` instance, an empty `~stdatamodels.jwst.datamodels.WaveMapSingleModel`
+    If ``init`` is a `~stdatamodels.jwst.datamodels.WaveMapSingleModel` instance,
+    an empty `~stdatamodels.jwst.datamodels.WaveMapSingleModel`
     will be created and assigned to attribute ``map[0]``, and the ``data``
-    attribute from the input `~stdatamodels.jwst.datamodels.WaveMapSingleModel` instance will be copied to
-    the first element of ``map``.  `~stdatamodels.jwst.datamodels.WaveMapSingleModel` objects can be appended
+    attribute from the input `~stdatamodels.jwst.datamodels.WaveMapSingleModel`
+    instance will be copied to the first element of ``map``.
+    `~stdatamodels.jwst.datamodels.WaveMapSingleModel` objects can be appended
     to the ``map`` attribute by using its ``append`` method.
 
     Attributes

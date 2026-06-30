@@ -16,10 +16,12 @@ class SpecProfileModel(ReferenceFileModel):
        >>> specprofile_model.profile[0] # doctest: +SKIP
        <SpecProfileSingleModel>
 
-    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecProfileSingleModel` instance, an empty `~stdatamodels.jwst.datamodels.SpecProfileSingleModel`
+    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecProfileSingleModel` instance,
+    an empty `~stdatamodels.jwst.datamodels.SpecProfileSingleModel`
     will be created and assigned to attribute ``profile[0]``, and the ``data``
-    attribute from the input `~stdatamodels.jwst.datamodels.SpecProfileSingleModel` instance will be copied to
-    the first element of ``profile``.  `~stdatamodels.jwst.datamodels.SpecProfileSingleModel` objects can be appended
+    attribute from the input `~stdatamodels.jwst.datamodels.SpecProfileSingleModel`
+    instance will be copied to the first element of ``profile``.
+    `~stdatamodels.jwst.datamodels.SpecProfileSingleModel` objects can be appended
     to the ``profile`` attribute by using its ``append`` method.
 
     Attributes

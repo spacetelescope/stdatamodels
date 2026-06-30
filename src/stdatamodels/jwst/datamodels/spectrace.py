@@ -16,10 +16,12 @@ class SpecTraceModel(ReferenceFileModel):
        >>> spectrace_model.trace[0] # doctest: +SKIP
        <SpecTraceSingleModel>
 
-    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` instance, an empty `~stdatamodels.jwst.datamodels.SpecTraceSingleModel`
+    If ``init`` is a `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` instance,
+    an empty `~stdatamodels.jwst.datamodels.SpecTraceSingleModel`
     will be created and assigned to attribute ``trace[0]``, and the ``data``
-    attribute from the input `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` instance will be copied to
-    the first element of ``trace``.  `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` objects can be appended
+    attribute from the input `~stdatamodels.jwst.datamodels.SpecTraceSingleModel`
+    instance will be copied to the first element of ``trace``.
+    `~stdatamodels.jwst.datamodels.SpecTraceSingleModel` objects can be appended
     to the ``trace`` attribute by using its ``append`` method.
 
     Attributes

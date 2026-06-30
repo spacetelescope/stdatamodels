@@ -20,7 +20,8 @@ class MultiSlitModel(JwstDataModel):
 
     If ``init`` is a file name, an `~stdatamodels.jwst.datamodels.ImageModel`,
     or a `~stdatamodels.jwst.datamodels.SlitModel` instance,
-    an empty `~stdatamodels.jwst.datamodels.SlitModel` will be created and assigned to attribute ``slits[0]``,
+    an empty `~stdatamodels.jwst.datamodels.SlitModel` will be created and
+    assigned to attribute ``slits[0]``,
     and the ``data``, ``dq``, ``err``, ``var_rnoise``, and ``var_poisson``
     attributes from the input file or model will be copied to the
     first element of ``slits``.

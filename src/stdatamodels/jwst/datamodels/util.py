@@ -38,7 +38,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
         - list[str]: Initialize from a list of files. The list will be returned as a
           ModelContainer with the models loaded from the specified files.
 
-        - :class:`~stdatamodels.jwst.datamodels.JwstDataModel`: Initialize from an existing model. The output model will
+        - :class:`~stdatamodels.jwst.datamodels.JwstDataModel`:
+          Initialize from an existing model. The output model will
           be a shallow copy of the input model. This is supported for pipeline code convenience,
           but is not recommended for general use as it may cause unexpected behavior.
 
@@ -63,7 +64,8 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
     The ``open`` function is not intended for creating models from scratch.
     Use the DataModel constructors directly instead,
     i.e. :class:`~stdatamodels.jwst.datamodels.JwstDataModel` for a generic model
-    or one of the many model subclasses (e.g., :class:`~stdatamodels.jwst.datamodels.ImageModel`, :class:`~stdatamodels.jwst.datamodels.MultiSlitModel`)
+    or one of the many model subclasses (e.g., :class:`~stdatamodels.jwst.datamodels.ImageModel`,
+    :class:`~stdatamodels.jwst.datamodels.MultiSlitModel`)
     for specific applications. None, shape tuple, and numpy array are all valid inputs to those
     constructors. See the documentation for each model class for details on how to use them.
     """
@@ -411,8 +413,10 @@ def _to_flat_dict(tree):
     """
     Convert a tree to a flat dictionary.
 
-    Lists are converted to dictionaries with keys equal to their indices as strings.
-    For example, a `~stdatamodels.jwst.datamodels.MultiSlitModel` with two slits slits will have the attributes::
+    Lists are converted to dictionaries with keys equal to
+    their indices as strings.
+    For example, a `~stdatamodels.jwst.datamodels.MultiSlitModel`
+    with two slits slits will have the attributes::
 
         "slits.0.name", "slits.1.name", etc.
 
