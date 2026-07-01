@@ -34,3 +34,5 @@ Model base class
    :no-inheritance-diagram:
 .. automodapi:: stdatamodels.jwst.transforms
    :no-inheritance-diagram:
+.. automodapi:: stdatamodels.history
+   :no-inheritance-diagram:

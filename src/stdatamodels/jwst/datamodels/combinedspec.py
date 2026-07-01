@@ -21,7 +21,7 @@ class WFSSCombinedSpecModel(JwstDataModel):
     A data model for NIRCam and NIRISS WFSS exposure-averaged 1D spectra.
 
     This model is designed to hold the combined spectra from a WFSS observation,
-    with each spectrum represented as a single row in the `spec_table` attribute.
+    with each spectrum represented as a single row in the ``spec_table`` attribute.
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_combinedspec.schema"

@@ -14,9 +14,9 @@ Opening AsdfInFits files
 
 AsdfInFits files can be opened with :func:`stdatamodels.asdf_in_fits.open`.
 This function aims to replace previous calls to :func:`asdf.open` or
-the no-longer-supported `asdf.AsdfInFits.open` and can similarly be used in a
+the no-longer-supported ``asdf.AsdfInFits.open`` and can similarly be used in a
 `with <https://docs.python.org/3/reference/compound_stmts.html#with>`_
-statement. ::
+statement::
 
     with stdatamodels.asdf_in_fits.open('some_file.fits') as af:
         # access the contents of `af` as a normal `asdf.AsdfFile`
@@ -31,19 +31,19 @@ If a ``with`` statement cannot be used,
 (be sure to close the file when done). ::
 
     af = stdatamodels.asdf_in_fits.open('some_file.fits')
-    # access the contents of `af` as a normal `asdf.AsdfFile`
+    # access the contents of af as a normal asdf.AsdfFile
     af.close()
 
 Writing AsdfInFits files
 ========================
 
 :func:`stdatamodels.asdf_in_fits.write` can be used to write ASDF data
-within a FITS file. ::
+within a FITS file::
 
     tree = {'sci': [1, 2, 3]}   # data to be stored in ASDF format
     stdatamodels.asdf_in_fits.write('some_file.fits', tree)
 
-This functions is meant to replace calls to `asdf.AsdfInFits.write_to`, 
+This functions is meant to replace calls to ``asdf.AsdfInFits.write_to``,
 which was removed as of ASDF version 3.0.
 Please see the :func:`stdatamodels.asdf_in_fits.write` documentation for all
 available arguments.
@@ -51,7 +51,7 @@ available arguments.
 :func:`stdatamodels.asdf_in_fits.write` supports references to array data
 within the :class:`astropy.io.fits.HDUList`. This can be accomplished by
 first creating a :class:`astropy.io.fits.HDUList` and populating it with
-data ::
+data::
 
     from astropy.io import fits
 
@@ -59,7 +59,7 @@ data ::
     hdulist.append(fits.ImageHDU(np.arange(512, dtype=float), name='SCI'))
     hdulist.append(fits.ImageHDU(np.arange(512, dtype=float), name='DQ'))
 
-Then constructing a tree with references to the **same** data. ::
+Then constructing a tree with references to the **same** data::
 
     tree = {
         'model': {
@@ -73,7 +73,7 @@ Then constructing a tree with references to the **same** data. ::
     }
 
 Finally providing the tree and hdulist to
-:func:`stdatamodels.asdf_in_fits.write`. ::
+:func:`stdatamodels.asdf_in_fits.write`::
 
     stdatamodels.asdf_in_fits.write('some_file.fits', tree, hdulist)
 

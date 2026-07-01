@@ -10,7 +10,7 @@ class MirMrsPtCorrModel(ReferenceFileModel):
     Attributes
     ----------
     init : any
-        Any of the initializers supported by `~jwst.datamodels.DataModel`.
+        Any of the initializers supported by `~stdatamodels.DataModel`.
     leakcor_table : numpy table
          IFU spectral leak correction (fractional, Jy to Jy)
     tracor_table : numpy table

@@ -2,7 +2,7 @@
 """
 Models used by the JWST pipeline.
 
-The models are written using the astropy.modeling framework.
+The models are written using the `astropy.modeling` framework.
 Since they are specific to JWST, the models and their ASDF schemas
 are kept here separately from astropy. An ASDF extension for this package is
 registered with ASDF through entry points.
@@ -744,7 +744,7 @@ class Msa2Slit(Model):
         "source_alias", "stellarity", "source_xpos", "source_ypos",
         "source_ra", "source_dec")
     models : list
-        List of models (`:class:`astropy.modeling.core.Model`) corresponding to the
+        List of models (:class:`astropy.modeling.core.Model`) corresponding to the
         list of slits.
     """
 
@@ -1236,7 +1236,7 @@ class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
@@ -1301,7 +1301,7 @@ class NIRCAMForwardColumnGrismDispersion(_NIRCAMForwardGrismDispersion):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
@@ -1366,7 +1366,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial models, one per order, such that
             wavelength = lmodel(t) computes the wavelength from the trace parameter.
@@ -1594,7 +1594,7 @@ class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial models, one per order,
             such that t = lmodel(wavelength) computes the wavelength
@@ -1788,7 +1788,7 @@ class NIRISSForwardRowGrismDispersion(_WFSSForwardGrismDispersion):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.core.Model`]
             The forward dispersion polynomial models, one per order,
             such that wavelength = lmodel(t) computes the trace parameter
@@ -1850,7 +1850,7 @@ class NIRISSForwardColumnGrismDispersion(_WFSSForwardGrismDispersion):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
         lmodels : list[:class:`astropy.modeling.core.Model`]
             The forward dispersion polynomial models, one per order,
             such that wavelength = lmodel(t) computes the trace parameter
@@ -1982,7 +1982,7 @@ class MIRIWFSSBackwardDispersion(_BackwardGrismDispersionBase):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The inverse dispersion polynomial trace models, such that t = lmodel(wavelength)
@@ -2081,7 +2081,7 @@ class MIRIWFSSForwardDispersion(_WFSSForwardGrismDispersion):
         ----------
         orders : list[int]
             List of spectral orders corresponding to the dispersion models
-            given by the `lmodels`, `xmodels`, and `ymodels` parameters.
+            given by the ``lmodels``, ``xmodels``, and ``ymodels`` parameters.
             For MIRI WFSS we only have order = 1, so the orders is expected to equal [1,]
         lmodels : list[:class:`astropy.modeling.polynomial.Polynomial1D`]
             The forward dispersion polynomial model, such that wavelength = lmodel(t)

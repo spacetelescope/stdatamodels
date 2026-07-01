@@ -33,6 +33,7 @@ extensions = [
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/devdocs", None),
     "astropy": ("https://docs.astropy.org/en/stable/", None),
     "asdf": ("https://asdf.readthedocs.io/en/stable/", None),
     "asdf_astropy": ("https://asdf-astropy.readthedocs.io/en/stable/", None),
@@ -41,6 +42,7 @@ intersphinx_mapping = {
 autosummary_generate = True
 numpydoc_show_class_members = False
 autoclass_content = "both"
+default_role = "py:obj"
 
 html_logo = 'static/stsci_pri_combo_mark_white.png'
 html_theme = "sphinx_rtd_theme"

@@ -9,7 +9,7 @@ class MultiSlitModel(JwstDataModel):
     """
     A data model for multi-slit images.
 
-    This model has a special member `slits` that can be used to
+    This model has a special member ``slits`` that can be used to
     deal with an entire slit at a time.  It behaves like a list::
 
         >>> from stdatamodels.jwst.datamodels import SlitModel
@@ -18,15 +18,17 @@ class MultiSlitModel(JwstDataModel):
         >>> multislit_model[0]
         <SlitModel>
 
-    If ``init`` is a file name or an ``ImageModel`` or a ``SlitModel``instance,
-    an empty ``SlitModel`` will be created and assigned to attribute ``slits[0]``,
-    and the `data`, ``dq``, ``err``, ``var_rnoise``, and ``var_poisson``
+    If ``init`` is a file name, an `~stdatamodels.jwst.datamodels.ImageModel`,
+    or a `~stdatamodels.jwst.datamodels.SlitModel` instance,
+    an empty `~stdatamodels.jwst.datamodels.SlitModel` will be created and
+    assigned to attribute ``slits[0]``,
+    and the ``data``, ``dq``, ``err``, ``var_rnoise``, and ``var_poisson``
     attributes from the input file or model will be copied to the
     first element of ``slits``.
 
     Attributes
     ----------
-    slits : list of SlitModel
+    slits : list of `~stdatamodels.jwst.datamodels.SlitModel`
         The slits in the model; see SlitModel for details.
     """
 

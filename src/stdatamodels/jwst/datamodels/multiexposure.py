@@ -18,7 +18,7 @@ class MultiExposureModel(JwstDataModel):
     in this model are of the same source, with each slit
     representing a separate exposure of that source.
 
-    This model has a special member `exposures` that can be used to
+    This model has a special member ``exposures`` that can be used to
     deal with an entire slit at a time.  It behaves like a list::
 
        >>> from .image import ImageModel
@@ -27,10 +27,10 @@ class MultiExposureModel(JwstDataModel):
        >>> multiexposure_model.exposures[0]      # doctest: +SKIP
        <ImageModel>
 
-    Also, there is an extra attribute, `meta`. This will contain the
+    Also, there is an extra attribute, ``meta``. This will contain the
     meta attribute from the exposure from which each slit has been taken.
 
-    See the module `exp_to_source` for the initial creation of these
+    See the module ``jwst.exp_to_source`` for the initial creation of these
     models. This is part of the Level 3 processing of multi-objection
     observations.
 

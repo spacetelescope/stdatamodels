@@ -1,5 +1,7 @@
 from asdf.tags.core import HistoryEntry
 
+__all__ = ["HistoryList"]
+
 
 def _iterable(values):
     if isinstance(values, str) or not hasattr(values, "__iter__"):

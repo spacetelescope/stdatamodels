@@ -7,7 +7,7 @@ class WaveMapModel(ReferenceFileModel):
     """
     A data model for NIRISS SOSS wavelength map reference files.
 
-    This model has a special member `map` that can be used to
+    This model has a special member ``map`` that can be used to
     deal with an entire wavelength map at a time.  It behaves like a list::
 
        >>> from stdatamodels.jwst.datamodels import WaveMapSingleModel, WaveMapModel
@@ -16,11 +16,13 @@ class WaveMapModel(ReferenceFileModel):
        >>> wavemap_model.map[0] # doctest: +SKIP
        <WaveMapSingleModel>
 
-    If `init` is a `WaveMapSingleModel` instance, an empty `WaveMapSingleModel`
-    will be created and assigned to attribute `map[0]`, and the `data`
-    attribute from the input `WaveMapSingleModel` instance will be copied to
-    the first element of `map`.  `WaveMapSingleModel` objects can be appended
-    to the `map` attribute by using its `append` method.
+    If ``init`` is a `~stdatamodels.jwst.datamodels.WaveMapSingleModel` instance,
+    an empty `~stdatamodels.jwst.datamodels.WaveMapSingleModel`
+    will be created and assigned to attribute ``map[0]``, and the ``data``
+    attribute from the input `~stdatamodels.jwst.datamodels.WaveMapSingleModel`
+    instance will be copied to the first element of ``map``.
+    `~stdatamodels.jwst.datamodels.WaveMapSingleModel` objects can be appended
+    to the ``map`` attribute by using its ``append`` method.
 
     Attributes
     ----------

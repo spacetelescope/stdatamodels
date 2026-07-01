@@ -315,7 +315,7 @@ Our model has one additional nonstandard feature, which is that its "primary"
 array is not called "data" (the assumed default). Instead, we want
 the primary array to be called "dq".  To accomplish this, we must simply define
 the special ``get_primary_array_name`` method to return the name of the primary array::
-  
+
       def get_primary_array_name(self):
           return "dq"
 
@@ -389,8 +389,8 @@ Note that here, like in the constructor, it is important to "chain up"
 to the base class so that any things that the base class wants to do
 right before saving also happen.
 
-The `setup.py` script
----------------------
+The setup.py script
+-------------------
 
 Writing a ``setup.py`` script is beyond the scope of this
 tutorial but it's worth noting one thing.  Since the schema files are
@@ -482,6 +482,6 @@ simple:
         A data model for NIRISS SOSS photom reference files.
         """
         schema_url = "nissoss_photom.schema"
-    
+
     def get_primary_array_name(self):
         return "phot_table"
