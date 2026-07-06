@@ -160,6 +160,12 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
                 compare_schema_type = schema_type
 
             # Using 'equiv' so that we can be flexible on byte order:
+            # bool8 and int8 are equivalent for FITS logical columns
+            # (astropy stores both as int8 bytes in FITS files).
+            if compare_instance_type == np.bool_ and compare_schema_type == np.int8:
+                continue
+            if compare_instance_type == np.int8 and compare_schema_type == np.bool_:
+                continue
             if not np.can_cast(compare_instance_type, compare_schema_type, "equiv"):
                 yield ValidationError(
                     f"Array datatype '{instance_datatype}' is not "
