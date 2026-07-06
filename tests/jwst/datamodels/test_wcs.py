@@ -36,3 +36,37 @@ def test_wcs_ref_models():
         fo.meta.instrument.channel = "SHORT"
         fo.meta.instrument.module = "A"
         fo.validate()
+
+
+def test_simple_model_to_fits_not_implemented():
+    """
+    Test that _SimpleModel subclasses raise NotImplementedError on to_fits(),
+    not TypeError (which was the bug before the *args, **kwargs signature fix).
+    See https://github.com/spacetelescope/stdatamodels/pull/744
+    """
+    import os
+    import tempfile
+    import warnings
+
+    from stdatamodels.jwst.datamodels import DistortionModel
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        with DistortionModel(distort_type="test", pupil="TEST", strict_validation=False) as m:
+            m.meta.description = "test"
+            m.meta.reftype = "distortion"
+            m.meta.author = "test"
+            m.meta.pedigree = "GROUND"
+            m.meta.useafter = "2015-10-01"
+            m.meta.instrument.name = "NIRCAM"
+            m.validate()
+
+            with tempfile.NamedTemporaryFile(suffix=".fits", delete=False) as f:
+                tmp = f.name
+
+            try:
+                with pytest.raises(NotImplementedError, match="FITS format is not supported"):
+                    m.save(tmp)
+            finally:
+                if os.path.exists(tmp):
+                    os.unlink(tmp)
