@@ -103,6 +103,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
             )
         ]
+        assert type(x.table) is np.ndarray
         assert x.table.dtype == [
             ("int8_column", "=i1"),
             ("int16_column", "=i2"),
@@ -118,6 +119,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
         x.save(file_path)
 
     with TableModel(file_path) as x:
+        assert type(x.table) is np.ndarray
         assert np.can_cast(
             x.table.dtype,
             [

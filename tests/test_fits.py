@@ -26,16 +26,12 @@ def records_equal(a, b):
 
 def test_from_new_hdulist():
     with pytest.raises(AttributeError):
-        from astropy.io import fits
-
         hdulist = fits.HDUList()
         with FitsModel(hdulist) as dm:
             dm.foo  # noqa: B018
 
 
 def test_from_new_hdulist2():
-    from astropy.io import fits
-
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
@@ -49,8 +45,6 @@ def test_from_new_hdulist2():
 
 
 def test_setting_arrays_on_fits():
-    from astropy.io import fits
-
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
@@ -151,8 +145,6 @@ def test_fits_comments(tmp_path):
         dm.meta.origin = "STScI"
         dm.save(file_path)
 
-    from astropy.io import fits
-
     with fits.open(file_path, memmap=False) as hdulist:
         assert any(
             c
@@ -166,8 +158,6 @@ def test_metadata_doesnt_override(tmp_path):
 
     with FitsModel() as dm:
         dm.save(file_path)
-
-    from astropy.io import fits
 
     with fits.open(file_path, mode="update", memmap=False) as hdulist:
         hdulist[0].header["ORIGIN"] = "UNDER THE COUCH"
@@ -373,21 +363,20 @@ def test_table_with_unsigned_int(tmp_path):
         uint32_arr[-1] = uint32_info.max
 
         test_table = np.array(
-            list(zip(float64_arr, uint32_arr, strict=False)), dtype=dm.get_dtype("test_table")
+            list(zip(float64_arr, uint32_arr, strict=True)), dtype=dm.get_dtype("test_table")
         )
 
         def assert_table_correct(model):
             for idx, (col_name, col_data) in enumerate(
-                [("float64_col", float64_arr), ("uint32_col", uint32_arr)]
+                [("FLOAT64_COL", float64_arr), ("UINT32_COL", uint32_arr)]
             ):
                 # The table dtype and field dtype are stored separately, and may not
                 # necessarily agree.
                 assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")
-                assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, "equiv")
-                assert np.array_equal(model.test_table.field(col_name), col_data)
+                assert np.can_cast(model.test_table[col_name].dtype, col_data.dtype, "equiv")
+                assert np.array_equal(model.test_table[col_name], col_data)
 
-        # The datamodel casts our array to FITS_rec on assignment, so here we're
-        # checking that the data survived the casting.
+        # Table setting on model doesn't mangle data
         dm.test_table = test_table
         assert_table_correct(dm)
 
@@ -663,10 +652,7 @@ def test_table_linking(tmp_path):
 
     with DataModel(schema=schema) as dm:
         test_array = np.array([(1, 2), (3, 4)], dtype=[("A_COL", "i1"), ("B_COL", "i1")])
-
-        # assigning to the model will convert the array to a FITS_rec
         dm.test_table = test_array
-        assert isinstance(dm.test_table, fits.FITS_rec)
 
         # save the model (with the table)
         dm.save(file_path)

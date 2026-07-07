@@ -1120,8 +1120,7 @@ def test_wcs_hasattr():
         assert "wcs" not in dm.meta
 
 
-@pytest.mark.parametrize("set_via", ("attr", "column"))
-def test_table_units(tmp_path, set_via):
+def test_table_units(tmp_path):
     fn = tmp_path / "test.fits"
     unit = "nm"
     new_unit = "km"
@@ -1130,10 +1129,7 @@ def test_table_units(tmp_path, set_via):
     m = datamodels.SpecModel()
     m.spec_table = m.get_default("spec_table")
     # test setting by attribute and by FITS_rec column unit
-    if set_via == "attr":
-        m.spec_table_units.WAVELENGTH = unit
-    else:
-        m.spec_table.columns["WAVELENGTH"].unit = unit
+    m.spec_table_units.WAVELENGTH = unit
     m.save(fn)
 
     # verify that the unit is read by astropy
@@ -1144,8 +1140,6 @@ def test_table_units(tmp_path, set_via):
     with datamodels.open(fn) as m2:
         # both the unit definition outside the table
         assert m2.spec_table_units.WAVELENGTH == unit
-        # and via the FITS_rec columns
-        assert m2.spec_table.columns["WAVELENGTH"].unit == unit
 
     # now, change the unit in the fits file directly
     with fits.open(fn, mode="update") as ff:
@@ -1158,7 +1152,6 @@ def test_table_units(tmp_path, set_via):
     # and that the datamodel sees the new unit
     with datamodels.open(fn) as m2:
         assert m2.spec_table_units.WAVELENGTH == new_unit
-        assert m2.spec_table.columns["WAVELENGTH"].unit == new_unit
 
 
 @pytest.mark.parametrize("model", list(defined_models.values()))
@@ -1192,11 +1185,11 @@ def test_spec_table_units_sync(model):
         units_schema = model.schema["properties"]["spec_table_units"]["properties"]
 
     # test that spec_table_units is present and has the same columns as spec_table
-    for col in spec_table.columns:
-        assert hasattr(spec_table_units, col.name)
+    for col in spec_table.dtype.names:
+        assert hasattr(spec_table_units, col)
 
     # test that spec_table_units tunit keywords are ascending from TUNIT1 up to n_cols
-    for i, col in enumerate(spec_table.columns, start=1):
+    for i, col in enumerate(spec_table.dtype.names, start=1):
         tunit_key = f"TUNIT{i}"
-        assert col.name in units_schema
-        assert tunit_key == units_schema[col.name]["fits_keyword"]
+        assert col in units_schema
+        assert tunit_key == units_schema[col]["fits_keyword"]

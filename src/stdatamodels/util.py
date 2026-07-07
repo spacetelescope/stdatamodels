@@ -51,11 +51,11 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         if np.can_cast(in_dtype, out_dtype, "equiv"):
             return a
         else:
-            return _safe_asanyarray(a, out_dtype)
+            return np.asanyarray(a, out_dtype)
 
     # one of these dtypes does not have fields
     if in_dtype.fields is None or out_dtype.fields is None:
-        return _safe_asanyarray(a, out_dtype)
+        return np.asanyarray(a, out_dtype)
 
     # this function should not handle nested structured dtypes
     # as they aren't supported by FITS_rec and not handled well
@@ -65,15 +65,6 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
             if dt[n].names is not None:
                 msg = f"gentle_asarray does not support nested structured dtypes: {dt}"
                 raise ValueError(msg)
-
-    # When a FITS file includes a pseudo-unsigned-int column, astropy will return
-    # a FITS_rec with an incorrect table dtype.
-    # It's also unsafe to directly cast any FITS_rec with a
-    # pseudo-unsigned column.
-    # https://github.com/astropy/astropy/issues/8862
-    if isinstance(a, fits.fitsrec.FITS_rec):
-        if any(c.bzero is not None for c in a.columns):
-            return _safe_asanyarray(a, out_dtype)
 
     if in_dtype == out_dtype:
         return a
@@ -88,7 +79,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
             return a.view(dtype=out_dtype)
         else:
             # else, use asanyarray and copy
-            return _safe_asanyarray(a, out_dtype)
+            return np.asanyarray(a, out_dtype)
 
     # names don't match
     # check if names match but the order is incorrect
@@ -102,7 +93,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         if reordered_subdtypes == out_subdtypes:
             return reordered_array.view(out_dtype)
         else:
-            return _safe_asanyarray(reordered_array, out_dtype)
+            return np.asanyarray(reordered_array, out_dtype)
 
     # if extra columns are not allowed or they are (and the required columns are missing)
     # then raise an exception
@@ -134,7 +125,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
             return a.view(dtype=new_dtype)
         else:
             new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr) :])
-            return _safe_asanyarray(a, new_dtype)
+            return np.asanyarray(a, new_dtype)
 
     # reorder columns so required columns are first
     required_names = [n for n in in_dtype.names if n.lower() in out_lower_names]
@@ -152,30 +143,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
     out_subdtypes = [out_dtype[n] for n in out_dtype.names]
     if reordered_subdtypes[:n_required] == out_subdtypes:
         return reordered_array.view(new_dtype)
-    return _safe_asanyarray(reordered_array, new_dtype)
-
-
-def _safe_asanyarray(a, dtype):
-    if isinstance(a, fits.fitsrec.FITS_rec):
-        if any(c.bzero is not None for c in a.columns):
-            # Due to an issue in astropy, it's not safe to directly cast
-            # a FITS_rec with a pseudo-unsigned column.
-            # See https://github.com/astropy/astropy/issues/8862
-            result = np.zeros(a.shape, dtype=dtype)
-            for old_col, new_col in zip(a.dtype.names, result.dtype.names, strict=False):
-                result[new_col] = a[old_col]
-            return result
-
-    result = np.asanyarray(a, dtype=dtype)
-    if isinstance(result, fits.fitsrec.FITS_rec) and isinstance(a, fits.fitsrec.FITS_rec):
-        for column in result.columns:
-            name = column.name
-            try:
-                matching_column = a.columns[name]
-            except KeyError:
-                continue
-            result.columns[name].unit = matching_column.unit
-    return result
+    return np.asanyarray(reordered_array, new_dtype)
 
 
 def create_history_entry(description, software=None):
@@ -315,58 +283,3 @@ def remove_none_from_tree(tree):
             return node
 
     return treeutil.walk_and_modify(tree, _remove_none)
-
-
-def convert_fitsrec_to_array_in_tree(tree):
-    """
-    Convert all FITS record array objects in a tree to numpy arrays.
-
-    Parameters
-    ----------
-    tree : dict
-        A tree that may contain FITS record arrays.
-
-    Returns
-    -------
-    object
-        A copy of the input tree with FITS record arrays converted to numpy arrays.
-    """
-
-    def _convert_fitsrec(node):
-        if isinstance(node, fits.FITS_rec):
-            return _fits_rec_to_array(node)
-        else:
-            return node
-
-    return treeutil.walk_and_modify(tree, _convert_fitsrec)
-
-
-def _rebuild_fits_rec_dtype(fits_rec):
-    dtype = fits_rec.dtype
-    new_dtype = []
-    for field_name in dtype.fields:
-        table_dtype = dtype[field_name]
-        shape = table_dtype.shape
-        if shape:
-            table_dtype = table_dtype.base
-        field_dtype = fits_rec.field(field_name).dtype
-        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(
-            field_dtype, np.unsignedinteger
-        ):
-            new_dtype.append((field_name, field_dtype, shape))
-        else:
-            new_dtype.append((field_name, table_dtype, shape))
-    return np.dtype((np.record, new_dtype))
-
-
-def _fits_rec_to_array(fits_rec):
-    bad_columns = [
-        n for n in fits_rec.dtype.fields if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger)
-    ]
-    if not len(bad_columns):
-        return fits_rec.view(np.ndarray)
-    new_dtype = _rebuild_fits_rec_dtype(fits_rec)
-    arr = np.asarray(fits_rec, new_dtype).copy()
-    for name in bad_columns:
-        arr[name] = fits_rec[name]
-    return arr

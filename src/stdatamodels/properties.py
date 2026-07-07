@@ -83,20 +83,7 @@ def _cast(val, schema):
                     t["shape"] = shape
 
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
-
-        # save columns in case this is cast back to a fitsrec
-        if hasattr(val, "columns"):
-            cols = val.columns
-        else:
-            cols = None
         val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
-
-        if dtype.fields is not None:
-            val = _as_fitsrec(val)
-            if cols is not None:
-                for col in cols:
-                    if col.name in val.names and col.unit is not None:
-                        val.columns[col.name].unit = col.unit
 
     if "ndim" in schema and len(val.shape) != schema["ndim"]:
         raise ValueError(
@@ -116,43 +103,6 @@ def _cast(val, schema):
         val = val.item()
 
     return val
-
-
-def _as_fitsrec(val):
-    """
-    Convert a numpy record into a FITS record if it is not one already.
-
-    Parameters
-    ----------
-    val : numpy.ndarray
-        The numpy record to convert.
-
-    Returns
-    -------
-    fits.FITS_rec
-        The converted FITS record.
-    """
-    if isinstance(val, fits.FITS_rec):
-        return val
-    else:
-        coldefs = fits.ColDefs(val)
-        uint = any(c._pseudo_unsigned_ints for c in coldefs)
-        if any(c.format == "L" for c in coldefs):
-            # Copy so we can modify the values to match what astropy expects.
-            fits_rec = fits.FITS_rec(val.copy())
-            for c in coldefs:
-                if c.format == "L":
-                    d = fits_rec[c.name]
-                    m = d.astype(bool)
-                    d[m] = ord("T")
-                    d[~m] = ord("F")
-        else:
-            fits_rec = fits.FITS_rec(val)
-        fits_rec._coldefs = coldefs
-        # FITS_rec needs to know if it should be operating in pseudo-unsigned-ints mode,
-        # otherwise it won't properly convert integer columns with TZEROn before saving.
-        fits_rec._uint = uint
-        return fits_rec
 
 
 def _get_schema_type(schema):
