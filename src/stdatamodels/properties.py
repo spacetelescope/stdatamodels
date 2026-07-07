@@ -29,6 +29,34 @@ def _is_struct_array_schema(schema):
     return isinstance(schema["datatype"], list) and any("name" in t for t in schema["datatype"])
 
 
+def _bytes_dtype_to_str_dtype(dtype):
+    """
+    Replace byte-string ('S') sub-dtypes with unicode ('U') equivalents.
+
+    Parameters
+    ----------
+    dtype : numpy.dtype
+        The numpy dtype to convert.
+
+    Returns
+    -------
+    numpy.dtype
+        The converted dtype.
+    """
+    if dtype.names is None:
+        return dtype
+    fields = []
+    for n in dtype.names:
+        t = dtype[n]
+        if t.base.kind == "S":
+            fields.append(
+                (n, f"U{t.base.itemsize}", t.shape) if t.shape else (n, f"U{t.base.itemsize}")
+            )
+        else:
+            fields.append((n, t))
+    return np.dtype(fields)
+
+
 def _cast(val, schema):
     val = _unmake_node(val)
     if val is None:
@@ -83,6 +111,10 @@ def _cast(val, schema):
                     t["shape"] = shape
 
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
+        if _is_struct_array_schema(schema):
+            # Convert byte-string ('S') sub-dtypes to Unicode ('U') so that
+            # ASCII table columns are stored as Python str, not np.bytes_.
+            dtype = _bytes_dtype_to_str_dtype(dtype)
         val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
 
     if "ndim" in schema and len(val.shape) != schema["ndim"]:
@@ -484,7 +516,10 @@ class ObjectNode(Node):
             raise AttributeError(f'{self} has no attribute "{attr}"')
         if "datatype" not in schema:
             raise ValueError(f'Attribute "{attr}" has no datatype defined in the schema.')
-        return ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
+        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
+        if isinstance(schema["datatype"], list):
+            dtype = _bytes_dtype_to_str_dtype(dtype)
+        return dtype
 
 
 class ListNode(Node):

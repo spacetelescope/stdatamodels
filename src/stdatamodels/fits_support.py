@@ -314,6 +314,38 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     hdu.ver = index + 1
 
 
+def _str_cols_to_bytes(val):
+    """
+    Convert unicode columns to byte-string columns for FITS compatibility.
+
+    Parameters
+    ----------
+    val : numpy.ndarray
+        The structured numpy array to convert.
+
+    Returns
+    -------
+    numpy.ndarray
+        The converted array.
+    """
+    unicode_names = {n for n in (val.dtype.names or []) if val.dtype[n].base.kind == "U"}
+    if not unicode_names:
+        return val
+    fields = []
+    for n in val.dtype.names:
+        t = val.dtype[n]
+        if n in unicode_names:
+            # For 'U{n}', itemsize = 4 * n; recover the character count
+            fields.append(
+                (n, f"S{t.base.itemsize // 4}", t.shape)
+                if t.shape
+                else (n, f"S{t.base.itemsize // 4}")
+            )
+        else:
+            fields.append((n, t))
+    return val.astype(np.dtype(fields))
+
+
 def _as_fitsrec(val):
     """
     Convert a numpy record into a FITS record if it is not one already.
@@ -331,6 +363,9 @@ def _as_fitsrec(val):
     if isinstance(val, fits.FITS_rec):
         return val
     else:
+        # In memory, ASCII table columns are stored as Unicode ('U'); FITS
+        # requires byte strings ('S').  Convert before building ColDefs.
+        val = _str_cols_to_bytes(val)
         coldefs = fits.ColDefs(val)
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
         if any(c.format == "L" for c in coldefs):

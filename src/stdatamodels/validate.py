@@ -55,6 +55,28 @@ def value_change(path, value, schema, ctx):
     return update
 
 
+def _str_types_compatible(a, b):
+    """
+    Return True if a and b are string dtypes ('S'/'U') with the same character count.
+
+    Parameters
+    ----------
+    a : np.dtype
+        The first dtype to compare.
+    b : np.dtype
+        The second dtype to compare.
+
+    Returns
+    -------
+    bool
+        True if same character count, False otherwise.
+    """
+    if not ({a.base.kind, b.base.kind} <= {"S", "U"}):
+        return False
+    char_count = lambda dt: dt.base.itemsize // (4 if dt.base.kind == "U" else 1)  # noqa: E731
+    return char_count(a) == char_count(b)
+
+
 def _validate_datatype(validator, schema_datatype, instance, schema):
     """
     Validate a datatype instance against a schema.
@@ -159,8 +181,14 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
                 compare_instance_type = instance_type
                 compare_schema_type = schema_type
 
-            # Using 'equiv' so that we can be flexible on byte order:
-            if not np.can_cast(compare_instance_type, compare_schema_type, "equiv"):
+            # Using 'equiv' so that we can be flexible on byte order.
+            # Also treat 'S' (bytes) and 'U' (unicode) as equivalent when they
+            # hold the same number of characters: FITS 'A' columns are defined
+            # in schemas as 'ascii' ('S') but stored in memory as Unicode ('U').
+            if not (
+                np.can_cast(compare_instance_type, compare_schema_type, "equiv")
+                or _str_types_compatible(compare_instance_type, compare_schema_type)
+            ):
                 yield ValidationError(
                     f"Array datatype '{instance_datatype}' is not "
                     f"compatible with '{schema_datatype}' at field {i}"

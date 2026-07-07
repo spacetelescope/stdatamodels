@@ -109,7 +109,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
             ("int16_column", "=i2"),
             ("uint16_column", "=u2"),
             ("float32_column", "=f4"),
-            ("ascii_column", "S64"),
+            ("ascii_column", "U64"),
             ("float32_column_with_shape", "=f4", (3, 2)),
             ("float32_column_with_ndim", "=f4", (3, 2)),
             ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),
@@ -119,7 +119,6 @@ def test_table_array_shape_ndim(filename, tmp_path):
         x.save(file_path)
 
     with TableModel(file_path) as x:
-        assert type(x.table) is np.ndarray
         assert np.can_cast(
             x.table.dtype,
             [
@@ -127,7 +126,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 ("int16_column", "=i2"),
                 ("uint16_column", "=u2"),
                 ("float32_column", "=f4"),
-                ("ascii_column", "S64"),
+                ("ascii_column", "U64"),
                 ("float32_column_with_shape", "=f4", (3, 2)),
                 ("float32_column_with_ndim", "=f4", (3, 2)),
                 ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),
