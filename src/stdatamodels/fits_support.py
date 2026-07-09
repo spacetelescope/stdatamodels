@@ -92,29 +92,8 @@ def is_builtin_fits_keyword(key):
     return _builtin_regex.match(key) is not None
 
 
-_keyword_indices = [
-    ("nnn", 1000, None),
-    ("nn", 100, None),
-    ("n", 10, None),
-    ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-]
-
 # Key where the FITS hash is stored in the ASDF tree
 FITS_HASH_KEY = "_fits_hash"
-
-
-def _get_indexed_keyword(keyword, i):
-    for sub, max_value, r in _keyword_indices:
-        if sub in keyword:
-            if i >= max_value:
-                raise ValueError(f"Too many entries for given keyword '{keyword}'")
-            if r is None:
-                val = str(i)
-            else:
-                val = r[i]
-            keyword = keyword.replace(sub, val)
-
-    return keyword
 
 
 def _get_hdu_name(schema):
@@ -324,12 +303,101 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
     hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
 
+    if hasattr(instance, "dtype") and instance.dtype.names is not None:
+        # check if record array or plain data ndarray
+        instance = _as_fitsrec(instance)
     hdu.data = instance
     if instance_id in fits_context.extension_array_links:
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
     fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
     hdu.ver = index + 1
+
+
+def _str_cols_to_bytes(val):
+    """
+    Convert unicode columns to byte-string columns for FITS compatibility.
+
+    Parameters
+    ----------
+    val : numpy.ndarray
+        The structured numpy array to convert.
+
+    Returns
+    -------
+    numpy.ndarray
+        The converted array.
+    """
+    unicode_names = {n for n in (val.dtype.names or []) if val.dtype[n].base.kind == "U"}
+    if not unicode_names:
+        return val
+    fields = []
+    for n in val.dtype.names:
+        t = val.dtype[n]
+        if n in unicode_names:
+            # For 'U{n}', itemsize = 4 * n; recover the character count
+            fields.append(
+                (n, f"S{t.base.itemsize // 4}", t.shape)
+                if t.shape
+                else (n, f"S{t.base.itemsize // 4}")
+            )
+        else:
+            fields.append((n, t))
+    return val.astype(np.dtype(fields))
+
+
+def _as_fitsrec(val):
+    """
+    Convert a numpy record into a FITS record if it is not one already.
+
+    Parameters
+    ----------
+    val : numpy.ndarray
+        The numpy record to convert.
+
+    Returns
+    -------
+    fits.FITS_rec
+        The converted FITS record.
+    """
+    if isinstance(val, fits.FITS_rec):
+        return val
+    else:
+        # In memory, ASCII table columns are stored as Unicode ('U'); FITS
+        # requires byte strings ('S').  Convert before building ColDefs.
+        val = _str_cols_to_bytes(val)
+        coldefs = fits.ColDefs(val)
+        uint = any(c._pseudo_unsigned_ints for c in coldefs)
+        if any(c.format == "L" for c in coldefs):
+            # FITS 'L' (logical) columns require raw bytes to be exactly 84 ('T')
+            # or 70 ('F').  If the column dtype is bool8, numpy stores True as 1
+            # (not 84), and FITS_rec decodes anything other than 84 as False.
+            # Build a new array with int8 dtype for each 'L' column so that the
+            # literal bytes 84/70 can be stored and the round-trip is correct.
+            l_col_names = {c.name for c in coldefs if c.format == "L"}
+            new_dtype = [
+                (name, np.dtype("int8") if name in l_col_names else val.dtype.fields[name][0])
+                for name in val.dtype.names
+            ]
+            new_arr = np.empty(len(val), dtype=new_dtype)
+            for name in val.dtype.names:
+                if name in l_col_names:
+                    bool_mask = np.asarray(val[name]).astype(bool)
+                    new_arr[name][bool_mask] = ord("T")
+                    new_arr[name][~bool_mask] = ord("F")
+                else:
+                    new_arr[name] = val[name]
+            fits_rec = fits.FITS_rec(new_arr)
+        else:
+            # For pseudo-unsigned-int columns, astropy subtracts BZERO from the
+            # underlying buffer in-place when writing to disk (astropy issue #8862).
+            # Copy so the caller's array (e.g. dm.test_table) is not mutated.
+            fits_rec = fits.FITS_rec(val.copy() if uint else val)
+        fits_rec._coldefs = coldefs
+        # FITS_rec needs to know if it should be operating in pseudo-unsigned-ints mode,
+        # otherwise it won't properly convert integer columns with TZEROn before saving.
+        fits_rec._uint = uint
+        return fits_rec
 
 
 # This is copied from jsonschema._validators and modified to keep track
@@ -509,11 +577,7 @@ def _normalize_arrays(tree):
 
     def normalize_array(node):
         if isinstance(node, np.ndarray):
-            # We can't use np.ascontiguousarray because it converts FITS_rec
-            # to vanilla np.ndarray, which results in misinterpretation of
-            # unsigned int values.
-            if not node.flags.c_contiguous:
-                node = node.copy()
+            return np.ascontiguousarray(node)
         return node
 
     return treeutil.walk_and_modify(tree, normalize_array)
@@ -597,12 +661,7 @@ def to_fits(tree, schema, hdulist=None):
 
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
-    # convert all FITS_rec instances to numpy arrays, this is needed as
-    # some arrays loaded from the FITS data for old files may not be defined
-    # in the current schemas. These will be loaded as FITS_rec instances but
-    # not linked back (and safely converted) on write if they are removed
-    # from the schema.
-    asdf.AsdfFile(util.convert_fitsrec_to_array_in_tree(tree)).write_to(buffer)
+    asdf.AsdfFile(tree).write_to(buffer)
     buffer.seek(0)
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
@@ -704,6 +763,12 @@ def _load_from_schema(
             "BinTableHDU and its associated header keywords."
         )
 
+    # Build the set of BinTableHDU names so that when skip_fits_update is True
+    # we can still load fits_keyword properties associated with those HDUs
+    bintable_hdu_names = {
+        hdu.name for hdu in hdulist if isinstance(hdu, fits.BinTableHDU) and hdu.name != "ASDF"
+    }
+
     # Determine maximum EXTVER that could be used in finding named HDU's.
     # This is needed to constrain the loop over HDU's when resolving arrays.
     max_extver = max(hdu.ver for hdu in hdulist) if len(hdulist) else 0
@@ -716,7 +781,13 @@ def _load_from_schema(
 
     def callback(schema, path, combiner, ctx, recurse):
         result = None
-        if not skip_fits_update and "fits_keyword" in schema:
+        # Load fits_keyword properties when the
+        # keyword belongs to a BinTableHDU (e.g. TUNITn), since table-associated
+        # header keywords should always come from the FITS file.
+        # This may be possible to remove once we move away from fits_rec internal
+        # representation of tables.
+        is_bintable_keyword = schema.get("fits_hdu") in bintable_hdu_names
+        if (not skip_fits_update or is_bintable_keyword) and "fits_keyword" in schema:
             fits_keyword = schema["fits_keyword"]
             result = _fits_keyword_loader(
                 hdulist, fits_keyword, schema, ctx.get("hdu_index"), known_keywords, hdu_cache
@@ -937,22 +1008,56 @@ def from_fits_hdu(hdu, schema):
     data : numpy.ndarray
         The data from the FITS HDU
     """
-    data = hdu.data
-
-    # Save the column listeners for possible restoration
-    if hasattr(data, "_coldefs"):
-        listeners = data._coldefs._listeners
+    if isinstance(hdu.data, fits.FITS_rec):
+        data = _fits_rec_to_array(hdu.data)
     else:
-        listeners = None
+        data = hdu.data
+    return properties._cast(data, schema)
 
-    # Cast array to type mentioned in schema
-    data = properties._cast(data, schema)
 
-    # Casting a table loses the column listeners, so restore them
-    if listeners is not None:
-        data._coldefs._listeners = listeners
+def _rebuild_fits_rec_dtype(fits_rec):
+    dtype = fits_rec.dtype
+    new_dtype = []
+    for field_name in dtype.fields:
+        table_dtype = dtype[field_name]
+        shape = table_dtype.shape
+        if shape:
+            table_dtype = table_dtype.base
+        field_dtype = fits_rec.field(field_name).dtype
+        if np.issubdtype(table_dtype, np.signedinteger) and np.issubdtype(
+            field_dtype, np.unsignedinteger
+        ):
+            new_dtype.append((field_name, field_dtype, shape))
+        else:
+            new_dtype.append((field_name, table_dtype, shape))
+    return np.dtype((np.record, new_dtype))
 
-    return data
+
+def _fits_rec_to_array(fits_rec):
+    # Columns that need special handling via the FITS_rec accessor rather than
+    # a raw view/asarray, because their on-disk encoding differs from the
+    # logical value:
+    #   - pseudo-unsigned-int columns (BZERO offset; raw dtype is signed)
+    #   - 'L' (logical/boolean) columns: raw bytes are ord('T')=84 / ord('F')=70,
+    #     but the accessor correctly returns True / False.
+    logical_col_names = {c.name for c in fits_rec.columns if c.format == "L"}
+    bad_columns = [
+        n
+        for n in fits_rec.dtype.fields
+        if np.issubdtype(fits_rec[n].dtype, np.unsignedinteger) or n in logical_col_names
+    ]
+    if not len(bad_columns):
+        return fits_rec.view(np.ndarray)
+    new_dtype = _rebuild_fits_rec_dtype(fits_rec)
+    arr = np.asarray(fits_rec, new_dtype).copy()
+    for name in bad_columns:
+        # Use the FITS_rec accessor so that pseudo-unsigned and logical columns
+        # are decoded to their intended values before being stored in the plain
+        # numpy array.  For 'L' columns this returns True/False booleans, which
+        # numpy then coerces to 0/1 when stored in the int8 field produced by
+        # _rebuild_fits_rec_dtype (or to True/False if the schema requests bool8).
+        arr[name] = fits_rec[name]
+    return arr
 
 
 def _can_skip_fits_update(hdulist, asdf_struct, context):
