@@ -464,6 +464,43 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
 
 
+def test_nircam_backward_grism_dispersion_paired_1d():
+    """
+    Test the paired 1-D case of NIRCam backward grism dispersion.
+
+    When x0, y0, and wavelength are 1-D arrays of the same length N > 1,
+    each wavelength[i] is paired with source position (x0[i], y0[i]).
+    The output should have shape (N,) and agree with element-wise calls
+    through the general code path.
+    """
+
+    def _mock_coeff(x, y):
+        return (x / 100) * 1e-6
+
+    lmodel = [_mock_coeff] * 2
+    orders = np.array([1])
+    lmodels = [lmodel] * len(orders)
+    xmodels = [Identity(1)] * len(orders)
+    ymodels = [Identity(1)] * len(orders)
+
+    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
+
+    # N source positions, each paired with a unique wavelength
+    N = 8
+    x0 = np.linspace(100, 200, N)
+    y0 = np.linspace(90, 190, N)
+    wl = np.linspace(1.5e-6, 2.5e-6, N)
+    xi, yi, x0_out, y0_out, order_out = model.evaluate(x0, y0, wl, orders)
+    assert xi.shape == (N,)
+    assert yi.shape == (N,)
+
+    # Run individually and ensure the results are the same as the vectorized version
+    xi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[0][0] for i in range(N)])
+    yi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[1][0] for i in range(N)])
+    assert_allclose(xi, xi_individual, atol=1e-6, rtol=0)
+    assert_allclose(yi, yi_individual, atol=1e-6, rtol=0)
+
+
 def test_nircam_backward_grism_dispersion_single():
     """Smoke test to ensure works on single-valued inputs as well."""
 
@@ -709,6 +746,46 @@ def test_niriss_grism_roundtrip(direction):
     assert_allclose(yi, y0)
     assert_allclose(wli, wl, rtol=1e-4)
     assert_allclose(ordersi, orders)
+
+
+def test_niriss_backward_grism_dispersion_paired_1d():
+    """
+    Test the paired 1-D case of NIRISS backward grism dispersion.
+
+    When x0, y0, and wavelength are 1-D arrays of the same length N > 1,
+    each wavelength[i] is paired with source position (x0[i], y0[i]).
+    The output should have shape (N,) and agree with element-wise calls
+    through the general code path.
+    """
+    mock_invl = Polynomial1D(degree=1, c0=-0.48387097, c1=0.64516129)
+    mock_x = Polynomial2D(degree=2, c0_0=0.1, c1_0=0.01)
+
+    xmodel = [mock_x] * 3
+    ymodel = [mock_x] * 3
+    orders = np.array([1])
+    invlmodels = [mock_invl] * len(orders)
+    xmodels = [xmodel] * len(orders)
+    ymodels = [ymodel] * len(orders)
+
+    model = models.NIRISSBackwardGrismDispersion(
+        orders, lmodels=invlmodels, xmodels=xmodels, ymodels=ymodels
+    )
+
+    # N source positions, each paired with a unique wavelength
+    N = 8
+    x0 = np.linspace(100, 200, N)
+    y0 = np.linspace(90, 190, N)
+    wl = np.linspace(1.5, 2.5, N)
+
+    xi, yi, x0_out, y0_out, order_out = model.evaluate(x0, y0, wl, orders)
+    assert xi.shape == (N,)
+    assert yi.shape == (N,)
+
+    # Run individually and ensure the results are the same as the vectorized version
+    xi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[0][0] for i in range(N)])
+    yi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[1][0] for i in range(N)])
+    assert_allclose(xi, xi_individual, atol=1e-6, rtol=0)
+    assert_allclose(yi, yi_individual, atol=1e-6, rtol=0)
 
 
 def test_miri_wfss_roundtrip():
