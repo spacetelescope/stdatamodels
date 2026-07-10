@@ -25,6 +25,37 @@ allOf:
         datatype: float32
       - name: spectralstep
         datatype: float32
+    ifucubepars_table_units:
+      type: object
+      properties:
+        disperser:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR
+        filter:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR
+        wavemin:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR
+          default: "micron"
+        wavemax:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR
+          default: "micron"
+        spaxelsize:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR
+          default: "arcsec"
+        spectralstep:
+          type: string
+          fits_keyword: TUNIT6
+          fits_hdu: CUBEPAR
+          default: "micron"
     ifucubepars_msm_table:
       title: default IFU cube msn parameters table
       fits_hdu: CUBEPAR_MSM
@@ -41,6 +72,36 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_msm_table_units:
+      type: object
+      properties:
+        disperser:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR_MSM
+        filter:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR_MSM
+        roispatial:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT6
+          fits_hdu: CUBEPAR_MSM
+          default: "arcsec"
     ifucubepars_prism_msm_wavetable:
       title: default IFU cube prism msm wavetable
       fits_hdu: MULTICHAN_PRISM_MSM
@@ -55,6 +116,33 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_prism_msm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_PRISM_MSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_PRISM_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_PRISM_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_PRISM_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: MULTICHAN_PRISM_MSM
+          default: "arcsec"
     ifucubepars_med_msm_wavetable:
       title: default IFU cube med resolution msm  wavetable
       fits_hdu: MULTICHAN_MED_MSM
@@ -69,6 +157,33 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_med_msm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_MED_MSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_MED_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_MED_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_MED_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: MULTICHAN_MED_MSM
+          default: "arcsec"
     ifucubepars_high_msm_wavetable:
       title: default IFU cube high resolution msm wavetable
       fits_hdu: MULTICHAN_HIGH_MSM
@@ -83,6 +198,33 @@ allOf:
         datatype: float32
       - name: softrad
         datatype: float32
+    ifucubepars_high_msm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_HIGH_MSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_HIGH_MSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_HIGH_MSM
+          default: "micron"
+        power:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_HIGH_MSM
+        softrad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: MULTICHAN_HIGH_MSM
+          default: "arcsec"
     ifucubepars_emsm_table:
       title: default IFU cube emsm parameters table
       fits_hdu: CUBEPAR_EMSM
@@ -97,6 +239,32 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_emsm_table_units:
+      type: object
+      properties:
+        disperser:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: CUBEPAR_EMSM
+        filter:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: CUBEPAR_EMSM
+        roispatial:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: CUBEPAR_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: CUBEPAR_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT5
+          fits_hdu: CUBEPAR_EMSM
+          default: "arcsec"
     ifucubepars_prism_emsm_wavetable:
       title: default IFU cube emsm prism wavetable
       fits_hdu: MULTICHAN_PRISM_EMSM
@@ -109,6 +277,29 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_prism_emsm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_PRISM_EMSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_PRISM_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_PRISM_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_PRISM_EMSM
+          default: "arcsec"
     ifucubepars_med_emsm_wavetable:
       title: default IFU cube emsm med resolution wavetable
       fits_hdu: MULTICHAN_MED_EMSM
@@ -121,6 +312,29 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_med_emsm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_MED_EMSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_MED_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_MED_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_MED_EMSM
+          default: "arcsec"
     ifucubepars_high_emsm_wavetable:
       title: default IFU cube emsm high resolution wavetable
       fits_hdu: MULTICHAN_HIGH_EMSM
@@ -133,21 +347,68 @@ allOf:
         datatype: float32
       - name: scalerad
         datatype: float32
+    ifucubepars_high_emsm_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_HIGH_EMSM
+          default: "micron"
+        roispatial:
+          type: string
+          fits_keyword: TUNIT2
+          fits_hdu: MULTICHAN_HIGH_EMSM
+          default: "arcsec"
+        roispectral:
+          type: string
+          fits_keyword: TUNIT3
+          fits_hdu: MULTICHAN_HIGH_EMSM
+          default: "micron"
+        scalerad:
+          type: string
+          fits_keyword: TUNIT4
+          fits_hdu: MULTICHAN_HIGH_EMSM
+          default: "arcsec"
     ifucubepars_prism_driz_wavetable:
       title: default IFU cube drizzle prism wavetable
       fits_hdu: MULTICHAN_PRISM_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
+    ifucubepars_prism_driz_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_PRISM_DRIZZLE
+          default: "micron"
     ifucubepars_med_driz_wavetable:
       title: default IFU cube drizzle med resolution wavetable
       fits_hdu: MULTICHAN_MED_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
+    ifucubepars_med_driz_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_MED_DRIZZLE
+          default: "micron"
     ifucubepars_high_driz_wavetable:
       title: default IFU cube drizzle high resolution wavetable
       fits_hdu: MULTICHAN_HIGH_DRIZZLE
       datatype:
       - name: wavelength
         datatype: float32
+    ifucubepars_high_driz_wavetable_units:
+      type: object
+      properties:
+        wavelength:
+          type: string
+          fits_keyword: TUNIT1
+          fits_hdu: MULTICHAN_HIGH_DRIZZLE
+          default: "micron"
