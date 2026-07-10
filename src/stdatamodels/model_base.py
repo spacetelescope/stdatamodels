@@ -14,12 +14,13 @@ from asdf import AsdfFile
 from asdf import schema as asdf_schema
 from asdf.tags.core import NDArrayType
 from astropy.io import fits
+from astropy.table import Table
 from astropy.time import Time
 
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
 from .history import HistoryList
-from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
+from .util import get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
 # are accessed to be available by the core DataModel code.
@@ -70,7 +71,8 @@ class DataModel(properties.ObjectNode):
 
         Parameters
         ----------
-        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, None
+        init : str, tuple, `~astropy.io.fits.HDUList`, ndarray, dict, \
+            `~astropy.table.Table`, None
 
             - None : Create a default data model with no shape.
 
@@ -85,7 +87,7 @@ class DataModel(properties.ObjectNode):
             - `~astropy.io.fits.HDUList` : Initialize from the given
               `~astropy.io.fits.HDUList`.
 
-            - A numpy array: Used to initialize the data array
+            - Table or numpy array: Used to initialize the data array
 
             - dict: The object model tree for the data model
 
@@ -189,7 +191,7 @@ class DataModel(properties.ObjectNode):
             # minimum version.
             asdffile._tree = init
 
-        elif isinstance(init, np.ndarray):
+        elif isinstance(init, np.ndarray | Table):
             asdffile = AsdfFile(ignore_unrecognized_tag=ignore_unrecognized_tag)
             is_array = True
 
@@ -635,12 +637,11 @@ class DataModel(properties.ObjectNode):
         """
         self.on_save(init)
         self.validate()  # required to trigger ValidationWarning
-        tree = convert_fitsrec_to_array_in_tree(self._instance)
         # Don't AsdfFile(tree) as this will cause a second validation of the tree
         # instead open an empty tree, then assign to the hidden '_tree'
         # This can be updated when asdf 4.0 is the minimum version.
         asdffile = AsdfFile()
-        asdffile._tree = tree
+        asdffile._tree = self._instance
         asdffile.write_to(init, *args, **kwargs)
 
     def to_fits(self, init, *args, **kwargs):
@@ -676,6 +677,8 @@ class DataModel(properties.ObjectNode):
         primary_array_name = self.get_primary_array_name()
         if primary_array_name and getattr(self, primary_array_name, None) is not None:
             primary_array = getattr(self, primary_array_name)
+            if isinstance(primary_array, Table):
+                return (len(primary_array),)
             return primary_array.shape
         return None
 

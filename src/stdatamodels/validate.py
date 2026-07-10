@@ -9,10 +9,11 @@ from asdf.exceptions import ValidationError
 from asdf.schema import YAML_VALIDATORS
 from asdf.tags.core import ndarray
 from asdf.util import HashableDict
+from astropy.table import Table
 
 from stdatamodels.exceptions import ValidationWarning
 
-from .util import convert_fitsrec_to_array_in_tree, remove_none_from_tree
+from .util import remove_none_from_tree
 
 # always show validation warnings unless another filter was added that
 # matches these warnings (by passing append=True)
@@ -96,6 +97,8 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             yield ValidationError("Not an array")
     elif isinstance(instance, (np.ndarray, ndarray.NDArrayType)):
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.dtype)
+    elif isinstance(instance, Table):
+        instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.as_array().dtype)
     else:
         yield ValidationError("Not an array")
 
@@ -200,7 +203,6 @@ def _check_value(value, schema, ctx):
         # converting to tagged tree, so that we don't have to descend
         # unnecessarily into nodes for custom types.
         value = remove_none_from_tree(value)
-        value = convert_fitsrec_to_array_in_tree(value)
         # without this "write_context" asdf will queue up blocks for writing
         # which will hold onto arrays after they have been overwritten
         with ctx._asdf._blocks.write_context(None):
