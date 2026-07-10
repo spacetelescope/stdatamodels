@@ -978,8 +978,10 @@ def from_fits_hdu(hdu, schema):
     """
     if isinstance(hdu, fits.BinTableHDU):
         # Table.read populates units from TUNIT keywords automatically.
+        # unit_parse_strict='silent' avoids UnitsWarning for non-standard unit strings
+        # (e.g. 'micron', 'pixel') that appear in real JWST reference files.
         # Then _cast coerces column dtypes to match the schema (e.g. schema_wide float64).
-        return properties._cast(Table.read(hdu), schema)
+        return properties._cast(Table.read(hdu, unit_parse_strict="silent"), schema)
     # Image HDU: cast to schema dtype
     return properties._cast(hdu.data, schema)
 
