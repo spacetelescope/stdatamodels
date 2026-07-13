@@ -57,6 +57,10 @@ def _as_table(val, schema):
     """
     Convert val to an astropy Table matching the schema's structured datatype.
 
+    If val is already Table, must still convert to array, then validate, then convert back.
+    This handles the case where a user-defined Table might have columns with incorrect data
+    type, or when a file is loaded with a different schema like in test_fits.test_replace_table.
+
     Parameters
     ----------
     val : array-like
@@ -68,13 +72,6 @@ def _as_table(val, schema):
     -------
     astropy.table.Table
         The data as an astropy Table with columns matching the schema.
-
-    Notes
-    -----
-    TODO: nontrivial example where a Table is input here, but it doesn't match
-    the schema, but it can be coerced to match the schema.
-    If there is no such example we could simplify this by just returning Table
-    TODO: is list of tuple supported? should it be?
     """
     allow_extra_columns = schema.get("allow_extra_columns", False)
     schema_datatypes = schema["datatype"]
