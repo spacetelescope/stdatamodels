@@ -8,6 +8,7 @@ import numpy as np
 from asdf import treeutil
 from asdf.treeutil import RemoveNode
 from astropy.io import fits
+from astropy.table import QTable
 from numpy.lib.recfunctions import merge_arrays
 
 
@@ -335,8 +336,9 @@ def convert_fitsrec_to_array_in_tree(tree):
     def _convert_fitsrec(node):
         if isinstance(node, fits.FITS_rec):
             return _fits_rec_to_array(node)
-        else:
-            return node
+        if isinstance(node, QTable):
+            return node.as_array()
+        return node
 
     return treeutil.walk_and_modify(tree, _convert_fitsrec)
 
