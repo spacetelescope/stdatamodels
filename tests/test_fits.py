@@ -4,6 +4,7 @@ import asdf.schema
 import numpy as np
 import pytest
 from astropy.io import fits
+from astropy.table import Table
 from numpy.testing import assert_allclose, assert_array_almost_equal, assert_array_equal
 
 from stdatamodels import DataModel, fits_support
@@ -26,16 +27,12 @@ def records_equal(a, b):
 
 def test_from_new_hdulist():
     with pytest.raises(AttributeError):
-        from astropy.io import fits
-
         hdulist = fits.HDUList()
         with FitsModel(hdulist) as dm:
             dm.foo  # noqa: B018
 
 
 def test_from_new_hdulist2():
-    from astropy.io import fits
-
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
@@ -49,8 +46,6 @@ def test_from_new_hdulist2():
 
 
 def test_setting_arrays_on_fits():
-    from astropy.io import fits
-
     hdulist = fits.HDUList()
     data = np.empty((50, 50), dtype=np.float32)
     primary = fits.PrimaryHDU()
@@ -151,8 +146,6 @@ def test_fits_comments(tmp_path):
         dm.meta.origin = "STScI"
         dm.save(file_path)
 
-    from astropy.io import fits
-
     with fits.open(file_path, memmap=False) as hdulist:
         assert any(
             c
@@ -166,8 +159,6 @@ def test_metadata_doesnt_override(tmp_path):
 
     with FitsModel() as dm:
         dm.save(file_path)
-
-    from astropy.io import fits
 
     with fits.open(file_path, mode="update", memmap=False) as hdulist:
         hdulist[0].header["ORIGIN"] = "UNDER THE COUCH"
@@ -249,8 +240,6 @@ def test_table_with_metadata(tmp_path):
         datamodel.meta.fluxinfo.exposure = "Exposure info"
         datamodel.save(file_path, overwrite=True)
         del datamodel
-
-    from astropy.io import fits
 
     with fits.open(file_path, memmap=False) as hdulist:
         assert len(hdulist) == 3
@@ -340,8 +329,9 @@ def test_replace_table(tmp_path):
         assert hdulist[1].header["TFORM2"] == "D"
 
 
-def test_table_with_unsigned_int(tmp_path):
-    file_path = tmp_path / "test.fits"
+@pytest.mark.parametrize("ext", ["fits", "asdf"])
+def test_table_with_unsigned_int(tmp_path, ext):
+    file_path = tmp_path / f"test.{ext}"
 
     schema = {
         "title": "Test data model",
@@ -377,16 +367,11 @@ def test_table_with_unsigned_int(tmp_path):
         )
 
         def assert_table_correct(model):
-            for idx, (col_name, col_data) in enumerate(
-                [("float64_col", float64_arr), ("uint32_col", uint32_arr)]
-            ):
-                # The table dtype and field dtype are stored separately, and may not
-                # necessarily agree.
-                assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")
-                assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, "equiv")
-                assert np.array_equal(model.test_table.field(col_name), col_data)
+            for col_name, col_data in [("FLOAT64_COL", float64_arr), ("UINT32_COL", uint32_arr)]:
+                assert np.can_cast(model.test_table[col_name].dtype, col_data.dtype, "equiv")
+                assert np.array_equal(model.test_table[col_name], col_data)
 
-        # The datamodel casts our array to FITS_rec on assignment, so here we're
+        # The datamodel casts our array to astropy Table on assignment, so here we're
         # checking that the data survived the casting.
         dm.test_table = test_table
         assert_table_correct(dm)
@@ -664,9 +649,9 @@ def test_table_linking(tmp_path):
     with DataModel(schema=schema) as dm:
         test_array = np.array([(1, 2), (3, 4)], dtype=[("A_COL", "i1"), ("B_COL", "i1")])
 
-        # assigning to the model will convert the array to a FITS_rec
+        # assigning to the model will convert the array to an astropy Table
         dm.test_table = test_array
-        assert isinstance(dm.test_table, fits.FITS_rec)
+        assert isinstance(dm.test_table, Table)
 
         # save the model (with the table)
         dm.save(file_path)
@@ -684,19 +669,16 @@ def test_table_linking(tmp_path):
         assert not len(unlinked_arrays), unlinked_arrays
 
 
-def test_fitsrec_for_non_schema_data(tmp_path):
-    # make a file where some non-schema data is linked between
-    # the asdf extension and another hdu. This simulates an old
-    # file where this condition might occur (perhaps after a schema
+def test_table_for_non_schema_data(tmp_path):
+    # make a file where some non-schema data is in the tree (not in the schema).
+    # This simulates an old file where this condition might occur (perhaps after a schema
     # update).
     m = DataModel()
-    m._instance["sneaky_table"] = fits.FITS_rec(
-        np.array(
-            [
-                ("a", 1),
-            ],
-            dtype=[("foo", "S3"), ("bar", "f4")],
-        )
+    m._instance["sneaky_table"] = np.array(
+        [
+            ("a", 1),
+        ],
+        dtype=[("foo", "S3"), ("bar", "f4")],
     )
     fn = tmp_path / "test.fits"
     m.save(fn)

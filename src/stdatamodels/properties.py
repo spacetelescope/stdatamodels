@@ -5,24 +5,12 @@ from collections.abc import Mapping
 
 import numpy as np
 from asdf.tags.core import ndarray
-from astropy.io import fits
+from astropy.table import Table
 
 from . import schema as mschema
 from . import util, validate
 
 __all__ = ["ListNode", "ObjectNode"]
-
-
-def _is_struct_array(val):
-    return (
-        isinstance(val, (np.ndarray, fits.FITS_rec))
-        and val.dtype.names is not None
-        and val.dtype.fields is not None
-    )
-
-
-def _is_struct_array_precursor(val):
-    return isinstance(val, list) and isinstance(val[0], tuple)
 
 
 def _is_struct_array_schema(schema):
@@ -39,64 +27,11 @@ def _cast(val, schema):
         if isinstance(val, ndarray.NDArrayType):
             val = val._make_array()
 
-        allow_extra_columns = False
-        if (
-            _is_struct_array_schema(schema)
-            and len(val)
-            and (_is_struct_array_precursor(val) or _is_struct_array(val))
-        ):
-            # we are dealing with a structured array. Because we may
-            # modify schema (to add shape), we make a deep copy of the
-            # schema here:
-            schema = copy.deepcopy(schema)
-
-            if "allow_extra_columns" in schema:
-                allow_extra_columns = schema["allow_extra_columns"]
-
-            for t, v in zip(schema["datatype"], val[0], strict=False):
-                if not isinstance(t, Mapping):
-                    continue
-
-                aval = np.asanyarray(v)
-                shape = aval.shape
-                val_ndim = len(shape)
-
-                # make sure that if 'ndim' is specified for a field,
-                # it matches the dimensionality of val's field:
-                if "ndim" in t and val_ndim != t["ndim"]:
-                    raise ValueError(
-                        "Array has wrong number of dimensions. Expected {}, got {}".format(
-                            t["ndim"], val_ndim
-                        )
-                    )
-
-                if "max_ndim" in t and val_ndim > t["max_ndim"]:
-                    raise ValueError(
-                        "Array has wrong number of dimensions. Expected <= {}, got {}".format(
-                            t["max_ndim"], val_ndim
-                        )
-                    )
-
-                # if shape of a field's value is not specified in the schema,
-                # add it to the schema based on the shape of the actual data:
-                if "shape" not in t:
-                    t["shape"] = shape
+        if _is_struct_array_schema(schema):
+            return _as_table(val, schema)
 
         dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
-
-        # save columns in case this is cast back to a fitsrec
-        if hasattr(val, "columns"):
-            cols = val.columns
-        else:
-            cols = None
-        val = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
-
-        if dtype.fields is not None:
-            val = _as_fitsrec(val)
-            if cols is not None:
-                for col in cols:
-                    if col.name in val.names and col.unit is not None:
-                        val.columns[col.name].unit = col.unit
+        val = util.gentle_asarray(val, dtype)
 
     if "ndim" in schema and len(val.shape) != schema["ndim"]:
         raise ValueError(
@@ -118,41 +53,75 @@ def _cast(val, schema):
     return val
 
 
-def _as_fitsrec(val):
+def _as_table(val, schema):
     """
-    Convert a numpy record into a FITS record if it is not one already.
+    Convert val to an astropy Table matching the schema's structured datatype.
+
+    If val is already Table, must still convert to array, then validate, then convert back.
+    This handles the case where a user-defined Table might have columns with incorrect data
+    type, or when a file is loaded with a different schema like in test_fits.test_replace_table.
 
     Parameters
     ----------
-    val : numpy.ndarray
-        The numpy record to convert.
+    val : array-like
+        Input data: numpy structured array, list of tuples, or existing astropy Table.
+    schema : dict
+        The schema describing the table structure.
 
     Returns
     -------
-    fits.FITS_rec
-        The converted FITS record.
+    astropy.table.Table
+        The data as an astropy Table with columns matching the schema.
     """
-    if isinstance(val, fits.FITS_rec):
-        return val
-    else:
-        coldefs = fits.ColDefs(val)
-        uint = any(c._pseudo_unsigned_ints for c in coldefs)
-        if any(c.format == "L" for c in coldefs):
-            # Copy so we can modify the values to match what astropy expects.
-            fits_rec = fits.FITS_rec(val.copy())
-            for c in coldefs:
-                if c.format == "L":
-                    d = fits_rec[c.name]
-                    m = d.astype(bool)
-                    d[m] = ord("T")
-                    d[~m] = ord("F")
-        else:
-            fits_rec = fits.FITS_rec(val)
-        fits_rec._coldefs = coldefs
-        # FITS_rec needs to know if it should be operating in pseudo-unsigned-ints mode,
-        # otherwise it won't properly convert integer columns with TZEROn before saving.
-        fits_rec._uint = uint
-        return fits_rec
+    allow_extra_columns = schema.get("allow_extra_columns", False)
+    schema_datatypes = schema["datatype"]
+
+    # Preserve column units from an input Table before converting to numpy.
+    units = {}
+    if isinstance(val, Table):
+        for col in val.columns.values():
+            if col.unit is not None:
+                units[col.name] = col.unit
+        val = np.array(val)
+
+    # Handle shape info for nested array columns, inferred from the first row.
+    if len(val):
+        schema_datatypes = copy.deepcopy(schema_datatypes)
+        for t, v in zip(schema_datatypes, val[0], strict=False):
+            if not isinstance(t, Mapping):
+                continue
+            aval = np.asanyarray(v)
+            shape = aval.shape
+            val_ndim = len(shape)
+            if "ndim" in t and val_ndim != t["ndim"]:
+                raise ValueError(
+                    "Array has wrong number of dimensions. Expected {}, got {}".format(
+                        t["ndim"], val_ndim
+                    )
+                )
+            if "max_ndim" in t and val_ndim > t["max_ndim"]:
+                raise ValueError(
+                    "Array has wrong number of dimensions. Expected <= {}, got {}".format(
+                        t["max_ndim"], val_ndim
+                    )
+                )
+            if "shape" not in t:
+                t["shape"] = shape
+
+    dtype = ndarray.asdf_datatype_to_numpy_dtype(schema_datatypes)
+
+    # Convert list of tuples to a numpy structured array first.
+    if isinstance(val, list):
+        val = np.array(val, dtype=dtype)
+
+    # Coerce to the target dtype/column names.
+    coerced = util.gentle_asarray(val, dtype, allow_extra_columns=allow_extra_columns)
+    result = Table(coerced)
+    # Restore units that were on the input Table.
+    for col_name, unit in units.items():
+        if col_name in result.columns:
+            result[col_name].unit = unit
+    return result
 
 
 def _get_schema_type(schema):
@@ -251,13 +220,16 @@ def _make_default_array(attr, schema, ctx):
     array = np.empty(shape, dtype=dtype)
     if default is not None:
         if isinstance(default, list):
-            # support multi-valued defaults for when array is recarray
+            # support multi-valued defaults for input recarray or Table
             try:
                 default = np.array(tuple(default), dtype=dtype)
             except ValueError:
-                msg = f"Invalid default value {default} for recarray dtype {dtype}"
+                msg = f"Invalid default value {default} for table dtype {dtype}"
                 raise ValueError(msg) from None
         array[...] = default
+
+    if dtype.names is not None:
+        return Table(array)
     return array
 
 

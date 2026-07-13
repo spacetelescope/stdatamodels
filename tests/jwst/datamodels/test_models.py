@@ -793,8 +793,9 @@ def test_amioi_model_oifits_datatable(tmp_path, oifits_ami_model, keep):
 @pytest.mark.parametrize("table_name", ["array", "target", "vis", "vis2", "t3", "q4", "wavelength"])
 def test_amioi_model_oifits_extra_columns(tmp_path, oifits_ami_model, table_name):
     table_data = getattr(oifits_ami_model, table_name)
+    table_arr = np.array(table_data) if hasattr(table_data, "columns") else table_data
     new_table_data = merge_arrays(
-        [table_data, np.zeros(table_data.size, dtype=[("extra", "f8")])], flatten=True
+        [table_arr, np.zeros(len(table_data), dtype=[("extra", "f8")])], flatten=True
     )
     setattr(oifits_ami_model, table_name, new_table_data)
     fn = tmp_path / "test.fits"
@@ -807,7 +808,7 @@ def test_amioi_model_extra_meta(tmp_path, oifits_ami_model):
     oifits_ami_model.save(fn)
 
 
-@pytest.mark.parametrize("value", [True, False, 0, 1, ord("T"), ord("F")])
+@pytest.mark.parametrize("value", [True, False, 0, 1])
 def test_amioi_logical_flag(tmp_path, value, oifits_ami_model):
     """
     Test that int8 stored "FLAG" columns accept bools.

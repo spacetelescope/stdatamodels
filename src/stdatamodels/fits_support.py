@@ -16,6 +16,7 @@ from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict, uri_match
 from astropy import time
 from astropy.io import fits
+from astropy.table import Table
 from astropy.utils.exceptions import AstropyWarning
 
 from . import properties, util, validate
@@ -103,20 +104,6 @@ _keyword_indices = [
 FITS_HASH_KEY = "_fits_hash"
 
 
-def _get_indexed_keyword(keyword, i):
-    for sub, max_value, r in _keyword_indices:
-        if sub in keyword:
-            if i >= max_value:
-                raise ValueError(f"Too many entries for given keyword '{keyword}'")
-            if r is None:
-                val = str(i)
-            else:
-                val = r[i]
-            keyword = keyword.replace(sub, val)
-
-    return keyword
-
-
 def _get_hdu_name(schema):
     hdu_name = schema.get("fits_hdu")
     if hdu_name in (None, "PRIMARY"):
@@ -133,7 +120,9 @@ def _get_hdu_type(hdu_name, schema=None, value=None):
         if dtype.fields is not None:
             hdu_type = fits.BinTableHDU
     elif value is not None:
-        if hasattr(value, "dtype") and value.dtype.names is not None:
+        if isinstance(value, Table):
+            hdu_type = fits.BinTableHDU
+        elif hasattr(value, "dtype") and value.dtype.names is not None:
             hdu_type = fits.BinTableHDU
     return hdu_type
 
@@ -297,34 +286,86 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((fits_keyword, instance, comment), end=True)
 
 
+def _make_table_hdu(hdulist, hdu_name, index, table):
+    """
+    Create or replace a BinTableHDU from an astropy Table, preserving non-builtin header cards.
+
+    Parameters
+    ----------
+    hdulist : `~astropy.io.fits.HDUList` or `weakref.ReferenceType`
+        The HDU list to which the table HDU will be added.
+    hdu_name : str
+        The name of the HDU.
+    index : int
+        The index of the HDU in the sequence.
+    table : `~astropy.table.Table`
+        The table data to be written to the HDU.
+
+    Returns
+    -------
+    `~astropy.io.fits.BinTableHDU`
+        The created or replaced BinTableHDU.
+    """
+    if isinstance(hdulist, weakref.ReferenceType):
+        ref = hdulist()
+        result = _make_table_hdu(ref, hdu_name, index, table)
+        del ref
+        return result
+    hdu = fits.BinTableHDU(data=table, name=hdu_name)
+    hdu.ver = index + 1
+    try:
+        existing = get_hdu(hdulist, hdu_name, index=index)
+        for key, val, comment in existing.header.cards:
+            if not is_builtin_fits_keyword(key):
+                hdu.header.append((key, val, comment), end=True)
+        hdulist.remove(existing)
+    except AttributeError:
+        pass
+    hdulist.append(hdu)
+    return hdu
+
+
 def _fits_array_writer(fits_context, validator, _, instance, schema):
     if instance is None:
         return
 
     instance_id = id(instance)
 
-    instance = np.asanyarray(instance)
+    if isinstance(instance, Table):
+        # Validate against schema datatype
+        if "datatype" in schema:
+            yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
-    if not len(instance.shape):
-        return
+        hdu_name = _get_hdu_name(schema)
+        _assert_non_primary_hdu(hdu_name)
+        index = fits_context.sequence_index
+        if index is None:
+            index = 0
 
-    if "ndim" in schema:
-        yield from ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
-    if "max_ndim" in schema:
-        yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
-    if "datatype" in schema:
-        yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
+        hdu = _make_table_hdu(fits_context.hdulist, hdu_name, index, instance)
+    else:
+        instance = np.asanyarray(instance)
 
-    hdu_name = _get_hdu_name(schema)
-    _assert_non_primary_hdu(hdu_name)
-    index = fits_context.sequence_index
-    if index is None:
-        index = 0
+        if not len(instance.shape):
+            return
 
-    hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
+        if "ndim" in schema:
+            yield from ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
+        if "max_ndim" in schema:
+            yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
+        if "datatype" in schema:
+            yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
-    hdu.data = instance
+        hdu_name = _get_hdu_name(schema)
+        _assert_non_primary_hdu(hdu_name)
+        index = fits_context.sequence_index
+        if index is None:
+            index = 0
+
+        hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
+        hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
+        hdu.data = instance
+
     if instance_id in fits_context.extension_array_links:
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
@@ -509,11 +550,7 @@ def _normalize_arrays(tree):
 
     def normalize_array(node):
         if isinstance(node, np.ndarray):
-            # We can't use np.ascontiguousarray because it converts FITS_rec
-            # to vanilla np.ndarray, which results in misinterpretation of
-            # unsigned int values.
-            if not node.flags.c_contiguous:
-                node = node.copy()
+            return np.ascontiguousarray(node)
         return node
 
     return treeutil.walk_and_modify(tree, normalize_array)
@@ -597,12 +634,7 @@ def to_fits(tree, schema, hdulist=None):
 
 def _create_asdf_hdu(tree):
     buffer = io.BytesIO()
-    # convert all FITS_rec instances to numpy arrays, this is needed as
-    # some arrays loaded from the FITS data for old files may not be defined
-    # in the current schemas. These will be loaded as FITS_rec instances but
-    # not linked back (and safely converted) on write if they are removed
-    # from the schema.
-    asdf.AsdfFile(util.convert_fitsrec_to_array_in_tree(tree)).write_to(buffer)
+    asdf.AsdfFile(tree).write_to(buffer)
     buffer.seek(0)
 
     data = np.array(buffer.getbuffer(), dtype=np.uint8)[None, :]
@@ -782,7 +814,10 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
 
             if hdu not in known_datas:
                 if hdu.data is not None:
-                    properties.put_value(["extra_fits", hdu.name, "data"], hdu.data, tree)
+                    # FITS_rec is just pushed into plain array
+                    # is this bad?
+                    data = np.asarray(hdu.data) if isinstance(hdu.data, fits.FITS_rec) else hdu.data
+                    properties.put_value(["extra_fits", hdu.name, "data"], data, tree)
 
 
 def _load_history(hdulist, tree):
@@ -923,7 +958,11 @@ def _map_hdulist_to_arrays(hdulist, af):
 
 def from_fits_hdu(hdu, schema):
     """
-    Read the data from a FITS HDU into a numpy ndarray.
+    Read the data from a FITS HDU.
+
+    For BinTableHDUs, returns an astropy Table (units are populated automatically
+    from TUNIT keywords by ``astropy.io.fits``).
+    For image HDUs, casts the numpy array to the dtype specified in the schema.
 
     Parameters
     ----------
@@ -934,25 +973,17 @@ def from_fits_hdu(hdu, schema):
 
     Returns
     -------
-    data : numpy.ndarray
+    data : astropy.table.Table or numpy.ndarray
         The data from the FITS HDU
     """
-    data = hdu.data
-
-    # Save the column listeners for possible restoration
-    if hasattr(data, "_coldefs"):
-        listeners = data._coldefs._listeners
-    else:
-        listeners = None
-
-    # Cast array to type mentioned in schema
-    data = properties._cast(data, schema)
-
-    # Casting a table loses the column listeners, so restore them
-    if listeners is not None:
-        data._coldefs._listeners = listeners
-
-    return data
+    if isinstance(hdu, fits.BinTableHDU):
+        # Table.read populates units from TUNIT keywords automatically.
+        # unit_parse_strict='silent' avoids UnitsWarning for non-standard unit strings
+        # (e.g. 'micron', 'pixel') that appear in real JWST reference files.
+        # Then _cast coerces column dtypes to match the schema (e.g. schema_wide float64).
+        return properties._cast(Table.read(hdu, unit_parse_strict="silent"), schema)
+    # Image HDU: cast to schema dtype
+    return properties._cast(hdu.data, schema)
 
 
 def _can_skip_fits_update(hdulist, asdf_struct, context):
