@@ -57,5 +57,23 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
+    member_wcs:
+      type: array
+      title: List of mosaic member WCS objects
+      items:
+        type: object
+        properties:
+          filename:
+            title: Member filename
+            type: string
+          ra_ref:
+            title: Member reference RA
+            type: number
+          dec_ref:
+            title: Member reference Dec
+            type: number
+          wcs:
+            title: Member WCS
+            tag: tag:stsci.edu:gwcs/wcs-*
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
