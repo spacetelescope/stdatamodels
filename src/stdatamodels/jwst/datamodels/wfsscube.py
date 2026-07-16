@@ -1,11 +1,11 @@
 from .model_base import DefaultDQMixin, DefaultErrMixin, JwstDataModel
 
-__all__ = ["WFSSMultiBandModel"]
+__all__ = ["WFSSCubeModel"]
 
 
-class WFSSMultiBandModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
+class WFSSCubeModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
     """
-    A data model for WFSS multi-band direct image data.
+    A data model for WFSS multi-wavelength direct image data cubes.
 
     Attributes
     ----------
@@ -19,4 +19,4 @@ class WFSSMultiBandModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
          Wavelength value for planes, same shape as 0th axis of data
     """
 
-    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfssmultiband.schema"
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfsscube.schema"
