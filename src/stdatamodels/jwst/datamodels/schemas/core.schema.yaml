@@ -2552,7 +2552,7 @@ properties:
             enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_GUICDS
             blend_table: True
-          imprint:
+          imprint_subtract:
             title: NIRSpec MSA Imprint Subtraction
             type: string
             enum: [SKIPPED, COMPLETE, FAILED]
