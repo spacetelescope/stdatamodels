@@ -2072,7 +2072,7 @@ class MIRIWFSSForwardDispersion(_WFSSForwardGrismDispersion):
         xmodels=None,
         ymodels=None,
         theta=None,
-        sampling=10,
+        sampling=100,
     ):
         """
         Initialize the model.
