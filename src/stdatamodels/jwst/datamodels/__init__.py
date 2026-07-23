@@ -133,6 +133,7 @@ from .wcs_ref_models import (
     WaveCorrModel,
     WavelengthrangeModel,
 )
+from .wfsscube import WFSSCubeModel
 
 __all__ = [
     "ABVegaOffsetModel",
@@ -270,6 +271,7 @@ __all__ = [
     "TrapsFilledModel",
     "TsoPhotModel",
     "WFSSCombinedSpecModel",
+    "WFSSCubeModel",
     "WFSSMultiCombinedSpecModel",
     "WFSSMultiSpecModel",
     "WFSSSpecModel",
