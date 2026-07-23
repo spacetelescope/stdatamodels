@@ -1,1 +1,1 @@
-Update number of sampling points for MIRI WFSS dy to t trasnform.
+Update number of sampling points for MIRI WFSS dy to t transform.
