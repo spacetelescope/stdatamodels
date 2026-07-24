@@ -239,6 +239,26 @@ properties:
             fits_keyword: CD2_2
             fits_hdu: SCI
             blend_table: True
+          ps1_0:
+            title: Coordinate table extension name
+            type: string
+            fits_keyword: PS1_0
+            fits_hdu: SCI
+          ps1_1:
+            title: Coordinate table column name
+            type: string
+            fits_keyword: PS1_1
+            fits_hdu: SCI
+          ps2_0:
+            title: Coordinate table extension name
+            type: string
+            fits_keyword: PS2_0
+            fits_hdu: SCI
+          ps2_1:
+            title: Coordinate table column name
+            type: string
+            fits_keyword: PS2_1
+            fits_hdu: SCI
           ps3_0:
             title: Coordinate table extension name
             type: string
