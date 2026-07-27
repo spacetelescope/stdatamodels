@@ -1,0 +1,1 @@
+Add coordinate table keywords for axis 1 and 2 to the ``wcsinfo`` schema.
