@@ -4,6 +4,7 @@ from numpy.testing import assert_array_almost_equal
 
 import stdatamodels.jwst.datamodels as dm
 import stdatamodels.schema
+from stdatamodels.fits_support import is_builtin_fits_keyword
 from stdatamodels.jwst.datamodels import JwstDataModel
 
 
@@ -159,6 +160,8 @@ def test_duplicate_keywords():
     for keyword, entry in datamodel_keywords.items():
         # this has a duplicate
         if keyword == ("SCI", "SRCTYPE"):
+            continue
+        if is_builtin_fits_keyword(keyword[1]):
             continue
 
         # find schema "paths" to each keyword

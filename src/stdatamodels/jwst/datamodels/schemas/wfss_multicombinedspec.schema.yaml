@@ -26,3 +26,5 @@ allOf:
             fits_hdu: COMBINE1D
           spec_table:
             $ref: wfss_combinedspectable.schema
+          spec_table_units:
+            $ref: wfss_combinedspecunits.schema
