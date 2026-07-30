@@ -15,11 +15,12 @@ from functools import partial
 
 import numpy as np
 from astropy.modeling.core import Model
-from astropy.modeling.models import Const1D, Mapping, Rotation2D, Tabular1D
+from astropy.modeling.models import Const1D, Mapping, Rotation2D
 from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
+from scipy.interpolate import CubicSpline
 
 from stdatamodels.properties import ListNode
 
@@ -1751,7 +1752,8 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
 
         # make a lookup table for t as a function of dx
         so = np.argsort(alongdisp)
-        tab = Tabular1D(alongdisp[so], t[so], bounds_error=False, fill_value=None)
+        # Cubic spline ensures smoothness in derivatives
+        tab = CubicSpline(alongdisp[so], t[so])
 
         # wavelength model takes in x, x0.
         # it then subtracts them to get dx; that's what SubtractUfunc does
