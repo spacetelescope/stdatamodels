@@ -20,7 +20,9 @@ from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
-from scipy.interpolate import CubicSpline
+
+from astropy.modeling.models import Spline1D
+from astropy.modeling.fitting import SplineSmoothingFitter
 
 from stdatamodels.properties import ListNode
 
@@ -1753,14 +1755,16 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
         # make a lookup table for t as a function of dx
         so = np.argsort(alongdisp)
         # Cubic spline ensures smoothness in derivatives
-        tab = CubicSpline(alongdisp[so], t[so])
+        splbase = Spline1D()
+        fitter = SplineSmoothingFitter()
+        spl = fitter(splbase, alongdisp[so], t[so], s=0)
 
         # wavelength model takes in x, x0.
         # it then subtracts them to get dx; that's what SubtractUfunc does
         # next it finds the t value for that dx from the lookup table, interpolating linearly
         # finally it applies the lmodel of t to get the wavelength
         dxr = astmath.SubtractUfunc()
-        wavelength = dxr | tab | lmodel
+        wavelength = dxr | spl | lmodel
         model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
 
         return model(x, y, x0, y0, order)  # returns x0, y0, lambda, order
