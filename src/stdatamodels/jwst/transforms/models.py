@@ -15,14 +15,12 @@ from functools import partial
 
 import numpy as np
 from astropy.modeling.core import Model
-from astropy.modeling.models import Const1D, Mapping, Rotation2D
+from astropy.modeling.fitting import SplineSmoothingFitter
+from astropy.modeling.models import Const1D, Mapping, Rotation2D, Spline1D
 from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
-
-from astropy.modeling.models import Spline1D
-from astropy.modeling.fitting import SplineSmoothingFitter
 
 from stdatamodels.properties import ListNode
 
