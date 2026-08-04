@@ -59,21 +59,18 @@ allOf:
       datatype: uint32
     member_wcs:
       type: array
-      title: List of mosaic member WCS objects
+      title: List of mosaic member WCS tweak transforms
       items:
         type: object
         properties:
           filename:
             title: Member filename
             type: string
-          ra_ref:
-            title: Member reference RA
-            type: number
-          dec_ref:
-            title: Member reference Dec
-            type: number
+          visit_number:
+            title: Visit number
+            type: integer
           wcs:
             title: Member WCS
-            tag: tag:stsci.edu:gwcs/wcs-*
+            tag: object
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
