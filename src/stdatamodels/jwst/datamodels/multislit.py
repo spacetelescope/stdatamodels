@@ -2,7 +2,7 @@ from .image import ImageModel
 from .model_base import JwstDataModel
 from .slit import SlitDataModel, SlitModel
 
-__all__ = ["MultiSlitModel"]
+__all__ = ["MultiSlitModel", "WFSSMultiCutoutModel"]
 
 
 class MultiSlitModel(JwstDataModel):
@@ -82,3 +82,30 @@ class MultiSlitModel(JwstDataModel):
             return s
         else:
             raise ValueError(f"Invalid key {key}")
+
+
+class WFSSMultiCutoutModel(JwstDataModel):
+    """
+    A data model for WFSS multi-cutout observations.
+
+    This model contains lists of data cutouts, contamination cutouts,
+    and simulation cutouts, each represented as a SlitModel instance.
+    """
+
+    schema_url = "http://stsci.edu/schemas/jwst_datamodel/wfss_multicutout.schema"
+
+    def __init__(self, init=None, **kwargs):
+        if isinstance(init, (SlitModel, ImageModel)):
+            super(WFSSMultiCutoutModel, self).__init__(init=None, **kwargs)
+            self.update(init)
+            slitdata = SlitDataModel(init)
+            self.cutouts.append(slitdata)
+            return
+
+        if isinstance(init, MultiSlitModel):
+            super(WFSSMultiCutoutModel, self).__init__(init=None, **kwargs)
+            self.update(init)
+            self.cutouts = init.slits
+            return
+
+        super(WFSSMultiCutoutModel, self).__init__(init=init, **kwargs)
