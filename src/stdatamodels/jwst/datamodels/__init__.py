@@ -46,7 +46,7 @@ from .mrsptcorr import MirMrsPtCorrModel
 from .mrsxartcorr import MirMrsXArtCorrModel
 from .multicombinedspec import MultiCombinedSpecModel, WFSSMultiCombinedSpecModel
 from .multiexposure import MultiExposureModel
-from .multislit import MultiSlitModel, WFSSMultiCutoutModel
+from .multislit import MultiSlitModel
 from .multispec import MRSMultiSpecModel, MultiSpecModel, TSOMultiSpecModel, WFSSMultiSpecModel
 from .nirspec_flat import NirspecFlatModel, NirspecQuadFlatModel
 from .nrm import NRMModel
@@ -273,7 +273,6 @@ __all__ = [
     "WFSSCombinedSpecModel",
     "WFSSCubeModel",
     "WFSSMultiCombinedSpecModel",
-    "WFSSMultiCutoutModel",
     "WFSSMultiSpecModel",
     "WFSSSpecModel",
     "WaveCorrModel",

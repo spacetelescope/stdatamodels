@@ -5,7 +5,7 @@ from astropy.io import fits
 from astropy.time import Time
 from numpy.testing import assert_array_equal
 
-from stdatamodels.jwst.datamodels import ImageModel, MultiSlitModel, SlitModel, WFSSMultiCutoutModel
+from stdatamodels.jwst.datamodels import ImageModel, MultiSlitModel, SlitModel
 from stdatamodels.properties import ObjectNode
 
 
@@ -196,18 +196,3 @@ def test_slit_update_from_multislit():
     assert slit2.name == "foo"
     # schema-undefined in source -> not updated
     assert slit2.meta.telescope is None
-
-
-def test_multicutout_from_multislit():
-    multislit = MultiSlitModel()
-    for _ in range(3):
-        slit = SlitModel()
-        slit.int_times = slit.get_default("int_times")
-        multislit.slits.append(slit)
-
-    multicutout = WFSSMultiCutoutModel(multislit)
-    assert len(multicutout.cutouts) == 3
-    assert multicutout.cutouts[0] is not multislit.slits[0]
-    for cutout in multicutout.cutouts:
-        assert isinstance(cutout, ObjectNode)
-        assert_array_equal(cutout.int_times, slit.get_default("int_times"))
