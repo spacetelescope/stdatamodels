@@ -16,6 +16,7 @@ from asdf.tags.core import HistoryEntry, NDArrayType, ndarray
 from asdf.util import HashableDict, uri_match
 from astropy import time
 from astropy.io import fits
+from astropy.table import QTable
 from astropy.utils.exceptions import AstropyWarning
 
 from . import properties, util, validate
@@ -303,17 +304,26 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
 
     instance_id = id(instance)
 
-    instance = np.asanyarray(instance)
+    if isinstance(instance, QTable):
+        # Use the underlying structured array for shape/dtype validation
+        array_for_validation = instance.as_array()
+    else:
+        instance = np.asanyarray(instance)
+        array_for_validation = instance
 
-    if not len(instance.shape):
+    if not len(array_for_validation.shape):
         return
 
     if "ndim" in schema:
-        yield from ndarray.validate_ndim(validator, schema["ndim"], instance, schema)
+        yield from ndarray.validate_ndim(validator, schema["ndim"], array_for_validation, schema)
     if "max_ndim" in schema:
-        yield from ndarray.validate_max_ndim(validator, schema["max_ndim"], instance, schema)
+        yield from ndarray.validate_max_ndim(
+            validator, schema["max_ndim"], array_for_validation, schema
+        )
     if "datatype" in schema:
-        yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
+        yield from validate._validate_datatype(
+            validator, schema["datatype"], array_for_validation, schema
+        )
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
@@ -321,15 +331,41 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
     if index is None:
         index = 0
 
-    hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
+    if isinstance(instance, QTable):
+        # Resolve weakref to access the hdulist directly
+        hdulist_ref = fits_context.hdulist
+        hdulist = hdulist_ref() if isinstance(hdulist_ref, weakref.ReferenceType) else hdulist_ref
 
-    hdu.data = instance
+        # Preserve any non-builtin header keywords from an existing HDU
+        # (keywords already written earlier in the schema walk)
+        try:
+            existing_hdu = get_hdu(hdulist, hdu_name, index)
+            extra_cards = [
+                (k, v, existing_hdu.header.comments[k])
+                for k, v in existing_hdu.header.items()
+                if not is_builtin_fits_keyword(k)
+            ]
+            hdulist.remove(existing_hdu)
+        except AttributeError:
+            extra_cards = []
+
+        # use fits.BinTableHDU(qtable) to write TUNITn for columns with astropy units
+        hdu = fits.BinTableHDU(instance, name=hdu_name)
+        hdu.ver = index + 1
+        for k, v, c in extra_cards:
+            # Add back the other header info
+            hdu.header.append((k, v, c), end=True)
+        hdulist.append(hdu)
+    else:
+        hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
+        hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
+        hdu.data = instance
+        hdu.ver = index + 1
+
     if instance_id in fits_context.extension_array_links:
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
     fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
-    hdu.ver = index + 1
 
 
 # This is copied from jsonschema._validators and modified to keep track
@@ -923,7 +959,11 @@ def _map_hdulist_to_arrays(hdulist, af):
 
 def from_fits_hdu(hdu, schema):
     """
-    Read the data from a FITS HDU into a numpy ndarray.
+    Read the data from a FITS HDU into a numpy ndarray or QTable.
+
+    For structured (table) HDUs, returns a `~astropy.table.QTable` with
+    column units populated from the FITS ``TUNITn`` keywords.  For image
+    HDUs, returns a plain `numpy.ndarray`.
 
     Parameters
     ----------
@@ -934,25 +974,10 @@ def from_fits_hdu(hdu, schema):
 
     Returns
     -------
-    data : numpy.ndarray
+    data : numpy.ndarray or astropy.table.QTable
         The data from the FITS HDU
     """
-    data = hdu.data
-
-    # Save the column listeners for possible restoration
-    if hasattr(data, "_coldefs"):
-        listeners = data._coldefs._listeners
-    else:
-        listeners = None
-
-    # Cast array to type mentioned in schema
-    data = properties._cast(data, schema)
-
-    # Casting a table loses the column listeners, so restore them
-    if listeners is not None:
-        data._coldefs._listeners = listeners
-
-    return data
+    return properties._cast(hdu.data, schema)
 
 
 def _can_skip_fits_update(hdulist, asdf_struct, context):
