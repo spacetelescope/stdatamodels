@@ -1,0 +1,1 @@
+Add optional SIMUL and CONTAM extensions to SlitModel and MultiSlitModel schema
