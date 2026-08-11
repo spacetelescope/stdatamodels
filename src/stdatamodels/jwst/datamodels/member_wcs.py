@@ -1,9 +1,7 @@
-from .model_base import JwstDataModel
-
 __all__ = ["MemberWcsModel", "MemberWcsSingleModel"]
 
 
-class MemberWcsModel():
+class MemberWcsModel:
     """
     A data model for storing WCS objects from a list of image models.
 
@@ -29,14 +27,13 @@ class MemberWcsModel():
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/member_wcs.schema"
 
-
     def __init__(self, init=None):
         self.member_wcs = []
         if isinstance(init, MemberWcsSingleModel):
             self.member_wcs.append(init)
 
 
-class MemberWcsSingleModel():
+class MemberWcsSingleModel:
     """
     A simple data model to store a filename and associated imaging WCS object.
 
@@ -49,7 +46,6 @@ class MemberWcsSingleModel():
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/member_wcs_single.schema"
-
 
     def __init__(self, filename=None, wcs=None):
         self.filename = filename
