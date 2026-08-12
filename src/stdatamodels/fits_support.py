@@ -894,6 +894,9 @@ def from_fits_asdf(
 
 
 def _map_hdulist_to_arrays(hdulist, af):
+    # hdulist[key] is very inefficient so pre-index hdus
+    hdu_index = {(h.name, h.ver): h for h in hdulist}
+
     def callback(node):
         if (
             isinstance(node, NDArrayType)
@@ -912,8 +915,8 @@ def _map_hdulist_to_arrays(hdulist, af):
                 if parts.group("name"):
                     pair = (parts.group("name"), ver)
                 else:
-                    pair = ver
-            data = hdulist[pair].data
+                    pair = (ver, 1)
+            data = hdu_index[pair].data
             return data
         return node
 
