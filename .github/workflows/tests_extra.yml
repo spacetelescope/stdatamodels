@@ -78,4 +78,4 @@ jobs:
       cache-path: ${{ needs.data.outputs.crds_path }}
       cache-key: crds-${{ needs.data.outputs.crds_context }}
       envs: |
-        - linux: py311-jwst-devdeps-xdist
+        - linux: py313-jwst-devdeps-xdist
