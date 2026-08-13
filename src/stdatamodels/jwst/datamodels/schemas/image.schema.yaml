@@ -57,5 +57,20 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
+    member_wcs:
+      type: array
+      title: List of mosaic member WCS tweak transforms
+      items:
+        type: object
+        properties:
+          filename:
+            title: Member filename
+            type: string
+          visit_number:
+            title: Visit number
+            type: integer
+          wcs:
+            title: Member WCS
+            tag: object
 - $ref: variance.schema
 - $ref: pathlosscorr.schema

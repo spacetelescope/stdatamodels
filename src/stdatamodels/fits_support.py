@@ -376,6 +376,17 @@ def _get_validators(hdulist):
     fits_context = FitsContext(hdulist)
 
     validators = HashableDict(asdf_schema.YAML_VALIDATORS)
+    tag_validator = validators["tag"]
+
+    def validate_tag(validator, tag_pattern, instance, schema):
+        af = asdf.AsdfFile()
+        if af.extension_manager.handles_type(instance.__class__):
+            for tag in af.extension_manager.get_converter_for_type(instance.__class__).tags:
+                tag_validator(validator, tag_pattern, tag, schema)
+            return
+        raise ValidationError(
+            f"Unsupported {instance} does not have a tag matching pattern {tag_pattern}"
+        )
 
     # create an extension_manager for validate_tag
     extension_manager = asdf.AsdfFile().extension_manager
