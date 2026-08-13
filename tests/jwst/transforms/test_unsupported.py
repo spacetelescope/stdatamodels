@@ -18,8 +18,7 @@ meta:
 model: !<tag:stsci.edu:jwst_pipeline/v23tosky-0.7.0>
   angles: [-0.0193, -0.1432, -0.04, -65.60, 273.089]
   axes_order: zyxyz
-...
-    """
+..."""
     path = tmp_path / "model_with_unsupported_transform.asdf"
     path.write_text(asdf_file)
     return path

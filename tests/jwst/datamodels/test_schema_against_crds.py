@@ -201,6 +201,9 @@ ref_to_datamodel_dict = {
 }
 
 
+# Ignore AsdfPackageVersionWarning from CRDS files using newer packages than in
+# this environment (likely to occur during oldestdeps testing).
+@pytest.mark.filterwarnings("ignore::asdf.exceptions.AsdfPackageVersionWarning")
 @pytest.mark.skipif(
     "config.getoption('--no-crds', True)",
     reason="no_crds option was enabled",
