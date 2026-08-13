@@ -11,6 +11,16 @@ allOf:
       max_ndim: 3
       default: 0.0
       datatype: float32
+    simul:
+      title: Simulated data array for WFSS modes
+      fits_hdu: SIMUL
+      default: 0.0
+      datatype: float32
+    contam:
+      title: Contamination data array for WFSS modes
+      fits_hdu: CONTAM
+      default: 0.0
+      datatype: float32
     dq:
       title: Data quality array
       fits_hdu: DQ
