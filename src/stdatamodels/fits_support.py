@@ -92,13 +92,6 @@ def is_builtin_fits_keyword(key):
     return _builtin_regex.match(key) is not None
 
 
-_keyword_indices = [
-    ("nnn", 1000, None),
-    ("nn", 100, None),
-    ("n", 10, None),
-    ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-]
-
 # Key where the FITS hash is stored in the ASDF tree
 FITS_HASH_KEY = "_fits_hash"
 
@@ -219,6 +212,7 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
         if pair in _cache:
             hdu = _cache[pair]
             if hdu_type is not None and not isinstance(hdu, hdu_type):
+                # this is used for Table-like hdus
                 new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
                 for key, val in hdu.header.items():
                     if not is_builtin_fits_keyword(key):
@@ -228,7 +222,6 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
             return hdu
         hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
         # add new HDU to the cache
-        pair = _get_hdu_pair(hdu_name, index=index)
         _cache[pair] = hdu
         return hdu
     # original behavior, currently still used for extra_fits handling
@@ -419,10 +412,7 @@ def _get_validators(hdulist):
 
     # Initialize a cache of HDUs for the validator.
     # This allows bypassing very slow indexing into hdulist
-    if isinstance(hdulist, fits.HDUList):
-        fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
-    else:
-        fits_hdu_cache = {}
+    fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
     partial_fits_array_writer = partial(
         _fits_array_writer, fits_context, fits_hdu_cache=fits_hdu_cache
     )
