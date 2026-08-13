@@ -103,20 +103,6 @@ _keyword_indices = [
 FITS_HASH_KEY = "_fits_hash"
 
 
-def _get_indexed_keyword(keyword, i):
-    for sub, max_value, r in _keyword_indices:
-        if sub in keyword:
-            if i >= max_value:
-                raise ValueError(f"Too many entries for given keyword '{keyword}'")
-            if r is None:
-                val = str(i)
-            else:
-                val = r[i]
-            keyword = keyword.replace(sub, val)
-
-    return keyword
-
-
 def _get_hdu_name(schema):
     hdu_name = schema.get("fits_hdu")
     if hdu_name in (None, "PRIMARY"):
@@ -245,7 +231,7 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
         pair = _get_hdu_pair(hdu_name, index=index)
         _cache[pair] = hdu
         return hdu
-    # original behavior
+    # original behavior, currently still used for extra_fits handling
     try:
         hdu = get_hdu(hdulist, hdu_name, index=index)
     except AttributeError:
@@ -431,6 +417,8 @@ def _get_validators(hdulist):
             yield ValidationError(f"tags '{tags}' do not match pattern '{tag_pattern}'")
             return
 
+    # Initialize a cache of HDUs for the validator.
+    # This allows bypassing very slow indexing into hdulist
     if isinstance(hdulist, fits.HDUList):
         fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
     else:
