@@ -1,0 +1,1 @@
+Fix slow indexing into hdulist during fits write. For one MultiSlitModel with 250 slits, runtime of save was reduced from 18 seconds to 2 seconds.
