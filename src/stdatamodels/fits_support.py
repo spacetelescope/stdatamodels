@@ -118,7 +118,7 @@ def _get_hdu_type(hdu_name, schema=None, value=None):
 
 
 def _get_hdu_pair(hdu_name, index=None):
-    if hdu_name == 0:
+    if hdu_name in [0, "PRIMARY"]:
         return ("PRIMARY", 0)
     if index is None:
         index = 0
@@ -152,12 +152,7 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
         hdu = hdulist[pair]
     except (KeyError, IndexError, AttributeError):
         try:
-            if isinstance(pair, str):
-                hdu = hdulist[(pair, 1)]
-            elif isinstance(pair, tuple) and index in [0, None]:
-                hdu = hdulist[pair[0]]
-            else:
-                raise
+            hdu = hdulist[pair[0]]
         except (KeyError, IndexError, AttributeError) as err:
             raise AttributeError(
                 f"Property missing because FITS file has no '{pair!r}' HDU"
@@ -191,54 +186,30 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     return hdu
 
 
-def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _cache=None):
-    if isinstance(hdulist, weakref.ReferenceType):
-        ref = hdulist()
-        result = _get_or_make_hdu(
-            ref, hdu_name, index=index, hdu_type=hdu_type, value=value, _cache=_cache
-        )
-        # While likely not needed (as ref will fall out of scope on
-        # return), del ref to remove the reference to the hdulist we
-        # resolved from the weakref. weakref is important here as
-        # this function is called within a validator which will be
-        # cached holding referenced objects in memory.
-        # https://github.com/spacetelescope/stdatamodels/pull/109
-        del ref
-        return result
-    # Bypass get_hdu when there's a cache because try: hdulist[pair] is slow.
+def _get_or_make_hdu(fits_context, hdu_name, hdu_type=None, value=None):
+    hdulist = fits_context.hdulist()
+    index = fits_context.sequence_index
+    _cache = fits_context.hdu_cache
+
     # We know that if the pair isn't in the cache it needs to be made.
-    if _cache is not None:
-        pair = _get_hdu_pair(hdu_name, index=index)
-        if pair in _cache:
-            hdu = _cache[pair]
-            if hdu_type is not None and not isinstance(hdu, hdu_type):
-                # this is used for Table-like hdus
-                new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-                for key, val in hdu.header.items():
-                    if not is_builtin_fits_keyword(key):
-                        new_hdu.header[key] = val
-                hdulist.remove(hdu)
-                hdu = new_hdu
-            return hdu
-        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-        # add new HDU to the cache
-        _cache[pair] = hdu
-        return hdu
-    # original behavior, currently still used for extra_fits handling
-    try:
-        hdu = get_hdu(hdulist, hdu_name, index=index)
-    except AttributeError:
-        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-    else:
+    pair = _get_hdu_pair(hdu_name, index=index)
+    if pair in _cache:
+        hdu = _cache[pair]
         if hdu_type is not None and not isinstance(hdu, hdu_type):
+            # this is used for Table-like hdus
             new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
             for key, val in hdu.header.items():
                 if not is_builtin_fits_keyword(key):
                     new_hdu.header[key] = val
             hdulist.remove(hdu)
             hdu = new_hdu
-        elif value is not None:
+        if value is not None:
             hdu.data = value
+        return hdu
+
+    hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
+    # add new HDU to the cache
+    _cache[pair] = hdu
     return hdu
 
 
@@ -273,17 +244,13 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
         current_comment_stack.pop(-1)
 
 
-def _fits_element_writer(
-    fits_context, validator, fits_keyword, instance, schema, fits_hdu_cache=None
-):
+def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema):
     if schema.get("type", "object") == "array":
         raise ValueError("'fits_keyword' is not valid with type of 'array'")
 
     hdu_name = _get_hdu_name(schema)
 
-    hdu = _get_or_make_hdu(
-        fits_context.hdulist, hdu_name, index=fits_context.sequence_index, _cache=fits_hdu_cache
-    )
+    hdu = _get_or_make_hdu(fits_context, hdu_name)
 
     for comment in fits_context.comment_stack:
         hdu.header.append((" ", ""), end=True)
@@ -302,7 +269,7 @@ def _fits_element_writer(
         hdu.header.append((fits_keyword, instance, comment), end=True)
 
 
-def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_cache=None):
+def _fits_array_writer(fits_context, validator, _, instance, schema):
     if instance is None:
         return
 
@@ -322,21 +289,16 @@ def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_ca
 
     hdu_name = _get_hdu_name(schema)
     _assert_non_primary_hdu(hdu_name)
-    index = fits_context.sequence_index
-    if index is None:
-        index = 0
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(
-        fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type, _cache=fits_hdu_cache
-    )
+    hdu = _get_or_make_hdu(fits_context, hdu_name, hdu_type=hdu_type)
 
     hdu.data = instance
     if instance_id in fits_context.extension_array_links:
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
     fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
-    hdu.ver = index + 1
+    hdu.ver = fits_context.sequence_index + 1
 
 
 # This is copied from jsonschema._validators and modified to keep track
@@ -375,12 +337,12 @@ class FitsContext:
     def __init__(self, hdulist):
         self.hdulist = weakref.ref(hdulist)
         self.comment_stack = []
-        self.sequence_index = None
+        self.sequence_index = 0
         self.extension_array_links = {}
+        self.hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
 
 
-def _get_validators(hdulist):
-    fits_context = FitsContext(hdulist)
+def _get_validators(fits_context):
 
     validators = HashableDict(asdf_schema.YAML_VALIDATORS)
 
@@ -410,17 +372,10 @@ def _get_validators(hdulist):
             yield ValidationError(f"tags '{tags}' do not match pattern '{tag_pattern}'")
             return
 
-    # Initialize a cache of HDUs for the validator.
-    # This allows bypassing very slow indexing into hdulist
-    fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
-    partial_fits_array_writer = partial(
-        _fits_array_writer, fits_context, fits_hdu_cache=fits_hdu_cache
-    )
+    partial_fits_array_writer = partial(_fits_array_writer, fits_context)
     validators.update(
         {
-            "fits_keyword": partial(
-                _fits_element_writer, fits_context, fits_hdu_cache=fits_hdu_cache
-            ),
+            "fits_keyword": partial(_fits_element_writer, fits_context),
             "ndim": partial_fits_array_writer,
             "max_ndim": partial_fits_array_writer,
             "datatype": partial_fits_array_writer,
@@ -434,7 +389,7 @@ def _get_validators(hdulist):
     return validators, fits_context
 
 
-def _save_from_schema(hdulist, tree, schema):
+def _save_from_schema(fits_context, tree, schema):
     def datetime_callback(node):
         if isinstance(node, datetime.datetime):
             node = time.Time(node)
@@ -448,7 +403,7 @@ def _save_from_schema(hdulist, tree, schema):
 
     kwargs = {"_visit_repeat_nodes": True}
 
-    validators, context = _get_validators(hdulist)
+    validators, context = _get_validators(fits_context)
     validator = asdf_schema.get_validator(schema, None, validators, **kwargs)
 
     # This actually kicks off the saving
@@ -459,16 +414,16 @@ def _save_from_schema(hdulist, tree, schema):
     def callback(node):
         if id(node) in context.extension_array_links:
             hdu = context.extension_array_links[id(node)]()
-            return _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+            return _create_tagged_dict_for_fits_array(hdu)
         elif isinstance(node, (np.ndarray, NDArrayType)):
             # in addition to links generated during validation
             # replace arrays in the tree that are identical to HDU arrays
             # with ndarray-1.0.0 tagged objects with special source values
             # that represent links to the surrounding FITS file.
             # This is important for general ASDF-in-FITS support
-            for hdu_index, hdu in enumerate(hdulist):
+            for hdu in fits_context.hdulist():
                 if hdu.data is not None and node is hdu.data:
-                    return _create_tagged_dict_for_fits_array(hdu, hdu_index)
+                    return _create_tagged_dict_for_fits_array(hdu)
         return node
 
     tree = treeutil.walk_and_modify(tree, callback)
@@ -476,7 +431,7 @@ def _save_from_schema(hdulist, tree, schema):
     return tree
 
 
-def _create_tagged_dict_for_fits_array(hdu, hdu_index):
+def _create_tagged_dict_for_fits_array(hdu):
     # Views over arrays stored in FITS files have some idiosyncrasies.
     # astropy.io.fits always writes arrays C-contiguous with big-endian
     # byte order, whereas asdf preserves the "contiguousity" and byte order
@@ -485,10 +440,7 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
         hdu.data.dtype, include_byteorder=True, override_byteorder="big"
     )
 
-    if hdu.name == "":
-        source = f"{_FITS_SOURCE_PREFIX}{hdu_index}"
-    else:
-        source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
+    source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
 
     return tagged.TaggedDict(
         data={
@@ -532,16 +484,16 @@ def _normalize_arrays(tree):
     return treeutil.walk_and_modify(tree, normalize_array)
 
 
-def _save_extra_fits(hdulist, tree):
+def _save_extra_fits(fits_context, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get("extra_fits", {}).items():
         if "data" in parts:
             hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
-            hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
-            node = _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+            hdu = _get_or_make_hdu(fits_context, hdu_name, hdu_type=hdu_type, value=parts["data"])
+            node = _create_tagged_dict_for_fits_array(hdu)
             tree["extra_fits"][hdu_name]["data"] = node
         if "header" in parts:
-            hdu = _get_or_make_hdu(hdulist, hdu_name)
+            hdu = _get_or_make_hdu(fits_context, hdu_name)
             for key, val, comment in parts["header"]:
                 if is_builtin_fits_keyword(key):
                     continue
@@ -593,8 +545,11 @@ def to_fits(tree, schema, hdulist=None):
         hdulist.append(fits.PrimaryHDU())
 
     tree = _normalize_arrays(tree)
-    tree = _save_from_schema(hdulist, tree, schema)
-    tree = _save_extra_fits(hdulist, tree)
+    fits_context = FitsContext(hdulist)
+    tree = _save_from_schema(fits_context, tree, schema)
+    tree = _save_extra_fits(fits_context, tree)
+    hdulist = fits_context.hdulist()
+
     _save_history(hdulist, tree)
 
     # Store the FITS hash in the tree
