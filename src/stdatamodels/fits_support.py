@@ -92,29 +92,8 @@ def is_builtin_fits_keyword(key):
     return _builtin_regex.match(key) is not None
 
 
-_keyword_indices = [
-    ("nnn", 1000, None),
-    ("nn", 100, None),
-    ("n", 10, None),
-    ("s", 27, " ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-]
-
 # Key where the FITS hash is stored in the ASDF tree
 FITS_HASH_KEY = "_fits_hash"
-
-
-def _get_indexed_keyword(keyword, i):
-    for sub, max_value, r in _keyword_indices:
-        if sub in keyword:
-            if i >= max_value:
-                raise ValueError(f"Too many entries for given keyword '{keyword}'")
-            if r is None:
-                val = str(i)
-            else:
-                val = r[i]
-            keyword = keyword.replace(sub, val)
-
-    return keyword
 
 
 def _get_hdu_name(schema):
@@ -139,11 +118,11 @@ def _get_hdu_type(hdu_name, schema=None, value=None):
 
 
 def _get_hdu_pair(hdu_name, index=None):
+    if hdu_name == 0:
+        return ("PRIMARY", 0)
     if index is None:
-        pair = hdu_name
-    else:
-        pair = (hdu_name, index + 1)
-    return pair
+        index = 0
+    return (hdu_name, index + 1)
 
 
 def get_hdu(hdulist, hdu_name, index=None, _cache=None):
@@ -175,7 +154,7 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
         try:
             if isinstance(pair, str):
                 hdu = hdulist[(pair, 1)]
-            elif isinstance(pair, tuple) and index == 0:
+            elif isinstance(pair, tuple) and index in [0, None]:
                 hdu = hdulist[pair[0]]
             else:
                 raise
@@ -212,10 +191,12 @@ def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
     return hdu
 
 
-def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
+def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _cache=None):
     if isinstance(hdulist, weakref.ReferenceType):
         ref = hdulist()
-        result = _get_or_make_hdu(ref, hdu_name, index=index, hdu_type=hdu_type, value=value)
+        result = _get_or_make_hdu(
+            ref, hdu_name, index=index, hdu_type=hdu_type, value=value, _cache=_cache
+        )
         # While likely not needed (as ref will fall out of scope on
         # return), del ref to remove the reference to the hdulist we
         # resolved from the weakref. weakref is important here as
@@ -224,6 +205,26 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
         # https://github.com/spacetelescope/stdatamodels/pull/109
         del ref
         return result
+    # Bypass get_hdu when there's a cache because try: hdulist[pair] is slow.
+    # We know that if the pair isn't in the cache it needs to be made.
+    if _cache is not None:
+        pair = _get_hdu_pair(hdu_name, index=index)
+        if pair in _cache:
+            hdu = _cache[pair]
+            if hdu_type is not None and not isinstance(hdu, hdu_type):
+                # this is used for Table-like hdus
+                new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
+                for key, val in hdu.header.items():
+                    if not is_builtin_fits_keyword(key):
+                        new_hdu.header[key] = val
+                hdulist.remove(hdu)
+                hdu = new_hdu
+            return hdu
+        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
+        # add new HDU to the cache
+        _cache[pair] = hdu
+        return hdu
+    # original behavior, currently still used for extra_fits handling
     try:
         hdu = get_hdu(hdulist, hdu_name, index=index)
     except AttributeError:
@@ -272,13 +273,17 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
         current_comment_stack.pop(-1)
 
 
-def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema):
+def _fits_element_writer(
+    fits_context, validator, fits_keyword, instance, schema, fits_hdu_cache=None
+):
     if schema.get("type", "object") == "array":
         raise ValueError("'fits_keyword' is not valid with type of 'array'")
 
     hdu_name = _get_hdu_name(schema)
 
-    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=fits_context.sequence_index)
+    hdu = _get_or_make_hdu(
+        fits_context.hdulist, hdu_name, index=fits_context.sequence_index, _cache=fits_hdu_cache
+    )
 
     for comment in fits_context.comment_stack:
         hdu.header.append((" ", ""), end=True)
@@ -297,7 +302,7 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
         hdu.header.append((fits_keyword, instance, comment), end=True)
 
 
-def _fits_array_writer(fits_context, validator, _, instance, schema):
+def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_cache=None):
     if instance is None:
         return
 
@@ -322,7 +327,9 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         index = 0
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type)
+    hdu = _get_or_make_hdu(
+        fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type, _cache=fits_hdu_cache
+    )
 
     hdu.data = instance
     if instance_id in fits_context.extension_array_links:
@@ -403,11 +410,17 @@ def _get_validators(hdulist):
             yield ValidationError(f"tags '{tags}' do not match pattern '{tag_pattern}'")
             return
 
-    partial_fits_array_writer = partial(_fits_array_writer, fits_context)
-
+    # Initialize a cache of HDUs for the validator.
+    # This allows bypassing very slow indexing into hdulist
+    fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
+    partial_fits_array_writer = partial(
+        _fits_array_writer, fits_context, fits_hdu_cache=fits_hdu_cache
+    )
     validators.update(
         {
-            "fits_keyword": partial(_fits_element_writer, fits_context),
+            "fits_keyword": partial(
+                _fits_element_writer, fits_context, fits_hdu_cache=fits_hdu_cache
+            ),
             "ndim": partial_fits_array_writer,
             "max_ndim": partial_fits_array_writer,
             "datatype": partial_fits_array_writer,
@@ -894,6 +907,9 @@ def from_fits_asdf(
 
 
 def _map_hdulist_to_arrays(hdulist, af):
+    # hdulist[key] is very inefficient so pre-index hdus
+    hdu_index = {(h.name, h.ver): h for h in hdulist}
+
     def callback(node):
         if (
             isinstance(node, NDArrayType)
@@ -912,8 +928,8 @@ def _map_hdulist_to_arrays(hdulist, af):
                 if parts.group("name"):
                     pair = (parts.group("name"), ver)
                 else:
-                    pair = ver
-            data = hdulist[pair].data
+                    pair = (ver, 1)
+            data = hdu_index[pair].data
             return data
         return node
 

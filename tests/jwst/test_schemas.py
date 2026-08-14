@@ -4,6 +4,7 @@ import asdf
 import astropy.units
 import pytest
 import yaml
+from astropy.io.fits.hdu.hdulist import HDUList
 
 from stdatamodels.fits_support import _get_validators
 from stdatamodels.schema import walk_schema
@@ -31,13 +32,8 @@ SCHEMA_IDS = _get_schema_ids()
 
 @pytest.fixture(scope="module")
 def known_validators():
-    # what validators do we understand?
-    # since we aren't going to use these we can feed it
-    # anything in place of a valid hdulist
-    class Foo:
-        pass
 
-    validators = _get_validators(Foo())[0]
+    validators = _get_validators(HDUList())[0]
     known_validators = set(validators.keys())
     return known_validators
 

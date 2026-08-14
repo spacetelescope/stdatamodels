@@ -1,0 +1,1 @@
+Update number of sampling points for MIRI WFSS dy to t transform, and update linear interpolation method to cubic spline to ensure smoothness of derivatives.
