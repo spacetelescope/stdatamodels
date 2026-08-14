@@ -1419,15 +1419,11 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         Parameters
         ----------
         x, y : float
-            Input x, y pixel(s). If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
+            Input x, y pixel(s). If a 2-D array, x0, y0, and wavelength must
+            all have the same shape.
         wavelength : float
-            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
+            Wavelength(s) in microns. If a 2-D array, x0, y0, and wavelength
+            must all have the same shape.
         order : int
             Input spectral order
 
@@ -1471,19 +1467,15 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
 
         Parameters
         ----------
-        model : tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]
+        model : tuple of :class:`astropy.modeling.polynomial.Polynomial2D`
             The models encoding the x, y dependence of the trace model's
             polynomial coefficients.
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
-        wavelength : float or np.ndarray
-            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
+        x0, y0 : np.ndarray
+            Source object x-center, y-center. If a 2-D array, x0, y0, and
+            wavelength must all have the same shape.
+        wavelength : np.ndarray
+            Wavelength(s) in microns. If a 2-D array, x0, y0, and wavelength must
+            all have the same shape.
 
         Returns
         -------
@@ -1500,28 +1492,53 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
                 f[i] = np.interp(w, xr, t0)
             return f
 
-        if x0.ndim == 2:
-            # Assume we're calling this on a grid where all wavelengths are the same
-            # in one dimension, and all the x,y coordinates are the same in the other dimension.
-            x0 = x0[0].flatten()
-            y0 = y0[0].flatten()
-            wavelength = wavelength[:, 0].flatten()
-
+        # Wavelength function with x, y dependence
         trace_function = partial(_poly_with_spatial_dependence, model=model)
 
-        # Create a grid of t0, x0, and y0 values
-        tt, yy = np.meshgrid(t0, y0, indexing="ij")
-        xx = np.meshgrid(t0, x0, indexing="ij")[1]
-        wave_grid = trace_function(tt, xx, yy)
-        t_out = np.empty((len(wavelength), len(x0)))
-        for i, w in enumerate(wavelength):
-            # do a first order interpolation to find the t0 where residuals are minimized
-            # at each x,y location
-            resid = (wave_grid - w) ** 2
-            t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
+        # Check for empty input
+        if x0.size == 0 or y0.size == 0:
+            return np.array([])
 
-        if t_out.shape[0] == 1:
-            t_out = t_out[0, :]
+        # Check for matching x0, y0
+        if x0.shape != y0.shape:
+            raise ValueError("x0 and y0 array shapes must match")
+
+        # Check that if any of the arrays are 2D, they all have the same shape
+        if (x0.ndim > 1 or wavelength.ndim > 1) and x0.shape != wavelength.shape:
+            raise ValueError("Inputs are >1D but array shapes do not match")
+
+        # Most common use case is a single unique x0, y0 value for all input,
+        # but it is technically possible to transform different x0, y0 values
+        # at the same time. Fit t as a function of wavelength
+        # for each set of x0, y0 in the input and use it to get the output t value.
+        x_y_pairs = np.unique(np.stack([x0.flat, y0.flat], axis=1), axis=0)
+        t_out = np.full_like(wavelength * x0, np.nan)
+        for xref, yref in x_y_pairs:
+            # Get w for each sampled t0
+            w_t = trace_function(t0, np.full_like(t0, xref), np.full_like(t0, yref))
+            idx = np.argsort(w_t)
+
+            # Spline fit to invert, for t as a function of wavelength
+            splbase = Spline1D()
+            fitter = SplineSmoothingFitter()
+            spl = fitter(splbase, w_t[idx], t0[idx], s=0)
+
+            # Set t_out for matching x,y values
+            xy_idx = (x0 == xref) & (y0 == yref)
+            if x0.size == 1:
+                # only 1 x0, y0 input: set all t_out values at once
+                t_out = spl(wavelength)
+            elif wavelength.size == 1:
+                # multiple x, y, only 1 wavelength
+                t_out[xy_idx] = spl(wavelength)
+            else:
+                # Multiple x0, y0 and wavelength input: assume
+                # shapes match
+                t_out[xy_idx] = spl(wavelength[xy_idx])
+
+        # Clip t to 0 - 1
+        t_out = np.clip(t_out, 0, 1)
+
         return t_out
 
 
