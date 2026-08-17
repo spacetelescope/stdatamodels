@@ -1,0 +1,1 @@
+Refactor FITS writer so extra_fits takes advantage of caching and HDUList is built at the very end
