@@ -296,7 +296,6 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         if fits_context.extension_array_links[instance_id]() is not hdu:
             raise ValueError("Linking one array to multiple hdus is not supported")
     fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
-    # fits_context.extension_array_links[instance_id] = hdu
     hdu.ver = fits_context.sequence_index + 1
 
 
@@ -551,11 +550,12 @@ def to_fits(tree, schema, hdulist=None):
     _save_history(fits_context, tree)
     hdus = list(fits_context.hdu_cache.values())
 
+    # Store the FITS hash in the tree
+    tree[FITS_HASH_KEY] = fits_hash(hdus)
+
     # delete any ASDF extension if present
     hdus = [hdu for hdu in hdus if hdu.name != _ASDF_EXTENSION_NAME]
 
-    # Store the FITS hash in the tree
-    tree[FITS_HASH_KEY] = fits_hash(hdus)
     hdus.append(_create_asdf_hdu(tree))
 
     return fits.HDUList(hdus)
