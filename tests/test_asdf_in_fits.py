@@ -193,3 +193,14 @@ def test_open_asdf_in_fits_hdu(saved_array_model, test_array):
             assert_array_almost_equal(af["data"], test_array)
         # make sure file was not closed with context
         assert not hdu.fileinfo(0)["file"].closed
+
+
+def test_non_named_hdus(tmp_path):
+    fn = tmp_path / "test.fits"
+    ff = fits.HDUList([fits.PrimaryHDU()] + [fits.ImageHDU([i]) for i in range(10)])
+    tree = {"hdus": [hdu.data for hdu in ff[1:]]}
+    asdf_in_fits.write(fn, tree, ff)
+
+    with asdf_in_fits.open(fn) as af:
+        for i, hdu in enumerate(tree["hdus"]):
+            assert hdu.data[0] == i
