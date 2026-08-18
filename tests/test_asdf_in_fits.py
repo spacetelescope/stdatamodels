@@ -198,6 +198,10 @@ def test_open_asdf_in_fits_hdu(saved_array_model, test_array):
 def test_non_named_hdus(tmp_path):
     fn = tmp_path / "test.fits"
     ff = fits.HDUList([fits.PrimaryHDU()] + [fits.ImageHDU([i]) for i in range(10)])
+    # give a few names so that the index of nameless hdus
+    # doesn't match the index of all hdus
+    ff[5].name = "FOO"
+    ff[7].name = "FOO"
     tree = {"hdus": [hdu.data for hdu in ff[1:]]}
     asdf_in_fits.write(fn, tree, ff)
 
