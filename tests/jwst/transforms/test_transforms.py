@@ -416,10 +416,8 @@ def _invdisp_interp_old(model, x0, y0, wavelength):
     return f
 
 
-@pytest.mark.parametrize("n_coeffs", [2, 3])
-def test_nircam_backward_grism_dispersion(n_coeffs):
-    """Ensure algorithm change works similarly to legacy code."""
-
+@pytest.fixture
+def nircam_backward_grism_dispersion():
     def _mock_coeff(x, y):
         """
         Simulate dependence of the polynomial coefficients on the detector position.
@@ -430,73 +428,142 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
         """
         return (x / 100) * 1e-6
 
+    n_coeffs = 3
     lmodel = [_mock_coeff] * n_coeffs
 
     orders = [1, 2]
     lmodels = [lmodel] * len(orders)
     xmodels = [Identity(1)] * len(orders)
     ymodels = [Identity(1)] * len(orders)
-
     sampling = 80
-    # imagine we are dispersing a square 5x5 source
-    # then x0, y0 are expected to be flattened arrays of the grid
-    # such that each (x0[i], y0[i]) corresponds to a unique pixel in the source
-    # but x0 or y0 itself can and usually will have repeated values
+    model = models.NIRCAMBackwardGrismDispersion(
+        orders, lmodels, xmodels, ymodels, sampling=sampling
+    )
+    return model
+
+
+def test_nircam_backward_grism_dispersion(nircam_backward_grism_dispersion):
+    """Ensure algorithm change works similarly to legacy code."""
+    model = nircam_backward_grism_dispersion
+
+    # Test a set of input x0 and y0 values. This is unrealistic
+    # for a real exposure, which will have a single x0, y0 value for
+    # all pixels, but is technically allowed by the transform.
     x = np.linspace(100, 200, 5)
     y = np.linspace(90, 190, 5)
     x0, y0 = np.meshgrid(x, y, indexing="ij")
     x0 = x0.flatten()
     y0 = y0.flatten()
 
+    # Test a range of wavelengths at each x0, y0
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
-    model = models.NIRCAMBackwardGrismDispersion(
-        orders, lmodels, xmodels, ymodels, sampling=sampling
-    )
-    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl)
 
-    # for this version we need to make x0, y0, wl all have same shape
+    # Expand input arrays to 2D
+    x02d = np.empty((21, 25))
+    y02d = np.empty((21, 25))
+    wl2d = np.empty((21, 25))
+    x02d[:, :] = x0[None, :]
+    y02d[:, :] = y0[None, :]
+    wl2d[:, :] = wl[:, None]
+
+    t_out = model.invdisp_interp(model.lmodels[0], x02d, y02d, wl2d)
+
+    # Compare to older method
     t2_out = np.empty_like(t_out)
     for i, this_wl in enumerate(wl):
         wl2 = this_wl * np.ones_like(x0)
-        t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
+        t2 = _invdisp_interp_old(model.lmodels[0], x0, y0, wl2)
         t2_out[i] = t2
-
     assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
 
 
-def test_nircam_backward_grism_dispersion_single():
+def test_nircam_backward_grism_dispersion_single(nircam_backward_grism_dispersion):
     """Smoke test to ensure works on single-valued inputs as well."""
-
-    def _mock_coeff(x, y):
-        return (x / 100) * 1e-6
-
-    lmodel = [_mock_coeff] * 2
-
+    model = nircam_backward_grism_dispersion
     orders = np.array([1])
-    lmodels = [lmodel] * len(orders)
-    xmodels = [Identity(1)] * len(orders)
-    ymodels = [Identity(1)] * len(orders)
 
     # many wavelengths, single x0, y0
     x0 = 150
     y0 = 140
     wl = np.linspace(1.5e-6, 2.5e-6, 21)  # 2 microns
-    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == wl.size
     assert yi.size == wl.size
     assert x == x0
     assert y == y0
-    assert_allclose(order, orders[0])
+    assert_allclose(order, model.orders[0])
 
     # many x0, y0, single wavelength
     x0 = np.linspace(100, 200, 11)
     y0 = np.linspace(90, 190, 11)
     wl = 2e-6  # 2 microns
-    model = models.NIRCAMBackwardGrismDispersion(orders, lmodels, xmodels, ymodels)
     xi, yi, x, y, order = model.evaluate(x0, y0, wl, orders)
     assert xi.size == x0.size
     assert yi.size == y0.size
+
+
+def test_nircam_backward_grism_dispersion_paired_1d(nircam_backward_grism_dispersion):
+    """
+    Test the paired 1-D case of NIRCam backward grism dispersion.
+
+    When x0, y0, and wavelength are 1-D arrays of the same length N > 1,
+    each wavelength[i] is paired with source position (x0[i], y0[i]).
+    The output should have shape (N,) and agree with element-wise calls
+    through the general code path.
+    """
+    model = nircam_backward_grism_dispersion
+    orders = np.array([1])
+
+    # N source positions, each paired with a unique wavelength
+    N = 8
+    x0 = np.linspace(100, 200, N)
+    y0 = np.linspace(90, 190, N)
+    wl = np.linspace(1.5e-6, 2.5e-6, N)
+    xi, yi, x0_out, y0_out, order_out = model.evaluate(x0, y0, wl, orders)
+    assert xi.shape == (N,)
+    assert yi.shape == (N,)
+
+    # Run individually and ensure the results are the same as the vectorized version
+    xi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[0][0] for i in range(N)])
+    yi_individual = np.array([model.evaluate(x0[i], y0[i], wl[i], orders)[1][0] for i in range(N)])
+    assert_allclose(xi, xi_individual, atol=1e-6, rtol=0)
+    assert_allclose(yi, yi_individual, atol=1e-6, rtol=0)
+
+
+def test_nircam_backward_grism_empty_xy(nircam_backward_grism_dispersion):
+    model = nircam_backward_grism_dispersion
+    x, y, x0, y0, order = model([], [], 2.2, 1)
+    assert x.size == 0
+    assert y.size == 0
+    assert x0.size == 0
+    assert y0.size == 0
+    assert order == 1.0
+
+
+def test_nircam_backward_grism_empty_wavelength(nircam_backward_grism_dispersion):
+    model = nircam_backward_grism_dispersion
+    x, y, x0, y0, order = model(10, 20, [], 1)
+    assert x.size == 0
+    assert y.size == 0
+    assert x0 == 10
+    assert y0 == 20
+    assert order == 1.0
+
+
+def test_nircam_backward_grism_xy_mismatch(nircam_backward_grism_dispersion):
+    model = nircam_backward_grism_dispersion
+    with pytest.raises(ValueError, match="x0 and y0 array shapes must match"):
+        model(10, [20, 30], 2.2, 1)
+
+
+@pytest.mark.parametrize(
+    "x,y,w",
+    [(np.ones((3, 3)), np.ones((3, 3)), 2.2), (np.ones((3, 3)), np.ones((3, 3)), np.arange(3))],
+)
+def test_nircam_backward_grism_xy_w_mismatch(nircam_backward_grism_dispersion, x, y, w):
+    model = nircam_backward_grism_dispersion
+    with pytest.raises(ValueError, match="array shapes do not match"):
+        model(x, y, w, 1)
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])

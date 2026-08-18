@@ -1,0 +1,2 @@
+For the NIRCam grism backward dispersion model, update linear interpolation method to cubic spline for better roundtrip accuracy.
+Also, allow paired 1D vector inputs to the backward transform, returning a 1D vector output.
