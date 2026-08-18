@@ -668,6 +668,10 @@ class DataModel(properties.ObjectNode):
                 # Avoid this.
                 if "ASDF" in hdulist:
                     del hdulist["ASDF"]
+            if "checksum" not in kwargs and any(
+                "CHECKSUM" in hdu.header or "DATASUM" in hdu.header for hdu in hdulist
+            ):
+                kwargs["checksum"] = True
             hdulist.writeto(init, *args, **kwargs)
 
     @property
