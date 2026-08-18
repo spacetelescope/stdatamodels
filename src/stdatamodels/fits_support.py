@@ -339,7 +339,14 @@ class FitsContext:
         if hdulist is None:
             self.hdu_cache = {("PRIMARY", 0): fits.PrimaryHDU()}
         else:
-            self.hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
+            self.hdu_cache = {}
+            nameless_idx = 0
+            for hdu in hdulist:
+                if hdu.name in [None, ""]:
+                    # give any nameless HDUs a ver to differentiate them
+                    nameless_idx += 1
+                    hdu.ver = nameless_idx
+                self.hdu_cache[(hdu.name, hdu.ver - 1)] = hdu
 
 
 def _get_validators(fits_context):
@@ -440,7 +447,10 @@ def _create_tagged_dict_for_fits_array(hdu):
         hdu.data.dtype, include_byteorder=True, override_byteorder="big"
     )
 
-    source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
+    if hdu.name == "":
+        source = f"{_FITS_SOURCE_PREFIX}{hdu.ver}"
+    else:
+        source = f"{_FITS_SOURCE_PREFIX}{hdu.name},{hdu.ver}"
 
     return tagged.TaggedDict(
         data={
@@ -861,7 +871,7 @@ def from_fits_asdf(
 
 def _map_hdulist_to_arrays(hdulist, af):
     # hdulist[key] is very inefficient so pre-index hdus
-    hdu_index = {(h.name or i, h.ver): h for i, h in enumerate(hdulist)}
+    hdu_index = {(h.name, h.ver): h for h in hdulist}
 
     def callback(node):
         if (
@@ -881,7 +891,7 @@ def _map_hdulist_to_arrays(hdulist, af):
                 if parts.group("name"):
                     pair = (parts.group("name"), ver)
                 else:
-                    pair = (ver, 1)
+                    pair = ("", ver)
             data = hdu_index[pair].data
             return data
         return node
