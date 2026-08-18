@@ -886,14 +886,12 @@ def _map_hdulist_to_arrays(hdulist, af):
                 "((?P<name>[ -~]+),)?(?P<ver>[0-9]+)",
                 source[len(_FITS_SOURCE_PREFIX) :],
             )
-            if parts is not None:
-                ver = int(parts.group("ver"))
-                if parts.group("name"):
-                    pair = (parts.group("name"), ver)
-                else:
-                    pair = ("", ver)
-            data = hdu_index[pair].data
-            return data
+            ver = int(parts.group("ver"))
+            if parts.group("name"):
+                pair = (parts.group("name"), ver)
+            else:
+                pair = ("", ver)
+            return hdu_index[pair].data
         return node
 
     # don't assign to af.tree to avoid an extra validation
