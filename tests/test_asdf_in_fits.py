@@ -201,10 +201,12 @@ def test_non_named_hdus(tmp_path):
     # give a few names so that the index of nameless hdus
     # doesn't match the index of all hdus
     ff[5].name = "FOO"
+    ff[5].ver = 1
     ff[7].name = "FOO"
+    ff[7].ver = 2
     tree = {"hdus": [hdu.data for hdu in ff[1:]]}
     asdf_in_fits.write(fn, tree, ff)
 
     with asdf_in_fits.open(fn) as af:
-        for i, hdu in enumerate(tree["hdus"]):
-            assert hdu.data[0] == i
+        for i, hdu in enumerate(af.tree["hdus"]):
+            assert hdu[0] == i
