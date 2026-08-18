@@ -1483,7 +1483,6 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             The inverse dispersion value for the given wavelength
         """
         t0 = np.linspace(0.0, 1.0, int(self.sampling))
-
         if len(model) < 2:
             # Handle legacy versions of the trace model
             xr = _evaluate_transform_guess_form(model, x=x0, y=y0, t=t0)
@@ -1507,13 +1506,16 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         if (x0.ndim > 1 or wavelength.ndim > 1) and x0.shape != wavelength.shape:
             raise ValueError("Inputs are >1D but array shapes do not match")
 
-        # Most common use case is a single unique x0, y0 value for all input,
-        # but it is technically possible to transform different x0, y0 values
-        # at the same time. Fit t as a function of wavelength
+        # It is possible to transform different x0, y0 values at the same time
+        # (e.g., for WFSS sources). Fit t as a function of wavelength
         # for each set of x0, y0 in the input and use it to get the output t value.
         x_y_pairs = np.unique(np.stack([x0.flat, y0.flat], axis=1), axis=0)
         t_out = np.full_like(wavelength * x0, np.nan)
         for xref, yref in x_y_pairs:
+            # If invalid, skip this pair: t_out will be NaN for this input.
+            if np.isnan(xref) or np.isnan(yref):
+                continue
+
             # Get w for each sampled t0
             w_t = trace_function(t0, np.full_like(t0, xref), np.full_like(t0, yref))
             idx = np.argsort(w_t)
@@ -1536,7 +1538,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
                 # shapes match
                 t_out[xy_idx] = spl(wavelength[xy_idx])
 
-        # Clip t to 0 - 1
+        # Clip real t values to 0 - 1 (NaNs will remain)
         t_out = np.clip(t_out, 0, 1)
 
         return t_out
