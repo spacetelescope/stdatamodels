@@ -340,12 +340,10 @@ class FitsContext:
             self.hdu_cache = {("PRIMARY", 0): fits.PrimaryHDU()}
         else:
             self.hdu_cache = {}
-            nameless_idx = 0
-            for hdu in hdulist:
+            for i, hdu in enumerate(hdulist):
                 if hdu.name in [None, ""]:
-                    # give any nameless HDUs a ver to differentiate them
-                    nameless_idx += 1
-                    hdu.ver = nameless_idx
+                    # give nameless HDUs a ver equal to their index in the file
+                    hdu.ver = i
                 self.hdu_cache[(hdu.name, hdu.ver - 1)] = hdu
 
 
