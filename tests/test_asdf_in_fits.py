@@ -210,3 +210,39 @@ def test_non_named_hdus(tmp_path):
     with asdf_in_fits.open(fn) as af:
         for i, hdu in enumerate(af.tree["hdus"]):
             assert hdu[0] == i
+
+
+def test_expected_source_indexing(tmp_path):
+    """
+    Test that expected indexing scheme of FITS extensions can be read.
+
+    The ASDF extension references FITS extensions using a specific indexing scheme,
+    with named extensions having NAME,IDX where IDX is the index among extensions with
+    that exact name, and unnamed extensions have just IDX, where IDX is the index
+    among all extensions.
+    It's possible to break the indexing scheme on write but also update the indexing scheme
+    on read to match, such that we would be silently breaking read of old files.
+    This test catches that case by explicitly defining the asdf bytes with the expected
+    indexing scheme and forcing the reader to be able to parse that correctly.
+    """
+    ff = fits.HDUList()
+    ff.append(fits.PrimaryHDU())
+    ff.append(fits.ImageHDU([0]))
+    ff.append(fits.ImageHDU([1], name="SCI"))
+    ff.append(fits.ImageHDU([2]))
+
+    asdf_bytes = b"#ASDF 1.0.0\n#ASDF_STANDARD 1.6.0\n%YAML 1.1\n%TAG ! tag:stsci.edu:asdf/\n--- !core/asdf-1.1.0\narrs:\n- !core/ndarray-1.1.0\n  source: fits:1\n  datatype: int64\n  byteorder: big\n  shape: [1]\n- !core/ndarray-1.1.0\n  source: fits:SCI,1\n  datatype: int64\n  byteorder: big\n  shape: [1]\n- !core/ndarray-1.1.0\n  source: fits:3\n  datatype: int64\n  byteorder: big\n  shape: [1]\n..."
+
+    data = np.frombuffer(asdf_bytes, dtype=np.uint8)[None, :]
+    fmt = f"{len(data[0])}B"
+    column = fits.Column(array=data, format=fmt, name="ASDF_METADATA")
+    ff.append(fits.BinTableHDU.from_columns([column], name="ASDF"))
+
+    foo_fn = tmp_path / "foo.fits"
+    ff.writeto(foo_fn, overwrite=True)
+
+    af = asdf_in_fits.open(foo_fn)
+    assert af["arrs"][0][0] == 0
+    assert af["arrs"][1][0] == 1
+    assert af["arrs"][2][0] == 2
+    assert af["arrs"][2][0] == 2

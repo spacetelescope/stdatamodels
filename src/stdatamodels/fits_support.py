@@ -342,8 +342,9 @@ class FitsContext:
             self.hdu_cache = {}
             for i, hdu in enumerate(hdulist):
                 if hdu.name in [None, ""]:
-                    # give nameless HDUs a ver equal to their index in the file
-                    hdu.ver = i
+                    # give nameless HDUs a name equal to their index in the file
+                    hdu.name = str(i)
+                    hdu.ver = 1
                 self.hdu_cache[(hdu.name, hdu.ver - 1)] = hdu
 
 
@@ -869,7 +870,7 @@ def from_fits_asdf(
 
 def _map_hdulist_to_arrays(hdulist, af):
     # hdulist[key] is very inefficient so pre-index hdus
-    hdu_index = {(h.name, h.ver or i): h for i, h in enumerate(hdulist)}
+    hdu_index = {(h.name or i, h.ver): h for i, h in enumerate(hdulist)}
 
     def callback(node):
         if (
@@ -884,12 +885,14 @@ def _map_hdulist_to_arrays(hdulist, af):
                 "((?P<name>[ -~]+),)?(?P<ver>[0-9]+)",
                 source[len(_FITS_SOURCE_PREFIX) :],
             )
-            ver = int(parts.group("ver"))
-            if parts.group("name"):
-                pair = (parts.group("name"), ver)
-            else:
-                pair = ("", ver)
-            return hdu_index[pair].data
+            if parts is not None:
+                ver = int(parts.group("ver"))
+                if parts.group("name"):
+                    pair = (parts.group("name"), ver)
+                else:
+                    pair = (ver, 1)
+            data = hdu_index[pair].data
+            return data
         return node
 
     # don't assign to af.tree to avoid an extra validation
