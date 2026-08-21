@@ -970,7 +970,7 @@ def _can_skip_fits_update(hdulist, asdf_struct, context):
 
     # Check for FITS hash and compare to current. If equal, automatically skip.
     if asdf_struct.tree.get(FITS_HASH_KEY, None) is not None:
-        if asdf_struct.tree[FITS_HASH_KEY] == fits_hash(list(hdulist)):
+        if asdf_struct.tree[FITS_HASH_KEY] == fits_hash(hdulist):
             log.debug("FITS hash matches. Skipping FITS updating.")
             return True
 
@@ -986,7 +986,7 @@ def fits_hash(hdus):
 
     Parameters
     ----------
-    hdus : list[HDU]
+    hdus : `astropy.io.fits.HDUList` or plain list of HDUs
         All the HDUs.
 
     Returns
