@@ -240,9 +240,10 @@ def test_expected_source_indexing(tmp_path):
 
     foo_fn = tmp_path / "foo.fits"
     ff.writeto(foo_fn, overwrite=True)
+    ff.close()
 
-    af = asdf_in_fits.open(foo_fn)
-    assert af["arrs"][0][0] == 0
-    assert af["arrs"][1][0] == 1
-    assert af["arrs"][2][0] == 2
-    assert af["arrs"][2][0] == 2
+    with asdf_in_fits.open(foo_fn) as af:
+        assert af["arrs"][0][0] == 0
+        assert af["arrs"][1][0] == 1
+        assert af["arrs"][2][0] == 2
+        assert af["arrs"][2][0] == 2
