@@ -344,7 +344,6 @@ class FitsContext:
                 if hdu.name in [None, ""]:
                     # give nameless HDUs a name equal to their index in the file
                     hdu.name = str(i)
-                    hdu.ver = 1
                 self.hdu_cache[(hdu.name, hdu.ver - 1)] = hdu
 
 
