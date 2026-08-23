@@ -4,7 +4,6 @@ import io
 import logging
 import re
 import warnings
-import weakref
 from functools import partial
 
 import asdf
@@ -104,17 +103,15 @@ def _get_hdu_name(schema):
 
 
 def _get_hdu_type(hdu_name, schema=None, value=None):
-    hdu_type = None
     if hdu_name in (0, "PRIMARY"):
-        hdu_type = fits.PrimaryHDU
-    elif schema is not None:
-        dtype = ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"])
-        if dtype.fields is not None:
-            hdu_type = fits.BinTableHDU
-    elif value is not None:
+        return fits.PrimaryHDU
+    if schema is not None and "dataype" in schema:
+        if ndarray.asdf_datatype_to_numpy_dtype(schema["datatype"]).fields is not None:
+            return fits.BinTableHDU
+    if value is not None:
         if hasattr(value, "dtype") and value.dtype.names is not None:
-            hdu_type = fits.BinTableHDU
-    return hdu_type
+            return fits.BinTableHDU
+    return fits.ImageHDU
 
 
 def _get_hdu_pair(hdu_name, index=None):
@@ -172,76 +169,6 @@ def get_hdu(hdulist, hdu_name, index=None, _cache=None):
     return hdu
 
 
-def _make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None):
-    if isinstance(value, NDArrayType):
-        value = np.asarray(value)
-
-    if hdu_type is None:
-        hdu_type = _get_hdu_type(hdu_name, value=value)
-        if hdu_type is None:
-            hdu_type = fits.ImageHDU
-
-    if hdu_type == fits.PrimaryHDU:
-        hdu = hdu_type(value)
-    else:
-        hdu = hdu_type(value, name=hdu_name)
-    if index is not None:
-        hdu.ver = index + 1
-    hdulist.append(hdu)
-    return hdu
-
-
-def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _cache=None):
-    if isinstance(hdulist, weakref.ReferenceType):
-        ref = hdulist()
-        result = _get_or_make_hdu(
-            ref, hdu_name, index=index, hdu_type=hdu_type, value=value, _cache=_cache
-        )
-        # While likely not needed (as ref will fall out of scope on
-        # return), del ref to remove the reference to the hdulist we
-        # resolved from the weakref. weakref is important here as
-        # this function is called within a validator which will be
-        # cached holding referenced objects in memory.
-        # https://github.com/spacetelescope/stdatamodels/pull/109
-        del ref
-        return result
-    # Bypass get_hdu when there's a cache because try: hdulist[pair] is slow.
-    # We know that if the pair isn't in the cache it needs to be made.
-    if _cache is not None:
-        pair = _get_hdu_pair(hdu_name, index=index)
-        if pair in _cache:
-            hdu = _cache[pair]
-            if hdu_type is not None and not isinstance(hdu, hdu_type):
-                # this is used for Table-like hdus
-                new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-                for card in hdu.header.cards:
-                    if not is_builtin_fits_keyword(card.keyword):
-                        new_hdu.header[card.keyword] = (card.value, card.comment)
-                hdulist.remove(hdu)
-                hdu = new_hdu
-            return hdu
-        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-        # add new HDU to the cache
-        _cache[pair] = hdu
-        return hdu
-    # original behavior, currently still used for extra_fits handling
-    try:
-        hdu = get_hdu(hdulist, hdu_name, index=index)
-    except AttributeError:
-        hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-    else:
-        if hdu_type is not None and not isinstance(hdu, hdu_type):
-            new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-            for card in hdu.header.cards:
-                if not is_builtin_fits_keyword(card.keyword):
-                    new_hdu.header[card.keyword] = (card.value, card.comment)
-            hdulist.remove(hdu)
-            hdu = new_hdu
-        elif value is not None:
-            hdu.data = value
-    return hdu
-
-
 ##############################################################################
 # WRITER
 
@@ -268,17 +195,29 @@ def _fits_comment_section_handler(fits_context, validator, properties, instance,
         current_comment_stack.pop(-1)
 
 
-def _fits_element_writer(
-    fits_context, validator, fits_keyword, instance, schema, fits_hdu_cache=None
-):
+def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema):
     if schema.get("type", "object") == "array":
         raise ValueError("'fits_keyword' is not valid with type of 'array'")
 
-    hdu_name = _get_hdu_name(schema)
+    hdu_name = schema.get("fits_hdu", "PRIMARY")
 
-    hdu = _get_or_make_hdu(
-        fits_context.hdulist, hdu_name, index=fits_context.sequence_index, _cache=fits_hdu_cache
-    )
+    if fits_context.sequence_index is not None:
+        name = (hdu_name, fits_context.sequence_index)
+    else:
+        name = hdu_name
+
+    if fits_context.has_name(name):
+        hdu = fits_context.by_name(name)
+    else:
+        # make a new one
+        hdu_type = _get_hdu_type(hdu_name, schema=schema)
+        if hdu_type is fits.PrimaryHDU:
+            hdu = hdu_type()
+        else:
+            hdu = hdu_type(name=hdu_name, ver=fits_context.sequence_index)
+
+        # add it to the context
+        fits_context.append(hdu)
 
     for comment in fits_context.comment_stack:
         hdu.header.append((" ", ""), end=True)
@@ -297,7 +236,7 @@ def _fits_element_writer(
         hdu.header.append((fits_keyword, instance, comment), end=True)
 
 
-def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_cache=None):
+def _fits_array_writer(fits_context, validator, _, instance, schema):
     if instance is None:
         return
 
@@ -315,22 +254,46 @@ def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_ca
     if "datatype" in schema:
         yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
-    hdu_name = _get_hdu_name(schema)
-    index = fits_context.sequence_index
-    if index is None:
-        index = 0
+    hdu_name = schema.get("fits_hdu", "PRIMARY")
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
-    hdu = _get_or_make_hdu(
-        fits_context.hdulist, hdu_name, index=index, hdu_type=hdu_type, _cache=fits_hdu_cache
-    )
 
-    hdu.data = instance
-    if instance_id in fits_context.extension_array_links:
-        if fits_context.extension_array_links[instance_id]() is not hdu:
+    if fits_context.sequence_index is not None:
+        name = (hdu_name, fits_context.sequence_index)
+    else:
+        name = hdu_name
+
+    # Do we need to make an HDU?
+    if fits_context.has_name(name):
+        hdu = fits_context.by_name(name)
+
+        # is the type correct?
+        if isinstance(hdu, hdu_type):
+            # TODO can we avoid assigning to data
+            hdu.data = instance
+        else:
+            # make a new hdu with the existing header
+            header = fits.Header(
+                [card for card in hdu.header.cards if not is_builtin_fits_keyword(card.keyword)]
+            )
+            hdu = hdu_type(
+                data=instance, name=hdu_name, ver=fits_context.sequence_index, header=header
+            )
+
+            # replace the existing hdu
+            fits_context.replace(hdu)
+    else:
+        # make a new hdu
+        hdu = hdu_type(data=instance, name=hdu_name, ver=fits_context.sequence_index)
+
+        # add it to the context
+        fits_context.append(hdu)
+
+    if other_index := fits_context.extension_array_links.get(instance_id):
+        if fits_context.get_index(name) != other_index:
             raise ValueError("Linking one array to multiple hdus is not supported")
-    fits_context.extension_array_links[instance_id] = weakref.ref(hdu)
-    hdu.ver = index + 1
+    else:
+        fits_context.extension_array_links[instance_id] = fits_context.get_index(name)
 
 
 # This is copied from jsonschema._validators and modified to keep track
@@ -342,7 +305,7 @@ def _fits_item_recurse(fits_context, validator, items, instance, schema):
     if validator.is_type(items, "object"):
         initial_index = fits_context.sequence_index
         for index, item in enumerate(instance):
-            fits_context.sequence_index = index
+            fits_context.sequence_index = index + 1
             for error in validator.descend(item, items, path=index):
                 yield error
         fits_context.sequence_index = initial_index
@@ -366,16 +329,91 @@ def _fits_type(fits_context, validator, items, instance, schema):
 
 
 class FitsContext:
-    def __init__(self, hdulist):
-        self.hdulist = weakref.ref(hdulist)
+    def __init__(self, hdulist=None):
+        self._preindex_hdulist(hdulist)
         self.comment_stack = []
         self.sequence_index = None
         self.extension_array_links = {}
 
+    def get_index(self, name):
+        return self._name_to_index[name]
 
-def _get_validators(hdulist):
-    fits_context = FitsContext(hdulist)
+    def by_name(self, name):
+        return self._hdus[self.get_index(name)]
 
+    def has_name(self, name):
+        return name in self._name_to_index
+
+    def by_index(self, index):
+        return self._hdus[index]
+
+    def replace(self, hdu):
+        if ver := hdu.header.get("EXTVER"):
+            name = (hdu.name, ver)
+        else:
+            name = hdu.name
+        self._hdus[self.get_index(name)] = hdu
+
+    def append(self, hdu):
+        self._hdus.append(hdu)
+        index = len(self._hdus) - 1
+        if ver := hdu.header.get("EXTVER"):
+            name = (hdu.name, ver)
+        else:
+            name = hdu.name
+        self._name_to_index[name] = index
+        self._index_to_name[index] = name
+
+    def _clear_hdus(self):
+        self._hdus = []
+        self._name_to_index = {}
+        self._index_to_name = {}
+
+    def _preindex_hdulist(self, hdulist=None):
+        self._clear_hdus()
+
+        if not hdulist:
+            self._hdus = [fits.PrimaryHDU()]
+        else:
+            # Don't include any previous ASDF HDU
+            self._hdus = [hdu for hdu in hdulist if hdu.name != _ASDF_EXTENSION_NAME]
+
+        for index, hdu in enumerate(self._hdus):
+            # Only use version if EXTVER is defined as astropy
+            # will return 1 for ver even if the HDU has no EXTVER
+            if ver := hdu.header.get("EXTVER"):
+                name = (hdu.name, ver)
+            else:
+                name = hdu.name
+
+            if name in self._name_to_index:
+                raise Exception(f"Multiple HDUs share {name}, this is unsupported")
+
+            self._name_to_index[name] = index
+            self._index_to_name[index] = name
+
+    def to_hdulist(self, tree):
+        # TODO strip ASDF to appease a unit test, perhaps we remove the test?
+        if self.has_name(_ASDF_EXTENSION_NAME):
+            del self._hdus[self.get_index(_ASDF_EXTENSION_NAME)]
+
+        # add hash
+        tree[FITS_HASH_KEY] = fits_hash(self._hdus)
+
+        # add ASDF
+        self._hdus.append(_create_asdf_hdu(tree))
+
+        # convert to hdulist
+        hdulist = fits.HDUList(self._hdus)
+
+        # wipe all references to HDUs since this context will
+        # be cached with the validator partial
+        self._clear_hdus()
+
+        return hdulist
+
+
+def _get_validators(fits_context):
     validators = HashableDict(asdf_schema.YAML_VALIDATORS)
 
     # create an extension_manager for validate_tag
@@ -406,15 +444,10 @@ def _get_validators(hdulist):
 
     # Initialize a cache of HDUs for the validator.
     # This allows bypassing very slow indexing into hdulist
-    fits_hdu_cache = {(hdu.name, hdu.ver - 1): hdu for hdu in hdulist}
-    partial_fits_array_writer = partial(
-        _fits_array_writer, fits_context, fits_hdu_cache=fits_hdu_cache
-    )
+    partial_fits_array_writer = partial(_fits_array_writer, fits_context)
     validators.update(
         {
-            "fits_keyword": partial(
-                _fits_element_writer, fits_context, fits_hdu_cache=fits_hdu_cache
-            ),
+            "fits_keyword": partial(_fits_element_writer, fits_context),
             "ndim": partial_fits_array_writer,
             "max_ndim": partial_fits_array_writer,
             "datatype": partial_fits_array_writer,
@@ -425,42 +458,29 @@ def _get_validators(hdulist):
         }
     )
 
-    return validators, fits_context
+    return validators
 
 
-def _save_from_schema(hdulist, tree, schema):
-    def datetime_callback(node):
-        if isinstance(node, datetime.datetime):
-            node = time.Time(node)
-
-        if isinstance(node, time.Time):
-            node = str(time.Time(node, format="iso"))
-
-        return node
-
-    tree = treeutil.walk_and_modify(tree, datetime_callback)
-
+def _save_from_schema(fits_context, tree, schema):
     kwargs = {"_visit_repeat_nodes": True}
 
-    validators, context = _get_validators(hdulist)
+    validators = _get_validators(fits_context)
     validator = asdf_schema.get_validator(schema, None, validators, **kwargs)
 
     # This actually kicks off the saving
     validator.validate(tree, _schema=schema)
 
     # Now link extensions to items in the tree
-
     def callback(node):
-        if id(node) in context.extension_array_links:
-            hdu = context.extension_array_links[id(node)]()
-            return _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
+        if hdu_index := fits_context.extension_array_links.get(id(node)):
+            return _create_tagged_dict_for_fits_array(fits_context.by_index(hdu_index), hdu_index)
         elif isinstance(node, (np.ndarray, NDArrayType)):
             # in addition to links generated during validation
             # replace arrays in the tree that are identical to HDU arrays
             # with ndarray-1.0.0 tagged objects with special source values
             # that represent links to the surrounding FITS file.
             # This is important for general ASDF-in-FITS support
-            for hdu_index, hdu in enumerate(hdulist):
+            for hdu_index, hdu in enumerate(fits_context._hdus):
                 if hdu.data is not None and node is hdu.data:
                     return _create_tagged_dict_for_fits_array(hdu, hdu_index)
         return node
@@ -495,56 +515,60 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
     )
 
 
-def _normalize_arrays(tree):
-    """
-    Convert arrays in the tree to C-contiguous.
-
-    They are written to disk by astropy.io.fits in C-contiguous, and we
-    don't want the asdf library to notice the change in memory
-    layout and duplicate the array in the embedded ASDF.
-
-    Parameters
-    ----------
-    tree : dict
-        The ASDF tree.
-
-    Returns
-    -------
-    tree : dict
-        The ASDF tree with all arrays converted to C-contiguous.
-    """
-
-    def normalize_array(node):
-        if isinstance(node, np.ndarray):
-            # We can't use np.ascontiguousarray because it converts FITS_rec
-            # to vanilla np.ndarray, which results in misinterpretation of
-            # unsigned int values.
-            if not node.flags.c_contiguous:
-                node = node.copy()
-        return node
-
-    return treeutil.walk_and_modify(tree, normalize_array)
-
-
-def _save_extra_fits(hdulist, tree):
+def _save_extra_fits(fits_context, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get("extra_fits", {}).items():
+        # only consider non-builtin keywords
+        cards = [
+            fits.Card(*h) for h in parts.get("header", []) if not is_builtin_fits_keyword(h[0])
+        ]
+
+        # first sort out expected type
+        hdu_type = _get_hdu_type(hdu_name, value=parts.get("data"))
+
+        # does the hdu exist?
+        if fits_context.has_name(hdu_name):
+            # get the existing hdu
+            hdu = fits_context.by_name(hdu_name)
+
+            # is it the right type? only check if there is data
+            if "data" in parts and not isinstance(hdu, hdu_type):
+                # sort out the new header
+                merged_cards = [
+                    card for card in hdu.header.cards if not is_builtin_fits_keyword(card.keyword)
+                ] + cards
+
+                # make a new hdu
+                hdu = hdu_type(data=parts.get("data"), header=fits.Header(merged_cards))
+
+                # replace the old one
+                fits_context.replace(hdu)
+            else:
+                # update the data
+                # TODO can we avoid assigning to data?
+                if "data" in parts:
+                    hdu.data = parts.get("data")
+
+                # add to the header
+                hdu.header.extend(cards, end=True)
+        else:
+            # make a new hdu
+            hdu = hdu_type(name=hdu_name, data=parts.get("data"), header=fits.Header(cards))
+
+            # add this to the context
+            fits_context.append(hdu)
+
+        # update the tree with a reference to the data
         if "data" in parts:
-            hdu_type = _get_hdu_type(hdu_name, value=parts["data"])
-            hdu = _get_or_make_hdu(hdulist, hdu_name, hdu_type=hdu_type, value=parts["data"])
-            node = _create_tagged_dict_for_fits_array(hdu, hdulist.index(hdu))
-            tree["extra_fits"][hdu_name]["data"] = node
-        if "header" in parts:
-            hdu = _get_or_make_hdu(hdulist, hdu_name)
-            for key, val, comment in parts["header"]:
-                if is_builtin_fits_keyword(key):
-                    continue
-                hdu.header.append((key, val, comment), end=True)
+            tree["extra_fits"][hdu_name]["data"] = _create_tagged_dict_for_fits_array(
+                fits_context.by_name(hdu_name),
+                fits_context.get_index(hdu_name),
+            )
 
     return tree
 
 
-def _save_history(hdulist, tree):
+def _save_history(fits_context, tree):
     if "history" not in tree:
         return
 
@@ -561,7 +585,7 @@ def _save_history(hdulist, tree):
                 history[i] = HistoryEntry(history[i])
             else:
                 history[i] = HistoryEntry({"description": str(history[i])})
-        hdulist[0].header["HISTORY"] = history[i]["description"]
+        fits_context.by_name("PRIMARY").header["HISTORY"] = history[i]["description"]
 
 
 def to_fits(tree, schema, hdulist=None):
@@ -582,24 +606,31 @@ def to_fits(tree, schema, hdulist=None):
     hdulist : astropy.io.fits.HDUList
         The HDU list.
     """
-    if hdulist is None:
-        hdulist = fits.HDUList()
-        hdulist.append(fits.PrimaryHDU())
+    fits_context = FitsContext(hdulist)
 
-    tree = _normalize_arrays(tree)
-    tree = _save_from_schema(hdulist, tree, schema)
-    tree = _save_extra_fits(hdulist, tree)
-    _save_history(hdulist, tree)
+    # cleanup tree
+    def node_callback(node):
+        # convert datetime to astropy Time
+        if isinstance(node, datetime.datetime):
+            node = time.Time(node)
 
-    # Store the FITS hash in the tree
-    tree[FITS_HASH_KEY] = fits_hash(hdulist)
+        # convert astropy Time to iso string
+        if isinstance(node, time.Time):
+            node = str(time.Time(node, format="iso"))
 
-    if _ASDF_EXTENSION_NAME in hdulist:
-        del hdulist[_ASDF_EXTENSION_NAME]
+        # copy arrays if not c_contiguous
+        if isinstance(node, np.ndarray) and not node.flags.c_contiguous:
+            node = node.copy()
 
-    hdulist.append(_create_asdf_hdu(tree))
+        return node
 
-    return hdulist
+    tree = treeutil.walk_and_modify(tree, node_callback)
+
+    tree = _save_from_schema(fits_context, tree, schema)
+    tree = _save_extra_fits(fits_context, tree)
+    _save_history(fits_context, tree)
+
+    return fits_context.to_hdulist(tree)
 
 
 def _create_asdf_hdu(tree):
@@ -702,7 +733,9 @@ def _load_from_schema(
     # Check if there are any table HDU's. If not, this whole process
     # can be skipped.
     if skip_fits_update:
-        if not any(isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != "ASDF"):
+        if not any(
+            isinstance(hdu, fits.BinTableHDU) for hdu in hdulist if hdu.name != _ASDF_EXTENSION_NAME
+        ):
             log.debug("Skipping FITS updating completely.")
             return known_keywords, known_datas
         log.debug(
@@ -775,7 +808,7 @@ def _load_extra_fits(hdulist, known_keywords, known_datas, tree):
     # Add header keywords and data not in schema to extra_fits
     for hdu in hdulist:
         # Don't add ASDF hdus to extra_fits for any reason
-        if hdu.name != "ASDF":
+        if hdu.name != _ASDF_EXTENSION_NAME:
             known = known_keywords.get(hdu, set())
 
             cards = []
@@ -1018,7 +1051,7 @@ def fits_hash(hdulist):
 
     Parameters
     ----------
-    hdulist : astropy.fits.HDUList
+    hdulist : astropy.fits.HDUList or list of astropy.fits.HDU
         The FITS structure.
 
     Returns
@@ -1032,7 +1065,9 @@ def fits_hash(hdulist):
     # Such issues are inconsequential to hash calculation.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", AstropyWarning)
-        fits_hash.update("".join(str(hdu.header) for hdu in hdulist if hdu.name != "ASDF").encode())
+        fits_hash.update(
+            "".join(str(hdu.header) for hdu in hdulist if hdu.name != _ASDF_EXTENSION_NAME).encode()
+        )
     return fits_hash.hexdigest()
 
 
