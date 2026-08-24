@@ -1,0 +1,1 @@
+Clarify that ``fits_hdu`` in schemas must be a string.
