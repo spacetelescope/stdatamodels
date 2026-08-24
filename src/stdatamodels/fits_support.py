@@ -323,9 +323,7 @@ def _fits_type(fits_context, validator, items, instance, schema):
 
 
 def _name_to_key(name, version=None):
-    if version:
-        return name.lower(), version
-    return name.lower()
+    return name.lower(), version
 
 
 def _hdu_to_key(hdu):
@@ -588,7 +586,7 @@ def _save_history(fits_context, tree):
                 history[i] = HistoryEntry(history[i])
             else:
                 history[i] = HistoryEntry({"description": str(history[i])})
-        fits_context.by_key("primary").header["HISTORY"] = history[i]["description"]
+        fits_context.by_key(_name_to_key("PRIMARY")).header["HISTORY"] = history[i]["description"]
 
 
 def to_fits(tree, schema, hdulist=None):
