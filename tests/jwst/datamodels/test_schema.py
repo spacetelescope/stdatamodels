@@ -21,7 +21,6 @@ def test_data_array(tmp_path):
                     "arr": {
                         "title": "An array of data",
                         "type": "array",
-                        "fits_hdu": ["FOO", "DQ"],
                         "items": {
                             "title": "entry",
                             "type": "object",

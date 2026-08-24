@@ -156,7 +156,5 @@ have the prefix ``fits_``.
 - ``fits_keyword``: Specifies the FITS keyword to store the value in.
   Must be a string with a maximum length of 8 characters.
 
-- ``fits_hdu``: Specifies the FITS HDU to store the value in.  May be
-  a number (to specify the nth HDU) or a name (to specify the
-  extension with the given ``EXTNAME``).  By default this is set to 0,
-  and therefore refers to the primary HDU.
+- ``fits_hdu``: Specifies the FITS HDU name to store the value in. If
+  not provided PRIMARY is assumed.
