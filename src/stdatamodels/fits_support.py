@@ -387,9 +387,16 @@ class FitsContext:
                 name = hdu.name
 
             if name in self._name_to_index:
-                raise Exception(f"Multiple HDUs share {name}, this is unsupported")
-
-            self._name_to_index[name] = index
+                msg = (
+                    f"Multiple HDUs share {name}, this can issues with mapping FITS to ASDF. "
+                    "In the future this will be an error. Assign each HDU a unique name or "
+                    "name/version to avoid this error"
+                )
+                warnings.warn(msg, UserWarning, stacklevel=2)
+                # Only map the first name -> index to match astropy handling of name
+                # confusion where hdulist["SCI"] with 2x SCI returns the first.
+            else:
+                self._name_to_index[name] = index
             self._index_to_name[index] = name
 
     def to_hdulist(self, tree):

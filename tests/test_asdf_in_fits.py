@@ -205,8 +205,25 @@ def test_non_named_hdus(tmp_path):
     ff[7].name = "FOO"
     ff[7].ver = 2
     tree = {"hdus": [hdu.data for hdu in ff[1:]]}
-    asdf_in_fits.write(fn, tree, ff)
+    with pytest.warns(UserWarning, match="Multiple HDUs share"):
+        asdf_in_fits.write(fn, tree, ff)
 
     with asdf_in_fits.open(fn) as af:
         for i, hdu in enumerate(af.tree["hdus"]):
             assert hdu[0] == i
+
+
+def test_shared_name(tmp_path):
+    fn = tmp_path / "test.fits"
+    # 2 hdus that share names
+    ff = fits.HDUList(
+        [fits.PrimaryHDU(), fits.ImageHDU([0], name="SCI"), fits.ImageHDU([1], name="SCI")]
+    )
+    tree = {"hdus": [hdu.data for hdu in ff[1:]]}
+    with pytest.warns(UserWarning, match="Multiple HDUs share"):
+        asdf_in_fits.write(fn, tree, ff)
+
+    with asdf_in_fits.open(fn) as af:
+        for i, hdu in enumerate(af.tree["hdus"]):
+            # TODO this is wrong but matches main
+            assert hdu[0] == 1
