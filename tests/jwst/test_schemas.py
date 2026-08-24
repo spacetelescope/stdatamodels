@@ -104,3 +104,7 @@ def test_fits_hdu(schema_id):
             continue
         fits_hdu = node["fits_hdu"]
         assert isinstance(fits_hdu, str)
+        if fits_hdu == "PRIMARY":
+            # PRIMARY hdu can't store arrays so check for array keywords
+            for array_keyword in ("ndim", "max_ndim", "datatype"):
+                assert array_keyword not in schema
