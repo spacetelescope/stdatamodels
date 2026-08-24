@@ -201,13 +201,10 @@ def _fits_element_writer(fits_context, validator, fits_keyword, instance, schema
 
     hdu_name = schema.get("fits_hdu", "PRIMARY")
 
-    if fits_context.sequence_index is not None:
-        name = (hdu_name, fits_context.sequence_index)
-    else:
-        name = hdu_name
+    key = _name_to_key(hdu_name, fits_context.sequence_index)
 
-    if fits_context.has_name(name):
-        hdu = fits_context.by_name(name)
+    if fits_context.has_key(key):
+        hdu = fits_context.by_key(key)
     else:
         # make a new one
         hdu_type = _get_hdu_type(hdu_name, schema=schema)
@@ -258,14 +255,11 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
 
     hdu_type = _get_hdu_type(hdu_name, schema=schema, value=instance)
 
-    if fits_context.sequence_index is not None:
-        name = (hdu_name, fits_context.sequence_index)
-    else:
-        name = hdu_name
+    key = _name_to_key(hdu_name, fits_context.sequence_index)
 
     # Do we need to make an HDU?
-    if fits_context.has_name(name):
-        hdu = fits_context.by_name(name)
+    if fits_context.has_key(key):
+        hdu = fits_context.by_key(key)
 
         # is the type correct?
         if isinstance(hdu, hdu_type):
@@ -290,10 +284,10 @@ def _fits_array_writer(fits_context, validator, _, instance, schema):
         fits_context.append(hdu)
 
     if other_index := fits_context.extension_array_links.get(instance_id):
-        if fits_context.get_index(name) != other_index:
+        if fits_context.get_index(key) != other_index:
             raise ValueError("Linking one array to multiple hdus is not supported")
     else:
-        fits_context.extension_array_links[instance_id] = fits_context.get_index(name)
+        fits_context.extension_array_links[instance_id] = fits_context.get_index(key)
 
 
 # This is copied from jsonschema._validators and modified to keep track
@@ -328,6 +322,16 @@ def _fits_type(fits_context, validator, items, instance, schema):
     return asdf_schema.YAML_VALIDATORS["type"](validator, items, instance, schema)
 
 
+def _name_to_key(name, version=None):
+    if version:
+        return name.lower(), version
+    return name.lower()
+
+
+def _hdu_to_key(hdu):
+    return _name_to_key(hdu.name, hdu.header.get("EXTVER"))
+
+
 class FitsContext:
     def __init__(self, hdulist=None):
         self._preindex_hdulist(hdulist)
@@ -336,38 +340,31 @@ class FitsContext:
         self.extension_array_links = {}
 
     def get_index(self, name):
-        return self._name_to_index[name]
+        return self._key_to_index[name]
 
-    def by_name(self, name):
+    def by_key(self, name):
         return self._hdus[self.get_index(name)]
 
-    def has_name(self, name):
-        return name in self._name_to_index
+    def has_key(self, name):
+        return name in self._key_to_index
 
     def by_index(self, index):
         return self._hdus[index]
 
     def replace(self, hdu):
-        if ver := hdu.header.get("EXTVER"):
-            name = (hdu.name, ver)
-        else:
-            name = hdu.name
-        self._hdus[self.get_index(name)] = hdu
+        self._hdus[self.get_index(_hdu_to_key(hdu))] = hdu
 
     def append(self, hdu):
         self._hdus.append(hdu)
         index = len(self._hdus) - 1
-        if ver := hdu.header.get("EXTVER"):
-            name = (hdu.name, ver)
-        else:
-            name = hdu.name
-        self._name_to_index[name] = index
-        self._index_to_name[index] = name
+        key = _hdu_to_key(hdu)
+        self._key_to_index[key] = index
+        self._index_to_key[index] = key
 
     def _clear_hdus(self):
         self._hdus = []
-        self._name_to_index = {}
-        self._index_to_name = {}
+        self._key_to_index = {}
+        self._index_to_key = {}
 
     def _preindex_hdulist(self, hdulist=None):
         self._clear_hdus()
@@ -381,14 +378,11 @@ class FitsContext:
         for index, hdu in enumerate(self._hdus):
             # Only use version if EXTVER is defined as astropy
             # will return 1 for ver even if the HDU has no EXTVER
-            if ver := hdu.header.get("EXTVER"):
-                name = (hdu.name, ver)
-            else:
-                name = hdu.name
+            key = _hdu_to_key(hdu)
 
-            if name in self._name_to_index:
+            if key in self._key_to_index:
                 msg = (
-                    f"Multiple HDUs share {name}, this can issues with mapping FITS to ASDF. "
+                    f"Multiple HDUs share {key}, this can issues with mapping FITS to ASDF. "
                     "In the future this will be an error. Assign each HDU a unique name or "
                     "name/version to avoid this error"
                 )
@@ -396,14 +390,10 @@ class FitsContext:
                 # Only map the first name -> index to match astropy handling of name
                 # confusion where hdulist["SCI"] with 2x SCI returns the first.
             else:
-                self._name_to_index[name] = index
-            self._index_to_name[index] = name
+                self._key_to_index[key] = index
+            self._index_to_key[index] = key
 
     def to_hdulist(self, tree):
-        # TODO strip ASDF to appease a unit test, perhaps we remove the test?
-        if self.has_name(_ASDF_EXTENSION_NAME):
-            del self._hdus[self.get_index(_ASDF_EXTENSION_NAME)]
-
         # add hash
         tree[FITS_HASH_KEY] = fits_hash(self._hdus)
 
@@ -525,6 +515,10 @@ def _create_tagged_dict_for_fits_array(hdu, hdu_index):
 def _save_extra_fits(fits_context, tree):
     # Handle _extra_fits
     for hdu_name, parts in tree.get("extra_fits", {}).items():
+        # always skip ASDF
+        if hdu_name == _ASDF_EXTENSION_NAME:
+            continue
+
         # only consider non-builtin keywords
         cards = [
             fits.Card(*h) for h in parts.get("header", []) if not is_builtin_fits_keyword(h[0])
@@ -533,10 +527,12 @@ def _save_extra_fits(fits_context, tree):
         # first sort out expected type
         hdu_type = _get_hdu_type(hdu_name, value=parts.get("data"))
 
+        key = _name_to_key(hdu_name)
+
         # does the hdu exist?
-        if fits_context.has_name(hdu_name):
+        if fits_context.has_key(key):
             # get the existing hdu
-            hdu = fits_context.by_name(hdu_name)
+            hdu = fits_context.by_key(key)
 
             # is it the right type? only check if there is data
             if "data" in parts and not isinstance(hdu, hdu_type):
@@ -568,8 +564,8 @@ def _save_extra_fits(fits_context, tree):
         # update the tree with a reference to the data
         if "data" in parts:
             tree["extra_fits"][hdu_name]["data"] = _create_tagged_dict_for_fits_array(
-                fits_context.by_name(hdu_name),
-                fits_context.get_index(hdu_name),
+                fits_context.by_key(key),
+                fits_context.get_index(key),
             )
 
     return tree
@@ -592,7 +588,7 @@ def _save_history(fits_context, tree):
                 history[i] = HistoryEntry(history[i])
             else:
                 history[i] = HistoryEntry({"description": str(history[i])})
-        fits_context.by_name("PRIMARY").header["HISTORY"] = history[i]["description"]
+        fits_context.by_key("primary").header["HISTORY"] = history[i]["description"]
 
 
 def to_fits(tree, schema, hdulist=None):
