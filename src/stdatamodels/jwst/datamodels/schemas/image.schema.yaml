@@ -61,5 +61,6 @@ allOf:
       title: Combined header table
       fits_hdu: HDRTAB
       allow_extra_columns: true
+      datatype: []  # don't require any specific columns
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
