@@ -214,9 +214,9 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
             if hdu_type is not None and not isinstance(hdu, hdu_type):
                 # this is used for Table-like hdus
                 new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-                for key, val in hdu.header.items():
-                    if not is_builtin_fits_keyword(key):
-                        new_hdu.header[key] = val
+                for card in hdu.header.cards:
+                    if not is_builtin_fits_keyword(card.keyword):
+                        new_hdu.header[card.keyword] = (card.value, card.comment)
                 hdulist.remove(hdu)
                 hdu = new_hdu
             return hdu
@@ -232,9 +232,9 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
     else:
         if hdu_type is not None and not isinstance(hdu, hdu_type):
             new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-            for key, val in hdu.header.items():
-                if not is_builtin_fits_keyword(key):
-                    new_hdu.header[key] = val
+            for card in hdu.header.cards:
+                if not is_builtin_fits_keyword(card.keyword):
+                    new_hdu.header[card.keyword] = (card.value, card.comment)
             hdulist.remove(hdu)
             hdu = new_hdu
         elif value is not None:
