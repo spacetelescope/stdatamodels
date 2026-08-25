@@ -106,7 +106,7 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
 
     # if extra columns are not allowed or they are (and the required columns are missing)
     # then raise an exception
-    if not allow_extra_columns or (not set(out_lower_names).issubset(in_lower_names)):
+    if not allow_extra_columns and (not set(out_lower_names).issubset(in_lower_names)):
         # try to match the old error message
         raise ValueError(
             "Column names don't match schema. Schema has "

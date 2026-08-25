@@ -104,6 +104,8 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
 
     if not schema_dtype.fields:
         if instance_dtype.fields:
+            if allow_extra_columns:
+                return
             yield ValidationError(
                 f"Expected scalar datatype '{schema_datatype}', got '{instance_datatype}'"
             )
