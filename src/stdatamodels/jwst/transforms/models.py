@@ -21,6 +21,7 @@ from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
+from scipy.interpolate import make_interp_spline
 
 from stdatamodels.properties import ListNode
 
@@ -1521,9 +1522,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             idx = np.argsort(w_t)
 
             # Spline fit to invert, for t as a function of wavelength
-            splbase = Spline1D()
-            fitter = SplineSmoothingFitter()
-            spl = fitter(splbase, w_t[idx], t0[idx], s=0)
+            spl = make_interp_spline(w_t[idx], t0[idx])
 
             # Set t_out for matching x,y values
             xy_idx = (x0 == xref) & (y0 == yref)
