@@ -69,8 +69,14 @@ allOf:
           visit_number:
             title: Visit number
             type: integer
-          wcs:
-            title: Member WCS
+          ra:
+            title: Member right ascension
+            type: number
+          dec:
+            title: Member declination
+            type: number
+          tweak:
+            title: Member tangent-plane tweak transform
             tag: object
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
