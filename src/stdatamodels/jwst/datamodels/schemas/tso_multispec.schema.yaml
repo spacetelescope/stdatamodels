@@ -7,6 +7,11 @@ allOf:
 - $ref: int_times.schema
 - type: object
   properties:
+    hdrtab:
+      title: Combined header table
+      fits_hdu: HDRTAB
+      allow_extra_columns: true
+      datatype: []  # don't require any specific columns
     spec:
       type: array
       title: An array of spectra
