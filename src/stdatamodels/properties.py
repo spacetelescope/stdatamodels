@@ -26,7 +26,9 @@ def _is_struct_array_precursor(val):
 
 
 def _is_struct_array_schema(schema):
-    return isinstance(schema["datatype"], list) and any("name" in t for t in schema["datatype"])
+    return "allow_extra_columns" in schema or (
+        isinstance(schema["datatype"], list) and any("name" in t for t in schema["datatype"])
+    )
 
 
 def _cast(val, schema):
@@ -139,13 +141,16 @@ def _as_fitsrec(val):
         uint = any(c._pseudo_unsigned_ints for c in coldefs)
         if any(c.format == "L" for c in coldefs):
             # Copy so we can modify the values to match what astropy expects.
-            fits_rec = fits.FITS_rec(val.copy())
-            for c in coldefs:
-                if c.format == "L":
-                    d = fits_rec[c.name]
-                    m = d.astype(bool)
-                    d[m] = ord("T")
-                    d[~m] = ord("F")
+            # modify dtype mapping all "?" to "int8"
+            dt = val.dtype
+            bool_columns = {c.name for c in coldefs if c.format == "L"}
+            new_dtype = [(n, "int8" if n in bool_columns else dt[n]) for n in dt.fields]
+            val2 = val.astype(new_dtype)
+            for name in bool_columns:
+                m = val2[name].astype(bool)
+                val2[name][m] = ord("T")
+                val2[name][~m] = ord("F")
+            fits_rec = fits.FITS_rec(val2)
         else:
             fits_rec = fits.FITS_rec(val)
         fits_rec._coldefs = coldefs
