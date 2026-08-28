@@ -1118,3 +1118,16 @@ def test_wcs_hasattr():
         assert hasattr(dm.meta, "wcs")
         assert not dm.meta.hasattr("wcs")
         assert "wcs" not in dm.meta
+
+
+def test_hdrtab_cast(tmp_path):
+    fn = tmp_path / "test.fits"
+    input_model = ImageModel()
+    input_model.hdrtab = np.array(
+        [(True, 0), (False, 255)], dtype=[("bool", "?"), ("uint8", "uint8")]
+    )
+    input_model.save(fn)
+
+    with datamodels.open(fn) as read_model:
+        assert_array_equal(read_model.hdrtab["bool"], [True, False])
+        assert_array_equal(read_model.hdrtab["uint8"], [0, 255])
