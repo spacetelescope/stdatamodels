@@ -77,6 +77,6 @@ allOf:
             type: number
           tweak:
             title: Member tangent-plane tweak transform
-            type: object
+            tag: tag:stsci.edu:gwcs/wcs-*
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
