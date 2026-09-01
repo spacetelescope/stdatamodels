@@ -57,10 +57,6 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
-    hdrtab:
-      title: Combined header table
-      fits_hdu: HDRTAB
-      allow_extra_columns: true
-      datatype: []  # don't require any specific columns
+- $ref: hdrtab.schema
 - $ref: variance.schema
 - $ref: pathlosscorr.schema

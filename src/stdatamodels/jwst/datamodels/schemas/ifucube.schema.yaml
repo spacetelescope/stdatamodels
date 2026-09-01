@@ -88,8 +88,4 @@ allOf:
       type: string
       fits_keyword: TDIM2
       fits_hdu: WCS-TABLE
-    hdrtab:
-      title: Combined header table
-      fits_hdu: HDRTAB
-      allow_extra_columns: true
-      datatype: []  # don't require any specific columns
+- $ref: hdrtab.schema
