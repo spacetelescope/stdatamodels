@@ -23,6 +23,10 @@ allOf:
               type:
                 type: string
                 fits_keyword: EXP_TYPE
+          table_key:
+            title: Table comment
+            fits_keyword: TBLCOM
+            fits_hdu: TABLE
       data:
         title: The science data
         fits_hdu: SCI
@@ -39,4 +43,10 @@ allOf:
         fits_hdu: ERR
         datatype: float32
         default: 0.0
+      table:
+        title: Some table
+        fits_hdu: TABLE
+        datatype:
+          - name: int8_column
+            datatype: int8
 ...

@@ -149,6 +149,8 @@ def test_fits_comments(tmp_path):
 
     with FitsModel() as dm:
         dm.meta.origin = "STScI"
+        dm.meta.table_key = "foo"
+        dm.table = dm.get_default("table")
         dm.save(file_path)
 
     from astropy.io import fits
@@ -157,8 +159,9 @@ def test_fits_comments(tmp_path):
         assert any(
             c
             for c in hdulist[0].header.cards
-            if c[-1] == "Organization responsible for creating file"
+            if c.comment == "Organization responsible for creating file"
         )
+        assert any(c for c in hdulist["TABLE"].header.cards if c.comment == "Table comment")
 
 
 def test_metadata_doesnt_override(tmp_path):
