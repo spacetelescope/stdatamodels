@@ -26,6 +26,7 @@ model: !<tag:stsci.edu:jwst_pipeline/v23tosky-0.7.0>
 
 def test_load_unsupported(model_with_unsupported_transform):
     """Test that loading a file with an unsupported transform raises the expected error."""
+    asdf.get_config().warn_on_failed_conversion = False
     with pytest.raises(
         UnsupportedConverterError,
     ):
