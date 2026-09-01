@@ -62,11 +62,6 @@ allOf:
       fits_hdu: TRACEMODEL
       datatype: float32
       ndim: 2
-    hdrtab:
-      title: Combined header table
-      fits_hdu: HDRTAB
-      allow_extra_columns: true
-      datatype: []  # don't require any specific columns
 - $ref: variance.schema
 - $ref: flatcorr.schema
 - $ref: pathlosscorr.schema
@@ -75,3 +70,4 @@ allOf:
 - $ref: bunit.schema
 - $ref: photometry.schema
 - $ref: wcsinfo.schema
+- $ref: hdrtab.schema
