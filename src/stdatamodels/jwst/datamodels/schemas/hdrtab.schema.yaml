@@ -1,0 +1,11 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/hdrtab.schema"
+type: object
+properties:
+  hdrtab:
+    title: Combined header table
+    fits_hdu: HDRTAB
+    allow_extra_columns: true
+    datatype: []  # don't require any specific columns
