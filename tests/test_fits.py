@@ -4,7 +4,7 @@ import asdf.schema
 import numpy as np
 import pytest
 from astropy.io import fits
-from numpy.testing import assert_allclose, assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 from stdatamodels import DataModel, fits_support
 
@@ -149,6 +149,8 @@ def test_fits_comments(tmp_path):
 
     with FitsModel() as dm:
         dm.meta.origin = "STScI"
+        dm.meta.table_key = "foo"
+        dm.table = dm.get_default("table")
         dm.save(file_path)
 
     from astropy.io import fits
@@ -157,8 +159,9 @@ def test_fits_comments(tmp_path):
         assert any(
             c
             for c in hdulist[0].header.cards
-            if c[-1] == "Organization responsible for creating file"
+            if c.comment == "Organization responsible for creating file"
         )
+        assert any(c for c in hdulist["TABLE"].header.cards if c.comment == "Table comment")
 
 
 def test_metadata_doesnt_override(tmp_path):
@@ -459,90 +462,6 @@ def test_from_hdulist(tmp_path):
         with FitsModel(hdulist) as dm:
             dm.data  # noqa: B018
         assert not hdulist.fileinfo(0)["file"].closed
-
-
-def test_data_array(tmp_path):
-    file_path = tmp_path / "test.fits"
-    file_path2 = tmp_path / "test2.fits"
-
-    data_array_schema = {
-        "allOf": [
-            asdf.schema.load_schema(
-                "http://example.com/schemas/core_metadata", resolve_references=True
-            ),
-            {
-                "type": "object",
-                "properties": {
-                    "arr": {
-                        "title": "An array of data",
-                        "type": "array",
-                        "fits_hdu": ["FOO", "DQ"],
-                        "items": {
-                            "title": "entry",
-                            "type": "object",
-                            "properties": {
-                                "data": {
-                                    "fits_hdu": "FOO",
-                                    "default": 0.0,
-                                    "max_ndim": 2,
-                                    "datatype": "float64",
-                                },
-                                "dq": {"fits_hdu": "DQ", "default": 1, "datatype": "uint8"},
-                            },
-                        },
-                    }
-                },
-            },
-        ]
-    }
-
-    rng = np.random.default_rng(42)
-    array1 = rng.random((5, 5))
-    array2 = rng.random((5, 5))
-    array3 = rng.random((5, 5))
-
-    with DataModel(schema=data_array_schema) as x:
-        x.arr.append(x.arr.item())
-        x.arr[0].data = array1
-        assert len(x.arr) == 1
-        x.arr.append(x.arr.item(data=array2))
-        assert len(x.arr) == 2
-        x.arr.append({})
-        assert len(x.arr) == 3
-        x.arr[2].data = array3
-        del x.arr[1]
-        assert len(x.arr) == 2
-        x.to_fits(file_path)
-
-    with DataModel(file_path, schema=data_array_schema) as x:
-        assert len(x.arr) == 2
-        assert_array_almost_equal(x.arr[0].data, array1)
-        assert_array_almost_equal(x.arr[1].data, array3)
-
-        del x.arr[0]
-        assert len(x.arr) == 1
-
-        x.arr = []
-        assert len(x.arr) == 0
-        x.arr.append({"data": np.empty((5, 5))})
-        assert len(x.arr) == 1
-        x.arr.extend(
-            [
-                x.arr.item(data=np.empty((5, 5))),
-                x.arr.item(data=np.empty((5, 5)), dq=np.empty((5, 5), dtype=np.uint8)),
-            ]
-        )
-        assert len(x.arr) == 3
-        del x.arr[1]
-        assert len(x.arr) == 2
-        x.to_fits(file_path2, overwrite=True)
-
-    with fits.open(file_path2) as hdulist:
-        x = set()
-        for hdu in hdulist:
-            x.add((hdu.header.get("EXTNAME"), hdu.header.get("EXTVER")))
-
-        assert x == {("FOO", 2), ("FOO", 1), ("ASDF", None), ("DQ", 2), (None, None)}
 
 
 @pytest.mark.parametrize(

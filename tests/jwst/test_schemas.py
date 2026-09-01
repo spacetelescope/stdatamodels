@@ -91,3 +91,20 @@ def test_unit_is_fits(schema_id):
             continue
         fits_unit = astropy.units.Unit(unit).to_string("fits")
         assert unit == fits_unit
+
+
+@pytest.mark.parametrize("schema_id", SCHEMA_IDS)
+def test_fits_hdu(schema_id):
+    schema = asdf.schema.load_schema(schema_id)
+
+    for node in asdf.treeutil.iter_tree(schema):
+        if not isinstance(node, dict):
+            continue
+        if "fits_hdu" not in node:
+            continue
+        fits_hdu = node["fits_hdu"]
+        assert isinstance(fits_hdu, str)
+        if fits_hdu == "PRIMARY":
+            # PRIMARY hdu can't store arrays so check for array keywords
+            for array_keyword in ("ndim", "max_ndim", "datatype"):
+                assert array_keyword not in schema

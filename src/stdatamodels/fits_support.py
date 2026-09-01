@@ -214,9 +214,9 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
             if hdu_type is not None and not isinstance(hdu, hdu_type):
                 # this is used for Table-like hdus
                 new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-                for key, val in hdu.header.items():
-                    if not is_builtin_fits_keyword(key):
-                        new_hdu.header[key] = val
+                for card in hdu.header.cards:
+                    if not is_builtin_fits_keyword(card.keyword):
+                        new_hdu.header[card.keyword] = (card.value, card.comment)
                 hdulist.remove(hdu)
                 hdu = new_hdu
             return hdu
@@ -232,19 +232,14 @@ def _get_or_make_hdu(hdulist, hdu_name, index=None, hdu_type=None, value=None, _
     else:
         if hdu_type is not None and not isinstance(hdu, hdu_type):
             new_hdu = _make_hdu(hdulist, hdu_name, index=index, hdu_type=hdu_type, value=value)
-            for key, val in hdu.header.items():
-                if not is_builtin_fits_keyword(key):
-                    new_hdu.header[key] = val
+            for card in hdu.header.cards:
+                if not is_builtin_fits_keyword(card.keyword):
+                    new_hdu.header[card.keyword] = (card.value, card.comment)
             hdulist.remove(hdu)
             hdu = new_hdu
         elif value is not None:
             hdu.data = value
     return hdu
-
-
-def _assert_non_primary_hdu(hdu_name):
-    if hdu_name in (None, 0, "PRIMARY"):
-        raise ValueError("Schema for data property does not specify a non-primary hdu name")
 
 
 ##############################################################################
@@ -321,7 +316,6 @@ def _fits_array_writer(fits_context, validator, _, instance, schema, fits_hdu_ca
         yield from validate._validate_datatype(validator, schema["datatype"], instance, schema)
 
     hdu_name = _get_hdu_name(schema)
-    _assert_non_primary_hdu(hdu_name)
     index = fits_context.sequence_index
     if index is None:
         index = 0
@@ -651,7 +645,6 @@ def _fits_keyword_loader(hdulist, fits_keyword, schema, hdu_index, known_keyword
 
 def _fits_array_loader(hdulist, schema, hdu_index, known_datas, fits_hdu_cache):
     hdu_name = _get_hdu_name(schema)
-    _assert_non_primary_hdu(hdu_name)
     try:
         hdu = get_hdu(hdulist, hdu_name, hdu_index, _cache=fits_hdu_cache)
     except AttributeError:
