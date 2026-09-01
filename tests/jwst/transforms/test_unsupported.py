@@ -26,10 +26,10 @@ model: !<tag:stsci.edu:jwst_pipeline/v23tosky-0.7.0>
 
 def test_load_unsupported(model_with_unsupported_transform):
     """Test that loading a file with an unsupported transform raises the expected error."""
-    with pytest.raises(
-        UnsupportedConverterError,
-    ):
-        dm.open(model_with_unsupported_transform)
+    with asdf.config_context() as cfg:
+        cfg.warn_on_failed_conversion = False
+        with pytest.raises(UnsupportedConverterError):
+            dm.open(model_with_unsupported_transform)
 
 
 @pytest.mark.skipif(
@@ -38,9 +38,10 @@ def test_load_unsupported(model_with_unsupported_transform):
 )
 def test_load_unsupported_with_flag(model_with_unsupported_transform):
     """Test loading same file with the warning flag set raises a warning instead."""
-    asdf.get_config().warn_on_failed_conversion = True
-    with pytest.warns(AsdfConversionWarning):
-        model = dm.open(model_with_unsupported_transform)
+    with asdf.config_context() as cfg:
+        cfg.warn_on_failed_conversion = True
+        with pytest.warns(AsdfConversionWarning):
+            model = dm.open(model_with_unsupported_transform)
 
     # check that the transform is a serialized form of its inputs
     assert model.model.angles == [-0.0193, -0.1432, -0.04, -65.60, 273.089]
