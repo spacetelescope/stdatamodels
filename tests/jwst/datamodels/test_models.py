@@ -1124,10 +1124,12 @@ def test_hdrtab_cast(tmp_path):
     fn = tmp_path / "test.fits"
     input_model = ImageModel()
     input_model.hdrtab = np.array(
-        [(True, 0), (False, 255)], dtype=[("bool", "?"), ("uint8", "uint8")]
+        [(True, 0, "a"), (False, 255, "b")],
+        dtype=[("bool", "?"), ("uint8", "uint8"), ("str", "U1")],
     )
     input_model.save(fn)
 
     with datamodels.open(fn) as read_model:
         assert_array_equal(read_model.hdrtab["bool"], [True, False])
         assert_array_equal(read_model.hdrtab["uint8"], [0, 255])
+        assert_array_equal(read_model.hdrtab["str"], [b"a", b"b"])
