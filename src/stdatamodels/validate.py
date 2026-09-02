@@ -9,6 +9,7 @@ from asdf.exceptions import ValidationError
 from asdf.schema import YAML_VALIDATORS
 from asdf.tags.core import ndarray
 from asdf.util import HashableDict
+from astropy.io.fits import FITS_rec
 
 from stdatamodels.exceptions import ValidationWarning
 
@@ -94,6 +95,21 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
             instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(array.dtype)
         else:
             yield ValidationError("Not an array")
+    elif isinstance(instance, FITS_rec):
+        # FITS_rec incorrectly reports .dtype
+        # Using columns makes U/S dtypes correct but unsigned are incorrect
+        # Using fields makes unsigned correct by U/S are incorrect
+        fixed_dtype = []
+        for name in instance.dtype.names:
+            subdtype = instance.dtype[name]
+            if subdtype.kind == "U":
+                fixed_dtype.append((name, instance.columns[name].dtype))
+                continue
+            if instance.field(name).dtype.kind == "u":
+                fixed_dtype.append((name, instance.field(name).dtype))
+                continue
+            fixed_dtype.append((name, subdtype))
+        instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(fixed_dtype)
     elif isinstance(instance, (np.ndarray, ndarray.NDArrayType)):
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.dtype)
     else:

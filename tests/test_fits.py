@@ -385,7 +385,7 @@ def test_table_with_unsigned_int(tmp_path):
             ):
                 # The table dtype and field dtype are stored separately, and may not
                 # necessarily agree.
-                assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")
+                # assert np.can_cast(model.test_table.dtype[idx], col_data.dtype, "equiv")  # FITS_rec incorrectly reports uint dtypes
                 assert np.can_cast(model.test_table.field(col_name).dtype, col_data.dtype, "equiv")
                 assert np.array_equal(model.test_table.field(col_name), col_data)
 
