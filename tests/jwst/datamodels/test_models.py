@@ -1132,4 +1132,4 @@ def test_hdrtab_cast(tmp_path):
     with datamodels.open(fn) as read_model:
         assert_array_equal(read_model.hdrtab["bool"], [True, False])
         assert_array_equal(read_model.hdrtab["uint8"], [0, 255])
-        assert_array_equal(read_model.hdrtab["str"], [b"a", b"b"])
+        assert_array_equal(read_model.hdrtab["str"], ["a", "b"])
