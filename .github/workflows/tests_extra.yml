@@ -66,6 +66,8 @@ jobs:
         - macos: py311-xdist
         - windows: py311-xdist-nocrds
         - linux: py3-devdeps-xdist
+        - linux: py315-devdeps-xdist
+          python-version: 3.15
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8c8bb6c6c962542921f993d47d26df38dccd50b1  # v3.0.2
     needs: [ data ]
