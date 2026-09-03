@@ -106,10 +106,10 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
                 fixed_dtype.append((name, instance.columns[name].dtype))
                 continue
             if instance.field(name).dtype.kind == "u":
-                fixed_dtype.append((name, instance.field(name).dtype))
+                fixed_dtype.append((name, (instance.field(name).dtype), subdtype.shape))
                 continue
             fixed_dtype.append((name, subdtype))
-        instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(fixed_dtype)
+        instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(np.dtype(fixed_dtype))
     elif isinstance(instance, (np.ndarray, ndarray.NDArrayType)):
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.dtype)
     else:
