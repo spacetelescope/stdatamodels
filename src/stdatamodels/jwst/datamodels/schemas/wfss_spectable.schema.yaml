@@ -8,11 +8,13 @@ default: [
   -999,   # SOURCE_ID
   NaN, # WAVELENGTH
   NaN, # FLUX
+  NaN, # CONTAM_FLUX
   NaN, # FLUX_ERROR
   NaN, # FLUX_VAR_POISSON
   NaN, # FLUX_VAR_RNOISE
   NaN, # FLUX_VAR_FLAT
   NaN, # SURF_BRIGHT
+  NaN, # CONTAM_SURF_BRIGHT
   NaN, # SB_ERROR
   NaN, # SB_VAR_POISSON
   NaN, # SB_VAR_RNOISE
@@ -42,6 +44,8 @@ datatype:
   datatype: float64
 - name: FLUX
   datatype: float64
+- name: CONTAM_FLUX
+  datatype: float64
 - name: FLUX_ERROR
   datatype: float64
 - name: FLUX_VAR_POISSON
@@ -51,6 +55,8 @@ datatype:
 - name: FLUX_VAR_FLAT
   datatype: float64
 - name: SURF_BRIGHT
+  datatype: float64
+- name: CONTAM_SURF_BRIGHT
   datatype: float64
 - name: SB_ERROR
   datatype: float64
