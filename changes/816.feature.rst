@@ -1,0 +1,1 @@
+Allow empty schema-defined datatypes to allow tables with no column constraints to be defined in the schemas.
