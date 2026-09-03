@@ -5,7 +5,7 @@ from astropy.io import fits
 from numpy.testing import assert_array_equal
 
 from stdatamodels.jwst import datamodels
-from stdatamodels.jwst.datamodels import FlatModel, ImageModel, JwstDataModel, RampModel, SpecModel
+from stdatamodels.jwst.datamodels import FlatModel, ImageModel, JwstDataModel, RampModel
 
 
 @pytest.fixture
@@ -88,18 +88,6 @@ def test_resave_duplication_bug(tmp_path):
 
     with fits.open(fn1) as ff1, fits.open(fn2) as ff2:
         assert ff1["ASDF"].size == ff2["ASDF"].size
-
-
-def test_units_roundtrip(tmp_path):
-    m = SpecModel()
-    m.spec_table = m.get_default("spec_table")
-    m.spec_table.columns["WAVELENGTH"].unit = "nm"
-
-    fn = tmp_path / "test1.fits"
-    m.save(fn)
-
-    m = datamodels.open(fn)
-    assert m.spec_table.columns["WAVELENGTH"].unit == "nm"
 
 
 def test_flatmodel_dqdef_roundtrip(tmp_path):

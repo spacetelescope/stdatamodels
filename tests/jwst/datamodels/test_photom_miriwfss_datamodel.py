@@ -93,9 +93,11 @@ def test_miri_wfss_photom():
     assert phot_model.meta.exposure.type == "MIR_WFSS"
     assert phot_model.phot_unit == p_unit_str
     assert phot_model.wave_unit == w_unit_str
-    assert phot_model.phot_table.filter == "P750L"
-    assert phot_model.phot_table.photmjsr == float(wfss_photmjsr.value)
-    assert phot_model.phot_table.uncertainty == float(wfss_photmjsr_error)
-    np.testing.assert_allclose(phot_model.phot_table.wavelength[0], wavelength.value, atol=1e-7)
-    np.testing.assert_allclose(phot_model.phot_table.relresponse[0], relresponse, atol=1e-7)
-    np.testing.assert_allclose(phot_model.phot_table.reluncertainty[0], reluncertainty, atol=1e-7)
+    assert phot_model.phot_table["filter"][0] == "P750L"
+    assert phot_model.phot_table["photmjsr"][0] == float(wfss_photmjsr.value)
+    assert phot_model.phot_table["uncertainty"][0] == float(wfss_photmjsr_error)
+    np.testing.assert_allclose(phot_model.phot_table["wavelength"][0], wavelength.value, atol=1e-7)
+    np.testing.assert_allclose(phot_model.phot_table["relresponse"][0], relresponse, atol=1e-7)
+    np.testing.assert_allclose(
+        phot_model.phot_table["reluncertainty"][0], reluncertainty, atol=1e-7
+    )

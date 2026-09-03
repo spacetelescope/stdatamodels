@@ -103,12 +103,13 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
             )
         ]
+        assert type(x.table) is np.ndarray
         assert x.table.dtype == [
             ("int8_column", "=i1"),
             ("int16_column", "=i2"),
             ("uint16_column", "=u2"),
             ("float32_column", "=f4"),
-            ("ascii_column", "S64"),
+            ("ascii_column", "U64"),
             ("float32_column_with_shape", "=f4", (3, 2)),
             ("float32_column_with_ndim", "=f4", (3, 2)),
             ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),
@@ -125,7 +126,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 ("int16_column", "=i2"),
                 ("uint16_column", "=u2"),
                 ("float32_column", "=f4"),
-                ("ascii_column", "S64"),
+                ("ascii_column", "U64"),
                 ("float32_column_with_shape", "=f4", (3, 2)),
                 ("float32_column_with_ndim", "=f4", (3, 2)),
                 ("float32_column_with_ndim_and_shape", "=f4", (3, 2)),

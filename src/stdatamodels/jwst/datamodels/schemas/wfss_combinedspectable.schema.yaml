@@ -44,7 +44,5 @@ datatype:
   datatype: [ascii, 20]
 - name: SOURCE_RA
   datatype: float64
-  unit: deg
 - name: SOURCE_DEC
   datatype: float64
-  unit: deg

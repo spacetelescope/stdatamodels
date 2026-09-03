@@ -1118,3 +1118,78 @@ def test_wcs_hasattr():
         assert hasattr(dm.meta, "wcs")
         assert not dm.meta.hasattr("wcs")
         assert "wcs" not in dm.meta
+
+
+def test_table_units(tmp_path):
+    fn = tmp_path / "test.fits"
+    unit = "nm"
+    new_unit = "km"
+
+    # write out a model with a table with a unit
+    m = datamodels.SpecModel()
+    m.spec_table = m.get_default("spec_table")
+    # test setting by attribute and by FITS_rec column unit
+    m.spec_table_units.WAVELENGTH = unit
+    m.save(fn)
+
+    # verify that the unit is read by astropy
+    with fits.open(fn) as ff:
+        assert ff["EXTRACT1D"].data.columns["WAVELENGTH"].unit == unit
+
+    # verify that the unit is read by stdatamodels
+    with datamodels.open(fn) as m2:
+        # both the unit definition outside the table
+        assert m2.spec_table_units.WAVELENGTH == unit
+
+    # now, change the unit in the fits file directly
+    with fits.open(fn, mode="update") as ff:
+        ff["EXTRACT1D"].data.columns["WAVELENGTH"].unit = new_unit
+
+    # verify that the new unit is read by astropy
+    with fits.open(fn) as ff:
+        assert ff["EXTRACT1D"].data.columns["WAVELENGTH"].unit == new_unit
+
+    # and that the datamodel sees the new unit
+    with datamodels.open(fn) as m2:
+        assert m2.spec_table_units.WAVELENGTH == new_unit
+
+
+@pytest.mark.parametrize("model", list(defined_models.values()))
+def test_spec_table_units_sync(model):
+    """For all datamodels test that spec_table and spec_table_units are in sync."""
+    if model.__name__ in deprecated_models:
+        with pytest.warns(DeprecationWarning):
+            model = model()
+    else:
+        model = model()
+    is_spec_like = hasattr(model, "spec_table") or hasattr(model, "spec")
+    if not is_spec_like:
+        return
+
+    if hasattr(model, "spec"):
+        # MultiSpecModel-like models
+        model.spec.append(SpecModel())
+        assert hasattr(model.spec[0], "spec_table")
+        model.spec[0].spec_table = model.spec[0].get_default("spec_table")
+        spec_table = model.spec[0].spec_table
+        spec_table_units = model.spec[0].spec_table_units
+        units_schema = model.schema["properties"]["spec"]["items"]["properties"][
+            "spec_table_units"
+        ]["properties"]
+    else:
+        # SpecModel-like models
+        assert hasattr(model, "spec_table")
+        model.spec_table = model.get_default("spec_table")
+        spec_table = model.spec_table
+        spec_table_units = model.spec_table_units
+        units_schema = model.schema["properties"]["spec_table_units"]["properties"]
+
+    # test that spec_table_units is present and has the same columns as spec_table
+    for col in spec_table.dtype.names:
+        assert hasattr(spec_table_units, col)
+
+    # test that spec_table_units tunit keywords are ascending from TUNIT1 up to n_cols
+    for i, col in enumerate(spec_table.dtype.names, start=1):
+        tunit_key = f"TUNIT{i}"
+        assert col in units_schema
+        assert tunit_key == units_schema[col]["fits_keyword"]

@@ -19,7 +19,7 @@ from astropy.time import Time
 from . import filetype, fits_support, properties, validate
 from . import schema as mschema
 from .history import HistoryList
-from .util import convert_fitsrec_to_array_in_tree, get_envar_as_boolean, remove_none_from_tree
+from .util import get_envar_as_boolean, remove_none_from_tree
 
 # This minimal schema creates metadata fields that
 # are accessed to be available by the core DataModel code.
@@ -635,12 +635,11 @@ class DataModel(properties.ObjectNode):
         """
         self.on_save(init)
         self.validate()  # required to trigger ValidationWarning
-        tree = convert_fitsrec_to_array_in_tree(self._instance)
         # Don't AsdfFile(tree) as this will cause a second validation of the tree
         # instead open an empty tree, then assign to the hidden '_tree'
         # This can be updated when asdf 4.0 is the minimum version.
         asdffile = AsdfFile()
-        asdffile._tree = tree
+        asdffile._tree = self._instance
         asdffile.write_to(init, *args, **kwargs)
 
     def to_fits(self, init, *args, **kwargs):

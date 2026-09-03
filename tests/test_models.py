@@ -374,7 +374,7 @@ def test_get_dtype_table():
                 ("int16_column", "<i2"),
                 ("uint16_column", "<u2"),
                 ("float32_column", "<f4"),
-                ("ascii_column", "S64"),
+                ("ascii_column", "U64"),
                 ("float32_column_with_shape", "<f4", (3, 2)),
                 ("float32_column_with_ndim", "<f4"),
                 ("float32_column_with_ndim_and_shape", "<f4", (3, 2)),

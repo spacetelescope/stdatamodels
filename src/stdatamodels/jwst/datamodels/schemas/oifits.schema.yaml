@@ -308,7 +308,7 @@ allOf:
         datatype: int16
         shape: [3]
       - name: FLAG
-        datatype: int8
+        datatype: bool8
     vis:
       title: OIFITS OI_VIS table
       fits_hdu: OI_VIS
@@ -338,7 +338,7 @@ allOf:
         datatype: int16
         shape: [2]
       - name: FLAG
-        datatype: int8
+        datatype: bool8
     vis2:
       title: OIFITS OI_VIS2 table
       fits_hdu: OI_VIS2
@@ -364,7 +364,7 @@ allOf:
         datatype: int16
         shape: [2]
       - name: FLAG
-        datatype: int8
+        datatype: bool8
     q4:
       title: OIFITS OI_Q4 table
       fits_hdu: OI_Q4
@@ -406,7 +406,7 @@ allOf:
         datatype: int16
         shape: [4]
       - name: FLAG
-        datatype: int8
+        datatype: bool8
     wavelength:
       title: OIFITS OI_WAVELENGTH table
       fits_hdu: OI_WAVELENGTH
