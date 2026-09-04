@@ -24,6 +24,7 @@ default: [
   NaN,  # BKGD_VAR_FLAT
   0,    # NPIXELS
 ]
+allow_extra_columns: true
 datatype:
 - name: WAVELENGTH
   datatype: float64
