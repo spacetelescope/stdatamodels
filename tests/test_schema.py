@@ -95,6 +95,7 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 False,
                 -42,
                 42000,
+                [[42, 42], [42, 42]],
                 37.5,
                 "STRING",
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
@@ -103,10 +104,13 @@ def test_table_array_shape_ndim(filename, tmp_path):
                 [[37.5, 38.0], [39.0, 40.0], [41.0, 42.0]],
             )
         ]
+        # FITS_rec misreports unsigned column dtypes
+        # https://github.com/astropy/astropy/issues/8862
         assert x.table.dtype == [
             ("int8_column", "=i1"),
             ("int16_column", "=i2"),
-            ("uint16_column", "=u2"),
+            ("uint16_column", "=i2"),
+            ("uint16_column_with_ndim", "=i2", (2, 2)),
             ("float32_column", "=f4"),
             ("ascii_column", "S64"),
             ("float32_column_with_shape", "=f4", (3, 2)),
@@ -118,12 +122,17 @@ def test_table_array_shape_ndim(filename, tmp_path):
         x.save(file_path)
 
     with TableModel(file_path) as x:
+        # FITS_rec misreports unsigned column dtypes
+        # https://github.com/astropy/astropy/issues/8862
+        # for the asdf test this will show a different (correct) dtype
+        unsigned_dtype = "=u2" if file_path.suffix == ".asdf" else "=i2"
         assert np.can_cast(
             x.table.dtype,
             [
                 ("int8_column", "=i1"),
                 ("int16_column", "=i2"),
-                ("uint16_column", "=u2"),
+                ("uint16_column", unsigned_dtype),
+                ("uint16_column_with_ndim", unsigned_dtype, (2, 2)),
                 ("float32_column", "=f4"),
                 ("ascii_column", "S64"),
                 ("float32_column_with_shape", "=f4", (3, 2)),

@@ -1,0 +1,1 @@
+Add HDRTAB extension (a table containing arbitrary columns of L2 metadata) to ifucube, image, slitdata and tso_multispec schemas.
