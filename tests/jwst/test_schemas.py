@@ -33,7 +33,7 @@ SCHEMA_IDS = _get_schema_ids()
 @pytest.fixture(scope="module")
 def known_validators():
 
-    validators = _get_validators(HDUList())[0]
+    validators = _get_validators(HDUList())
     known_validators = set(validators.keys())
     return known_validators
 
