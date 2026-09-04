@@ -56,6 +56,37 @@ def value_change(path, value, schema, ctx):
     return update
 
 
+def _fitsrec_dtype_to_asdf_datatype(fitsrec):
+    """
+    Generate an asdf datatype for the provided FITS_rec instance.
+
+    Parameters
+    ----------
+    fitsrec : astropy.io.fits.FITS_rec
+        FITS_rec instance.
+
+    Returns
+    -------
+    list of tuples
+        A list of datatype tuples formatted to match ASDF expectations.
+    """
+    # FITS_rec incorrectly reports .dtype (in part https://github.com/astropy/astropy/issues/8862)
+    # Using columns makes U/S dtypes correct but unsigned are incorrect
+    # Using fields makes unsigned correct by U/S are incorrect
+    fixed_dtype = []
+    for name in fitsrec.dtype.names:
+        subdtype = fitsrec.dtype[name]
+        if subdtype.kind == "U":
+            fixed_dtype.append((name, fitsrec.columns[name].dtype))
+            continue
+        if fitsrec.field(name).dtype.kind == "u":
+            fixed_dtype.append((name, (fitsrec.field(name).dtype), subdtype.shape))
+            continue
+        fixed_dtype.append((name, subdtype))
+    fitsrec_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(np.dtype(fixed_dtype))
+    return fitsrec_datatype
+
+
 def _validate_datatype(validator, schema_datatype, instance, schema):
     """
     Validate a datatype instance against a schema.
@@ -96,20 +127,7 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
         else:
             yield ValidationError("Not an array")
     elif isinstance(instance, FITS_rec):
-        # FITS_rec incorrectly reports .dtype (in part https://github.com/astropy/astropy/issues/8862)
-        # Using columns makes U/S dtypes correct but unsigned are incorrect
-        # Using fields makes unsigned correct by U/S are incorrect
-        fixed_dtype = []
-        for name in instance.dtype.names:
-            subdtype = instance.dtype[name]
-            if subdtype.kind == "U":
-                fixed_dtype.append((name, instance.columns[name].dtype))
-                continue
-            if instance.field(name).dtype.kind == "u":
-                fixed_dtype.append((name, (instance.field(name).dtype), subdtype.shape))
-                continue
-            fixed_dtype.append((name, subdtype))
-        instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(np.dtype(fixed_dtype))
+        instance_datatype = _fitsrec_dtype_to_asdf_datatype(instance)
     elif isinstance(instance, (np.ndarray, ndarray.NDArrayType)):
         instance_datatype, _ = ndarray.numpy_dtype_to_asdf_datatype(instance.dtype)
     else:
