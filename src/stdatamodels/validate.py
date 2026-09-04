@@ -96,7 +96,7 @@ def _validate_datatype(validator, schema_datatype, instance, schema):
         else:
             yield ValidationError("Not an array")
     elif isinstance(instance, FITS_rec):
-        # FITS_rec incorrectly reports .dtype
+        # FITS_rec incorrectly reports .dtype (in part https://github.com/astropy/astropy/issues/8862)
         # Using columns makes U/S dtypes correct but unsigned are incorrect
         # Using fields makes unsigned correct by U/S are incorrect
         fixed_dtype = []
