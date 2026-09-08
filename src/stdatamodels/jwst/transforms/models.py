@@ -1453,7 +1453,15 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
-            t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
+            # t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
+            if x.ndim == 2:
+                # Assume we're calling this on a grid where all wavelengths are the same
+                # in one dimension, and all the x,y coordinates are the same in the other dimension.
+                x = x[0].flatten()
+                y = y[0].flatten()
+                # if np.atleast_1d(wavelength).ndim == 2:
+                wavelength = wavelength[:, 0].flatten()
+            t = _newton(self.lmodels[iorder], x, y, wavelength)
         else:
             lmodel = self.inv_lmodels[iorder]
             t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
@@ -1523,6 +1531,90 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         if t_out.shape[0] == 1:
             t_out = t_out[0, :]
         return t_out
+
+
+def arrayify(func):
+
+    def wrapper(self, x, y, z, **kwargs):
+
+        x, y = np.atleast_1d(x, y)
+        if np.isscalar(z) or not kwargs.get("pairwise", False):
+            z = np.atleast_1d(z)
+            z = z[:, np.newaxis]
+
+        x = x.astype(float)
+        y = y.astype(float)
+        z = z.astype(float)
+
+        p = np.squeeze(func(self, x, y, z, **kwargs))
+
+        if p.ndim == 0:
+            return p.item()
+
+        return p
+
+    return wrapper
+
+
+@arrayify
+def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
+    """
+    Solve polynomial using Newton's method with Halley update.
+
+    Finds the value of t that satisfies
+
+    p = a(x,y) + b(x,y)*t + c(x,y)*t^2 + d(x,y)*t^3 + ...
+
+    on the interval [0,1] in a vectorized fashion.
+
+    Parameters
+    ----------
+    model : astropy Polynomial
+        The lmodel we want to invert
+    x, y : np.ndarray
+        The un-dispersed x,y position
+    lam : np.ndarray
+        The values of the polynomial. This is typically the wavelength.
+
+    Returns
+    -------
+    t : np.ndarray
+        Polynomial root within the bounds 0 < t < 1.
+    """
+    order = len(model) - 1
+
+    # compute polynomial coefficients
+    c = np.empty((order + 1, x.size))
+    for k, poly in enumerate(model):
+        c[k, :] = poly(x, y)
+
+    # initialize
+    t = np.full_like(lam, 0.5)
+    for _itr in range(maxiter):
+        # compute polynomials and derivatives
+        dp2 = 0.0  # the second derivative
+        dp = 0.0  # the first derivative
+        p = 0.0  # the polynomial
+        for i in range(order, -1, -1):
+            dp2 = dp2 * t + 2 * dp
+            dp = dp * t + p
+            p = p * t + c[i, :]
+
+        # compute a newton step
+        dt = (lam - p) / dp
+
+        # update the step for a Halley tweak
+        dt /= 1 + (dt / 2) * (dp2 / dp)
+
+        # update the position
+        t = t + dt
+
+        # clip to be in range
+        if np.amax(np.abs(dt)) < threshold:
+            break
+
+    # return and force to be in the domain
+    return np.clip(t, 0, 1)
 
 
 def _find_min_with_linear_interpolation(resid, t0):
