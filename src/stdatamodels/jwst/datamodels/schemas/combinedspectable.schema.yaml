@@ -4,6 +4,7 @@ $schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
 id: "http://stsci.edu/schemas/jwst_datamodel/combinedspectable.schema"
 title: Combined, extracted spectral data table
 fits_hdu: COMBINE1D
+allow_extra_columns: true
 default: [
   NaN, # WAVELENGTH
   NaN, # FLUX
