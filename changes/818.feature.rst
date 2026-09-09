@@ -1,0 +1,1 @@
+Allow WFSS spectral tables to contain CONTAM_FLUX and CONTAM_SURF_BRIGHT columns. Those columns are now optional in SpecModel and CombinedSpecModel tables, and required in WFSSMultiSpecModel and WFSSCombinedSpecModel tables.

@@ -34,7 +34,7 @@ def test_legacy_wfss_multispec(tmp_path):
                         ext.columns[idx + 1 :]
                     )
 
-                    # 3. Create a temporary HDU to extract the correct data and header
+                    # Create a temporary HDU to extract the correct data and header
                     new_hdu = fits.BinTableHDU.from_columns(new_cols)
 
                     # Update the existing extension's data and header
@@ -84,7 +84,7 @@ def test_legacy_wfss_combinedspec(tmp_path):
                         ext.columns[idx + 1 :]
                     )
 
-                    # 3. Create a temporary HDU to extract the correct data and header
+                    # Create a temporary HDU to extract the correct data and header
                     new_hdu = fits.BinTableHDU.from_columns(new_cols)
 
                     # Update the existing extension's data and header
