@@ -1588,6 +1588,18 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
     for k, poly in enumerate(model):
         c[k, :] = poly(x, y)
 
+    # for low orders, solve analytically instead of iterating
+    if order == 1:
+        return np.clip((lam - c[0, :]) / c[1, :], 0, 1)
+    if order == 2 and np.all(c[2, :] != 0):
+        a, b, cc = c[2, :], c[1, :], c[0, :] - lam
+        sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
+        t_plus = (-b + sqrt_disc) / (2 * a)
+        t_minus = (-b - sqrt_disc) / (2 * a)
+        # pick whichever root lands in the valid domain
+        t = np.where((t_plus >= 0) & (t_plus <= 1), t_plus, t_minus)
+        return np.clip(t, 0, 1)
+
     # initialize
     t = np.full_like(lam, 0.5)
     for _itr in range(maxiter):
