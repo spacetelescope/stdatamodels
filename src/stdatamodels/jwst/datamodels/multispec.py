@@ -151,13 +151,15 @@ class WFSSMultiSpecModel(JwstDataModel):
                 for name in names:
                     if name not in table_data.dtype.names:
                         # 1. Create new NaN-filled Column object based on data type from schema
+                        nelem = ext.data["FLUX"].shape[1]
                         idx = expected_names.index(name)
                         numpy_dtype = expected_dtypes[idx]
                         fits_dtype_str = fits.column._ColumnFormat.from_recformat(numpy_dtype)
                         new_col = fits.Column(
                             name=name,
-                            format=fits_dtype_str,
-                            array=np.full(len(ext.data), np.nan, dtype=numpy_dtype),
+                            format=f"{nelem}{fits_dtype_str}",
+                            dim=f"({nelem})",
+                            array=np.full(ext.data["FLUX"].shape, np.nan, dtype=numpy_dtype),
                         )
                         # 2. Create a new HDU by merging existing columns with the new one
                         new_cols = (
