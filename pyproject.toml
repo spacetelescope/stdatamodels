@@ -47,12 +47,20 @@ test = [
   "scipy>=1.9.2",            # same as astropy
 ]
 docs = [
-  "sphinx",
-  "sphinx-automodapi",
-  "numpydoc",
-  "sphinx-rtd-theme>1.2.0",
-  "sphinx-asdf>=0.1.1",
-  "towncrier",
+  # exact pins here to make docs reproducable
+  "sphinx==9.1.0",
+  "sphinx-automodapi==0.22.0",
+  "numpydoc==1.10.0",
+  "sphinx-rtd-theme==3.1.0",
+  "sphinx-asdf==0.5.0",
+  "towncrier==26.9.0",
+  # duplicate dependencies with exact pins
+  "asdf==5.3.0",
+  "asdf-transform-schemas==0.6.0",
+  "asdf-astropy==0.11.0",
+  "numpy==2.5.3",
+  "astropy==8.0.1",
+  "gwcs==1.0.3",
 ]
 
 [build-system]
