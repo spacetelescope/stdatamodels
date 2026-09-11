@@ -1453,15 +1453,16 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
-            # t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
             if x.ndim == 2:
                 # Assume we're calling this on a grid where all wavelengths are the same
                 # in one dimension, and all the x,y coordinates are the same in the other dimension.
-                x = x[0].flatten()
-                y = y[0].flatten()
-                # if np.atleast_1d(wavelength).ndim == 2:
-                wavelength = wavelength[:, 0].flatten()
-            t = _newton(self.lmodels[iorder], x, y, wavelength)
+                x_pos = x[0].flatten()
+                y_pos = y[0].flatten()
+                wavelength_flat = wavelength[:, 0].flatten()
+                t = _newton(self.lmodels[iorder], x_pos, y_pos, wavelength_flat)
+                t = np.reshape(t, (wavelength_flat.size, x_pos.size))
+            else:
+                t = _newton(self.lmodels[iorder], x, y, wavelength)
         else:
             lmodel = self.inv_lmodels[iorder]
             t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
