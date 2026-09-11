@@ -14,7 +14,9 @@ from collections import namedtuple
 
 import numpy as np
 from astropy.modeling.core import Model
-from astropy.modeling.models import Rotation2D
+from astropy.modeling.fitting import SplineSmoothingFitter
+from astropy.modeling.models import Const1D, Mapping, Rotation2D, Spline1D
+from astropy.modeling.models import math as astmath
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
@@ -1734,24 +1736,41 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
+        t = np.linspace(0, 1, self.sampling)  # sample t
+        xmodel = self.xmodels[iorder]
+        ymodel = self.ymodels[iorder]
+        lmodel = self.lmodels[iorder]
+
+        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
+        dy = _poly_with_spatial_dependence(t, x00, y00, ymodel)
+
+        if self.theta != 0.0:
+            rotate = Rotation2D(self.theta)
+            dx, dy = rotate(dx, dy)
+
         if self.dispaxis == "row":
-            dist = x - x00
+            alongdisp = dx
+            mapping = Mapping((2, 3, 0, 2, 4))
         elif self.dispaxis == "column":
-            dist = y - y00
+            alongdisp = dy
+            mapping = Mapping((2, 3, 1, 3, 4))
 
-        if self.theta:
-            # the along-dispersion offset is a rotated combination of the x and y
-            # trace polynomials, so combine their coefficients before inverting
-            alongdisp_model = _rotate_alongdisp_coeffs(
-                self.xmodels[iorder], self.ymodels[iorder], self.theta, self.dispaxis
-            )
-        else:
-            alongdisp_model = self.alongdisp_models[iorder]
+        # make a lookup table for t as a function of dx
+        so = np.argsort(alongdisp)
+        # Cubic spline ensures smoothness in derivatives
+        splbase = Spline1D()
+        fitter = SplineSmoothingFitter()
+        spl = fitter(splbase, alongdisp[so], t[so], s=0)
 
-        t = _newton(alongdisp_model, x00, y00, dist)
-        wavelength = self.lmodels[iorder](t)
+        # wavelength model takes in x, x0.
+        # it then subtracts them to get dx; that's what SubtractUfunc does
+        # next it finds the t value for that dx from the lookup table, interpolating linearly
+        # finally it applies the lmodel of t to get the wavelength
+        dxr = astmath.SubtractUfunc()
+        wavelength = dxr | spl | lmodel
+        model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
 
-        return x0, y0, wavelength, order
+        return model(x, y, x0, y0, order)  # returns x0, y0, lambda, order
 
 
 class NIRISSForwardRowGrismDispersion(_WFSSForwardGrismDispersion):
@@ -1895,51 +1914,6 @@ def _poly_with_spatial_dependence(t, x0, y0, model):
         The evaluated polynomial at the given x0, y0, and t.
     """
     return sum(c(x0, y0) * t**i for i, c in enumerate(model))
-
-
-def _rotate_alongdisp_coeffs(xmodel, ymodel, theta, dispaxis):
-    """
-    Combine x, y trace polynomial coefficients into a single along-dispersion polynomial.
-
-    This accounts for the rotation by ``theta`` degrees (e.g. the NIRISS FWCPOS filter
-    wheel rotation) applied to the (dx, dy) trace offsets before inversion.
-
-    Parameters
-    ----------
-    xmodel, ymodel : list[:class:`astropy.modeling.polynomial.Polynomial2D`]
-        The models encoding the x, y dependence of the unrotated trace polynomial coefficients.
-    theta : float
-        Rotation angle in degrees.
-    dispaxis : str
-        Either "row" or "column", the dispersion direction.
-
-    Returns
-    -------
-    list[callable]
-        Coefficients of the rotated along-dispersion polynomial, one per power of t.
-    """
-    cos_t, sin_t = np.cos(np.deg2rad(theta)), np.sin(np.deg2rad(theta))
-    wx, wy = (cos_t, -sin_t) if dispaxis == "row" else (sin_t, cos_t)
-
-    def _make_coeff(cx, cy):
-        def coeff(x, y):
-            value = 0.0
-            if cx is not None:
-                value = value + wx * cx(x, y)
-            if cy is not None:
-                value = value + wy * cy(x, y)
-            return value
-
-        return coeff
-
-    n = max(len(xmodel), len(ymodel))
-    return [
-        _make_coeff(
-            xmodel[i] if i < len(xmodel) else None,
-            ymodel[i] if i < len(ymodel) else None,
-        )
-        for i in range(n)
-    ]
 
 
 def _evaluate_transform_guess_form(model, x=None, y=None, t=None):
