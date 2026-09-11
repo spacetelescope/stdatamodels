@@ -11,13 +11,10 @@ registered with ASDF through entry points.
 import math
 import warnings
 from collections import namedtuple
-from functools import partial
 
 import numpy as np
 from astropy.modeling.core import Model
-from astropy.modeling.fitting import SplineSmoothingFitter
-from astropy.modeling.models import Const1D, Mapping, Rotation2D, Spline1D
-from astropy.modeling.models import math as astmath
+from astropy.modeling.models import Rotation2D
 from astropy.modeling.parameters import InputParameterError, Parameter
 from gwcs.spectroscopy import SellmeierGlass, SellmeierZemax, Snell3D
 from gwcs.utils import to_index
@@ -1170,7 +1167,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
 
     def invdisp_interp(self, order, x0, y0, dx):
         """
-        Make a polynomial fit to xmodel and interpolate to find the wavelength.
+        Invert the trace polynomial to find t as a function of the dispersion offset.
 
         Parameters
         ----------
@@ -1188,32 +1185,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         """
         model = self.alongdisp_models[order]
         dx = np.atleast_1d(dx)
-        if len(dx.shape) == 2:
-            dx = dx[0, :]
-
-        t0 = np.linspace(0.0, 1.0, self.sampling)
-
-        # handle multiple inverse model types
-        if isinstance(model, (ListNode, list, tuple)):
-            if len(model[0].inputs) == 2:
-                xr = _poly_with_spatial_dependence(t0, x0, y0, model)
-            elif len(model[0].inputs) == 1:
-                xr = (dx - model[0].c0.value) / model[0].c1.value
-                return xr
-            else:
-                raise ValueError(f"Unexpected model coefficients: {model}")
-        else:
-            xr = (dx - model.c0.value) / model.c1.value
-            return xr
-
-        if len(xr.shape) > 1:
-            xr = xr[0, :]
-
-        so = np.argsort(xr)
-        f = np.interp(dx, xr[so], t0[so])
-
-        f = np.broadcast_to(f, dx.shape)
-        return f
+        return _newton(model, x0, y0, dx, pairwise=True)
 
 
 class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
@@ -1462,99 +1434,82 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
                 t = _newton(self.lmodels[iorder], x_pos, y_pos, wavelength_flat)
                 t = np.reshape(t, (wavelength_flat.size, x_pos.size))
             else:
+                x_pos, y_pos = x, y
                 t = _newton(self.lmodels[iorder], x, y, wavelength)
         else:
+            x_pos, y_pos = x, y
             lmodel = self.inv_lmodels[iorder]
             t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = _evaluate_transform_guess_form(xmodel, x=x, y=y, t=t)
-        dy = _evaluate_transform_guess_form(ymodel, x=x, y=y, t=t)
+        # use the deduplicated x_pos, y_pos (not the redundant x, y grid) so the
+        # x0, y0-dependent coefficients aren't needlessly re-evaluated per wavelength
+        dx = _evaluate_transform_guess_form(xmodel, x=x_pos, y=y_pos, t=t)
+        dy = _evaluate_transform_guess_form(ymodel, x=x_pos, y=y_pos, t=t)
 
         return x + dx, y + dy, x, y, order
-
-    def invdisp_interp(self, model, x0, y0, wavelength):
-        """
-        Make a polynomial fit to lmodel and interpolate to find the inverse dispersion.
-
-        Parameters
-        ----------
-        model : tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]
-            The models encoding the x, y dependence of the trace model's
-            polynomial coefficients.
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
-        wavelength : float or np.ndarray
-            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
-
-        Returns
-        -------
-        t_out : float
-            The inverse dispersion value for the given wavelength
-        """
-        t0 = np.linspace(0.0, 1.0, int(self.sampling))
-
-        if len(model) < 2:
-            # Handle legacy versions of the trace model
-            xr = _evaluate_transform_guess_form(model, x=x0, y=y0, t=t0)
-            f = np.zeros_like(wavelength)
-            for i, w in enumerate(wavelength):
-                f[i] = np.interp(w, xr, t0)
-            return f
-
-        if x0.ndim == 2:
-            # Assume we're calling this on a grid where all wavelengths are the same
-            # in one dimension, and all the x,y coordinates are the same in the other dimension.
-            x0 = x0[0].flatten()
-            y0 = y0[0].flatten()
-            wavelength = wavelength[:, 0].flatten()
-
-        trace_function = partial(_poly_with_spatial_dependence, model=model)
-
-        # Create a grid of t0, x0, and y0 values
-        tt, yy = np.meshgrid(t0, y0, indexing="ij")
-        xx = np.meshgrid(t0, x0, indexing="ij")[1]
-        wave_grid = trace_function(tt, xx, yy)
-        t_out = np.empty((len(wavelength), len(x0)))
-        for i, w in enumerate(wavelength):
-            # do a first order interpolation to find the t0 where residuals are minimized
-            # at each x,y location
-            resid = (wave_grid - w) ** 2
-            t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
-
-        if t_out.shape[0] == 1:
-            t_out = t_out[0, :]
-        return t_out
 
 
 def arrayify(func):
 
     def wrapper(self, x, y, z, **kwargs):
+        pairwise = kwargs.pop("pairwise", False)
 
-        x, y = np.atleast_1d(x, y)
-        if np.isscalar(z) or not kwargs.get("pairwise", False):
-            z = np.atleast_1d(z)
-            z = z[:, np.newaxis]
+        x = np.atleast_1d(x).astype(float)
+        y = np.atleast_1d(y).astype(float)
+        z = np.atleast_1d(z).astype(float)
 
-        x = x.astype(float)
-        y = y.astype(float)
-        z = z.astype(float)
+        if pairwise:
+            # x, y, and z vary together elementwise (e.g. evaluating over an image),
+            # so flatten everything to 1-D for the core computation and restore
+            # the original (broadcast) shape afterward. Skip the later squeeze
+            # so callers relying on that exact shape (e.g. matching an unsqueezed
+            # x0/y0) stay consistent.
+            out_shape = np.broadcast_shapes(x.shape, y.shape, z.shape)
+            x, y, z = (np.broadcast_to(a, out_shape).ravel() for a in (x, y, z))
+            return np.reshape(func(self, x, y, z, **kwargs), out_shape)
 
-        p = np.squeeze(func(self, x, y, z, **kwargs))
+        z = z[:, np.newaxis]
+        p = func(self, x, y, z, **kwargs)
 
+        p = np.squeeze(p)
         if p.ndim == 0:
             return p.item()
 
         return p
 
     return wrapper
+
+
+def _normalize_model_for_newton(model):
+    """
+    Normalize a dispersion/trace model into a list of (x, y) -> coefficient callables.
+
+    Handles both the standard form (a list of models depending on x, y, one per
+    power of t) and the legacy form (a single model, or length-1 list of one,
+    depending only on t with no x, y dependence).
+
+    Parameters
+    ----------
+    model : astropy Model or list[astropy Model]
+        The model to normalize.
+
+    Returns
+    -------
+    list[callable]
+        Coefficients of the polynomial in t, one per power, each callable as ``c(x, y)``.
+    """
+    if isinstance(model, (ListNode, list, tuple)):
+        if len(model) == 1 and len(model[0].inputs) == 1:
+            model = model[0]
+        else:
+            return model
+
+    if isinstance(model, Model) and len(model.inputs) == 1:
+        return [(lambda x, y, v=v: np.full(np.shape(x), v)) for v in model.parameters]
+
+    raise TypeError(f"Unexpected model coefficients: {model}")
 
 
 @arrayify
@@ -1570,8 +1525,9 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
 
     Parameters
     ----------
-    model : astropy Polynomial
-        The lmodel we want to invert
+    model : astropy Polynomial or list[astropy Polynomial]
+        The lmodel we want to invert. May be a list of models depending on x, y
+        (one per power of t), or a single legacy model depending only on t.
     x, y : np.ndarray
         The un-dispersed x,y position
     lam : np.ndarray
@@ -1582,6 +1538,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
     t : np.ndarray
         Polynomial root within the bounds 0 < t < 1.
     """
+    model = _normalize_model_for_newton(model)
     order = len(model) - 1
 
     # compute polynomial coefficients
@@ -1628,65 +1585,6 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
 
     # return and force to be in the domain
     return np.clip(t, 0, 1)
-
-
-def _find_min_with_linear_interpolation(resid, t0):
-    """
-    Vectorize linear interpolation over the 0th axis to find the minimum value.
-
-    Parameters
-    ----------
-    resid : np.ndarray
-        The residuals to minimize along the 0th axis, shape (n_t, n_points)
-    t0 : np.ndarray
-        The t-values corresponding to the first axis of resid, shape (n_t,)
-
-    Returns
-    -------
-    this_t : ndarray
-        The t-values that minimize the residuals at each pixel, shape (n_points,)
-    """
-    min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
-
-    # When the residuals are minimized near t=0 or t=1, just use those values
-    # instead of doing a linear interpolation
-    this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = 0.0
-    this_t[min_ind == resid.shape[0] - 1] = 1.0
-
-    # for all other indices, calculate the t value based on
-    # linearly interpolating the derivative to guess where it should cross zero
-    good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
-    good_ind = np.expand_dims(min_ind[good], axis=0)
-    resid_good = resid[:, good]
-    grad_good = np.gradient(resid_good, axis=0)
-    grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
-    grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
-    grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
-
-    # if the gradient is positive, then the minimum is to the left
-    # if the gradient is negative, then the minimum is to the right
-    grad_right[grad_center < 0] = grad_center[grad_center < 0]
-    grad_left[grad_center > 0] = grad_center[grad_center > 0]
-
-    t_left = t0[good_ind - 1][0]
-    t_right = t0[good_ind + 1][0]
-    t_center = t0[good_ind][0]
-    t_right[grad_center < 0] = t_center[grad_center < 0]
-    t_left[grad_center > 0] = t_center[grad_center > 0]
-
-    # given points (t_left, grad_left) and (t_right, grad_right),
-    # find the x-intercept, which is the value of t where the gradient
-    # is identically zero under the linear approximation
-    m = (grad_right - grad_left) / (t_right - t_left)
-    b = grad_right - m * t_right
-    x_intercept = -b / m
-
-    # make grad_center == 0 case exact
-    x_intercept[grad_center == 0] = t_center[grad_center == 0]
-
-    this_t[good] = x_intercept
-    return this_t
 
 
 class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
@@ -1836,41 +1734,24 @@ class _WFSSForwardGrismDispersion(_ForwardGrismDispersionBase):
         x00 = x0.flatten()[0]
         y00 = y0.flatten()[0]
 
-        t = np.linspace(0, 1, self.sampling)  # sample t
-        xmodel = self.xmodels[iorder]
-        ymodel = self.ymodels[iorder]
-        lmodel = self.lmodels[iorder]
-
-        dx = _poly_with_spatial_dependence(t, x00, y00, xmodel)
-        dy = _poly_with_spatial_dependence(t, x00, y00, ymodel)
-
-        if self.theta != 0.0:
-            rotate = Rotation2D(self.theta)
-            dx, dy = rotate(dx, dy)
-
         if self.dispaxis == "row":
-            alongdisp = dx
-            mapping = Mapping((2, 3, 0, 2, 4))
+            dist = x - x00
         elif self.dispaxis == "column":
-            alongdisp = dy
-            mapping = Mapping((2, 3, 1, 3, 4))
+            dist = y - y00
 
-        # make a lookup table for t as a function of dx
-        so = np.argsort(alongdisp)
-        # Cubic spline ensures smoothness in derivatives
-        splbase = Spline1D()
-        fitter = SplineSmoothingFitter()
-        spl = fitter(splbase, alongdisp[so], t[so], s=0)
+        if self.theta:
+            # the along-dispersion offset is a rotated combination of the x and y
+            # trace polynomials, so combine their coefficients before inverting
+            alongdisp_model = _rotate_alongdisp_coeffs(
+                self.xmodels[iorder], self.ymodels[iorder], self.theta, self.dispaxis
+            )
+        else:
+            alongdisp_model = self.alongdisp_models[iorder]
 
-        # wavelength model takes in x, x0.
-        # it then subtracts them to get dx; that's what SubtractUfunc does
-        # next it finds the t value for that dx from the lookup table, interpolating linearly
-        # finally it applies the lmodel of t to get the wavelength
-        dxr = astmath.SubtractUfunc()
-        wavelength = dxr | spl | lmodel
-        model = mapping | Const1D(x00) & Const1D(y00) & wavelength & Const1D(order)
+        t = _newton(alongdisp_model, x00, y00, dist)
+        wavelength = self.lmodels[iorder](t)
 
-        return model(x, y, x0, y0, order)  # returns x0, y0, lambda, order
+        return x0, y0, wavelength, order
 
 
 class NIRISSForwardRowGrismDispersion(_WFSSForwardGrismDispersion):
@@ -2014,6 +1895,51 @@ def _poly_with_spatial_dependence(t, x0, y0, model):
         The evaluated polynomial at the given x0, y0, and t.
     """
     return sum(c(x0, y0) * t**i for i, c in enumerate(model))
+
+
+def _rotate_alongdisp_coeffs(xmodel, ymodel, theta, dispaxis):
+    """
+    Combine x, y trace polynomial coefficients into a single along-dispersion polynomial.
+
+    This accounts for the rotation by ``theta`` degrees (e.g. the NIRISS FWCPOS filter
+    wheel rotation) applied to the (dx, dy) trace offsets before inversion.
+
+    Parameters
+    ----------
+    xmodel, ymodel : list[:class:`astropy.modeling.polynomial.Polynomial2D`]
+        The models encoding the x, y dependence of the unrotated trace polynomial coefficients.
+    theta : float
+        Rotation angle in degrees.
+    dispaxis : str
+        Either "row" or "column", the dispersion direction.
+
+    Returns
+    -------
+    list[callable]
+        Coefficients of the rotated along-dispersion polynomial, one per power of t.
+    """
+    cos_t, sin_t = np.cos(np.deg2rad(theta)), np.sin(np.deg2rad(theta))
+    wx, wy = (cos_t, -sin_t) if dispaxis == "row" else (sin_t, cos_t)
+
+    def _make_coeff(cx, cy):
+        def coeff(x, y):
+            value = 0.0
+            if cx is not None:
+                value = value + wx * cx(x, y)
+            if cy is not None:
+                value = value + wy * cy(x, y)
+            return value
+
+        return coeff
+
+    n = max(len(xmodel), len(ymodel))
+    return [
+        _make_coeff(
+            xmodel[i] if i < len(xmodel) else None,
+            ymodel[i] if i < len(ymodel) else None,
+        )
+        for i in range(n)
+    ]
 
 
 def _evaluate_transform_guess_form(model, x=None, y=None, t=None):

@@ -452,16 +452,18 @@ def test_nircam_backward_grism_dispersion(n_coeffs):
     model = models.NIRCAMBackwardGrismDispersion(
         orders, lmodels, xmodels, ymodels, sampling=sampling
     )
-    t_out = model.invdisp_interp(lmodels[0], x0, y0, wl)
+    xi, yi, x, y, order = model.evaluate(x0, y0, wl, np.atleast_1d(orders[0]))
 
     # for this version we need to make x0, y0, wl all have same shape
-    t2_out = np.empty_like(t_out)
+    x2_out = np.empty_like(xi)
     for i, this_wl in enumerate(wl):
         wl2 = this_wl * np.ones_like(x0)
         t2 = _invdisp_interp_old(lmodels[0], x0, y0, wl2)
-        t2_out[i] = t2
+        dx = models._evaluate_transform_guess_form(xmodels[0], x=x, y=y, t=t2)
+        x2 = x + dx
+        x2_out[i, :] = x2
 
-    assert_allclose(t_out, t2_out, atol=1e-3, rtol=0)
+    assert_allclose(xi, x2_out, atol=1e-3, rtol=0)
 
 
 def test_nircam_backward_grism_dispersion_single():
