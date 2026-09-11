@@ -1158,7 +1158,8 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
             dist = y - y0
 
         if not self.inv_alongdisp_models:
-            t = self.invdisp_interp(iorder, x0, y0, dist)
+            # Find root numerically using Newton's method
+            t = _newton(self.alongdisp_models[iorder], x0, y0, dist, pairwise=True)
         else:
             t = self.inv_alongdisp_models[iorder](dist)
 
@@ -1166,28 +1167,6 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         l_poly = _evaluate_transform_guess_form(lmodel, x=x0, y=y0, t=t)
 
         return x0, y0, l_poly, order
-
-    def invdisp_interp(self, order, x0, y0, dx):
-        """
-        Invert the trace polynomial to find t as a function of the dispersion offset.
-
-        Parameters
-        ----------
-        order : int
-            The input spectral order
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center.
-        dx : float or np.ndarray
-            The offset from x0 in the dispersion direction
-
-        Returns
-        -------
-        f : float or np.ndarray
-            The wavelength solution for the given dx
-        """
-        model = self.alongdisp_models[order]
-        dx = np.atleast_1d(dx)
-        return _newton(model, x0, y0, dx, pairwise=True)
 
 
 class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
@@ -1427,6 +1406,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
+            # Find root numerically using Newton's method
             if x.ndim == 2:
                 # Assume we're calling this on a grid where all wavelengths are the same
                 # in one dimension, and all the x,y coordinates are the same in the other dimension.
