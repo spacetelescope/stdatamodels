@@ -47,21 +47,15 @@ test = [
   "scipy>=1.9.2",            # same as astropy
 ]
 docs = [
-  # exact pins here to make docs reproducible 
-  "sphinx==9.1.0",
-  "sphinx-automodapi==0.22.0",
-  "sphinx-api-relink==0.1.1",
-  "numpydoc==1.10.0",
-  "sphinx-rtd-theme==3.1.0",
-  "sphinx-asdf==0.5.0",
-  "towncrier==26.9.0",
-  # duplicate dependencies with exact pins
-  "asdf==5.4.0",
-  "asdf-transform-schemas==0.6.0",
-  "asdf-astropy==0.11.0",
-  "numpy==2.5.3",
-  "astropy==8.0.1",
-  "gwcs==1.0.3",
+  # These aren't used for RTD since we follow the recommended pinning for reproducible
+  # builds: https://docs.readthedocs.com/platform/stable/guides/reproducible-builds.html
+  # see docs/requirements.txt for the dependencies used for RTD.
+  "sphinx",
+  "sphinx-automodapi",
+  "numpydoc",
+  "sphinx-rtd-theme>1.2.0",
+  "sphinx-asdf>=0.1.1",
+  "towncrier",
 ]
 
 [build-system]
