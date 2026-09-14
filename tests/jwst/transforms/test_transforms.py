@@ -519,7 +519,7 @@ def test_nircam_grism_roundtrip(direction):
 
     lmodel = [
         mock_l,
-    ] * 2
+    ] * 4  # Needs to be higher than quadratic to trigger Newton numerical solver
     xmodel = [
         mock_x,
     ] * 3
@@ -564,6 +564,19 @@ def test_nircam_grism_roundtrip(direction):
     assert_allclose(yi, y0)
     assert_allclose(wli, wl)
     assert_allclose(ordersi, orders)
+
+
+def test_newton():
+    """Test Newton's method solver."""
+
+    # set up a random polynomial that has a root between 0 and 1
+    # this one has a root near t=0.54
+    model = Polynomial1D(degree=3, c0=2, c1=-4, c2=0.0, c3=1)
+    x = 150
+    y = 140
+    lam = 2.0e-6
+    t = models._newton(model, x, y, lam)
+    assert_allclose(model(t), lam, rtol=1e-6)
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
