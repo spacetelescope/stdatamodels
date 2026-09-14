@@ -1521,17 +1521,17 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
         Polynomial root within the bounds 0 < t < 1.
     """
     model = _normalize_model_for_newton(model)
-    order = len(model) - 1
+    porder = len(model) - 1
 
     # compute polynomial coefficients
-    c = np.empty((order + 1, x.size))
+    c = np.empty((porder + 1, x.size))
     for k, poly in enumerate(model):
         c[k, :] = poly(x, y)
 
     # for low orders, solve analytically instead of iterating
-    if order == 1:
+    if porder == 1:
         return np.clip((lam - c[0, :]) / c[1, :], 0, 1)
-    if order == 2 and np.all(c[2, :] != 0):
+    if porder == 2 and np.all(c[2, :] != 0):
         a, b, cc = c[2, :], c[1, :], c[0, :] - lam
         sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
         t_plus = (-b + sqrt_disc) / (2 * a)
@@ -1547,7 +1547,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
         dp2 = 0.0  # the second derivative
         dp = 0.0  # the first derivative
         p = 0.0  # the polynomial
-        for i in range(order, -1, -1):
+        for i in range(porder, -1, -1):
             dp2 = dp2 * t + 2 * dp
             dp = dp * t + p
             p = p * t + c[i, :]
