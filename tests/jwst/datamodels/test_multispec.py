@@ -62,7 +62,7 @@ def test_legacy_wfss_multispec(tmp_path):
                 for name in new_colnames:
                     table_data = ext.data
                     # for both missing attributes, find the schema-defined index in the table
-                    # and add a NaN-filled column at that index
+                    # and remove that index from the table
                     idx = table_data.dtype.names.index(name)
                     new_cols = fits.ColDefs(ext.columns[:idx]) + fits.ColDefs(
                         ext.columns[idx + 1 :]
@@ -117,7 +117,7 @@ def test_legacy_wfss_combinedspec(tmp_path):
                 for name in new_colnames:
                     table_data = ext.data
                     # for both missing attributes, find the schema-defined index in the table
-                    # and add a NaN-filled column at that index
+                    # and remove that index from the table
                     idx = table_data.dtype.names.index(name)
                     new_cols = fits.ColDefs(ext.columns[:idx]) + fits.ColDefs(
                         ext.columns[idx + 1 :]

@@ -1,6 +1,7 @@
 import numpy as np
 from asdf.tags.core.ndarray import asdf_datatype_to_numpy_dtype
 from astropy.io import fits
+from numpy.lib.recfunctions import merge_arrays
 
 from .combinedspec import CombinedSpecModel
 from .model_base import JwstDataModel
@@ -67,7 +68,7 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
         """Handle old-style files lacking contam estimate table columns."""  # numpydoc ignore: RT01
         for ext in hdulist:
             if ext.name == "COMBINE1D" and isinstance(ext, fits.BinTableHDU):
-                table_data = ext.data
+                table_data = ext.data.view(np.recarray)
                 # for both missing attributes, find the schema-defined table index and datatype
                 expected = self.schema["properties"]["spec"]["items"]["properties"]["spec_table"][
                     "datatype"
@@ -79,27 +80,34 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
                 names = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT"]
                 for name in names:
                     if name not in table_data.dtype.names:
-                        # 1. Create new NaN-filled Column object based on data type from schema
-                        nelem = ext.data["FLUX"].shape[1]
+                        # Make the new column and fill it with NaN
                         idx = expected_names.index(name)
                         numpy_dtype = expected_dtypes[idx]
-                        fits_dtype_str = fits.column._ColumnFormat.from_recformat(numpy_dtype)
-                        new_col = fits.Column(
-                            name=name,
-                            format=f"{nelem}{fits_dtype_str}",
-                            dim=f"({nelem})",
-                            array=np.full(ext.data["FLUX"].shape, np.nan, dtype=numpy_dtype),
-                        )
-                        # 2. Create a new HDU by merging existing columns with the new one
-                        new_cols = (
-                            fits.ColDefs(ext.columns[:idx])
-                            + fits.ColDefs([new_col])
-                            + fits.ColDefs(ext.columns[idx:])
+                        if table_data.dtype["FLUX"].shape:
+                            dtype = [(name, numpy_dtype, table_data.dtype["FLUX"].shape)]
+                        else:
+                            dtype = [(name, numpy_dtype)]
+                        new_column = np.full(table_data.shape[0], np.nan, dtype=dtype)
+
+                        # Insert new column into the correct position in the table data
+                        before_names = [
+                            field
+                            for field in expected_names[:idx]
+                            if field in table_data.dtype.names
+                        ]
+                        after_names = [
+                            field
+                            for field in expected_names[idx + 1 :]
+                            if field in table_data.dtype.names
+                        ]
+                        arrays_to_merge = (
+                            table_data[before_names],
+                            new_column,
+                            table_data[after_names],
                         )
 
-                        # 3. Create a temporary HDU to extract the correct data and header
-                        new_hdu = fits.BinTableHDU.from_columns(new_cols)
-                        ext.data = new_hdu.data
-                        ext.header.update(new_hdu.header)
+                        # Merge them and cast the flat fields back into a recarray
+                        table_data = merge_arrays(arrays_to_merge, flatten=True, asrecarray=True)
+                ext.data = table_data
 
         return hdulist
