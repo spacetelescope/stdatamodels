@@ -90,6 +90,12 @@ def test_legacy_wfss_multispec(tmp_path):
                     assert tab[name].shape == (N_SOURCES, N_WAVELENGTHS)
                     assert np.all(np.isnan(tab[name]))  # new columns are filled with NaNs
 
+                # check the indices are correct
+                flux_idx = tab.columns.names.index("FLUX")
+                sb_idx = tab.columns.names.index("SURF_BRIGHT")
+                assert tab.columns.names[flux_idx + 1] == "CONTAM_FLUX"
+                assert tab.columns.names[sb_idx + 1] == "CONTAM_SURF_BRIGHT"
+
 
 def test_legacy_wfss_combinedspec(tmp_path):
     """Generate WFSSCombinedSpecModel without the new contam_flux and contam_surf_bright columns."""
@@ -144,3 +150,9 @@ def test_legacy_wfss_combinedspec(tmp_path):
                     assert name in tab.columns.names
                     assert tab[name].shape == (N_SOURCES, N_WAVELENGTHS)
                     assert np.all(np.isnan(tab[name]))  # new columns are filled with NaNs
+
+                # check the indices are correct
+                flux_idx = tab.columns.names.index("FLUX")
+                sb_idx = tab.columns.names.index("SURF_BRIGHT")
+                assert tab.columns.names[flux_idx + 1] == "CONTAM_FLUX"
+                assert tab.columns.names[sb_idx + 1] == "CONTAM_SURF_BRIGHT"

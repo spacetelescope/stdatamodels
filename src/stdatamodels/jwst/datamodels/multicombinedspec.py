@@ -1,5 +1,4 @@
 import numpy as np
-from asdf.tags.core.ndarray import asdf_datatype_to_numpy_dtype
 from astropy.io import fits
 from numpy.lib.recfunctions import merge_arrays
 
@@ -74,19 +73,15 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
                     "datatype"
                 ]
                 expected_names = [col["name"] for col in expected]
-                expected_dtypes = [
-                    asdf_datatype_to_numpy_dtype(col["datatype"]) for col in expected
-                ]
                 names = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT"]
                 for name in names:
                     if name not in table_data.dtype.names:
                         # Make the new column and fill it with NaN
                         idx = expected_names.index(name)
-                        numpy_dtype = expected_dtypes[idx]
                         if table_data.dtype["FLUX"].shape:
-                            dtype = [(name, numpy_dtype, table_data.dtype["FLUX"].shape)]
+                            dtype = [(name, "f4", table_data.dtype["FLUX"].shape)]
                         else:
-                            dtype = [(name, numpy_dtype)]
+                            dtype = [(name, "f4")]
                         new_column = np.full(table_data.shape[0], np.nan, dtype=dtype)
 
                         # Insert new column into the correct position in the table data
