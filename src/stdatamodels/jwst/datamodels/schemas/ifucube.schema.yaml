@@ -88,4 +88,3 @@ allOf:
       type: string
       fits_keyword: TDIM2
       fits_hdu: WCS-TABLE
-- $ref: hdrtab.schema
