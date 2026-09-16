@@ -1,3 +1,6 @@
+import numpy as np
+from astropy.io import fits
+
 from .model_base import JwstDataModel
 from .spec import MRSSpecModel, SpecModel, TSOSpecModel, WFSSSpecModel
 
@@ -129,3 +132,34 @@ class WFSSMultiSpecModel(JwstDataModel):
             # If init is a WFSSSpecModel, convert it to a list
             init = [init]
         super().__init__(init=init, **kwargs)
+
+    def _migrate_hdulist(self, hdulist):
+        """Handle old-style files lacking contam estimate table columns."""  # numpydoc ignore: RT01
+        for ext in hdulist:
+            if ext.name == "EXTRACT1D" and isinstance(ext, fits.BinTableHDU):
+                # for both missing attributes, find the schema-defined table index and datatype
+                expected = self.schema["properties"]["spec"]["items"]["properties"]["spec_table"][
+                    "datatype"
+                ]
+                expected_names = [col["name"] for col in expected]
+                names = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT"]
+                for name in names:
+                    if name not in ext.data.dtype.names:
+                        idx = expected_names.index(name)
+                        nelem = ext.data["FLUX"].shape[1]
+                        new_column = fits.Column(
+                            name=name,
+                            format=f"{nelem}D",
+                            dim=f"({nelem})",
+                            array=np.full(ext.data["FLUX"].shape, np.nan, dtype="float64"),
+                        )
+                        new_columns = (
+                            fits.ColDefs(ext.columns[:idx])
+                            + fits.ColDefs([new_column])
+                            + fits.ColDefs(ext.columns[idx:])
+                        )
+                        new_hdu = fits.BinTableHDU.from_columns(new_columns)
+                        ext.data = new_hdu.data
+                        ext.header.update(new_hdu.header)
+
+        return hdulist
