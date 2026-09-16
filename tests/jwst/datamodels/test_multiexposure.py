@@ -11,9 +11,8 @@ def test_multiexposure_model_from_datamodel(model_type):
     input_model = model_type(shape)
     input_model.meta.bunit_data = "MJy"
     populated_arrays = []
-    skip_props = ["int_times", "hdrtab", "int_times_stripe"]
     for prop, val in input_model.schema["properties"].items():
-        if "datatype" in val and not prop in skip_props:
+        if "datatype" in val and not prop.startswith("int_times"):
             setattr(input_model, prop, input_model.get_default(prop))
             populated_arrays.append(prop)
 
