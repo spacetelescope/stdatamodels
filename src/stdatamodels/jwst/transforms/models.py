@@ -1159,7 +1159,7 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
 
         if not self.inv_alongdisp_models:
             # Find root numerically using Newton's method
-            t = _newton(self.alongdisp_models[iorder], x0, y0, dist, pairwise=True)
+            t = _newton(self.alongdisp_models[iorder], x0, y0, dist, pairwise=True, clip=False)
         else:
             t = self.inv_alongdisp_models[iorder](dist)
 
@@ -1495,7 +1495,7 @@ def _normalize_model_for_newton(model):
 
 
 @arrayify
-def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
+def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
     """
     Solve polynomial using Newton's method with Halley update.
 
@@ -1530,43 +1530,44 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10):
 
     # for low orders, solve analytically instead of iterating
     if porder == 1:
-        return np.clip((lam - c[0, :]) / c[1, :], 0, 1)
-    if porder == 2 and np.all(c[2, :] != 0):
+        t = (lam - c[0, :]) / c[1, :]
+    elif porder == 2 and np.all(c[2, :] != 0):
         a, b, cc = c[2, :], c[1, :], c[0, :] - lam
         sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
         t_plus = (-b + sqrt_disc) / (2 * a)
         t_minus = (-b - sqrt_disc) / (2 * a)
         # pick whichever root lands in the valid domain
         t = np.where((t_plus >= 0) & (t_plus <= 1), t_plus, t_minus)
-        return np.clip(t, 0, 1)
+    else:
+        # initialize
+        t = np.full_like(lam, 0.5)
+        for _itr in range(maxiter):
+            # compute polynomials and derivatives
+            dp2 = 0.0  # the second derivative
+            dp = 0.0  # the first derivative
+            p = 0.0  # the polynomial
+            for i in range(porder, -1, -1):
+                dp2 = dp2 * t + 2 * dp
+                dp = dp * t + p
+                p = p * t + c[i, :]
 
-    # initialize
-    t = np.full_like(lam, 0.5)
-    for _itr in range(maxiter):
-        # compute polynomials and derivatives
-        dp2 = 0.0  # the second derivative
-        dp = 0.0  # the first derivative
-        p = 0.0  # the polynomial
-        for i in range(porder, -1, -1):
-            dp2 = dp2 * t + 2 * dp
-            dp = dp * t + p
-            p = p * t + c[i, :]
+            # compute a newton step
+            dt = (lam - p) / dp
 
-        # compute a newton step
-        dt = (lam - p) / dp
+            # update the step for a Halley tweak
+            dt /= 1 + (dt / 2) * (dp2 / dp)
 
-        # update the step for a Halley tweak
-        dt /= 1 + (dt / 2) * (dp2 / dp)
+            # update the position
+            t = t + dt
 
-        # update the position
-        t = t + dt
-
-        # clip to be in range
-        if np.amax(np.abs(dt)) < threshold:
-            break
+            # clip to be in range
+            if np.amax(np.abs(dt)) < threshold:
+                break
 
     # return and force to be in the domain
-    return np.clip(t, 0, 1)
+    if clip:
+        return np.clip(t, 0, 1)
+    return t
 
 
 class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
