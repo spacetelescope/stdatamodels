@@ -8,7 +8,7 @@ allOf:
     properties:
       table:
         fits_hdu: TABLE
-        default: [False, 0, 42, NaN, "foo", 42.0, 0.0, 0.0, 0.0]
+        default: [False, 0, 42, 42, NaN, "foo", 42.0, 0.0, 0.0, 0.0]
         datatype:
           - name: int8_column
             datatype: int8
@@ -16,6 +16,9 @@ allOf:
             datatype: int16
           - name: uint16_column
             datatype: uint16
+          - name: uint16_column_with_ndim
+            datatype: uint16
+            ndim: 2
           - name: float32_column
             datatype: float32
           - name: ascii_column

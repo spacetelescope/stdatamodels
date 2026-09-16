@@ -5,6 +5,7 @@ id: "http://stsci.edu/schemas/jwst_datamodel/tso_multispec.schema"
 allOf:
 - $ref: core.schema
 - $ref: int_times.schema
+- $ref: hdrtab.schema
 - type: object
   properties:
     spec:
