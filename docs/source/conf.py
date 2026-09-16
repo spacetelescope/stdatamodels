@@ -29,7 +29,6 @@ extensions = [
     "numpydoc",
     "sphinx_asdf",
     "sphinx.ext.intersphinx",
-    "sphinx_api_relink",
 ]
 
 intersphinx_mapping = {
@@ -72,13 +71,3 @@ for transform_base in [
     "_GrismDispersionBase"
 ]:
     nitpick_ignore.append(("py:class", f"stdatamodels.jwst.transforms.models.{transform_base}"))
-
-# We need to do some substitutions to work around sphinx
-# issues with our usage of functools.wraps for AsdfFile.search/info/etc.
-# These will need to be updated when the asdf function signature changes.
-api_target_substitutions = {
-    "TreeKey": ("obj", "asdf.typing.TreeKey"),
-    "NOT_SET": ("obj", "asdf.util.NOT_SET"),
-    "FilterFn": ("obj", "asdf.typing.FilterFn"),
-    "AsdfSearchResult": ("obj", "asdf.search.AsdfSearchResult"),
-}

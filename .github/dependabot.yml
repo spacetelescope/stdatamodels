@@ -13,15 +13,4 @@ updates:
       actions:
         patterns:
           - "*"
-  - package-ecosystem: "pip"
-    directories:
-      - "docs"
-      - "/"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7
-    groups:
-      deps:
-        patterns:
-          - "*"
+

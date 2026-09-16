@@ -47,9 +47,6 @@ test = [
   "scipy>=1.9.2",            # same as astropy
 ]
 docs = [
-  # These aren't used for RTD since we follow the recommended pinning for reproducible
-  # builds: https://docs.readthedocs.com/platform/stable/guides/reproducible-builds.html
-  # see docs/requirements.txt for the dependencies used for RTD.
   "sphinx",
   "sphinx-automodapi",
   "numpydoc",
