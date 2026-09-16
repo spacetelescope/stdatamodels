@@ -1,6 +1,5 @@
 import numpy as np
 from astropy.io import fits
-from numpy.lib.recfunctions import merge_arrays
 
 from .combinedspec import CombinedSpecModel
 from .model_base import JwstDataModel
@@ -67,7 +66,6 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
         """Handle old-style files lacking contam estimate table columns."""  # numpydoc ignore: RT01
         for ext in hdulist:
             if ext.name == "COMBINE1D" and isinstance(ext, fits.BinTableHDU):
-                table_data = ext.data.view(np.recarray)
                 # for both missing attributes, find the schema-defined table index and datatype
                 expected = self.schema["properties"]["spec"]["items"]["properties"]["spec_table"][
                     "datatype"
@@ -75,34 +73,22 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
                 expected_names = [col["name"] for col in expected]
                 names = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT"]
                 for name in names:
-                    if name not in table_data.dtype.names:
-                        # Make the new column and fill it with NaN
+                    if name not in ext.data.dtype.names:
                         idx = expected_names.index(name)
-                        if table_data.dtype["FLUX"].shape:
-                            dtype = [(name, "f4", table_data.dtype["FLUX"].shape)]
-                        else:
-                            dtype = [(name, "f4")]
-                        new_column = np.full(table_data.shape[0], np.nan, dtype=dtype)
-
-                        # Insert new column into the correct position in the table data
-                        before_names = [
-                            field
-                            for field in expected_names[:idx]
-                            if field in table_data.dtype.names
-                        ]
-                        after_names = [
-                            field
-                            for field in expected_names[idx + 1 :]
-                            if field in table_data.dtype.names
-                        ]
-                        arrays_to_merge = (
-                            table_data[before_names],
-                            new_column,
-                            table_data[after_names],
+                        nelem = ext.data["FLUX"].shape[1]
+                        new_column = fits.Column(
+                            name=name,
+                            format=f"{nelem}D",
+                            dim=f"({nelem})",
+                            array=np.full(ext.data["FLUX"].shape, np.nan, dtype="float64"),
                         )
-
-                        # Merge them and cast the flat fields back into a recarray
-                        table_data = merge_arrays(arrays_to_merge, flatten=True, asrecarray=True)
-                ext.data = table_data
+                        new_columns = (
+                            fits.ColDefs(ext.columns[:idx])
+                            + fits.ColDefs([new_column])
+                            + fits.ColDefs(ext.columns[idx:])
+                        )
+                        new_hdu = fits.BinTableHDU.from_columns(new_columns)
+                        ext.data = new_hdu.data
+                        ext.header.update(new_hdu.header)
 
         return hdulist
