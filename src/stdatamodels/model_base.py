@@ -728,12 +728,9 @@ class DataModel(properties.ObjectNode):
             schema = {"type": "object", "properties": {part: schema}}
         return self.extend_schema(schema)
 
-    # return_result retained for backward compatibility
     def find_fits_keyword(self, keyword, return_result=True):
         """
         Find a reference to a FITS keyword in this model's schema.
-
-        This is intended for interactive use, and not for use within library code.
 
         Parameters
         ----------
@@ -741,7 +738,7 @@ class DataModel(properties.ObjectNode):
             A FITS keyword name.
 
         return_result : bool
-            Decide what to return.
+            Has no effect; retained for backward compatibility
 
         Returns
         -------
@@ -750,9 +747,7 @@ class DataModel(properties.ObjectNode):
             the schema where this FITS keyword is used.  Each element
             is a dot-separated path.
         """
-        from . import schema
-
-        return schema.find_fits_keyword(self.schema, keyword)
+        return mschema.find_fits_keyword(self.schema, keyword)
 
     def search_schema(self, substring):
         """
@@ -773,9 +768,7 @@ class DataModel(properties.ObjectNode):
         locations : list of tuples
             The locations within the schema where the element is found.
         """
-        from . import schema
-
-        return schema.search_schema(self.schema, substring)
+        return mschema.search_schema(self.schema, substring)
 
     def __getitem__(self, key):  # numpydoc ignore=RT01
         """Get a metadata value using a dotted name."""

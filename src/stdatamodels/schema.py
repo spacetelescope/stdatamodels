@@ -1,10 +1,6 @@
-# return_result included for backward compatibility
 def find_fits_keyword(schema, keyword, return_result=False):
     """
     Find references to a FITS keyword in a given schema.
-
-    This is intended for interactive use, and not for use
-    within library code.
 
     Parameters
     ----------
@@ -13,6 +9,9 @@ def find_fits_keyword(schema, keyword, return_result=False):
 
     keyword : str
         A FITS keyword name
+
+    return_result : bool, optional
+        Has no effect; retained for backward compatibility
 
     Returns
     -------
