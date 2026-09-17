@@ -567,7 +567,7 @@ def test_nircam_grism_roundtrip(direction):
 
 
 def test_newton():
-    """Test Newton's method solver."""
+    """Test the degree 3+ case of Newton's method solver."""
 
     # set up a random polynomial that has a root between 0 and 1
     # this one has a root near t=0.54
@@ -577,6 +577,87 @@ def test_newton():
     lam = 2.0e-6
     t = models._newton(model, x, y, lam)
     assert_allclose(model(t), lam, rtol=1e-6)
+
+
+def test_newton_linear():
+    """Test the linear solver."""
+    c0 = Polynomial2D(degree=0, c0_0=2.0)
+    c1 = Polynomial2D(degree=0, c0_0=-4.0)
+    model = [c0, c1]
+    t = models._newton(model, 150.0, 140.0, 1.0)
+    assert_allclose(t, (1.0 - 2.0) / -4.0)
+
+
+def test_newton_quadratic():
+    """Test the quadratic solver for a normal case where there is exactly one root in [0, 1]."""
+    # (t - 0.3) * (t - 5) = t^2 - 5.3t + 1.5
+    model = [
+        Polynomial2D(degree=0, c0_0=1.5),
+        Polynomial2D(degree=0, c0_0=-5.3),
+        Polynomial2D(degree=0, c0_0=1.0),
+    ]
+    t = models._newton(model, 150.0, 140.0, 0.0)
+    assert_allclose(t, 0.3, atol=1e-8)
+
+
+def test_newton_quadratic_both_roots_raises():
+    """Test error raise when both roots are within [0, 1] - this indicates a bad trace model."""
+    # (t - 0.2) * (t - 0.8) = t^2 - t + 0.16
+    model = [
+        Polynomial2D(degree=0, c0_0=0.16),
+        Polynomial2D(degree=0, c0_0=-1.0),
+        Polynomial2D(degree=0, c0_0=1.0),
+    ]
+    with pytest.raises(ValueError, match="both quadratic roots"):
+        models._newton(model, 150.0, 140.0, 0.0)
+
+
+def test_newton_quadratic_neither_root_in_domain():
+    """If neither root is in [0, 1], the closer one to the domain is used."""
+    # (t + 0.1) * (t - 1.2) = t^2 - 1.1t - 0.12
+    # t=-0.1 is closer to the domain, so it should be selected
+    model = [
+        Polynomial2D(degree=0, c0_0=-0.12),
+        Polynomial2D(degree=0, c0_0=-1.1),
+        Polynomial2D(degree=0, c0_0=1.0),
+    ]
+    t = models._newton(model, 150.0, 140.0, 0.0, clip=False)
+    assert_allclose(t, -0.1, atol=1e-8)
+
+
+def test_newton_pairwise():
+    """Test that pairwise=True solves element-wise instead of building an (x, y) x lam grid."""
+    c0 = Polynomial2D(degree=1, c0_0=0.0, c1_0=1.0)  # c0(x, y) = x
+    c1 = Polynomial2D(degree=0, c0_0=2.0)  # c1(x, y) = 2, constant
+    model = [c0, c1]
+
+    x = np.array([1.0, 2.0, 3.0])
+    y = np.array([0.0, 0.0, 0.0])
+    t_true = np.array([0.1, 0.4, 0.9])
+    lam = c0(x, y) + c1(x, y) * t_true
+
+    t = models._newton(model, x, y, lam, pairwise=True)
+    assert t.shape == x.shape
+    assert_allclose(t, t_true, atol=1e-8)
+
+
+def test_newton_clip():
+    """Test that the clip parameter controls whether t is restricted to [0, 1]."""
+    model = [Polynomial2D(degree=0, c0_0=0.0), Polynomial2D(degree=0, c0_0=1.0)]
+    lam = 1.5  # solution t = 1.5, outside [0, 1]
+
+    t_clipped = models._newton(model, 0.0, 0.0, lam)
+    assert_allclose(t_clipped, 1.0)
+
+    t_unclipped = models._newton(model, 0.0, 0.0, lam, clip=False)
+    assert_allclose(t_unclipped, 1.5)
+
+
+def test_newton_degenerate_model_raises():
+    """A polynomial with no t-dependence cannot be solved for t and should raise."""
+    model = [Polynomial2D(degree=0, c0_0=1.0)]
+    with pytest.raises(ValueError, match="degenerate"):
+        models._newton(model, 0.0, 0.0, 2.0)
 
 
 @pytest.mark.parametrize("direction", ["row", "column"])
