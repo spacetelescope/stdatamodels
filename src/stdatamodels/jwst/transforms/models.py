@@ -1425,8 +1425,7 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        # use the deduplicated x_pos, y_pos (not the redundant x, y grid) so the
-        # x0, y0-dependent coefficients aren't needlessly re-evaluated per wavelength
+        # use (x_pos, y_pos) instead of (x, y) so these calculations aren't duplicated
         dx = _evaluate_transform_guess_form(xmodel, x=x_pos, y=y_pos, t=t)
         dy = _evaluate_transform_guess_form(ymodel, x=x_pos, y=y_pos, t=t)
 
@@ -1483,15 +1482,16 @@ def arrayify(func):
 
 def _normalize_model_for_newton(model):
     """
-    Make legacy trace model form look like newer-style models with spatial dependence.
+    Make legacy trace models look like newer-style models with spatial dependence.
 
-    This helper checks if the model has spatial dependence in its coefficients,
-    and if not, it wraps the coefficients in a callable that returns a constant array
+    Checks if the model has spatial dependence in its coefficients,
+    and if not, wraps the coefficients in a callable that returns a constant array
     so we can use the same Newton's method code for both.
 
     Parameters
     ----------
-    model : astropy Model or list[astropy Model]
+    model : `~astropy.modeling.polynomial.Polynomial` or \
+        list[`~astropy.modeling.polynomial.Polynomial`]
         The model to normalize.
 
     Returns
@@ -1525,7 +1525,8 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
 
     Parameters
     ----------
-    model : astropy Polynomial or list[astropy Polynomial]
+    model : `~astropy.modeling.polynomial.Polynomial` or \
+        list[`~astropy.modeling.polynomial.Polynomial`]
         The lmodel we want to invert. May be a list of models depending on x, y
         (one per power of t), or a single legacy model depending only on t.
     x, y : np.ndarray
@@ -1589,8 +1590,8 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
         dist2 = np.abs(np.clip(t2, 0, 1) - t2)
         use_t1 = t1_in | (~t1_in & ~t2_in & (dist1 <= dist2))
         t = np.where(use_t1, t1, t2)
+    # Otherwise do Newton's method with Halley update to find the root
     else:
-        # initialize
         t = np.full_like(lam, 0.5)
         for _itr in range(maxiter):
             # compute polynomials and derivatives
