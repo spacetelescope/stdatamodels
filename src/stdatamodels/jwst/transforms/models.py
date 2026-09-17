@@ -1434,6 +1434,21 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
 
 
 def arrayify(func):
+    """
+    Massage inputs into the elementwise arrays expected by _newton.
+
+    Adapted from slitlessutils.
+
+    Parameters
+    ----------
+    func : Callable
+        The function to wrap with the decorator.
+
+    Returns
+    -------
+    array-like
+        The result of applying the function to the massaged input arrays.
+    """
 
     def wrapper(self, x, y, z, **kwargs):
         pairwise = kwargs.pop("pairwise", False)
@@ -1445,12 +1460,14 @@ def arrayify(func):
         if pairwise:
             # x, y, and z vary together elementwise (e.g. evaluating over an image),
             # so flatten everything to 1-D for the core computation and restore
-            # the original (broadcast) shape afterward. Skip the later squeeze
-            # so callers relying on that exact shape (e.g. matching an unsqueezed
-            # x0/y0) stay consistent.
+            # the original (broadcast) shape afterward.
             out_shape = np.broadcast_shapes(x.shape, y.shape, z.shape)
             x, y, z = (np.broadcast_to(a, out_shape).ravel() for a in (x, y, z))
-            return np.reshape(func(self, x, y, z, **kwargs), out_shape)
+            p = np.reshape(func(self, x, y, z, **kwargs), out_shape)
+            if p.ndim == 0:
+                # return scalar if single-valued
+                return p.item()
+            return p
 
         z = z[:, np.newaxis]
         p = func(self, x, y, z, **kwargs)
@@ -1466,11 +1483,11 @@ def arrayify(func):
 
 def _normalize_model_for_newton(model):
     """
-    Normalize a dispersion/trace model into a list of (x, y) -> coefficient callables.
+    Make legacy trace model form look like newer-style models with spatial dependence.
 
-    Handles both the standard form (a list of models depending on x, y, one per
-    power of t) and the legacy form (a single model, or length-1 list of one,
-    depending only on t with no x, y dependence).
+    This helper checks if the model has spatial dependence in its coefficients,
+    and if not, it wraps the coefficients in a callable that returns a constant array
+    so we can use the same Newton's method code for both.
 
     Parameters
     ----------
@@ -1504,6 +1521,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
     p = a(x,y) + b(x,y)*t + c(x,y)*t^2 + d(x,y)*t^3 + ...
 
     on the interval [0,1] in a vectorized fashion.
+    Adapted from slitlessutils.
 
     Parameters
     ----------
@@ -1514,14 +1532,32 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
         The un-dispersed x,y position
     lam : np.ndarray
         The values of the polynomial. This is typically the wavelength.
+    threshold : float, optional
+        Convergence threshold for Newton's method.
+    maxiter : int, optional
+        Maximum number of iterations for Newton's method.
+    clip : bool, optional
+        Whether to clip the solution to the interval [0, 1].
 
     Returns
     -------
     t : np.ndarray
         Polynomial root within the bounds 0 < t < 1.
+
+    Notes
+    -----
+    The clip flag is needed to reproduce existing behavior where the forward transform
+    does not clip between 0 and 1 but the backward transform does. This inconsistency
+    should be fixed in the future, but it isn't straightforward to do so because the
+    way we assign wavelengths in extract2d is not very physically reasonable, and often
+    requests wavelengths well outside the expected range for extended sources.
     """
     model = _normalize_model_for_newton(model)
     porder = len(model) - 1
+    if porder < 1:
+        raise ValueError(
+            f"Cannot solve for t with a degenerate (order {porder}) polynomial: {model}"
+        )
 
     # compute polynomial coefficients
     c = np.empty((porder + 1, x.size))
@@ -1534,10 +1570,25 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
     elif porder == 2 and np.all(c[2, :] != 0):
         a, b, cc = c[2, :], c[1, :], c[0, :] - lam
         sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
-        t_plus = (-b + sqrt_disc) / (2 * a)
-        t_minus = (-b - sqrt_disc) / (2 * a)
-        # pick whichever root lands in the valid domain
-        t = np.where((t_plus >= 0) & (t_plus <= 1), t_plus, t_minus)
+        # numerically stable quadratic formula (Numerical Recipes Sec. 5.6)
+        q = -0.5 * (b + np.copysign(sqrt_disc, b))
+        t1 = q / a
+        t2 = cc / q
+        t1_in = (t1 >= 0) & (t1 <= 1)
+        t2_in = (t2 >= 0) & (t2 <= 1)
+
+        n_ambiguous = np.count_nonzero(t1_in & t2_in)
+        if n_ambiguous:
+            raise ValueError(
+                f"{n_ambiguous} point(s) have both quadratic roots within the valid "
+                "domain [0, 1]; the trace polynomial is not monotonic there."
+            )
+
+        # if neither root is between 0 and 1, use whichever is closer
+        dist1 = np.abs(np.clip(t1, 0, 1) - t1)
+        dist2 = np.abs(np.clip(t2, 0, 1) - t2)
+        use_t1 = t1_in | (~t1_in & ~t2_in & (dist1 <= dist2))
+        t = np.where(use_t1, t1, t2)
     else:
         # initialize
         t = np.full_like(lam, 0.5)
