@@ -849,9 +849,10 @@ def test_instance_read_only():
 
 
 @pytest.mark.parametrize("shape", [(10,), (0,)])
-def test_extra_table_columns(shape):
+def test_extra_table_columns(shape, tmp_path):
     """Test that extra columns can be assigned for schemas with allow_extra_columns."""
     with TableModel(shape) as model:
+        model.save(tmp_path / "bar.fits")
         # use existing table to figure out data type of new table
         dtype = model.get_dtype("table")
         extra_col = np.arange(shape[0], dtype=np.float32)
@@ -876,5 +877,11 @@ def test_extra_table_columns(shape):
     with TableModelExtraColumns() as model:
         # This should work because TableModelExtraColumns allows extra columns
         model.table = new_tab
+
+        # in a previous version, `safe_asanyarray` was mangling data type for the zero-length case
+        # this assert statement should catch that (and would also cause the model.save to fail validation)
+        assert model.table.dtype == new_tab.dtype
+
         assert "extra_column" in model.table.columns.names
         np.testing.assert_array_equal(model.table["extra_column"], extra_col)
+        model.save(tmp_path / "foo.fits")
