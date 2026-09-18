@@ -54,6 +54,7 @@ from .outlierifuoutput import OutlierIFUOutputModel
 from .pastasossmodel import PastasossModel
 from .pathloss import MirLrsPathlossModel, PathlossModel
 from .persat import PersistenceSatModel
+from .pfpc import MirMrsPFPCModel
 from .photom import (
     FgsImgPhotomModel,
     MirImgPhotomModel,
@@ -189,6 +190,7 @@ __all__ = [
     "MirLrsPathlossModel",
     "MirLrsPhotomModel",
     "MirMrsApcorrModel",
+    "MirMrsPFPCModel",
     "MirMrsPhotomModel",
     "MirMrsPtCorrModel",
     "MirMrsXArtCorrModel",
