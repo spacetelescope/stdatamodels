@@ -871,7 +871,7 @@ def test_extra_table_columns(shape):
             assert not len(new_tab)
 
         # This should raise because TableModel does not allow extra columns
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Column names don't match schema"):
             model.table = new_tab
     with TableModelExtraColumns() as model:
         # This should work because TableModelExtraColumns allows extra columns
