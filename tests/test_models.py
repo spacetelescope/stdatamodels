@@ -852,7 +852,6 @@ def test_instance_read_only():
 def test_extra_table_columns(shape, tmp_path):
     """Test that extra columns can be assigned for schemas with allow_extra_columns."""
     with TableModel(shape) as model:
-        model.save(tmp_path / "bar.fits")
         # use existing table to figure out data type of new table
         dtype = model.get_dtype("table")
         extra_col = np.arange(shape[0], dtype=np.float32)
