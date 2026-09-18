@@ -876,5 +876,5 @@ def test_extra_table_columns(shape):
     with TableModelExtraColumns() as model:
         # This should work because TableModelExtraColumns allows extra columns
         model.table = new_tab
-        assert "extra_column" in model.table.columns
+        assert "extra_column" in model.table.columns.names
         np.testing.assert_array_equal(model.table["extra_column"], extra_col)
