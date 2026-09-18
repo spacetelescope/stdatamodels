@@ -2618,6 +2618,12 @@ properties:
             enum: [SKIPPED, COMPLETE, FAILED]
             fits_keyword: S_PERSIS
             blend_table: True
+          pfpc:
+            title: Point Fixed Pattern Correction
+            type: string
+            enum: [SKIPPED, COMPLETE, FAILED]
+            fits_keyword: S_PFPC
+            blend_table: True
           photom:
             title: Photometric Calibration
             type: string
