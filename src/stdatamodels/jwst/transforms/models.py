@@ -1512,13 +1512,13 @@ def _normalize_model_for_newton(model):
 
 
 @arrayify
-def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
+def _newton(model, x, y, z, threshold=1e-3, maxiter=10, clip=True):
     """
     Solve polynomial using Newton's method with Halley update.
 
     Finds the value of t that satisfies
 
-    p = a(x,y) + b(x,y)*t + c(x,y)*t^2 + d(x,y)*t^3 + ...
+    z = a(x,y) + b(x,y)*t + c(x,y)*t^2 + d(x,y)*t^3 + ...
 
     on the interval [0,1] in a vectorized fashion.
     Adapted from slitlessutils.
@@ -1527,18 +1527,23 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
     ----------
     model : `~astropy.modeling.polynomial.Polynomial` or \
         list[`~astropy.modeling.polynomial.Polynomial`]
-        The lmodel we want to invert. May be a list of models depending on x, y
+        The model we want to invert. May be a list of models depending on x, y
         (one per power of t), or a single legacy model depending only on t.
     x, y : np.ndarray
         The un-dispersed x,y position
-    lam : np.ndarray
-        The values of the polynomial. This is typically the wavelength.
+    z : np.ndarray
+        The values of the polynomial.
     threshold : float, optional
         Convergence threshold for Newton's method.
     maxiter : int, optional
         Maximum number of iterations for Newton's method.
     clip : bool, optional
         Whether to clip the solution to the interval [0, 1].
+    pairwise : bool, optional
+        Whether to solve the polynomial pairwise for each (x, y, lam) coordinate.
+        If False (the default), it is assumed that x and y vary along a different
+        axis than lam, such that the polynomial is solved for each lam value
+        across all x, y coordinates.
 
     Returns
     -------
@@ -1552,7 +1557,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
     should be fixed in the future, but it isn't straightforward to do so because the
     way we assign wavelengths in extract2d is not very physically reasonable, and often
     requests wavelengths well outside the expected range for extended sources.
-    """
+    """  # numpydoc ignore: PR02
     model = _normalize_model_for_newton(model)
     porder = len(model) - 1
     if porder < 1:
@@ -1567,9 +1572,9 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
 
     # for low orders, solve analytically instead of iterating
     if porder == 1:
-        t = (lam - c[0, :]) / c[1, :]
+        t = (z - c[0, :]) / c[1, :]
     elif porder == 2 and np.all(c[2, :] != 0):
-        a, b, cc = c[2, :], c[1, :], c[0, :] - lam
+        a, b, cc = c[2, :], c[1, :], c[0, :] - z
         sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
         # numerically stable quadratic formula (Numerical Recipes Sec. 5.6)
         q = -0.5 * (b + np.copysign(sqrt_disc, b))
@@ -1592,7 +1597,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
         t = np.where(use_t1, t1, t2)
     # Otherwise do Newton's method with Halley update to find the root
     else:
-        t = np.full_like(lam, 0.5)
+        t = np.full_like(z, 0.5)
         for _itr in range(maxiter):
             # compute polynomials and derivatives
             dp2 = 0.0  # the second derivative
@@ -1604,7 +1609,7 @@ def _newton(model, x, y, lam, threshold=1e-3, maxiter=10, clip=True):
                 p = p * t + c[i, :]
 
             # compute a newton step
-            dt = (lam - p) / dp
+            dt = (z - p) / dp
 
             # update the step for a Halley tweak
             dt /= 1 + (dt / 2) * (dp2 / dp)
