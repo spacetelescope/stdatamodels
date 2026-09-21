@@ -1,0 +1,1 @@
+Make phot_unit, wave_unit, and phot_table required in WFSS photom reference file schemas, fixing a problem where these files were delivered without these metadata and crashed the pipeline
