@@ -20,8 +20,6 @@ allOf:
       fits_keyword: WAVEUNIT
       fits_hdu: PHOTOM
       type: string
-- type: object
-  properties:
     phot_table:
       title: Photometric flux conversion factors table
       fits_hdu: PHOTOM
@@ -47,6 +45,7 @@ allOf:
       - name: reluncertainty
         datatype: float32
         ndim: 1
+  required: [phot_unit, wave_unit, phot_table]
 - type: object
   properties:
     timecoeff_linear:
