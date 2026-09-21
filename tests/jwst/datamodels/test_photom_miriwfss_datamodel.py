@@ -1,9 +1,11 @@
 from datetime import datetime
 
 import numpy as np
+import pytest
 from astropy import units as u
 from astropy.table import Table
 
+from stdatamodels.exceptions import ValidationWarning
 from stdatamodels.jwst import datamodels
 
 
@@ -67,9 +69,6 @@ def test_miri_wfss_photom():
     p_unit_str = str(wfss_photmjsr.unit)
     w_unit_str = str(wavelength.unit)
 
-    phot_model.phot_unit = p_unit_str
-    phot_model.wave_unit = w_unit_str
-
     # Now the model will recognize the columns
     phot_model.phot_table = np.array(temp_table)
     phot_model.meta.filename = "MIR_WFSS_PHOTOM.FITS"
@@ -85,6 +84,13 @@ def test_miri_wfss_photom():
 
     # Use datetime.now(timezone.utc) as utcnow() is deprecated in newer Python
     phot_model.meta.date = datetime.now().isoformat()
+
+    with pytest.warns(ValidationWarning, match="'phot_unit' is a required property"):
+        # Cover an issue where ref files were delivered with phot_unit missing
+        phot_model.validate()
+
+    phot_model.phot_unit = p_unit_str
+    phot_model.wave_unit = w_unit_str
     phot_model.validate()
 
     assert phot_model.meta.instrument.name == "MIRI"
