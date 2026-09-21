@@ -27,6 +27,10 @@ allOf:
         datatype: [ascii, 20]
       - name: patt_num
         datatype: int32
+      - name: r_flat
+        datatype: [ascii, 50]
+      - name: r_photom
+        datatype: [ascii, 50]
       - name: wavelength
         datatype: float32
       - name: correction
