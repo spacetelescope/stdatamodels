@@ -1158,7 +1158,9 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
             dist = y - y0
 
         if not self.inv_alongdisp_models:
-            # Find root numerically using Newton's method
+            # Find root using Newton's method solver.
+            # At time of writing the xmodel or ymodel we're solving here is just linear
+            # so it hits the analytic portion of `_newton` and can be solved exactly
             t = _newton(self.alongdisp_models[iorder], x0, y0, dist, pairwise=True, clip=False)
         else:
             t = self.inv_alongdisp_models[iorder](dist)
