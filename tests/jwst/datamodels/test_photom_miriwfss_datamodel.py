@@ -3,7 +3,6 @@ from datetime import datetime
 import numpy as np
 import pytest
 from astropy import units as u
-from astropy.table import Table
 
 from stdatamodels.exceptions import ValidationWarning
 from stdatamodels.jwst import datamodels
@@ -18,7 +17,7 @@ def test_miri_wfss_photom():
     nelem = 380
     wfss_photmjsr_error = 2.608179e-01
     subarray = "FULL"
-    wavelength = np.linspace(5.0, 14.0, nelem) * u.micron
+    wavelength = np.linspace(5.0, 14.0, nelem)
     relresponse = np.linspace(0.001, 0.01, nelem)
     reluncertainty = np.linspace(0.001, 0.01, nelem)
 
@@ -29,20 +28,20 @@ def test_miri_wfss_photom():
             ("photmjsr", "f4"),
             ("uncertainty", "f4"),
             ("nelem", "i2"),  # int16 per schema
-            ("wavelength", "O"),
-            ("relresponse", "O"),
-            ("reluncertainty", "O"),
+            ("wavelength", "f4", nelem),
+            ("relresponse", "f4", nelem),
+            ("reluncertainty", "f4", nelem),
         ]
     )
 
-    data_array = np.array(
+    phot_table = np.array(
         [
             (
                 "P750L",
                 "FULL",
                 float(wfss_photmjsr.value),
-                float(wfss_photmjsr_error),
-                len(wavelength),
+                wfss_photmjsr_error,
+                nelem,
                 wavelength,
                 relresponse,
                 reluncertainty,
@@ -51,26 +50,11 @@ def test_miri_wfss_photom():
         dtype=new_dtype,
     )
 
-    # These MUST match the schema keys in your error message exactly
-    names = (
-        "filter",
-        "subarray",
-        "photmjsr",
-        "uncertainty",
-        "nelem",
-        "wavelength",
-        "relresponse",
-        "reluncertainty",  # Schema says 'reluncertainty', not 'relres_err'
-    )
-
-    # Create the table with the explicit names from the schema
-    temp_table = Table(rows=data_array, names=names)
-
     p_unit_str = str(wfss_photmjsr.unit)
-    w_unit_str = str(wavelength.unit)
+    w_unit_str = str(u.micron)
 
     # Now the model will recognize the columns
-    phot_model.phot_table = np.array(temp_table)
+    phot_model.phot_table = phot_table
     phot_model.meta.filename = "MIR_WFSS_PHOTOM.FITS"
     phot_model.meta.author = "A. Petric"
     phot_model.meta.origin = "STScI"
@@ -102,6 +86,6 @@ def test_miri_wfss_photom():
     assert phot_model.phot_table.filter == "P750L"
     assert phot_model.phot_table.photmjsr == float(wfss_photmjsr.value)
     assert phot_model.phot_table.uncertainty == float(wfss_photmjsr_error)
-    np.testing.assert_allclose(phot_model.phot_table.wavelength[0], wavelength.value, atol=1e-7)
+    np.testing.assert_allclose(phot_model.phot_table.wavelength[0], wavelength, atol=1e-7)
     np.testing.assert_allclose(phot_model.phot_table.relresponse[0], relresponse, atol=1e-7)
     np.testing.assert_allclose(phot_model.phot_table.reluncertainty[0], reluncertainty, atol=1e-7)
