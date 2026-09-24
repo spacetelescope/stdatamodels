@@ -91,6 +91,10 @@ pathloss_model_map = {
     "other": dm.PathlossModel,
 }
 
+pfpc_model_map = {
+    "MIR_MRS": dm.MirMrsPFPCModel,
+}
+
 photom_model_map = {
     "MIR_LRS-FIXEDSLIT": dm.MirLrsPhotomModel,
     "MIR_LRS-SLITLESS": dm.MirLrsPhotomModel,
@@ -135,6 +139,7 @@ ref_to_multiples_dict = {
     "distortion": distortion_model_map,
     "flat": flat_model_map,
     "pathloss": pathloss_model_map,
+    "pfpc": pfpc_model_map,
     "photom": photom_model_map,
     "resol": resol_model_map,
     "specwcs": specwcs_model_map,
