@@ -14,6 +14,7 @@ from .models import (
     FitsModel,
     TableModel,
     TableModelBad,
+    TableModelExtraColumns,
     TransformModel,
     ValidationModel,
 )
@@ -845,3 +846,41 @@ def test_instance_read_only():
             dm.instance = {"meta": {"model_type": "BasicModel"}}
         # underscore instance is still settable
         dm._instance = {"meta": {"model_type": "BasicModel"}}
+
+
+@pytest.mark.parametrize("shape", [(10,), (0,)])
+def test_extra_table_columns(shape, tmp_path):
+    """Test that extra columns can be assigned for schemas with allow_extra_columns."""
+    with TableModel(shape) as model:
+        # use existing table to figure out data type of new table
+        dtype = model.get_dtype("table")
+        extra_col = np.arange(shape[0], dtype=np.float32)
+        new_dtype = np.dtype(list(dtype.descr) + [("extra_column", "<f4")])
+        tab = model.table
+
+        # make new table with extra column
+        new_tab = np.empty(tab.shape, dtype=new_dtype)
+        for field in dtype.names:
+            new_tab[field] = tab[field]
+        new_tab["extra_column"] = extra_col
+        new_tab = new_tab.view(np.recarray)
+
+        if shape[0] == 0:
+            # the shape = 0 conditional covers a bug where allow_extra_columns was
+            # not being respected when the table was empty.
+            assert not len(new_tab)
+
+        # This should raise because TableModel does not allow extra columns
+        with pytest.raises(ValueError, match="Column names don't match schema"):
+            model.table = new_tab
+    with TableModelExtraColumns() as model:
+        # This should work because TableModelExtraColumns allows extra columns
+        model.table = new_tab
+
+        # in a previous version, `safe_asanyarray` was mangling data type for the zero-length case
+        # this assert statement should catch that (and would also cause the model.save to fail validation)
+        assert model.table.dtype == new_tab.dtype
+
+        assert "extra_column" in model.table.columns.names
+        np.testing.assert_array_equal(model.table["extra_column"], extra_col)
+        model.save(tmp_path / "foo.fits")
