@@ -1,0 +1,1 @@
+Use Newton's method solver instead of interpolation to find roots for NIRCam grism transforms. This makes WCS round-tripping more accurate for WFSS and TSGRISM observations, and speeds up disperse computation in wfss_contam for roughly a factor of 3 for NIRCam WFSS data.
