@@ -1,27 +1,25 @@
-<!-- If this PR closes a JIRA ticket, make sure the title starts with the JIRA issue number, 
-for example JP-1234: <Fix a bug> -->
-Resolves [JP-nnnn](https://jira.stsci.edu/browse/JP-nnnn)
+<!-- If this PR addresses a JIRA ticket: -->
+<!-- Resolves [JP-nnnn](https://jira.stsci.edu/browse/JP-nnnn) -->
 
-<!-- If this PR closes a GitHub issue, reference it here by its number -->
-Closes #
+<!-- If this PR will close an existing GitHub issue (that is not already attached to a JIRA ticket): -->
+<!-- Closes # -->
 
-<!-- describe the changes comprising this PR here -->
-This PR addresses ...
+<!-- Describe your changes here: -->
 
-<!-- if you can't perform these tasks due to permissions, please ask a maintainer to do them -->
+## Description
+
+This change ...
+
+<!-- If you can't perform these tasks due to permissions, reach out to a maintainer. -->
+
 ## Tasks
 - [ ] update or add relevant tests
 - [ ] update relevant docstrings and / or `docs/` page
-- [ ] If this change affects user-facing code or public API, add news fragment file(s) to `changes/` (see [the changelog instructions](https://github.com/spacetelescope/stdatamodels/blob/main/changes/README.md)).
+- [ ] If this change affects user-facing code or public API, add news fragment file(s) to `changes/` (see [the changelog instructions](../changes/README.md)).
       Otherwise, add the `no-changelog-entry-needed` label.
 - [ ] [run `jwst` regression tests](https://github.com/spacetelescope/RegressionTests/actions/workflows/jwst.yml) with this branch installed (`"git+https://github.com/<fork>/stdatamodels@<branch>"`)
 
-<details><summary>news fragment change types...</summary>
+## Generative AI Usage Disclosure
 
-- `<PR#>.breaking.rst`: Add this fragment if your change **breaks public API**, describing what the user needs to change
-- `<PR#>.schema.rst`: schema updates
-- `<PR#>.feature.rst`
-- `<PR#>.bugfix.rst`
-- `<PR#>.docs.rst`
-- `<PR#>.other.rst`
-</details>
+<!-- If generative AI or LLMs were used in the process of making this change, describe their use here. -->
+<!-- Otherwise, indicate "No genAI tools used". -->
