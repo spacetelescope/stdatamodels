@@ -133,7 +133,13 @@ def gentle_asarray(a, dtype, allow_extra_columns=False):
         if in_subdtypes[:n_required] == out_subdtypes:
             return a.view(dtype=new_dtype)
         else:
-            new_dtype = np.dtype(out_dtype.descr + new_dtype.descr[len(out_dtype.descr) :])
+            required_dtype = [
+                (out_name, out_dtype[out_name].base, in_dtype[in_name].shape)
+                for in_name, out_name in zip(
+                    in_dtype.names[:n_required], out_dtype.names, strict=False
+                )
+            ]
+            new_dtype = np.dtype(required_dtype + new_dtype.descr[len(out_dtype.descr) :])
             return _safe_asanyarray(a, new_dtype)
 
     # reorder columns so required columns are first

@@ -1,0 +1,1 @@
+Fix a bug where allow_extra_columns flag in table-like schemas was not respected if the data were empty
