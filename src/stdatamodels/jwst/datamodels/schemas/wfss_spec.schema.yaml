@@ -10,3 +10,5 @@ allOf:
   properties:
     spec_table:
       $ref: wfss_spectable.schema
+    spec_table_units:
+      $ref: wfss_specunits.schema
