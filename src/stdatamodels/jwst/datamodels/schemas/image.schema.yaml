@@ -57,5 +57,26 @@ allOf:
       default: 0
       ndim: 2
       datatype: uint32
+    member_wcs:
+      type: array
+      title: List of mosaic member WCS tweak transforms
+      items:
+        type: object
+        properties:
+          filename:
+            title: Member filename
+            type: string
+          visit_number:
+            title: Visit number
+            type: integer
+          ra:
+            title: Member right ascension
+            type: number
+          dec:
+            title: Member declination
+            type: number
+          tweak:
+            title: Member tangent-plane tweak transform
+            tag: tag:stsci.edu:gwcs/wcs-*
 - $ref: variance.schema
 - $ref: pathlosscorr.schema
