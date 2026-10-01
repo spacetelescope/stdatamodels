@@ -34,6 +34,7 @@ allOf:
       type: object
       properties:
         oifits:
+          title: NIRISS AMI OIFITS information
           type: object
           required: [array_name, instrument_mode, derived]
           properties:
