@@ -46,6 +46,8 @@ jobs:
   test:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@22ddf09dfabb443adddfb9f861b7d41a787d6b1a  # v3.0.3
     needs: [ data ]
+    permissions:
+      id-token: write
     with:
       setenv: |
         CRDS_PATH: ${{ needs.data.outputs.crds_path }}
@@ -60,11 +62,9 @@ jobs:
         - linux: py312-xdist
         - linux: py313-xdist
         - linux: py314-cov-xdist
-          coverage: codecov
+          coverage: codecov-oidc
         - macos: py314-xdist
         - windows: py314-xdist-nocrds
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   test_downstream:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@22ddf09dfabb443adddfb9f861b7d41a787d6b1a  # v3.0.3
     needs: [ data ]
