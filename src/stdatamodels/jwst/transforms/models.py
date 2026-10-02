@@ -11,7 +11,6 @@ registered with ASDF through entry points.
 import math
 import warnings
 from collections import namedtuple
-from functools import partial
 
 import numpy as np
 from astropy.modeling.core import Model
@@ -1159,7 +1158,10 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
             dist = y - y0
 
         if not self.inv_alongdisp_models:
-            t = self.invdisp_interp(iorder, x0, y0, dist)
+            # Find root using Newton's method solver.
+            # At time of writing the xmodel or ymodel we're solving here is just linear
+            # so it hits the analytic portion of `_newton` and can be solved exactly
+            t = _newton(self.alongdisp_models[iorder], x0, y0, dist, pairwise=True, clip=False)
         else:
             t = self.inv_alongdisp_models[iorder](dist)
 
@@ -1167,53 +1169,6 @@ class _NIRCAMForwardGrismDispersion(_ForwardGrismDispersionBase):
         l_poly = _evaluate_transform_guess_form(lmodel, x=x0, y=y0, t=t)
 
         return x0, y0, l_poly, order
-
-    def invdisp_interp(self, order, x0, y0, dx):
-        """
-        Make a polynomial fit to xmodel and interpolate to find the wavelength.
-
-        Parameters
-        ----------
-        order : int
-            The input spectral order
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center.
-        dx : float or np.ndarray
-            The offset from x0 in the dispersion direction
-
-        Returns
-        -------
-        f : float or np.ndarray
-            The wavelength solution for the given dx
-        """
-        model = self.alongdisp_models[order]
-        dx = np.atleast_1d(dx)
-        if len(dx.shape) == 2:
-            dx = dx[0, :]
-
-        t0 = np.linspace(0.0, 1.0, self.sampling)
-
-        # handle multiple inverse model types
-        if isinstance(model, (ListNode, list, tuple)):
-            if len(model[0].inputs) == 2:
-                xr = _poly_with_spatial_dependence(t0, x0, y0, model)
-            elif len(model[0].inputs) == 1:
-                xr = (dx - model[0].c0.value) / model[0].c1.value
-                return xr
-            else:
-                raise ValueError(f"Unexpected model coefficients: {model}")
-        else:
-            xr = (dx - model.c0.value) / model.c1.value
-            return xr
-
-        if len(xr.shape) > 1:
-            xr = xr[0, :]
-
-        so = np.argsort(xr)
-        f = np.interp(dx, xr[so], t0[so])
-
-        f = np.broadcast_to(f, dx.shape)
-        return f
 
 
 class NIRCAMForwardRowGrismDispersion(_NIRCAMForwardGrismDispersion):
@@ -1453,135 +1408,225 @@ class NIRCAMBackwardGrismDispersion(_BackwardGrismDispersionBase):
             raise ValueError("Wavelength should be greater than zero")
 
         if not self.inv_lmodels:
-            t = self.invdisp_interp(self.lmodels[iorder], x, y, wavelength)
+            # Find root numerically using Newton's method
+            if x.ndim == 2:
+                # Assume we're calling this on a grid where all wavelengths are the same
+                # in one dimension, and all the x,y coordinates are the same in the other dimension.
+                x_pos = x[0].flatten()
+                y_pos = y[0].flatten()
+                wavelength_flat = wavelength[:, 0].flatten()
+                t = _newton(self.lmodels[iorder], x_pos, y_pos, wavelength_flat)
+                t = np.reshape(t, (wavelength_flat.size, x_pos.size))
+            else:
+                x_pos, y_pos = x, y
+                t = _newton(self.lmodels[iorder], x, y, wavelength)
         else:
+            x_pos, y_pos = x, y
             lmodel = self.inv_lmodels[iorder]
             t = _evaluate_transform_guess_form(lmodel, x=x, y=y, t=wavelength)
         xmodel = self.xmodels[iorder]
         ymodel = self.ymodels[iorder]
 
-        dx = _evaluate_transform_guess_form(xmodel, x=x, y=y, t=t)
-        dy = _evaluate_transform_guess_form(ymodel, x=x, y=y, t=t)
+        # use (x_pos, y_pos) instead of (x, y) so these calculations aren't duplicated
+        dx = _evaluate_transform_guess_form(xmodel, x=x_pos, y=y_pos, t=t)
+        dy = _evaluate_transform_guess_form(ymodel, x=x_pos, y=y_pos, t=t)
 
         return x + dx, y + dy, x, y, order
 
-    def invdisp_interp(self, model, x0, y0, wavelength):
-        """
-        Make a polynomial fit to lmodel and interpolate to find the inverse dispersion.
 
-        Parameters
-        ----------
-        model : tuple[:class:`astropy.modeling.polynomial.Polynomial2D`]
-            The models encoding the x, y dependence of the trace model's
-            polynomial coefficients.
-        x0, y0 : float or np.ndarray
-            Source object x-center, y-center. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
-        wavelength : float or np.ndarray
-            Wavelength(s) in microns. If a 2-D array, it is assumed that the model
-            is being called on a grid where all wavelengths are the same along the first axis,
-            and all the x,y coordinates are the same along the second axis. In this case,
-            x0, y0, and wavelength must all have the same shape.
-
-        Returns
-        -------
-        t_out : float
-            The inverse dispersion value for the given wavelength
-        """
-        t0 = np.linspace(0.0, 1.0, int(self.sampling))
-
-        if len(model) < 2:
-            # Handle legacy versions of the trace model
-            xr = _evaluate_transform_guess_form(model, x=x0, y=y0, t=t0)
-            f = np.zeros_like(wavelength)
-            for i, w in enumerate(wavelength):
-                f[i] = np.interp(w, xr, t0)
-            return f
-
-        if x0.ndim == 2:
-            # Assume we're calling this on a grid where all wavelengths are the same
-            # in one dimension, and all the x,y coordinates are the same in the other dimension.
-            x0 = x0[0].flatten()
-            y0 = y0[0].flatten()
-            wavelength = wavelength[:, 0].flatten()
-
-        trace_function = partial(_poly_with_spatial_dependence, model=model)
-
-        # Create a grid of t0, x0, and y0 values
-        tt, yy = np.meshgrid(t0, y0, indexing="ij")
-        xx = np.meshgrid(t0, x0, indexing="ij")[1]
-        wave_grid = trace_function(tt, xx, yy)
-        t_out = np.empty((len(wavelength), len(x0)))
-        for i, w in enumerate(wavelength):
-            # do a first order interpolation to find the t0 where residuals are minimized
-            # at each x,y location
-            resid = (wave_grid - w) ** 2
-            t_out[i, :] = _find_min_with_linear_interpolation(resid, t0)
-
-        if t_out.shape[0] == 1:
-            t_out = t_out[0, :]
-        return t_out
-
-
-def _find_min_with_linear_interpolation(resid, t0):
+def arrayify(func):
     """
-    Vectorize linear interpolation over the 0th axis to find the minimum value.
+    Massage inputs into the elementwise arrays expected by _newton.
+
+    Adapted from slitlessutils.
 
     Parameters
     ----------
-    resid : np.ndarray
-        The residuals to minimize along the 0th axis, shape (n_t, n_points)
-    t0 : np.ndarray
-        The t-values corresponding to the first axis of resid, shape (n_t,)
+    func : Callable
+        The function to wrap with the decorator.
 
     Returns
     -------
-    this_t : ndarray
-        The t-values that minimize the residuals at each pixel, shape (n_points,)
+    array-like
+        The result of applying the function to the massaged input arrays.
     """
-    min_ind = np.argmin(resid, axis=0, keepdims=True)[0]
 
-    # When the residuals are minimized near t=0 or t=1, just use those values
-    # instead of doing a linear interpolation
-    this_t = np.empty(resid.shape[1], dtype=float)
-    this_t[min_ind == 0] = 0.0
-    this_t[min_ind == resid.shape[0] - 1] = 1.0
+    def wrapper(self, x, y, z, **kwargs):
+        pairwise = kwargs.pop("pairwise", False)
 
-    # for all other indices, calculate the t value based on
-    # linearly interpolating the derivative to guess where it should cross zero
-    good = (min_ind > 0) & (min_ind < resid.shape[0] - 1)
-    good_ind = np.expand_dims(min_ind[good], axis=0)
-    resid_good = resid[:, good]
-    grad_good = np.gradient(resid_good, axis=0)
-    grad_left = np.take_along_axis(grad_good, good_ind - 1, axis=0)[0]
-    grad_right = np.take_along_axis(grad_good, good_ind + 1, axis=0)[0]
-    grad_center = np.take_along_axis(grad_good, good_ind, axis=0)[0]
+        x = np.atleast_1d(x).astype(float)
+        y = np.atleast_1d(y).astype(float)
+        z = np.atleast_1d(z).astype(float)
 
-    # if the gradient is positive, then the minimum is to the left
-    # if the gradient is negative, then the minimum is to the right
-    grad_right[grad_center < 0] = grad_center[grad_center < 0]
-    grad_left[grad_center > 0] = grad_center[grad_center > 0]
+        if pairwise:
+            # x, y, and z vary together elementwise (e.g. evaluating over an image),
+            # so flatten everything to 1-D for the core computation and restore
+            # the original (broadcast) shape afterward.
+            out_shape = np.broadcast_shapes(x.shape, y.shape, z.shape)
+            x, y, z = (np.broadcast_to(a, out_shape).ravel() for a in (x, y, z))
+            p = np.reshape(func(self, x, y, z, **kwargs), out_shape)
+            if p.ndim == 0:
+                # return scalar if single-valued
+                return p.item()
+            return p
 
-    t_left = t0[good_ind - 1][0]
-    t_right = t0[good_ind + 1][0]
-    t_center = t0[good_ind][0]
-    t_right[grad_center < 0] = t_center[grad_center < 0]
-    t_left[grad_center > 0] = t_center[grad_center > 0]
+        z = z[:, np.newaxis]
+        p = func(self, x, y, z, **kwargs)
 
-    # given points (t_left, grad_left) and (t_right, grad_right),
-    # find the x-intercept, which is the value of t where the gradient
-    # is identically zero under the linear approximation
-    m = (grad_right - grad_left) / (t_right - t_left)
-    b = grad_right - m * t_right
-    x_intercept = -b / m
+        p = np.squeeze(p)
+        if p.ndim == 0:
+            return p.item()
 
-    # make grad_center == 0 case exact
-    x_intercept[grad_center == 0] = t_center[grad_center == 0]
+        return p
 
-    this_t[good] = x_intercept
-    return this_t
+    return wrapper
+
+
+def _normalize_model_for_newton(model):
+    """
+    Make legacy trace models look like newer-style models with spatial dependence.
+
+    Checks if the model has spatial dependence in its coefficients,
+    and if not, wraps the coefficients in a callable that returns a constant array
+    so we can use the same Newton's method code for both.
+
+    Parameters
+    ----------
+    model : `~astropy.modeling.polynomial.Polynomial` or \
+        list[`~astropy.modeling.polynomial.Polynomial`]
+        The model to normalize.
+
+    Returns
+    -------
+    list[callable]
+        Coefficients of the polynomial in t, one per power, each callable as ``c(x, y)``.
+    """
+    if isinstance(model, (ListNode, list, tuple)):
+        if len(model) == 1 and len(model[0].inputs) == 1:
+            model = model[0]
+        else:
+            return model
+
+    if isinstance(model, Model) and len(model.inputs) == 1:
+        return [(lambda x, y, v=v: np.full(np.shape(x), v)) for v in model.parameters]
+
+    raise TypeError(f"Unexpected model coefficients: {model}")
+
+
+@arrayify
+def _newton(model, x, y, z, threshold=1e-3, maxiter=10, clip=True):
+    """
+    Solve polynomial using Newton's method with Halley update.
+
+    Finds the value of t that satisfies
+
+    z = a(x,y) + b(x,y)*t + c(x,y)*t^2 + d(x,y)*t^3 + ...
+
+    on the interval [0,1] in a vectorized fashion.
+    Adapted from slitlessutils.
+
+    Parameters
+    ----------
+    model : `~astropy.modeling.polynomial.Polynomial` or \
+        list[`~astropy.modeling.polynomial.Polynomial`]
+        The model we want to invert. May be a list of models depending on x, y
+        (one per power of t), or a single legacy model depending only on t.
+    x, y : np.ndarray
+        The un-dispersed x,y position
+    z : np.ndarray
+        The values of the polynomial.
+    threshold : float, optional
+        Convergence threshold for Newton's method.
+    maxiter : int, optional
+        Maximum number of iterations for Newton's method.
+    clip : bool, optional
+        Whether to clip the solution to the interval [0, 1].
+    pairwise : bool, optional
+        Whether to solve the polynomial pairwise for each (x, y, lam) coordinate.
+        If False (the default), it is assumed that x and y vary along a different
+        axis than lam, such that the polynomial is solved for each lam value
+        across all x, y coordinates.
+
+    Returns
+    -------
+    t : np.ndarray
+        Polynomial root within the bounds 0 < t < 1.
+
+    Notes
+    -----
+    The clip flag is needed to reproduce existing behavior where the forward transform
+    does not clip between 0 and 1 but the backward transform does. This inconsistency
+    should be fixed in the future, but it isn't straightforward to do so because the
+    way we assign wavelengths in extract2d is not very physically reasonable, and often
+    requests wavelengths well outside the expected range for extended sources.
+    """  # numpydoc ignore: PR02
+    model = _normalize_model_for_newton(model)
+    porder = len(model) - 1
+    if porder < 1:
+        raise ValueError(
+            f"Cannot solve for t with a degenerate (order {porder}) polynomial: {model}"
+        )
+
+    # compute polynomial coefficients
+    c = np.empty((porder + 1, x.size))
+    for k, poly in enumerate(model):
+        c[k, :] = poly(x, y)
+
+    # for low orders, solve analytically instead of iterating
+    if porder == 1:
+        t = (z - c[0, :]) / c[1, :]
+    elif porder == 2 and np.all(c[2, :] != 0):
+        a, b, cc = c[2, :], c[1, :], c[0, :] - z
+        sqrt_disc = np.sqrt(np.clip(b * b - 4 * a * cc, 0, None))
+        # numerically stable quadratic formula (Numerical Recipes Sec. 5.6)
+        q = -0.5 * (b + np.copysign(sqrt_disc, b))
+        t1 = q / a
+        t2 = cc / q
+        t1_in = (t1 >= 0) & (t1 <= 1)
+        t2_in = (t2 >= 0) & (t2 <= 1)
+
+        n_ambiguous = np.count_nonzero(t1_in & t2_in)
+        if n_ambiguous:
+            raise ValueError(
+                f"{n_ambiguous} point(s) have both quadratic roots within the valid "
+                "domain [0, 1]; the trace polynomial is not monotonic there."
+            )
+
+        # if neither root is between 0 and 1, use whichever is closer
+        dist1 = np.abs(np.clip(t1, 0, 1) - t1)
+        dist2 = np.abs(np.clip(t2, 0, 1) - t2)
+        use_t1 = t1_in | (~t1_in & ~t2_in & (dist1 <= dist2))
+        t = np.where(use_t1, t1, t2)
+    # Otherwise do Newton's method with Halley update to find the root
+    else:
+        t = np.full_like(z, 0.5)
+        for _itr in range(maxiter):
+            # compute polynomials and derivatives
+            dp2 = 0.0  # the second derivative
+            dp = 0.0  # the first derivative
+            p = 0.0  # the polynomial
+            for i in range(porder, -1, -1):
+                dp2 = dp2 * t + 2 * dp
+                dp = dp * t + p
+                p = p * t + c[i, :]
+
+            # compute a newton step
+            dt = (z - p) / dp
+
+            # update the step for a Halley tweak
+            dt /= 1 + (dt / 2) * (dp2 / dp)
+
+            # update the position
+            t = t + dt
+
+            # clip to be in range
+            if np.amax(np.abs(dt)) < threshold:
+                break
+
+    # return and force to be in the domain
+    if clip:
+        return np.clip(t, 0, 1)
+    return t
 
 
 class NIRISSBackwardGrismDispersion(_BackwardGrismDispersionBase):
