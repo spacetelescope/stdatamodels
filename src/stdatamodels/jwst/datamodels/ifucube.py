@@ -19,6 +19,8 @@ class IFUCubeModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
          Weight map of coverage
     wavetable : numpy table
          Wavelength value for slices
+    expcount : numpy int32 array
+         Exposure count map
     """
 
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/ifucube.schema"
