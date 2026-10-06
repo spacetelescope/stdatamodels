@@ -247,12 +247,14 @@ class DataModel(properties.ObjectNode):
                     )
 
             elif file_type == "asdf":
-                asdffile = asdf.open(
-                    init,
-                    memmap=False,
-                    ignore_unrecognized_tag=ignore_unrecognized_tag,
-                    ignore_missing_extensions=ignore_missing_extensions,
-                )
+                with asdf.config_context() as cfg:
+                    cfg.validate_on_read = True
+                    asdffile = asdf.open(
+                        init,
+                        memmap=False,
+                        ignore_unrecognized_tag=ignore_unrecognized_tag,
+                        ignore_missing_extensions=ignore_missing_extensions,
+                    )
                 self._file_references.append(_FileReference(asdffile))
             else:
                 raise OSError("File does not appear to be a FITS or ASDF file.")
