@@ -888,12 +888,14 @@ def from_fits_asdf(
             ignore_unrecognized_tag=ignore_unrecognized_tag,
         )
 
-    af = asdf.open(
-        io.BytesIO(asdf_extension.data),
-        mode="rw",
-        ignore_unrecognized_tag=ignore_unrecognized_tag,
-        ignore_missing_extensions=ignore_missing_extensions,
-    )
+    with asdf.config_context() as cfg:
+        cfg.validate_on_read = True
+        af = asdf.open(
+            io.BytesIO(asdf_extension.data),
+            mode="rw",
+            ignore_unrecognized_tag=ignore_unrecognized_tag,
+            ignore_missing_extensions=ignore_missing_extensions,
+        )
     # map hdulist to blocks here
     _map_hdulist_to_arrays(hdulist, af)
     return af
