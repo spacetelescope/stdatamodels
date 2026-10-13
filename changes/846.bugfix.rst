@@ -1,1 +1,1 @@
-Downgrade ValueError to warning in newton solver when quadratic finds both roots inside bounds
+Downgrade ValueError to warning in newton solver when quadratic finds both roots inside bounds, and set the offending pixels to NaN in those cases.
