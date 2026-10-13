@@ -600,8 +600,8 @@ def test_newton_quadratic():
     assert_allclose(t, 0.3, atol=1e-8)
 
 
-def test_newton_quadratic_both_roots_warns_and_selects_nearest_midpoint():
-    """When both roots are in [0, 1], choose the one nearest 0.5 and warn."""
+def test_newton_quadratic_both_roots_warns_and_returns_nan():
+    """When both roots are in [0, 1], warn and return NaN."""
     # (t - 0.1) * (t - 0.7) = t^2 - 0.8t + 0.07
     model = [
         Polynomial2D(degree=0, c0_0=0.07),
@@ -610,7 +610,7 @@ def test_newton_quadratic_both_roots_warns_and_selects_nearest_midpoint():
     ]
     with pytest.warns(UserWarning, match="both quadratic roots"):
         t = models._newton(model, 150.0, 140.0, 0.0)
-    assert_allclose(t, 0.7, atol=1e-8)
+    assert np.isnan(t)
 
 
 def test_newton_quadratic_mixed_root_selection():
@@ -623,7 +623,8 @@ def test_newton_quadratic_mixed_root_selection():
     ]
     with pytest.warns(UserWarning, match="both quadratic roots"):
         t = models._newton(model, 150.0, 140.0, np.array([0.0, 0.2]), clip=False)
-    assert_allclose(t, [0.8, (1.0 + np.sqrt(1.16)) / 2], atol=1e-8)
+    assert np.isnan(t[0])
+    assert_allclose(t[1], (1.0 + np.sqrt(1.16)) / 2, atol=1e-8)
 
 
 def test_newton_quadratic_neither_root_in_domain():
