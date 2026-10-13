@@ -1585,17 +1585,23 @@ def _newton(model, x, y, z, threshold=1e-3, maxiter=10, clip=True):
         t1_in = (t1 >= 0) & (t1 <= 1)
         t2_in = (t2 >= 0) & (t2 <= 1)
 
-        n_ambiguous = np.count_nonzero(t1_in & t2_in)
+        both_in = t1_in & t2_in
+        n_ambiguous = np.count_nonzero(both_in)
         if n_ambiguous:
-            raise ValueError(
+            warnings.warn(
                 f"{n_ambiguous} point(s) have both quadratic roots within the valid "
-                "domain [0, 1]; the trace polynomial is not monotonic there."
+                "domain [0, 1]; the trace polynomial is not monotonic there. "
+                "In all real cases encountered so far, this only happens for points "
+                "beyond the pickoff mirror that would get rejected later anyway.",
+                UserWarning,
+                stacklevel=2,
             )
 
-        # if neither root is between 0 and 1, use whichever is closer
         dist1 = np.abs(np.clip(t1, 0, 1) - t1)
         dist2 = np.abs(np.clip(t2, 0, 1) - t2)
-        use_t1 = t1_in | (~t1_in & ~t2_in & (dist1 <= dist2))
+        neither_in = ~t1_in & ~t2_in
+        closest_to_midpoint = np.abs(t1 - 0.5) <= np.abs(t2 - 0.5)
+        use_t1 = t1_in | (both_in & closest_to_midpoint) | (neither_in & (dist1 <= dist2))
         t = np.where(use_t1, t1, t2)
     # Otherwise do Newton's method with Halley update to find the root
     else:

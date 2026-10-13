@@ -600,16 +600,30 @@ def test_newton_quadratic():
     assert_allclose(t, 0.3, atol=1e-8)
 
 
-def test_newton_quadratic_both_roots_raises():
-    """Test error raise when both roots are within [0, 1] - this indicates a bad trace model."""
-    # (t - 0.2) * (t - 0.8) = t^2 - t + 0.16
+def test_newton_quadratic_both_roots_warns_and_selects_nearest_midpoint():
+    """When both roots are in [0, 1], choose the one nearest 0.5 and warn."""
+    # (t - 0.1) * (t - 0.7) = t^2 - 0.8t + 0.07
+    model = [
+        Polynomial2D(degree=0, c0_0=0.07),
+        Polynomial2D(degree=0, c0_0=-0.8),
+        Polynomial2D(degree=0, c0_0=1.0),
+    ]
+    with pytest.warns(UserWarning, match="both quadratic roots"):
+        t = models._newton(model, 150.0, 140.0, 0.0)
+    assert_allclose(t, 0.7, atol=1e-8)
+
+
+def test_newton_quadratic_mixed_root_selection():
+    """Handle ambiguous and out-of-domain roots independently in vectorized input."""
+    # For z=0, roots are 0.2 and 0.8; for z=0.2, neither root is in [0, 1].
     model = [
         Polynomial2D(degree=0, c0_0=0.16),
         Polynomial2D(degree=0, c0_0=-1.0),
         Polynomial2D(degree=0, c0_0=1.0),
     ]
-    with pytest.raises(ValueError, match="both quadratic roots"):
-        models._newton(model, 150.0, 140.0, 0.0)
+    with pytest.warns(UserWarning, match="both quadratic roots"):
+        t = models._newton(model, 150.0, 140.0, np.array([0.0, 0.2]), clip=False)
+    assert_allclose(t, [0.8, (1.0 + np.sqrt(1.16)) / 2], atol=1e-8)
 
 
 def test_newton_quadratic_neither_root_in_domain():
