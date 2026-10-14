@@ -2200,6 +2200,14 @@ properties:
                 type: string
                 fits_keyword: R_PERSAT
                 blend_table: True
+          pfpc:
+            type: object
+            properties:
+              name:
+                title: PFPC reference file name
+                type: string
+                fits_keyword: R_PFPC
+                blend_table: True
           photom:
             type: object
             properties:
