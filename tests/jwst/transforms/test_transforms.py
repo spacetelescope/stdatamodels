@@ -608,7 +608,7 @@ def test_newton_quadratic_both_roots_warns_and_returns_nan():
         Polynomial2D(degree=0, c0_0=-0.8),
         Polynomial2D(degree=0, c0_0=1.0),
     ]
-    with pytest.warns(UserWarning, match="both quadratic roots"):
+    with pytest.warns(RuntimeWarning, match="both quadratic roots"):
         t = models._newton(model, 150.0, 140.0, 0.0)
     assert np.isnan(t)
 
@@ -621,7 +621,7 @@ def test_newton_quadratic_mixed_root_selection():
         Polynomial2D(degree=0, c0_0=-1.0),
         Polynomial2D(degree=0, c0_0=1.0),
     ]
-    with pytest.warns(UserWarning, match="both quadratic roots"):
+    with pytest.warns(RuntimeWarning, match="both quadratic roots"):
         t = models._newton(model, 150.0, 140.0, np.array([0.0, 0.2]), clip=False)
     assert np.isnan(t[0])
     assert_allclose(t[1], (1.0 + np.sqrt(1.16)) / 2, atol=1e-8)

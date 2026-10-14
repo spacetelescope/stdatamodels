@@ -1592,7 +1592,7 @@ def _newton(model, x, y, z, threshold=1e-3, maxiter=10, clip=True):
                 f"{n_ambiguous} point(s) have both quadratic roots within the valid "
                 "domain [0, 1]; the trace polynomial is not monotonic there. "
                 "Setting the offending points to NaN.",
-                UserWarning,
+                RuntimeWarning,
                 stacklevel=2,
             )
 
