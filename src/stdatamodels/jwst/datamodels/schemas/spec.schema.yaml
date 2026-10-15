@@ -10,3 +10,5 @@ allOf:
   properties:
     spec_table:
       $ref: spectable.schema
+    spec_table_units:
+      $ref: specunits.schema

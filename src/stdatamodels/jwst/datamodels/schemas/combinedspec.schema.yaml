@@ -9,6 +9,8 @@ allOf:
   properties:
     spec_table:
       $ref: combinedspectable.schema
+    spec_table_units:
+      $ref: combinedspecunits.schema
     spectral_order:
       title: Spectral order number
       type: integer

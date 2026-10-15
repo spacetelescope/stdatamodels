@@ -56,6 +56,7 @@ class MultiSpecModel(JwstDataModel):
             super(MultiSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())
             self.spec[0].spec_table = init.spec_table
+            self.spec[0].spec_table_units = init.spec_table_units
             return
 
         super(MultiSpecModel, self).__init__(init=init, **kwargs)
@@ -79,6 +80,7 @@ class MRSMultiSpecModel(JwstDataModel):
             super(MRSMultiSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())
             self.spec[0].spec_table = init.spec_table
+            self.spec[0].spec_table_units = init.spec_table_units
             return
 
         super(MRSMultiSpecModel, self).__init__(init=init, **kwargs)
@@ -109,6 +111,7 @@ class TSOMultiSpecModel(JwstDataModel):
             super(TSOMultiSpecModel, self).__init__(init=None, **kwargs)
             self.spec.append(self.spec.item())
             self.spec[0].spec_table = init.spec_table
+            self.spec[0].spec_table_units = init.spec_table_units
             return
 
         super(TSOMultiSpecModel, self).__init__(init=init, **kwargs)

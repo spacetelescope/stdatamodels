@@ -1,0 +1,38 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/combinedspecunits.schema"
+type: object
+properties:
+  WAVELENGTH:
+    type: string
+    fits_keyword: TUNIT1
+    fits_hdu: COMBINE1D
+  FLUX:
+    type: string
+    fits_keyword: TUNIT2
+    fits_hdu: COMBINE1D
+  ERROR:
+    type: string
+    fits_keyword: TUNIT3
+    fits_hdu: COMBINE1D
+  SURF_BRIGHT:
+    type: string
+    fits_keyword: TUNIT4
+    fits_hdu: COMBINE1D
+  SB_ERROR:
+    type: string
+    fits_keyword: TUNIT5
+    fits_hdu: COMBINE1D
+  DQ:
+    type: string
+    fits_keyword: TUNIT6
+    fits_hdu: COMBINE1D
+  WEIGHT:
+    type: string
+    fits_keyword: TUNIT7
+    fits_hdu: COMBINE1D
+  N_INPUT:
+    type: string
+    fits_keyword: TUNIT8
+    fits_hdu: COMBINE1D
