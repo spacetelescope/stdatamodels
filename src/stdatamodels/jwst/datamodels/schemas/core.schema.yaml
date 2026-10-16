@@ -1888,6 +1888,14 @@ properties:
                 type: string
                 fits_keyword: CRDS_CTX
                 blend_table: True
+          apcorr:
+            type: object
+            properties:
+              name:
+                title: Aperture correction reference file name
+                type: string
+                fits_keyword: R_APCORR
+                blend_table: True
           area:
             type: object
             properties:
