@@ -1585,18 +1585,24 @@ def _newton(model, x, y, z, threshold=1e-3, maxiter=10, clip=True):
         t1_in = (t1 >= 0) & (t1 <= 1)
         t2_in = (t2 >= 0) & (t2 <= 1)
 
-        n_ambiguous = np.count_nonzero(t1_in & t2_in)
+        both_in = t1_in & t2_in
+        n_ambiguous = np.count_nonzero(both_in)
         if n_ambiguous:
-            raise ValueError(
+            warnings.warn(
                 f"{n_ambiguous} point(s) have both quadratic roots within the valid "
-                "domain [0, 1]; the trace polynomial is not monotonic there."
+                "domain [0, 1]; the trace polynomial is not monotonic there. "
+                "Setting the offending points to NaN.",
+                RuntimeWarning,
+                stacklevel=2,
             )
 
-        # if neither root is between 0 and 1, use whichever is closer
         dist1 = np.abs(np.clip(t1, 0, 1) - t1)
         dist2 = np.abs(np.clip(t2, 0, 1) - t2)
-        use_t1 = t1_in | (~t1_in & ~t2_in & (dist1 <= dist2))
+        neither_in = ~t1_in & ~t2_in
+        use_t1 = (t1_in & ~both_in) | (neither_in & (dist1 <= dist2))
         t = np.where(use_t1, t1, t2)
+        t = np.where(both_in, np.nan, t)
+
     # Otherwise do Newton's method with Halley update to find the root
     else:
         t = np.full_like(z, 0.5)
