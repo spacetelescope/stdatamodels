@@ -41,7 +41,6 @@ from .lastframe import LastFrameModel
 from .level1b import Level1bModel
 from .linearity import LinearityModel
 from .mask import MaskModel
-from .member_wcs import MemberWcsModel, MemberWcsSingleModel
 from .model_base import JwstDataModel
 from .mrsptcorr import MirMrsPtCorrModel
 from .mrsxartcorr import MirMrsXArtCorrModel
@@ -184,8 +183,6 @@ __all__ = [
     "MRSSpecModel",
     "MSAModel",
     "MaskModel",
-    "MemberWcsModel",
-    "MemberWcsSingleModel",
     "MirImgApcorrModel",
     "MirImgPhotomModel",
     "MirLrsApcorrModel",
