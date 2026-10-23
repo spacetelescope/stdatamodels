@@ -13,6 +13,9 @@ updates:
       actions:
         patterns:
           - "*"
+    cooldown:
+      default-days: 7
+
   - package-ecosystem: "pip"
     directories:
       - "docs"
