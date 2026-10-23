@@ -44,7 +44,7 @@ jobs:
       crds_path: ${{ steps.crds_path.outputs.path }}
       crds_server: ${{ steps.crds_server.outputs.url }}
   test:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@22ddf09dfabb443adddfb9f861b7d41a787d6b1a  # v3.0.3
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8d5ad7efc8e84a051639373f6ea0d10441eafee1  # v3.2.1
     needs: [ data ]
     permissions:
       id-token: write
@@ -66,7 +66,7 @@ jobs:
         - macos: py314-xdist
         - windows: py314-xdist-nocrds
   test_downstream:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@22ddf09dfabb443adddfb9f861b7d41a787d6b1a  # v3.0.3
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8d5ad7efc8e84a051639373f6ea0d10441eafee1  # v3.2.1
     needs: [ data ]
     with:
       setenv: |
