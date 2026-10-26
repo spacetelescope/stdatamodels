@@ -1,0 +1,36 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/mirmrs_pfpc.schema"
+allOf:
+- $ref: referencefile.schema
+- $ref: keyword_exptype.schema
+- $ref: keyword_pexptype.schema
+- type: object
+  properties:
+    pfpc_table:
+      title: Point fixed pattern corrections
+      fits_hdu: PFPC
+      datatype:
+      - name: channel
+        datatype: [ascii,3]
+      - name: band
+        datatype: [ascii, 12]
+      - name: patttype
+        datatype: [ascii, 50]
+      - name: dithdirc
+        datatype: [ascii, 20]
+      - name: dithopfr
+        datatype: [ascii, 20]
+      - name: mrsprchn
+        datatype: [ascii, 20]
+      - name: patt_num
+        datatype: int32
+      - name: r_flat
+        datatype: [ascii, 50]
+      - name: r_photom
+        datatype: [ascii, 50]
+      - name: wavelength
+        datatype: float32
+      - name: correction
+        datatype: float32
