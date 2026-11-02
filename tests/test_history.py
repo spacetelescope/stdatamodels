@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 import asdf
 import numpy as np
@@ -51,14 +51,10 @@ def test_history_from_model_to_fits(tmp_path):
     tmpfits = str(tmp_path / "tmp.fits")
     m = DataModel()
     m.history = [
-        HistoryEntry(
-            {"description": "First entry", "time": Time(datetime.datetime.now().isoformat())}
-        )
+        HistoryEntry({"description": "First entry", "time": Time(datetime.now().isoformat())})
     ]
     m.history.append(
-        HistoryEntry(
-            {"description": "Second entry", "time": Time(datetime.datetime.now().isoformat())}
-        )
+        HistoryEntry({"description": "Second entry", "time": Time(datetime.now().isoformat())})
     )
     m.save(tmpfits)
 

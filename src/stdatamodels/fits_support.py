@@ -1,10 +1,10 @@
-import datetime
 import hashlib
 import io
 import logging
 import re
 import warnings
 import weakref
+from datetime import datetime
 from functools import partial
 
 import asdf
@@ -430,7 +430,7 @@ def _get_validators(hdulist):
 
 def _save_from_schema(hdulist, tree, schema):
     def datetime_callback(node):
-        if isinstance(node, datetime.datetime):
+        if isinstance(node, datetime):
             node = time.Time(node)
 
         if isinstance(node, time.Time):
