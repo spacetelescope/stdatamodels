@@ -1,11 +1,11 @@
 """Data model class hierarchy."""
 
 import copy
-import datetime
 import functools
 import os
 import sys
 import warnings
+from datetime import datetime
 from pathlib import Path, PurePath
 
 import asdf
@@ -978,7 +978,7 @@ class DataModel(properties.ObjectNode):
         """
 
         def convert_val(val):
-            if isinstance(val, datetime.datetime):
+            if isinstance(val, datetime):
                 return val.isoformat()
             elif isinstance(val, Time):
                 return str(val)
