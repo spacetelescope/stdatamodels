@@ -25,7 +25,7 @@ def _make_2d_spectable(base_dtype, metadata_cols, n_sources=N_SOURCES, n_wavelen
 
 
 def test_legacy_wfss_multispec(tmp_path):
-    """Generate WFSSMultiSpecModel without the new contam_flux and contam_surf_bright columns."""
+    """Generate WFSSMultiSpecModel without the new contam_flux and contamsb columns."""
     new_colnames = ["CONTAM_FLUX", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
     metadata_cols = [
         "SOURCE_ID",
@@ -100,7 +100,7 @@ def test_legacy_wfss_multispec(tmp_path):
 
 
 def test_legacy_wfss_combinedspec(tmp_path):
-    """Generate WFSSCombinedSpecModel without the new contam_flux and contam_surf_bright columns."""
+    """Generate WFSSCombinedSpecModel without the new contam_flux and contamsb columns."""
     new_colnames = ["CONTAM_FLUX", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
     metadata_cols = ["SOURCE_ID", "N_ALONGDISP", "SOURCE_TYPE", "SOURCE_RA", "SOURCE_DEC"]
 
