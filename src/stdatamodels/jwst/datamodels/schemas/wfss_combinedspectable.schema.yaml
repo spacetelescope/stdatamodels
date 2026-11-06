@@ -8,10 +8,12 @@ default: [
   -999,  # SOURCE_ID
   NaN, # WAVELENGTH
   NaN, # FLUX
-  NaN, # CONTAM_FLUX
+  NaN, # CONTAM
+  NaN, # CONTAMCORR_FLUX
   NaN, # ERROR
   NaN, # SURF_BRIGHT
-  NaN, # CONTAM_SURF_BRIGHT
+  NaN, # CONTAMSB
+  NaN, # CONTAMCORR_SURF_BRIGHT
   NaN, # SB_ERROR
   1,   # DQ
   NaN, # WEIGHT
@@ -28,13 +30,17 @@ datatype:
   datatype: float64
 - name: FLUX
   datatype: float64
-- name: CONTAM_FLUX
+- name: CONTAM
+  datatype: float64
+- name: CONTAMCORR_FLUX
   datatype: float64
 - name: ERROR
   datatype: float64
 - name: SURF_BRIGHT
   datatype: float64
-- name: CONTAM_SURF_BRIGHT
+- name: CONTAMSB
+  datatype: float64
+- name: CONTAMCORR_SURF_BRIGHT
   datatype: float64
 - name: SB_ERROR
   datatype: float64
