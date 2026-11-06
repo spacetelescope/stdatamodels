@@ -9,6 +9,9 @@ allOf:
 - $ref: keyword_lampmode.schema
 - $ref: keyword_lampstate.schema
 - $ref: keyword_pexptype.schema
+- $ref: subarray.schema
+- $ref: keyword_psubarray.schema
+- $ref: keyword_tsovisit.schema
 - type: object
   properties:
     meta:
