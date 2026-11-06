@@ -26,7 +26,7 @@ def _make_2d_spectable(base_dtype, metadata_cols, n_sources=N_SOURCES, n_wavelen
 
 def test_legacy_wfss_multispec(tmp_path):
     """Generate WFSSMultiSpecModel without the new contam_flux and contam_surf_bright columns."""
-    new_colnames = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT", "CORR_FLUX", "CORR_SURF_BRIGHT"]
+    new_colnames = ["CONTAM_FLUX", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
     metadata_cols = [
         "SOURCE_ID",
         "N_ALONGDISP",
@@ -94,14 +94,14 @@ def test_legacy_wfss_multispec(tmp_path):
                 flux_idx = tab.columns.names.index("FLUX")
                 sb_idx = tab.columns.names.index("SURF_BRIGHT")
                 assert tab.columns.names[flux_idx + 1] == "CONTAM_FLUX"
-                assert tab.columns.names[flux_idx + 2] == "CORR_FLUX"
-                assert tab.columns.names[sb_idx + 1] == "CONTAM_SURF_BRIGHT"
-                assert tab.columns.names[sb_idx + 2] == "CORR_SURF_BRIGHT"
+                assert tab.columns.names[flux_idx + 2] == "CONTAMCORR_FLUX"
+                assert tab.columns.names[sb_idx + 1] == "CONTAMSB"
+                assert tab.columns.names[sb_idx + 2] == "CONTAMCORR_SURF_BRIGHT"
 
 
 def test_legacy_wfss_combinedspec(tmp_path):
     """Generate WFSSCombinedSpecModel without the new contam_flux and contam_surf_bright columns."""
-    new_colnames = ["CONTAM_FLUX", "CONTAM_SURF_BRIGHT", "CORR_FLUX", "CORR_SURF_BRIGHT"]
+    new_colnames = ["CONTAM_FLUX", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
     metadata_cols = ["SOURCE_ID", "N_ALONGDISP", "SOURCE_TYPE", "SOURCE_RA", "SOURCE_DEC"]
 
     # Create a np recarray with old-style columns
@@ -157,6 +157,6 @@ def test_legacy_wfss_combinedspec(tmp_path):
                 flux_idx = tab.columns.names.index("FLUX")
                 sb_idx = tab.columns.names.index("SURF_BRIGHT")
                 assert tab.columns.names[flux_idx + 1] == "CONTAM_FLUX"
-                assert tab.columns.names[sb_idx + 1] == "CONTAM_SURF_BRIGHT"
-                assert tab.columns.names[flux_idx + 2] == "CORR_FLUX"
-                assert tab.columns.names[sb_idx + 2] == "CORR_SURF_BRIGHT"
+                assert tab.columns.names[sb_idx + 1] == "CONTAMSB"
+                assert tab.columns.names[flux_idx + 2] == "CONTAMCORR_FLUX"
+                assert tab.columns.names[sb_idx + 2] == "CONTAMCORR_SURF_BRIGHT"
