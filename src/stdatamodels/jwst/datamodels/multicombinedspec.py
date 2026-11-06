@@ -71,7 +71,7 @@ class WFSSMultiCombinedSpecModel(JwstDataModel):
                     "datatype"
                 ]
                 expected_names = [col["name"] for col in expected]
-                names = ["CONTAM_FLUX", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
+                names = ["CONTAM", "CONTAMSB", "CONTAMCORR_FLUX", "CONTAMCORR_SURF_BRIGHT"]
                 for name in sorted(names, key=expected_names.index):
                     if name not in ext.data.dtype.names:
                         idx = expected_names.index(name)

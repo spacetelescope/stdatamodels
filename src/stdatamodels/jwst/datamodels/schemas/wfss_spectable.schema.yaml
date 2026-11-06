@@ -8,7 +8,7 @@ default: [
   -999,   # SOURCE_ID
   NaN, # WAVELENGTH
   NaN, # FLUX
-  NaN, # CONTAM_FLUX
+  NaN, # CONTAM
   NaN, # CONTAMCORR_FLUX
   NaN, # FLUX_ERROR
   NaN, # FLUX_VAR_POISSON
@@ -46,7 +46,7 @@ datatype:
   datatype: float64
 - name: FLUX
   datatype: float64
-- name: CONTAM_FLUX
+- name: CONTAM
   datatype: float64
 - name: CONTAMCORR_FLUX
   datatype: float64
