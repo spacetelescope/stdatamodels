@@ -209,7 +209,7 @@ def create_history_entry(description, software=None):
                 'homepage': 'https://github.com/spacetelescope/jwreftools', 'version': "0.7"}
     >>> entry = create_history_entry(description="HISTORY of this file", software=soft)
     """
-    import datetime
+    from datetime import UTC, datetime
 
     from asdf.tags.core import HistoryEntry, Software
 
@@ -218,7 +218,7 @@ def create_history_entry(description, software=None):
     elif software is not None:
         software = Software(software)
 
-    dt = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+    dt = datetime.now(UTC).replace(tzinfo=None)
     entry = HistoryEntry({"description": description, "time": dt})
 
     if software is not None:
