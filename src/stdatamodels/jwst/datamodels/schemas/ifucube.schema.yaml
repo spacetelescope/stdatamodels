@@ -42,8 +42,12 @@ allOf:
               title: "[um] Size of ROI in wavelength dimension"
               type: number
               fits_keyword: ROIW
+            slit_frac:
+              title: Slit faction
+              type: number
+              fits_keyword: SLITFRAC	      
             weighting:
-              title: "Weighting type (MSM, MIRIPSF, AREA)"
+              title: "Weighting type (MSM, MIRIPSF, AREA, READNOISE)"
               type: string
               fits_keyword: WTYPE
             weight_power:
@@ -76,6 +80,12 @@ allOf:
       default: 0.0
       ndim: 3
       datatype: float32
+    expcount:
+      title: Exposure Counter  
+      fits_hdu: EXPCOUNT
+      default: 0.0
+      ndim: 3
+      datatype: int32      
     wavetable:
       title: Wavelength value for slices
       fits_hdu: WCS-TABLE
