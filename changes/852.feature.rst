@@ -1,0 +1,1 @@
+Add new CONTAMCORR_SCI extension to 2-d WFSS models, and new CONTAMCORR_FLUX and CONTAMCORR_SURF_BRIGHT table columns to 1-d WFSS models, to support keeping contamination-corrected data separate from contamination-uncorrected data

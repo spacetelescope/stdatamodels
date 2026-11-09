@@ -21,6 +21,11 @@ allOf:
       fits_hdu: CONTAM
       default: 0.0
       datatype: float32
+    contamcorr_data:
+      title: Contam-corrected data for WFSS modes
+      fits_hdu: CONTAMCORR_SCI
+      default: 0.0
+      datatype: float32
     dq:
       title: Data quality array
       fits_hdu: DQ
