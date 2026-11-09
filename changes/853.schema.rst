@@ -1,0 +1,1 @@
+Add subarray and tsovisit to extract1d IFU reference file schema.
