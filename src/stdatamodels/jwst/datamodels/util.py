@@ -102,7 +102,9 @@ def open(init=None, guess=True, **kwargs):  # noqa: A001
             return ModelContainer(init, **kwargs)
 
         elif file_type == "asdf":
-            asdffile = asdf.open(init, memmap=False)
+            with asdf.config_context() as cfg:
+                cfg.validate_on_read = True
+                asdffile = asdf.open(init, memmap=False)
 
             # Detect model type, then get defined model, and call it.
             new_class = _class_from_model_type(asdffile)

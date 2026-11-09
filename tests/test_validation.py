@@ -6,7 +6,9 @@ import asdf
 import numpy as np
 import pytest
 from asdf.exceptions import ValidationError
+from astropy.io import fits
 
+import stdatamodels.jwst.datamodels as dm
 from stdatamodels.exceptions import ValidationWarning
 
 from .models import BasicModel, FitsModel, RequiredModel, ValidationModel
@@ -436,3 +438,37 @@ def test_validation_memory_leak():
 
     # verify that the weakref fails to resolve
     assert new_array_ref() is None
+
+
+@pytest.mark.parametrize("ext", ["asdf", "fits"])
+def test_validate_on_read(tmp_path, ext):
+    """
+    asdf 6.0.0 changed the default validate_on_read to False. These tests
+    check that open and DataModel.__init__ still validate the input on read.
+    """
+    tmp_fn = tmp_path / f"tmp.{ext}"
+    fn = tmp_path / f"test.{ext}"
+
+    # save fits and asdf files with a non-schema-defined array "other"
+    m = FitsModel()
+    m.other = np.ones((4, 4), dtype=np.float32)
+    m.save(tmp_fn)
+
+    def invalidate_content(content):
+        return content.replace(b"datatype: float32", b"datatype: boats32")
+
+    if ext == "asdf":
+        with open(tmp_fn, "rb") as f, open(fn, "wb") as wf:
+            wf.write(invalidate_content(f.read()))
+    else:  # ext == "fits"
+        with fits.open(tmp_fn) as ff:
+            column = ff["ASDF"].data["ASDF_METADATA"]
+            ff["ASDF"].data["ASDF_METADATA"] = np.frombuffer(
+                invalidate_content(column.tobytes()), dtype=column.dtype
+            )
+            ff.writeto(fn)
+
+    with pytest.raises(asdf.exceptions.ValidationError):
+        FitsModel(fn)
+    with pytest.raises(asdf.exceptions.ValidationError):
+        dm.open(fn)

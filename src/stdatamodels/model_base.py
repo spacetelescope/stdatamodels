@@ -1,11 +1,11 @@
 """Data model class hierarchy."""
 
 import copy
-import datetime
 import functools
 import os
 import sys
 import warnings
+from datetime import datetime
 from pathlib import Path, PurePath
 
 import asdf
@@ -247,12 +247,14 @@ class DataModel(properties.ObjectNode):
                     )
 
             elif file_type == "asdf":
-                asdffile = asdf.open(
-                    init,
-                    memmap=False,
-                    ignore_unrecognized_tag=ignore_unrecognized_tag,
-                    ignore_missing_extensions=ignore_missing_extensions,
-                )
+                with asdf.config_context() as cfg:
+                    cfg.validate_on_read = True
+                    asdffile = asdf.open(
+                        init,
+                        memmap=False,
+                        ignore_unrecognized_tag=ignore_unrecognized_tag,
+                        ignore_missing_extensions=ignore_missing_extensions,
+                    )
                 self._file_references.append(_FileReference(asdffile))
             else:
                 raise OSError("File does not appear to be a FITS or ASDF file.")
@@ -976,7 +978,7 @@ class DataModel(properties.ObjectNode):
         """
 
         def convert_val(val):
-            if isinstance(val, datetime.datetime):
+            if isinstance(val, datetime):
                 return val.isoformat()
             elif isinstance(val, Time):
                 return str(val)
