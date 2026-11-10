@@ -1,0 +1,1 @@
+Add the ``apcorr`` aperture-correction reference file to the ``ref_file`` section of the core schema.
