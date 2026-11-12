@@ -66,6 +66,10 @@ allOf:
             title: The trace position
             ndim: 2
             datatype: float64
+          psf_tilt:
+            title: Monochromatic PSF tilt angle
+            ndim: 2
+            datatype: float64
           oversampling:
             title: Pixel oversampling
             type: integer
