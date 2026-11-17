@@ -34,6 +34,10 @@ allOf:
               title: EXTNAME of the extension containing data quality mask
               type: string
               fits_keyword: MASKEXT
+            expcount_extension:
+              title: EXTNAME of the extension containing exposure count
+              type: string
+              fits_keyword: EXPEXT
             roi_spatial:
               title: "[arcsec] Size of ROI in spatial dimension"
               type: number
@@ -45,7 +49,7 @@ allOf:
             slit_frac:
               title: Slit faction
               type: number
-              fits_keyword: SLITFRAC	      
+              fits_keyword: SLITFRAC
             weighting:
               title: "Weighting type (MSM, MIRIPSF, AREA, READNOISE)"
               type: string
@@ -74,18 +78,18 @@ allOf:
       default: 0.0
       ndim: 3
       datatype: float32
+    expcount:
+      title: Exposure counter array
+      fits_hdu: EXPCOUNT
+      default: 0.0
+      ndim: 3
+      datatype: int32      
     weightmap:
       title: Weight map of coverage
       fits_hdu: WMAP
       default: 0.0
       ndim: 3
       datatype: float32
-    expcount:
-      title: Exposure Counter  
-      fits_hdu: EXPCOUNT
-      default: 0.0
-      ndim: 3
-      datatype: int32      
     wavetable:
       title: Wavelength value for slices
       fits_hdu: WCS-TABLE
