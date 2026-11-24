@@ -1,0 +1,1 @@
+Update schema to allow WFSS spectra to hold their detector metadata

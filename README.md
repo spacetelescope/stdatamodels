@@ -1,3 +1,10 @@
+<a href="https://stsci.edu">
+  <img src="docs/source/static/stsci_pri_combo_mark_horizonal_white_bkgd.png" alt="Space Telescope Science Institute" width="83%" style="margin-left: auto;"/>
+</a>
+<a href="https://science.nasa.gov/mission/webb/">
+  <img src="docs/source/static/jwst_logo.png" alt="JWST Logo" width="15%" style="margin-right: auto;"/>
+</a>
+
 # stdatamodels
 
 [![Tests](https://github.com/spacetelescope/stdatamodels/actions/workflows/tests.yml/badge.svg)](https://github.com/spacetelescope/stdatamodels/actions/workflows/tests.yml)

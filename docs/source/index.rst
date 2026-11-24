@@ -1,3 +1,11 @@
+.. image:: static/stsci_pri_combo_mark_horizonal_white_bkgd.png
+   :width: 83%
+   :target: https://stsci.edu
+
+.. image:: static/jwst_logo.png
+   :width: 15%
+   :target: https://science.nasa.gov/mission/webb/
+
 Welcome to stdatamodels's documentation!
 ========================================
 

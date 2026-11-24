@@ -144,3 +144,4 @@ allOf:
         datatype: int32
       - name: y_size
         datatype: int32
+- $ref: int_times.schema
