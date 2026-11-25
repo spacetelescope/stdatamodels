@@ -717,6 +717,10 @@ class RegionsModel(ReferenceFileModel):
                     "SUB82STRIPE2_DHS",
                     "SUB164STRIPE4_DHS",
                     "SUB260STRIPE4_DHS",
+                    "SUB41S1_2-SPECTRA",
+                    "SUB82S2_4-SPECTRA",
+                    "SUB164S4_8-SPECTRA",
+                    "SUB260S4_8-SPECTRA",
                 )
         except AssertionError:
             if self._strict_validation:
