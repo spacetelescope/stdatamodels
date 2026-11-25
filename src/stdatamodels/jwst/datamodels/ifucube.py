@@ -15,6 +15,8 @@ class IFUCubeModel(JwstDataModel, DefaultDQMixin, DefaultErrMixin):
          Data quality array
     err : numpy float32 array
          Error array
+    expcount : numpy int32 array
+         Exposure count map
     weightmap : numpy float32 array
          Weight map of coverage
     wavetable : numpy table
