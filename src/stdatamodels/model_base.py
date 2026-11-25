@@ -485,8 +485,15 @@ class DataModel(properties.ObjectNode):
     __copy__ = __deepcopy__ = copy
 
     def validate(self):
-        """Validate the model instance against its schema."""
-        validate.value_change(str(self), self._instance, self._schema, self)
+        """
+        Validate the model instance against its schema.
+
+        Returns
+        -------
+        bool
+            True if the model passed validation, False otherwise.
+        """
+        return validate.value_change(str(self), self._instance, self._schema, self)
 
     @functools.wraps(asdf.AsdfFile.add_history_entry)
     def add_history_entry(self, *args, **kwargs):  # noqa: D102

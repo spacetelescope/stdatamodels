@@ -33,12 +33,15 @@ class _PhotomModel(ReferenceFileModel):
         If present, timecoeff_linear, timecoeff_exponential, and timecoeff_powerlaw
         extensions must match the length and descriptive columns present in the
         phot_table extension.
-        """
-        super().validate()
 
-        if not self.hasattr("phot_table"):
-            self.print_err("Model.phot_table is not present")
-            return
+        Returns
+        -------
+        bool
+            True if the model passed validation, False otherwise.
+        """
+        super_is_valid = super().validate()
+        if not super_is_valid:
+            return False
 
         try:
             timecoeff = ["timecoeff_linear", "timecoeff_exponential", "timecoeff_powerlaw"]
@@ -61,6 +64,8 @@ class _PhotomModel(ReferenceFileModel):
 
         except AssertionError as errmsg:
             self.print_err(str(errmsg))
+            return False
+        return True
 
     def get_primary_array_name(self):
         return "phot_table"

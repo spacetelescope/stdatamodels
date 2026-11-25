@@ -20,7 +20,17 @@ class ReferenceFileModel(JwstDataModel):
         self.meta.telescope = "JWST"
 
     def validate(self):
-        """Check that required reference file keywords are set."""
+        """
+        Validate the reference file model.
+
+        Check that required reference file keywords are set,
+        and whether the primary array has been populated or not.
+
+        Returns
+        -------
+        bool
+            True if the model passed validation, False otherwise.
+        """
         to_fix = []
         to_check = ["description", "reftype", "author", "pedigree", "useafter"]
         for field in to_check:
@@ -32,7 +42,17 @@ class ReferenceFileModel(JwstDataModel):
             to_fix.append("telescope")
         if to_fix:
             self.print_err(f"Model.meta is missing values for {to_fix}")
-        super().validate()
+
+        # check that the primary array is not empty
+        primary_name = self.get_primary_array_name()
+        # some model types have no primary array at all, e.g. specwcs and filteroffset
+        if primary_name:
+            primary_arr = getattr(self, primary_name)
+            if primary_arr is None or primary_arr.size == 0:
+                self.print_err(f"Primary array '{primary_name}' is empty")
+                return False
+
+        return super().validate()
 
     def save(self, path, dir_path=None, *args, **kwargs):
         """

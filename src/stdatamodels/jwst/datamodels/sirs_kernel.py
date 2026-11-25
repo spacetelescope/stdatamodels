@@ -28,6 +28,3 @@ class SIRSKernelModel(ReferenceFileModel):
 
     def on_save(self, path=None):  # noqa: D102
         self.meta.reftype = self.reftype
-
-    def validate(self):  # noqa: D102
-        super(SIRSKernelModel, self).validate()

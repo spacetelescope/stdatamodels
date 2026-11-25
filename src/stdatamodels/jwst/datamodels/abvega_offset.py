@@ -42,7 +42,9 @@ class ABVegaOffsetModel(ReferenceFileModel):
     schema_url = "http://stsci.edu/schemas/jwst_datamodel/abvegaoffset.schema"
 
     def validate(self):  # noqa: D102
-        super(ABVegaOffsetModel, self).validate()
+        super_is_valid = super(ABVegaOffsetModel, self).validate()
+        if not super_is_valid:
+            return False
         try:
             assert len(self.abvega_offset) > 0
             assert self.meta.instrument.name in ("FGS", "MIRI", "NIRCAM", "NIRISS")
@@ -63,3 +65,5 @@ class ABVegaOffsetModel(ReferenceFileModel):
                 raise AssertionError(errmsg) from errmsg
             else:
                 warnings.warn(str(errmsg), ValidationWarning, stacklevel=2)
+            return False
+        return True

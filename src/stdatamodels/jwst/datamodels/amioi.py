@@ -80,4 +80,4 @@ class AmiOIModel(JwstDataModel):
     def validate(self):  # noqa: D102
         # map the JWST to OIFITS keywords prior to validate
         self._map_oifits_keywords()
-        super().validate()
+        return super().validate()
