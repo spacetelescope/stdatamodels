@@ -444,6 +444,27 @@ def test_reference_model_schema_inheritance(model):
         )
 
 
+@pytest.mark.parametrize("model", list(defined_models.values()))
+def test_reference_model_validation_fail_missing_primary(model):
+    """
+    Test that reference model validation methods.
+
+    It should work to create an empty instance, but validation should fail if the
+    primary array has not been populated.
+    """
+    if issubclass(model, datamodels.ReferenceFileModel):
+        instance = model()
+        # give required metadata
+        fields = ["description", "reftype", "author", "pedigree", "useafter"]
+        for field in fields:
+            setattr(instance.meta, field, "test")
+        instance.meta.telescope = "JWST"
+        instance.meta.instrument.name = "NIRCAM"
+        if instance.get_primary_array_name():
+            with pytest.warns(ValidationWarning, match="Primary array"):
+                instance.validate()
+
+
 def test_meta_date_management(tmp_path):
     model = JwstDataModel({"meta": {"date": "2000-01-01T00:00:00.000"}})
     assert model.meta.date == "2000-01-01T00:00:00.000"

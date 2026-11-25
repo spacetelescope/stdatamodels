@@ -41,7 +41,9 @@ class TsoPhotModel(ReferenceFileModel):
         raise NotImplementedError("FITS format is not supported for this file.")
 
     def validate(self):  # noqa: D102
-        super(TsoPhotModel, self).validate()
+        super_is_valid = super(TsoPhotModel, self).validate()
+        if not super_is_valid:
+            return False
         try:
             assert len(self.radii) > 0
             assert self.meta.instrument.name in ["MIRI", "NIRCAM"]
@@ -54,3 +56,5 @@ class TsoPhotModel(ReferenceFileModel):
                 tb_info = traceback.extract_tb(tb)
                 text = tb_info[-1][-1]
                 warnings.warn(text, ValidationWarning, stacklevel=2)
+            return False
+        return True

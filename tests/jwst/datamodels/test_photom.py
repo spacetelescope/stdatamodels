@@ -150,7 +150,7 @@ def test_invalid_phot_table(strict):
     with mir_img_phot_hdulist() as phot_hdul:
         del phot_hdul["PHOTOM"]
         model = dm.MirImgPhotomModel(phot_hdul, strict_validation=strict)
-        expected_message = "Model.phot_table is not present"
+        expected_message = "Primary array 'phot_table' is empty"
         if strict:
             with pytest.raises(ValueError, match=expected_message):
                 model.validate()
