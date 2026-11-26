@@ -1,0 +1,39 @@
+%YAML 1.1
+---
+$schema: "http://stsci.edu/schemas/asdf/asdf-schema-1.1.0"
+id: "http://stsci.edu/schemas/jwst_datamodel/tweaktable.schema"
+title: WCS tweaks for mosaic members
+fits_hdu: TWEAK
+default: [
+  "None",  # FILENAME
+  "None",  # VISIT_ID
+  NaN,  # RA_REF
+  NaN,  # DEC_REF
+  0.0,  # SHIFT_X
+  0.0,  # SHIFT_Y
+  1.0,  # MATRIX_00
+  0.0,  # MATRIX_01
+  0.0,  # MATRIX_10
+  1.0,  # MATRIX_11
+]
+datatype:
+- name: FILENAME
+  datatype: [ascii, 50]
+- name: VISIT_ID
+  datatype: [ascii, 20]
+- name: RA_REF
+  datatype: float64
+- name: DEC_REF
+  datatype: float64
+- name: SHIFT_X
+  datatype: float32
+- name: SHIFT_Y
+  datatype: float32
+- name: MATRIX_00
+  datatype: float32
+- name: MATRIX_01
+  datatype: float32
+- name: MATRIX_10
+  datatype: float32
+- name: MATRIX_11
+  datatype: float32
