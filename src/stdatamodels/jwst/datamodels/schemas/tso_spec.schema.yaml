@@ -10,3 +10,5 @@ allOf:
   properties:
     spec_table:
       $ref: tso_spectable.schema
+    spec_table_units:
+      $ref: tso_specunits.schema
