@@ -40,6 +40,8 @@ def _cast(val, schema):
             val = val._make_array()
 
         allow_extra_columns = False
+        if "allow_extra_columns" in schema:
+            allow_extra_columns = schema["allow_extra_columns"]
         if (
             _is_struct_array_schema(schema)
             and len(val)
@@ -49,9 +51,6 @@ def _cast(val, schema):
             # modify schema (to add shape), we make a deep copy of the
             # schema here:
             schema = copy.deepcopy(schema)
-
-            if "allow_extra_columns" in schema:
-                allow_extra_columns = schema["allow_extra_columns"]
 
             for t, v in zip(schema["datatype"], val[0], strict=False):
                 if not isinstance(t, Mapping):

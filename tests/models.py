@@ -77,3 +77,12 @@ class TableModelBad(DataModel):
 
     def get_primary_array_name(self):  # noqa: D102
         return "table"
+
+
+class TableModelExtraColumns(DataModel):
+    """Model that includes a recarray-style table with extra columns allowed."""
+
+    schema_url = "http://example.com/schemas/table_model_extra_columns"
+
+    def get_primary_array_name(self):  # noqa: D102
+        return "table"
